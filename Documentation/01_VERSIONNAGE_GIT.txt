@@ -111,17 +111,24 @@ Ce qu'on ne fait JAMAIS :
 4. MISE EN PLACE INITIALE DU DÉPÔT ROHAFYA (À FAIRE UNE SEULE FOIS)
 ================================================================================
 
-État constaté le 2026-10-05 (passage d'EDEN à ROHAFYA) :
+État constaté le 2026-10-05 au soir (passage d'EDEN à ROHAFYA) :
   - le dossier .git d'origine (branche eden/saas, tags v0.1.0 à v0.5.0) a disparu
-    du poste ; le dépôt a été RÉINITIALISÉ (git init, branche main) ;
-  - il contient UN commit de référence, 437444b « chore: état de référence avant
-    le renommage EDEN → Rohafya » : le code tel qu'il était, avant toute
-    modification ;
-  - AUCUN dépôt distant n'est configuré, AUCUN tag n'existe en local, et les
-    hooks Git (contrôle des messages de commit) ne sont plus installés ;
-  - le travail qui suit (renommage, logo, thème, documentation) n'est PAS encore
-    commité.
-  => Les étapes 4.1 à 4.7 sont PRIORITAIRES.
+    du poste ; le dépôt a été RÉINITIALISÉ (branche main). L'ancien historique et
+    ses tags ne sont pas repris : main repart de zéro, les versions 0.x restent
+    décrites dans CHANGELOG.md ;
+  - dépôt distant : https://github.com/ManuelZe/rohafya_front (compte personnel
+    ManuelZe), branche main poussée. Visibilité constatée : PUBLIQUE, alors que la
+    règle est PRIVATE (données de santé) -> à corriger (4.4) ;
+  - commits :
+      437444b  chore: état de référence avant le renommage EDEN → Rohafya
+      6607a56  AJOUT RESTREINT ET FONCTIONNEMENT DIVERS
+    6607a56 regroupe le renommage, le logo, les couleurs et la documentation. Son
+    message ne suit pas la convention (section 5) et ne signale pas le changement
+    incompatible. Il est déjà publié sur main : on ne le réécrit pas (cela
+    imposerait un push forcé) ; la prochaine version prend donc un numéro explicite
+    (4.8) ;
+  - aucun tag ; hooks Git non installés (4.2) ; protection de main à vérifier
+    (10.1, 10.2).
 
 4.1 Vérifier que rien de sensible ne sera versionné
     cd /home/iuc/Documents/API_Docteur/rohafya_front
@@ -133,49 +140,42 @@ Ce qu'on ne fait JAMAIS :
 
 4.2 Installer les outils Git (section 3.4)
     bash Documentation/scripts/installer-outils-git.sh
-    (à refaire après la réinitialisation : les hooks vivent dans .git/hooks)
+    (à refaire après la réinitialisation et dans chaque nouveau clone : les hooks
+     vivent dans .git/hooks, qui n'est pas versionné)
 
-4.3 Enregistrer le travail en cours en commits LOGIQUES (un sujet = un commit)
-    Le renommage, le logo et le thème modifient en partie les mêmes fichiers de
-    src/app : les séparer exigerait « git add -p » fichier par fichier. Découpage
-    recommandé :
+4.3 Enregistrer le travail en commits LOGIQUES (un sujet = un commit)
+    Un commit = un sujet, avec un message conforme à la section 5. Pour un
+    changement incompatible, « ! » après le type ET l'explication en pied de message.
+    Exemple : le passage à ROHAFYA aurait dû être enregistré ainsi :
 
-    git add src public angular.json package.json package-lock.json .github .gitignore
-    git status                     # relire la liste AVANT de valider
-    git commit -m "feat(ui): passage à ROHAFYA (nom, logo, favicon, couleurs)"
+    git add src angular.json package.json package-lock.json .github .gitignore
+    git commit -m "feat!: renommer l'application en ROHAFYA" \
+               -m "BREAKING CHANGE: image rohafya, stack rohafya-production, variables ROHAFYA_*, domaine rohafya.com (document 02, section 14)."
+    git add public src/index.html src/styles.css src/app
+    git commit -m "feat(ui): appliquer le logo et les couleurs de ROHAFYA"
+    git add Documentation Documentation_SaaS README.md
+    git commit -m "docs: mettre à jour la documentation pour ROHAFYA"
 
-    git add -A                     # documentation et ce qui reste
-    git status
-    git commit -m "docs: documentation à jour pour ROHAFYA"
+    Avant chaque commit : git status et git diff --staged (relire la liste).
+    Un même fichier porte plusieurs sujets ? « git add -p » ne prend que certaines
+    de ses modifications.
 
-    Contrôle final :  git status   -> « nothing to commit, working tree clean »
+4.4 Dépôt distant sur GitHub
+    Le dépôt existe : https://github.com/ManuelZe/rohafya_front (compte personnel).
+    1. Le rendre privé : Settings > General > Danger Zone > Change repository
+       visibility > Private. Le code ne contient pas de secret (4.1), mais la
+       règle de l'équipe est PRIVATE pour une application de santé.
+    2. Facultatif : le transférer plus tard à une organisation (Settings > General >
+       Transfer ownership). GitHub redirige l'ancienne adresse ; l'image devient
+       alors ghcr.io/<organisation>/rohafya (adapter ROHAFYA_IMAGE).
+    Nouveau poste :
+      git clone https://github.com/ManuelZe/rohafya_front.git
+      (ou git@github.com:ManuelZe/rohafya_front.git avec une clé SSH, section 3.3)
+      puis 4.2.
 
-4.3 bis Récupérer l'ancien historique (si l'ancien dépôt existe sur GitHub)
-    Les commits et tags d'EDEN (v0.1.0 à v0.5.0) sont encore sur GitHub s'ils y ont
-    été poussés. Pour replacer le travail actuel à leur suite plutôt que de repartir
-    de zéro (à faire AVANT tout push) :
-    git remote add origin git@github.com:<organisation>/<ancien-depot>.git
-    git fetch origin --tags
-    git rebase --root --onto origin/eden/saas main
-      (les fichiers identiques ne posent pas de conflit ; en cas de conflit :
-       corriger, git add <fichier>, git rebase --continue)
-    git log --oneline -5           # le travail ROHAFYA suit b356391
-    Puis renommer le dépôt sur GitHub en « rohafya » (document 02, section 14) et
-    passer directement à 4.5 (« git push -u origin main »).
-    Sans ancien dépôt : continuer en 4.4.
-
-4.4 Créer le dépôt distant sur GitHub
-    1. github.com > « + » > New repository
-    2. Owner : l'organisation (ex. pdmdsante) — de préférence à un compte personnel
-    3. Nom : rohafya           Visibilité : PRIVATE (données de santé)
-    4. NE PAS cocher « Add a README » / .gitignore / licence (le dépôt existe déjà)
-    5. Create repository, puis copier l'adresse SSH : git@github.com:pdmdsante/rohafya.git
-
-4.5 Relier le dépôt local et pousser
-    git branch -M main
-    git remote add origin git@github.com:pdmdsante/rohafya.git
-    git push -u origin main
-    Vérifier sur GitHub que les fichiers et tous les commits apparaissent.
+4.5 Vérifier la liaison avec le dépôt distant
+    git remote -v        -> origin  https://github.com/ManuelZe/rohafya_front.git
+    git status -sb       -> ## main...origin/main (rien en avance ni en retard)
 
 4.6 Créer la branche d'intégration (si une préproduction est prévue)
     git switch -c develop
@@ -193,6 +193,10 @@ Ce qu'on ne fait JAMAIS :
     Quand le dépôt GitHub est configuré (section 10) :
     bash Documentation/scripts/release.sh 1.0.0
     -> crée le tag v1.0.0 ; GitHub Actions construit l'image rohafya:1.0.0.
+    Donner le numéro EXPLICITEMENT : le passage à ROHAFYA est incompatible avec
+    l'ancien déploiement, mais le message de 6607a56 ne le signale pas, donc
+    release.sh ne proposerait pas de lui-même une version majeure. 1.0.0 est aussi
+    le premier numéro prévu en section 8.
     La mise en production elle-même est décrite dans le document 02.
 
 
@@ -436,8 +440,9 @@ les tags de version à la main.
     Détails et choix de sécurité : document 02, étape 9.
 
 10.5 Visibilité de l'image
-    Après la 1re release : github.com/orgs/<organisation>/packages > rohafya >
-    Package settings : laisser « Private » et lier le paquet au dépôt rohafya.
+    Après la 1re release : github.com/ManuelZe?tab=packages > rohafya >
+    Package settings : laisser « Private » et lier le paquet au dépôt rohafya_front
+    (pour une organisation : github.com/orgs/<organisation>/packages).
 
 
 ================================================================================
@@ -458,7 +463,7 @@ Retrouver le code exact qui tourne en production :
 
 Commit exact embarqué dans une image (sur le serveur) :
     docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' \
-      ghcr.io/pdmdsante/rohafya:1.5.0
+      ghcr.io/manuelze/rohafya:1.5.0
 
 Différences entre deux versions :
     git log v1.4.2..v1.5.0 --oneline

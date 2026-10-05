@@ -43,7 +43,7 @@ SOMMAIRE
 
   POSTE DÉVELOPPEUR                GITHUB                         SERVEUR HETZNER
   ──────────────────               ──────                         ───────────────
-  release.sh ──(tag vX.Y.Z)──►  dépôt rohafya
+  release.sh ──(tag vX.Y.Z)──►  dépôt rohafya_front
                                     │ GitHub Actions
                                     ▼
                                tests + build
@@ -386,7 +386,7 @@ et 10) ; workflows installés (document 01, 4.7).
     poste$ bash Documentation/scripts/release.sh 1.0.0
 
 8.2 Suivre la construction de l'image
-    GitHub > dépôt rohafya > onglet Actions > workflow « Release » (v1.0.0)
+    GitHub > dépôt rohafya_front > onglet Actions > workflow « Release » (v1.0.0)
     Attendre les coches vertes : Vérifications, Image Docker 1.0.0, Release GitHub.
     Contrôle : GitHub > Packages > rohafya > étiquette « 1.0.0 » présente.
     En cas d'échec : cliquer sur l'étape en rouge et lire le message (03, section 5).
@@ -668,14 +668,17 @@ l'ordre. Durée : ~30 minutes, coupure de quelques secondes (étape 5).
   variable API EDEN_FRONT_URL          ROHAFYA_FRONT_URL (l'ancienne reste lue)
 
 14.2 Étapes
-  1. GitHub : renommer le dépôt en « rohafya » (Settings > General > Repository
-     name ; GitHub redirige l'ancienne adresse). Settings > Secrets and variables >
-     Actions : créer ROHAFYA_PUBLIC_URL = https://rohafya.com et supprimer
-     EDEN_PUBLIC_URL ; si le secret PORTAINER_STACK_NAME existe, le passer à
-     rohafya-production.
-  2. Publier une version (release.sh, document 01 section 9) : le workflow publie
-     l'image sous le NOUVEAU nom ghcr.io/<org>/rohafya, puis lier ce paquet au dépôt
-     (document 01, 10.5). Les anciennes images eden-app restent sur le registre.
+  1. GitHub : le front a un NOUVEAU dépôt, ManuelZe/rohafya_front (document 01,
+     section 4) ; l'ancien dépôt n'est pas renommé. Dans le nouveau : Settings >
+     Secrets and variables > Actions : créer ROHAFYA_PUBLIC_URL =
+     https://rohafya.com (et DEPLOY_AUTO si l'option B est utilisée) ; recréer les
+     secrets de l'environnement « production » (PORTAINER_URL, PORTAINER_API_KEY,
+     PORTAINER_STACK_NAME=rohafya-production). Supprimer EDEN_PUBLIC_URL de
+     l'ancien dépôt s'il reste actif.
+  2. Publier la version 1.0.0 (release.sh 1.0.0, document 01 section 4.8) : le
+     workflow publie l'image sous le NOUVEAU nom ghcr.io/manuelze/rohafya, puis
+     lier ce paquet au dépôt rohafya_front (document 01, 10.5). Les anciennes
+     images eden-app restent sur le registre.
   3. DNS (6.1) et API (7.2 à 7.4 : origines autorisées, ROHAFYA_FRONT_URL, API à
      jour). Redéployer l'API si nécessaire.
   4. Poste de déploiement : refaire deploiement.conf à partir de
