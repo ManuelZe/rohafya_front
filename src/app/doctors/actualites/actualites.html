@@ -1,0 +1,70 @@
+<div class="page">
+  <app-page-header title="Actualités" subtitle="Les dernières informations publiées par PDMD Santé.">
+    <button actions type="button" class="btn btn-ghost" (click)="refresh()" [disabled]="articles.loading()">
+      @if (articles.loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span>Actualiser</span>
+    </button>
+  </app-page-header>
+
+  @if (articles.loading() && !articles.data()) {
+    <div class="grid">
+      @for (i of [1, 2, 3]; track i) {
+        <span class="skeleton article-skeleton" aria-hidden="true"></span>
+      }
+    </div>
+  } @else if (articles.error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ articles.error() }}</span>
+      <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+    </div>
+  } @else if (sorted().length === 0) {
+    <section class="card">
+      <div class="state">
+        <svg [pIcon]="'sparkles'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucune actualité pour le moment</strong>
+        <span>Revenez bientôt : les nouveautés seront publiées ici.</span>
+      </div>
+    </section>
+  } @else {
+    <div class="grid">
+      @for (a of sorted(); track a.id) {
+        <article class="article" [attr.aria-labelledby]="'article-' + a.id">
+          <div class="cover">
+            @if (images()[a.id]; as src) {
+              <img [src]="src" alt="" loading="lazy" />
+            } @else if (images()[a.id] === undefined) {
+              <span class="skeleton cover-skeleton" aria-hidden="true"></span>
+            } @else {
+              <span class="cover-fallback" aria-hidden="true"><svg [pIcon]="'images'" [size]="32"></svg></span>
+            }
+          </div>
+          <div class="article-body">
+            @if (a.date) {
+              <time class="muted">{{ a.date | date: 'dd/MM/yyyy' }}</time>
+            }
+            <h2 [id]="'article-' + a.id">{{ a.titre || 'Sans titre' }}</h2>
+            <p [id]="'article-text-' + a.id">{{ text(a) }}</p>
+            <div class="article-actions">
+              @if (isLong(a)) {
+                <button type="button" class="link toggle" [attr.aria-expanded]="isExpanded(a.id)" [attr.aria-controls]="'article-text-' + a.id" (click)="toggle(a.id)">
+                  {{ isExpanded(a.id) ? 'Réduire' : 'Lire la suite' }}
+                </button>
+              }
+              @if (safeUrl(a); as url) {
+                <a class="link" [href]="url" target="_blank" rel="noopener">
+                  En savoir plus<span class="sr-only"> sur « {{ a.titre }} » (nouvel onglet)</span>
+                  <svg [pIcon]="'external-link'" [size]="12" aria-hidden="true"></svg>
+                </a>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

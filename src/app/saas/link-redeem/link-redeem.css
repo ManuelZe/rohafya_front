@@ -1,0 +1,57 @@
+.redeem-account {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  background: #f4f6fa;
+  font-size: 0.85rem;
+  color: #545d6b;
+  overflow-wrap: anywhere;
+}
+
+.redeem-account strong {
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.redeem-step {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.redeem-alt {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  color: #545d6b;
+}
+
+.redeem-alt a {
+  color: #1a54c9;
+  font-weight: 600;
+}
+
+.redeem-success {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #b9e3c6;
+  background: #ecf8f0;
+  color: #137a36;
+}
+
+.redeem-success p {
+  margin: 0;
+  color: #1f2937;
+  font-size: 0.9rem;
+}
+
+.back-to-intro-section {
+  margin-top: 1.5rem;
+}

@@ -1,0 +1,218 @@
+<div class="devis-container">
+  <app-page-header title="Devis" subtitle="Calculez le prix de vos examens selon votre liste de prix"></app-page-header>
+
+  @if (accessDenied()) {
+    <div class="access-denied-message">
+      {{ accessDeniedMessage }}
+    </div>
+  } @else {
+    <!-- Étape 1 : liste de prix -->
+    <section class="devis-card">
+      <div class="devis-card-header">
+        <span class="step-badge">1</span>
+        <h2>Liste de prix</h2>
+      </div>
+      <div class="devis-card-body">
+        @if (priceListsLoading()) {
+          <div class="state-container">
+            <app-eden-loader label="Chargement des listes de prix" />
+          </div>
+        } @else if (priceListsError()) {
+          <div class="error-banner">{{ priceListsError() }}</div>
+        } @else if (priceLists().length === 0) {
+          <div class="state-container">
+            <p>Aucune liste de prix disponible pour le moment.</p>
+          </div>
+        } @else {
+          <div class="form-row">
+            <label for="price_list">Liste de prix applicable</label>
+            <select id="price_list" (change)="onPriceListChange($event)">
+              @for (list of priceLists(); track list.id) {
+                <option [value]="list.id" [selected]="list.id === selectedPriceListId()">{{ list.name }}</option>
+              }
+            </select>
+          </div>
+          @if (myPriceList()) {
+            <p class="hint">Votre liste de prix par défaut : <strong>{{ myPriceList()!.name }}</strong></p>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- Étape 2 : recherche d'examen -->
+    <section class="devis-card search-card">
+      <div class="devis-card-header">
+        <span class="step-badge">2</span>
+        <h2>Rechercher un examen</h2>
+      </div>
+      <div class="devis-card-body">
+        <div class="search-wrapper" (click)="$event.stopPropagation()">
+          <div class="search-input-row">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              [value]="searchTerm()"
+              (input)="onSearchInput($event)"
+              (focus)="searchOpen.set(true)"
+              placeholder="Tapez le nom d'un examen (ex : Glycémie, Radiographie...)"
+            />
+            @if (searching()) {
+              <span class="spinner"></span>
+            }
+          </div>
+
+          @if (searchOpen() && searchTerm().trim().length >= 2) {
+            <div class="search-dropdown">
+              @if (searching()) {
+                <div class="search-dropdown-message">Recherche en cours...</div>
+              } @else if (searchUnavailable()) {
+                <div class="search-dropdown-message search-dropdown-error">
+                  La recherche d'examens est momentanément indisponible. Merci de réessayer plus tard.
+                </div>
+              } @else if (searchResults().length === 0) {
+                <div class="search-dropdown-message">Aucun examen trouvé pour « {{ searchTerm() }} ».</div>
+              } @else {
+                @for (product of searchResults(); track product.id) {
+                  <button type="button" class="search-result-item" (click)="addToCart(product)">
+                    <span class="search-result-name">{{ product.name }}</span>
+                    <span class="search-result-meta">
+                      <span class="search-result-code">{{ product.code }}</span>
+                      <span class="search-result-price">{{ product.list_price | number:'1.0-0' }} FCFA</span>
+                    </span>
+                  </button>
+                }
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Étape 3 : sélection et calcul -->
+    <section class="devis-card">
+      <div class="devis-card-header">
+        <span class="step-badge">3</span>
+        <h2>Examens sélectionnés</h2>
+        @if (cart().length > 0) {
+          <button type="button" class="btn-link-danger" (click)="clearCart()">Vider</button>
+        }
+      </div>
+      <div class="devis-card-body">
+        @if (cart().length === 0) {
+          <div class="state-container">
+            <p>Aucun examen sélectionné. Utilisez la recherche ci-dessus pour en ajouter.</p>
+          </div>
+        } @else {
+          <ul class="cart-list">
+            @for (item of cart(); track item.product.id) {
+              <li class="cart-item">
+                <div class="cart-item-info">
+                  <span class="cart-item-name">{{ item.product.name }}</span>
+                  <span class="cart-item-code">{{ item.product.code }}</span>
+                </div>
+                <div class="cart-item-qty">
+                  <label [attr.for]="'qty-' + item.product.id">Qté</label>
+                  <input
+                    [id]="'qty-' + item.product.id"
+                    type="number"
+                    min="1"
+                    [value]="item.quantity"
+                    (change)="updateQuantity(item.product.id, $event)"
+                  />
+                </div>
+                <div class="cart-item-price">{{ item.product.list_price * item.quantity | number:'1.0-0' }} FCFA</div>
+                <button
+                  type="button"
+                  class="icon-btn icon-btn-danger"
+                  (click)="removeFromCart(item.product.id)"
+                  aria-label="Retirer cet examen"
+                  title="Retirer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </li>
+            }
+          </ul>
+
+          <div class="cart-summary">
+            <span>Estimation (prix catalogue)</span>
+            <strong>{{ cartEstimate() | number:'1.0-0' }} FCFA</strong>
+          </div>
+
+          @if (calcError()) {
+            <div class="error-banner">{{ calcError() }}</div>
+          }
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="calculating() || !selectedPriceListId()"
+              (click)="calculate()"
+            >
+              @if (calculating()) {
+                <span class="spinner"></span>
+              }
+              <span>{{ calculating() ? 'Calcul en cours...' : 'Calculer le devis' }}</span>
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Résultat du devis -->
+    @if (devisResult(); as result) {
+      <section class="devis-card result-card">
+        <div class="devis-card-header">
+          <h2>Résultat — {{ result.price_list.name }}</h2>
+          @if (resultDirty()) {
+            <span class="stale-badge">Sélection modifiée, recalculez</span>
+          }
+        </div>
+        <div class="devis-card-body">
+          <div class="result-table-wrapper">
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>Examen</th>
+                  <th>Prix unitaire</th>
+                  <th>Quantité</th>
+                  <th>Montant</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ligne of result.lignes; track ligne.product_id) {
+                  <tr>
+                    @if (ligne.Message) {
+                      <td colspan="4" class="line-error">{{ ligne.Message }}</td>
+                    } @else {
+                      <td>
+                        <div class="cell-primary">{{ ligne.name }}</div>
+                        <div class="cell-secondary">{{ ligne.code }}</div>
+                      </td>
+                      <td>{{ ligne.unit_price | number:'1.0-0' }} FCFA</td>
+                      <td>{{ ligne.quantity }}</td>
+                      <td class="amount-cell">{{ ligne.amount | number:'1.0-0' }} FCFA</td>
+                    }
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3">Total</td>
+                  <td class="amount-cell">{{ result.montant_total | number:'1.0-0' }} FCFA</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+    }
+  }
+</div>

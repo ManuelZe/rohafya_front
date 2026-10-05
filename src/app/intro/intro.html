@@ -1,0 +1,57 @@
+<div class="page">
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header__brand">Eden</div>
+
+    <div class="header__actions">
+      <app-demo-launcher />
+      <button pButton
+        label="Se connecter"
+        class="btn-login"
+        routerLink="/connexion"
+        >Connexion
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+
+    <div class="hero__content">
+      <h1 class="hero__title">
+        Votre portail sécurisé pour<br class="br-desktop" />
+        vos résultats médicaux
+      </h1>
+
+      <div class="hero__grid">
+        @for (feature of features; track feature.title) {
+          <article class="feature-card">
+            <span class="feature-card__icon">
+              <button pButton [text]="true" size="small">
+                <svg [pIcon]="feature.icon" [size]="32"></svg>
+              </button>
+            </span>
+            <h3 class="feature-card__title">{{ feature.title }}</h3>
+            <p class="feature-card__desc">{{ feature.description }}</p>
+          </article>
+        }
+      </div>
+    </div>
+
+    <div class="hero__media">
+      <img
+        src="femme.jpeg"
+        alt="Femme souriante consultant ses résultats médicaux sur une tablette"
+        class="hero__image"
+      />
+    </div>
+
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">Plateforme de Santé Globale
+    <a href="#" class="footer__link">eden.stones-enterprise.com</a>
+  </footer>
+
+</div>

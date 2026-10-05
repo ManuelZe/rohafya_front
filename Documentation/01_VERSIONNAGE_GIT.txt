@@ -1,0 +1,570 @@
+================================================================================
+                    EDEN — GESTION DES VERSIONS AVEC GIT
+             et utilisation de Git pour le déploiement de l'application
+================================================================================
+
+Document  : 01_VERSIONNAGE_GIT.txt
+Public    : développeurs et responsable du déploiement d'EDEN
+Prérequis : aucun (chaque commande est donnée et expliquée)
+À lire    : AVANT 02_DEPLOIEMENT_HETZNER_PORTAINER.txt
+
+
+SOMMAIRE
+--------
+  1.  Pourquoi versionner, et le principe retenu
+  2.  Vocabulaire
+  3.  Installation et configuration de Git sur un poste
+  4.  Mise en place initiale du dépôt EDEN (À FAIRE UNE SEULE FOIS)
+  5.  Convention des messages de commit
+  6.  Organisation des branches
+  7.  Travail quotidien : de la tâche à la fusion, pas à pas
+  8.  Numérotation des versions (SemVer)
+  9.  Créer une version (release) pas à pas
+  10. Configuration du dépôt GitHub (protections, CI, secrets)
+  11. Le lien Git -> image Docker -> serveur (traçabilité)
+  12. Correctif urgent en production (hotfix)
+  13. Annuler un changement : côté Git et côté production
+  14. Aide-mémoire des commandes
+  15. Problèmes fréquents et solutions
+
+
+================================================================================
+1. POURQUOI VERSIONNER, ET LE PRINCIPE RETENU
+================================================================================
+
+Sans gestion de versions, il est impossible de répondre avec certitude aux
+questions suivantes :
+  - Quel code tourne exactement en production en ce moment ?
+  - Qu'est-ce qui a changé depuis la dernière mise en ligne ?
+  - Comment revenir en arrière en quelques secondes si la nouvelle version casse ?
+
+Le principe retenu pour EDEN tient en une ligne :
+
+    UN TAG GIT  vX.Y.Z  =  UNE IMAGE DOCKER  eden-app:X.Y.Z  =  UN DÉPLOIEMENT
+
+  - Le code est dans Git. Chaque version livrable reçoit un tag (ex. v1.4.2).
+  - Le tag déclenche automatiquement la construction de l'image Docker
+    « eden-app:1.4.2 » (GitHub Actions), qui est publiée sur un registre.
+  - Le serveur Hetzner (via Portainer) déploie une image par son numéro exact.
+  - La version en cours est visible à tout moment :  https://<domaine>/healthz
+  - Revenir en arrière = redéployer l'image du numéro précédent (rien à recompiler).
+
+Ce qu'on ne fait JAMAIS :
+  - modifier du code directement sur le serveur ;
+  - déployer une image « latest » ou non taguée en production ;
+  - réécrire l'historique de la branche main (git push --force).
+
+
+================================================================================
+2. VOCABULAIRE
+================================================================================
+
+  Dépôt (repository)  Dossier suivi par Git, avec tout son historique.
+  Commit              Enregistrement d'un ensemble de modifications, avec un message.
+  Branche             Ligne de travail parallèle (ex. une fonctionnalité en cours).
+  main                Branche de référence : ce qui est prêt à partir en production.
+  develop             Branche d'intégration (facultative) : préproduction.
+  Pull Request (PR)   Demande de fusion d'une branche dans une autre, avec relecture.
+  Tag                 Étiquette fixe posée sur un commit (ex. v1.4.2). Ne bouge jamais.
+  Release             Version publiée : un tag + ses notes de version + son image.
+  SemVer              Règle de numérotation MAJEUR.MINEUR.CORRECTIF (voir section 8).
+  CHANGELOG.md        Historique lisible des versions, généré par release.sh.
+  CI                  Intégration continue : tests/builds automatiques (GitHub Actions).
+  Image Docker        Paquet exécutable de l'application (voir document 02).
+  Registre (GHCR)     Entrepôt des images : ghcr.io (GitHub Container Registry).
+
+
+================================================================================
+3. INSTALLATION ET CONFIGURATION DE GIT SUR UN POSTE
+================================================================================
+
+3.1 Installer Git
+    Linux (Debian/Ubuntu/Kali) :  sudo apt update && sudo apt install -y git
+    Windows : https://git-scm.com/download/win (garder les options par défaut)
+    macOS   : xcode-select --install
+    Vérifier : git --version            (2.30 ou plus récent)
+
+3.2 Déclarer son identité (apparaît dans chaque commit)
+    git config --global user.name  "Prénom Nom"
+    git config --global user.email "prenom.nom@pdmdsante.com"
+
+3.3 Créer une clé SSH pour GitHub (évite de saisir un mot de passe à chaque push)
+    ssh-keygen -t ed25519 -C "prenom.nom@pdmdsante.com"
+        -> Entrée pour accepter l'emplacement, puis choisir une phrase de passe.
+    cat ~/.ssh/id_ed25519.pub
+        -> copier la ligne affichée.
+    GitHub > photo de profil > Settings > SSH and GPG keys > New SSH key > coller.
+    Tester : ssh -T git@github.com
+        -> « Hi <compte>! You've successfully authenticated » = OK.
+
+3.4 Outils de l'équipe (à faire dans CHAQUE clone du dépôt EDEN)
+    cd <dossier du projet>/eden_app
+    bash Documentation/scripts/installer-outils-git.sh
+    Ce script :
+      - active le contrôle automatique des messages de commit (section 5) ;
+      - installe un modèle de message (affiché par « git commit » sans -m) ;
+      - règle pull.rebase=true, fetch.prune=true, push.followTags=true.
+    Vérification : git commit --allow-empty -m "test"   -> doit être REFUSÉ.
+
+
+================================================================================
+4. MISE EN PLACE INITIALE DU DÉPÔT EDEN (À FAIRE UNE SEULE FOIS)
+================================================================================
+
+État constaté au moment de la rédaction :
+  - le dépôt local contient UN seul commit (« initial commit ») ;
+  - AUCUN dépôt distant n'est configuré (git remote -v ne renvoie rien) ;
+  - tout le travail récent (espace docteur, refonte, déploiement…) N'EST PAS
+    COMMITÉ : il n'existe que sur ce poste. Un disque perdu = travail perdu.
+  => Les étapes 4.1 à 4.7 sont PRIORITAIRES.
+
+4.1 Vérifier que rien de sensible ne sera versionné
+    cd /home/iuc/Documents/API_Docteur/eden2/eden_app
+    git status
+    Contrôler qu'aucun fichier ne contient de mot de passe, jeton ou clé.
+    Le fichier .gitignore exclut déjà : node_modules, dist, .angular/cache,
+    Documentation/scripts/deploiement.conf (secrets), *.env, historique local.
+    En cas de doute sur un fichier :  git check-ignore -v <fichier>
+
+4.2 Installer les outils Git (section 3.4)
+    bash Documentation/scripts/installer-outils-git.sh
+
+4.3 Enregistrer le travail en cours en commits LOGIQUES (un sujet = un commit)
+    Exemple de découpage recommandé :
+
+    git add src/environments src/server.ts src/index.html public/env.js angular.json
+    git commit -m "feat(deploiement): configuration d'exécution et sonde /healthz"
+
+    git add src/app/shared src/styles.css src/app/app.ts src/app/app.html
+    git commit -m "feat(ui): écran de démarrage EDEN, chargements animés et fonds"
+
+    git add src/app/doctors
+    git commit -m "feat(docteur): espace docteur et suivi des commissions en points"
+
+    git add src/app/patients src/app/notifications
+    git commit -m "feat(patients): refonte du tableau de bord patient"
+
+    git add src/app/connexion src/app/intro src/others src/app/app.routes*.ts \
+            src/app/app.config.ts src/app/app.spec.ts public/femme.jpeg
+    git commit -m "feat(connexion): parcours de connexion et pages d'accueil"
+
+    git add Documentation .gitignore
+    git commit -m "docs(deploiement): documentation et scripts de déploiement"
+
+    git add -A                     # tout ce qui reste (package.json, .vscode…)
+    git status                     # relire la liste AVANT de valider
+    git commit -m "chore: mise à jour des dépendances et de la configuration"
+
+    Contrôle final :  git status   -> « nothing to commit, working tree clean »
+
+4.4 Créer le dépôt distant sur GitHub
+    1. github.com > « + » > New repository
+    2. Owner : l'organisation (ex. pdmdsante) — de préférence à un compte personnel
+    3. Nom : eden-app          Visibilité : PRIVATE (données de santé)
+    4. NE PAS cocher « Add a README » / .gitignore / licence (le dépôt existe déjà)
+    5. Create repository, puis copier l'adresse SSH : git@github.com:pdmdsante/eden-app.git
+
+4.5 Relier le dépôt local et pousser
+    git branch -M main
+    git remote add origin git@github.com:pdmdsante/eden-app.git
+    git push -u origin main
+    Vérifier sur GitHub que les fichiers et tous les commits apparaissent.
+
+4.6 Créer la branche d'intégration (si une préproduction est prévue)
+    git switch -c develop
+    git push -u origin develop
+    git switch main
+
+4.7 Installer l'automatisation (GitHub Actions)
+    bash Documentation/scripts/installer-ci.sh
+    git add .github/workflows
+    git commit -m "ci: ajouter les workflows CI et release"
+    git push
+    Puis configurer GitHub : section 10.
+
+4.8 Première version officielle
+    Quand le dépôt GitHub est configuré (section 10) :
+    bash Documentation/scripts/release.sh 1.0.0
+    -> crée le tag v1.0.0 ; GitHub Actions construit l'image eden-app:1.0.0.
+    La mise en production elle-même est décrite dans le document 02.
+
+
+================================================================================
+5. CONVENTION DES MESSAGES DE COMMIT (« Conventional Commits »)
+================================================================================
+
+5.1 Format (vérifié automatiquement par le hook installé en 3.4)
+
+        <type>(<portée>): <description>
+
+    - type        : nature du changement (liste ci-dessous) — OBLIGATOIRE
+    - portée      : partie de l'application concernée — facultative
+    - description : courte, à l'impératif, sans point final, <= 100 caractères
+
+5.2 Types autorisés et effet sur la version
+
+    Type      Signification                          Effet sur la version
+    --------  -------------------------------------  --------------------
+    feat      nouvelle fonctionnalité                MINEUR  (1.4.2 -> 1.5.0)
+    fix       correction d'un bug                    CORRECTIF (1.4.2 -> 1.4.3)
+    perf      amélioration des performances          CORRECTIF
+    refactor  réécriture sans changement visible     CORRECTIF
+    style     mise en forme du code (pas le design)  aucun
+    docs      documentation                          aucun
+    test      ajout/modification de tests            aucun
+    build     dépendances, Dockerfile, build         aucun / CORRECTIF
+    ci        GitHub Actions                         aucun
+    chore     maintenance diverse                    aucun
+    revert    annulation d'un commit                 selon le commit annulé
+
+    Changement INCOMPATIBLE (ex. une ancienne URL ne marche plus) :
+    ajouter « ! » après le type, ou « BREAKING CHANGE: ... » en pied de message
+        -> MAJEUR (1.4.2 -> 2.0.0). release.sh vous avertit s'il en détecte.
+
+5.3 Portées usuelles pour EDEN
+    patients, docteur, commissions, resultats, notifications, connexion,
+    ui, api, deploiement, deps
+
+5.4 Exemples
+    feat(commissions): ajouter l'export CSV du relevé
+    fix(notifications): corriger le bouton retour
+    fix(commissions): afficher « Facturée » pour le statut invoiced
+    perf(patients): éviter les rechargements du tableau de bord
+    docs(deploiement): détailler la procédure de rollback
+    build(deps): mettre à jour Angular en 22.1
+    feat(api)!: utiliser la nouvelle authentification
+
+    Refusés : « modif », « correction bug », « WIP », « update ».
+
+5.5 Pourquoi c'est important : release.sh lit ces messages pour produire
+    automatiquement le CHANGELOG.md et les notes de version (section 9).
+
+
+================================================================================
+6. ORGANISATION DES BRANCHES
+================================================================================
+
+6.1 Schéma
+
+    main      ●────────●───────────────●──────────●─────►  (production)
+               \       ↑ v1.1.0         ↑ v1.1.1    ↑ v1.2.0
+    develop     ●──●───●──●──●──────────┼──●───●────●──►  (préproduction)
+                 \    ↑      \          |
+    feature/...   ●──●        ●──●      |
+    hotfix/...                     ●────●   (part de main, revient dans main ET develop)
+
+6.2 Règles
+    main         Toujours déployable. Protégée : aucun push direct, fusion par PR
+                 uniquement, CI obligatoirement verte. Les tags de production y sont posés.
+    develop      Intégration des fonctionnalités terminées ; déployée en préproduction.
+                 (Petite équipe sans préproduction : travailler directement vers main.)
+    feature/xxx  Une branche par fonctionnalité, créée depuis develop.
+                 Nom : feature/commissions-export-csv
+    fix/xxx      Correction non urgente, depuis develop.
+    hotfix/xxx   Correction URGENTE d'un bug en production, depuis main (section 12).
+
+6.3 Durée de vie : une branche feature/fix vit quelques jours, pas des semaines.
+    Plus elle vit longtemps, plus la fusion sera difficile.
+
+
+================================================================================
+7. TRAVAIL QUOTIDIEN : DE LA TÂCHE À LA FUSION, PAS À PAS
+================================================================================
+
+Étape 1 — Partir d'une base à jour
+    git switch develop
+    git pull
+
+Étape 2 — Créer la branche de travail
+    git switch -c feature/commissions-export-csv
+
+Étape 3 — Développer, tester, committer régulièrement
+    npx ng test --watch=false          # tests unitaires
+    npx ng build                       # le build de production doit passer
+    git add <fichiers>                 # ajouter UNIQUEMENT les fichiers voulus
+    git diff --staged                  # relire ce qui va être commité
+    git commit -m "feat(commissions): ajouter l'export CSV du relevé"
+
+Étape 4 — Se remettre à jour avant de publier (évite les conflits en PR)
+    git fetch origin
+    git rebase origin/develop
+    En cas de conflit : corriger les fichiers signalés, puis
+        git add <fichier>  &&  git rebase --continue
+    Pour abandonner le rebase : git rebase --abort
+
+Étape 5 — Publier la branche
+    git push -u origin feature/commissions-export-csv
+    (après un rebase sur une branche déjà poussée : git push --force-with-lease
+     — UNIQUEMENT sur votre branche de travail, JAMAIS sur main/develop)
+
+Étape 6 — Ouvrir la Pull Request sur GitHub
+    Base : develop   <-   Compare : feature/commissions-export-csv
+    Titre au format des commits (section 5). Décrire : quoi, pourquoi, comment tester.
+    La CI (tests + build + image) s'exécute automatiquement : elle doit être verte.
+
+Étape 7 — Relecture puis fusion
+    Au moins une relecture par un autre développeur si possible.
+    Bouton « Squash and merge » : la branche devient UN commit propre sur develop,
+    avec le titre de la PR comme message (d'où l'importance du format).
+    Puis « Delete branch ».
+
+Étape 8 — Nettoyer en local
+    git switch develop && git pull
+    git branch -d feature/commissions-export-csv
+
+Passage en production : PR « develop -> main » (merge commit, pas de squash),
+puis release depuis main (section 9).
+
+
+================================================================================
+8. NUMÉROTATION DES VERSIONS (SemVer : MAJEUR.MINEUR.CORRECTIF)
+================================================================================
+
+    Version 1.4.2
+            │ │ └─ CORRECTIF : corrections uniquement, aucun changement de comportement
+            │ └─── MINEUR    : nouvelles fonctionnalités, rien ne casse
+            └───── MAJEUR    : changement incompatible (API, URL, parcours supprimé…)
+
+    Quand on incrémente un chiffre, ceux de droite repartent à 0 :
+    1.4.2 -> correctif 1.4.3 | mineur 1.5.0 | majeur 2.0.0
+
+Exemples concrets pour EDEN
+    - Le bouton retour des notifications ne marchait pas            -> 1.0.1
+    - Ajout de l'export CSV des commissions                          -> 1.1.0
+    - Refonte du tableau de bord patient (nouvelles sections)        -> 1.2.0
+    - Passage à une nouvelle API Flask incompatible avec l'ancienne  -> 2.0.0
+
+Pré-versions (préproduction) : 1.3.0-rc.1, 1.3.0-rc.2 … puis 1.3.0
+    - Jamais déployées automatiquement en production (la CI les ignore pour cela).
+    - Création depuis develop :
+        BRANCHE_RELEASE=develop bash Documentation/scripts/release.sh 1.3.0-rc.1
+    - Version finale après une rc : TOUJOURS donner le numéro explicitement :
+        bash Documentation/scripts/release.sh 1.3.0
+      (« minor » après 1.3.0-rc.1 donnerait 1.4.0, ce qui serait faux.)
+
+Premier numéro : 1.0.0 (l'application est déjà utilisée par des patients et médecins).
+Le numéro vit à 3 endroits, TOUJOURS identiques (release.sh s'en charge) :
+    tag Git v1.4.2  =  package.json "version": "1.4.2"  =  image eden-app:1.4.2
+
+
+================================================================================
+9. CRÉER UNE VERSION (RELEASE) PAS À PAS
+================================================================================
+
+Le script Documentation/scripts/release.sh automatise tout. Ne jamais créer
+les tags de version à la main.
+
+9.1 Préparer
+    git switch main
+    git pull
+    (Si develop est utilisée : la PR develop -> main doit être fusionnée.)
+
+9.2 Choisir le type de version à partir des commits depuis la dernière version :
+    git log $(git describe --tags --abbrev=0)..HEAD --oneline
+    - au moins un « feat »          -> minor
+    - uniquement fix/perf/refactor  -> patch
+    - un « ! » ou BREAKING CHANGE   -> major
+
+9.3 Simuler (aucune modification) et relire les notes de version affichées
+    bash Documentation/scripts/release.sh minor --dry-run
+
+9.4 Lancer pour de vrai
+    bash Documentation/scripts/release.sh minor
+    Le script, dans l'ordre :
+      1. vérifie : branche main, aucun fichier non commité, à jour avec GitHub ;
+      2. calcule le numéro (ex. 1.4.2 -> 1.5.0) et refuse s'il existe déjà ;
+      3. affiche les notes de version, demande confirmation ;
+      4. lance les tests unitaires et le build de production ;
+      5. met à jour package.json, package-lock.json et CHANGELOG.md ;
+      6. crée le commit « chore(release): v1.5.0 » et le tag annoté v1.5.0 ;
+      7. pousse main et le tag sur GitHub.
+    Options : --dry-run  --no-push  --skip-tests (déconseillé)
+
+9.5 Ce qui se passe ensuite automatiquement (GitHub > onglet Actions > « Release »)
+      1. vérification : le tag correspond à package.json, tests + build ;
+      2. construction de l'image Docker, test de démarrage, publication sur
+         ghcr.io/<organisation>/eden-app avec les étiquettes 1.5.0, 1.5, 1, sha-xxxxxxx ;
+      3. création de la « Release » GitHub avec les notes de version ;
+      4. (si activé) déploiement sur le serveur après approbation manuelle.
+    Durée habituelle : 5 à 10 minutes.
+
+9.6 Vérifier
+    - GitHub > Releases : « EDEN v1.5.0 » avec ses notes ;
+    - GitHub > Packages > eden-app : l'étiquette 1.5.0 existe ;
+    - puis déploiement : document 02, étape 10.
+
+
+================================================================================
+10. CONFIGURATION DU DÉPÔT GITHUB (UNE FOIS)
+================================================================================
+
+10.1 Protéger main (et develop)
+    Settings > Branches > Add branch ruleset (ou « Branch protection rule »)
+      Branch name pattern : main
+      [x] Require a pull request before merging (1 approbation si l'équipe le permet)
+      [x] Require status checks to pass : « Tests unitaires + build de production »
+      [x] Block force pushes      [x] Restrict deletions
+    NB : le push du commit « chore(release) » par release.sh doit rester possible :
+    ajouter le(s) responsable(s) des releases dans « Bypass list ».
+
+10.2 Protéger les tags de version
+    Settings > Rules > Rulesets > New tag ruleset
+      Target : v*     Règles : Restrict creations/updates/deletions (sauf bypass list)
+    => personne ne peut déplacer ou supprimer un tag v1.x.y publié.
+
+10.3 Autoriser GitHub Actions
+    Settings > Actions > General
+      Actions permissions : Allow all actions (ou « GitHub + vérifiées »)
+      Workflow permissions : Read repository contents and packages permissions
+    (Les droits d'écriture nécessaires sont déclarés dans les workflows eux-mêmes.)
+
+10.4 Environnement « production » (pour le déploiement automatique, facultatif)
+    Settings > Environments > New environment > « production »
+      [x] Required reviewers : le responsable du déploiement
+      Deployment branches and tags : Selected > règle de tag « v* »
+    Secrets de l'environnement : PORTAINER_URL, PORTAINER_API_KEY, PORTAINER_STACK_NAME
+    Variables du dépôt (Settings > Secrets and variables > Actions > Variables) :
+      DEPLOY_AUTO      = true   (false ou absente = déploiement manuel uniquement)
+      EDEN_PUBLIC_URL  = https://eden.pdmdsante.com
+    Détails et choix de sécurité : document 02, étape 9.
+
+10.5 Visibilité de l'image
+    Après la 1re release : github.com/orgs/<organisation>/packages > eden-app >
+    Package settings : laisser « Private » et lier le paquet au dépôt eden-app.
+
+
+================================================================================
+11. LE LIEN GIT -> IMAGE DOCKER -> SERVEUR (TRAÇABILITÉ)
+================================================================================
+
+    Commit ──► tag v1.5.0 ──► image ghcr.io/…/eden-app:1.5.0 ──► stack Portainer
+                                   (labels : version, commit)      EDEN_VERSION=1.5.0
+                                                                          │
+                                   https://eden.pdmdsante.com/healthz ◄───┘
+                                   {"status":"ok","version":"1.5.0",…}
+
+Retrouver le code exact qui tourne en production :
+    curl -s https://eden.pdmdsante.com/healthz          -> "version":"1.5.0"
+    git show v1.5.0                                      -> commit et notes
+    git checkout v1.5.0                                  -> le code tel quel (lecture)
+    git switch -                                         -> revenir à sa branche
+
+Commit exact embarqué dans une image (sur le serveur) :
+    docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' \
+      ghcr.io/pdmdsante/eden-app:1.5.0
+
+Différences entre deux versions :
+    git log v1.4.2..v1.5.0 --oneline
+    git diff v1.4.2 v1.5.0 --stat
+
+
+================================================================================
+12. CORRECTIF URGENT EN PRODUCTION (HOTFIX)
+================================================================================
+
+Situation : bug bloquant en production (v1.5.0), develop contient déjà d'autres
+travaux non prêts.
+
+    Option immédiate si le bug vient de la dernière version : ROLLBACK (section 13.2)
+    pendant la préparation du correctif.
+
+    git switch main && git pull
+    git switch -c hotfix/connexion-docteur
+    ... correction + test ...
+    git commit -m "fix(connexion): corriger la redirection des docteurs"
+    git push -u origin hotfix/connexion-docteur
+    -> PR hotfix/connexion-docteur -> main, CI verte, fusion
+    git switch main && git pull
+    bash Documentation/scripts/release.sh patch        # -> v1.5.1, image, déploiement
+    -> Reporter le correctif dans develop :
+    git switch develop && git pull && git merge main && git push
+
+
+================================================================================
+13. ANNULER UN CHANGEMENT : CÔTÉ GIT ET CÔTÉ PRODUCTION
+================================================================================
+
+13.1 Côté Git — sur une branche partagée (main/develop), on N'EFFACE PAS l'historique :
+    git revert <sha-du-commit>            # crée un commit inverse
+    git push
+    INTERDIT sur main/develop : git reset --hard + git push --force
+
+    Sur sa propre branche non partagée : git reset --soft HEAD~1 (annule le
+    dernier commit en gardant les modifications).
+
+13.2 Côté production — revenir à la version précédente en ~1 minute, sans
+     recompiler : l'image de chaque version reste sur le registre.
+    bash Documentation/scripts/rollback.sh              # version précédente
+    bash Documentation/scripts/rollback.sh 1.4.2        # version précise
+    (ou manuellement dans Portainer : document 02, étape 11)
+    Puis corriger via un hotfix (section 12) ; ne pas supprimer le tag fautif.
+
+
+================================================================================
+14. AIDE-MÉMOIRE DES COMMANDES
+================================================================================
+
+  État et historique
+    git status                                  fichiers modifiés
+    git log --oneline --graph --decorate -20    historique récent
+    git tag                                     versions existantes (triées)
+    git describe --tags                         position par rapport à la dernière version
+
+  Branches
+    git switch -c feature/xxx                   créer et aller sur une branche
+    git switch develop                          changer de branche
+    git branch -a                               toutes les branches
+    git branch -d feature/xxx                   supprimer une branche fusionnée
+
+  Synchronisation
+    git fetch origin                            récupérer sans fusionner
+    git pull                                    récupérer et intégrer (rebase)
+    git push                                    publier
+    git push --force-with-lease                 après rebase, SUR SA BRANCHE uniquement
+
+  Mettre de côté un travail en cours
+    git stash push -m "essai"   /   git stash pop
+
+  Versions et déploiement (scripts EDEN)
+    bash Documentation/scripts/release.sh patch|minor|major|X.Y.Z [--dry-run]
+    bash Documentation/scripts/deployer-portainer.sh --statut
+    bash Documentation/scripts/deployer-portainer.sh X.Y.Z
+    bash Documentation/scripts/rollback.sh [X.Y.Z]
+    bash Documentation/scripts/verifier-deploiement.sh
+
+
+================================================================================
+15. PROBLÈMES FRÉQUENTS ET SOLUTIONS
+================================================================================
+
+  « Message de commit refusé »
+    -> Respecter le format de la section 5. Corriger le dernier message :
+       git commit --amend -m "fix(patients): ..."   (avant de pousser)
+
+  release.sh : « Une release se fait depuis main »
+    -> git switch main && git pull, puis relancer.
+
+  release.sh : « Des modifications ne sont pas commitées »
+    -> git status ; committer ou « git stash », puis relancer.
+
+  release.sh : « n'est pas à jour avec origin »
+    -> git pull, puis relancer.
+
+  release.sh : « Le tag vX.Y.Z existe déjà »
+    -> Une version publiée ne se republie pas : choisir le numéro suivant.
+
+  « ! [rejected] main -> main (non-fast-forward) »
+    -> Quelqu'un a poussé avant vous : git pull (rebase), régler les conflits, git push.
+
+  Conflit pendant un rebase
+    -> Ouvrir les fichiers, garder la bonne version entre <<<<<<< et >>>>>>>,
+       git add <fichier>, git rebase --continue. Pour annuler : git rebase --abort.
+
+  Un secret a été commité par erreur
+    -> Le RÉVOQUER IMMÉDIATEMENT à la source (régénérer le jeton/mot de passe) :
+       l'historique Git en garde la trace même après suppression du fichier.
+       Puis retirer le fichier : git rm --cached <fichier>, l'ajouter à .gitignore.
+
+  La CI « Release » échoue sur « ne correspond pas à package.json »
+    -> Le tag a été créé à la main. Supprimer ce tag (s'il n'a produit aucune image)
+       et utiliser release.sh.

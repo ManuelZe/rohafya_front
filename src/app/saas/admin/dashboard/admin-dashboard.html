@@ -1,0 +1,112 @@
+<div class="page">
+  <app-page-header title="Tableau de bord" [subtitle]="context.tenant()?.display_name ?? ''">
+    <button actions type="button" class="btn btn-ghost" (click)="load()" [disabled]="loading()">
+      @if (loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span>Actualiser</span>
+    </button>
+  </app-page-header>
+
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+    </div>
+  }
+
+  <div class="kpis">
+    <app-kpi-tile label="Patients connus" icon="users" accent="#1a54c9" [value]="(data()?.patients_known ?? 0).toString()" hint="Dossiers reçus de l'établissement" [loading]="loading() && !data()" [error]="!!error() && !data()" />
+    <app-kpi-tile label="Rattachés à EDEN" icon="link" accent="#137a36" [value]="(data()?.links_active ?? 0).toString()" hint="Voient leurs résultats en ligne" [loading]="loading() && !data()" [error]="!!error() && !data()" />
+    <app-kpi-tile label="En attente" icon="clock" accent="#b45309" [value]="(data()?.links_pending ?? 0).toString()" hint="Rattachements à valider" [loading]="loading() && !data()" [error]="!!error() && !data()" />
+    <app-kpi-tile label="QR codes actifs" icon="qrcode" accent="#6d28d9" [value]="(data()?.tokens_active ?? 0).toString()" hint="Remis, pas encore scannés" [loading]="loading() && !data()" [error]="!!error() && !data()" />
+  </div>
+
+  @if (data(); as d) {
+    @if (d.links_pending > 0) {
+      <div class="banner banner-info" role="status">
+        <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ d.links_pending }} rattachement(s) attendent votre validation : l'adresse e-mail du compte ne correspond pas à celle du dossier.</span>
+        <a class="btn btn-ghost" routerLink="/admin/rattachements">Voir</a>
+      </div>
+    }
+
+    <div class="two-cols">
+      <section class="card" aria-labelledby="records-title">
+        <h2 class="card-title" id="records-title">
+          <svg [pIcon]="'database'" [size]="18" aria-hidden="true"></svg>
+          Données reçues
+          <span class="card-title-aside">{{ d.records_total }} au total</span>
+        </h2>
+        <dl class="facts">
+          @for (row of recordRows(); track row.kind) {
+            <div>
+              <dt>{{ row.label }}</dt>
+              <dd>{{ row.count }}</dd>
+            </div>
+          }
+          <div>
+            <dt>Source</dt>
+            <dd>{{ sourceLabel() }}</dd>
+          </div>
+          <div>
+            <dt>Dernier envoi</dt>
+            <dd>{{ d.last_record_at ? (d.last_record_at | date: 'dd/MM/yyyy HH:mm') : '—' }}</dd>
+          </div>
+        </dl>
+        @if (d.tenant.source_type === 'gnuhealth') {
+          <p class="muted small-note">Les résultats de cet établissement sont lus directement dans GNU Health : ils ne sont pas comptés ici.</p>
+        }
+      </section>
+
+      <section class="card" aria-labelledby="activity-title">
+        <h2 class="card-title" id="activity-title">
+          <svg [pIcon]="'history'" [size]="18" aria-hidden="true"></svg>
+          Activité récente
+          <a class="link card-title-aside" routerLink="/admin/journal">Tout voir</a>
+        </h2>
+        @if (d.recent_activity.length === 0) {
+          <div class="state">
+            <span>Aucune activité pour le moment.</span>
+          </div>
+        } @else {
+          <ul class="activity">
+            @for (entry of d.recent_activity; track entry.id) {
+              <li>
+                <div>
+                  <strong>{{ auditLabel(entry.action) }}</strong>
+                  <span class="who">{{ entry.target || '' }}{{ entry.user_name ? ' · ' + entry.user_name : '' }}</span>
+                </div>
+                <time>{{ entry.created_at | date: 'dd/MM HH:mm' }}</time>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="actions-title">
+      <h2 class="card-title" id="actions-title">
+        <svg [pIcon]="'bolt'" [size]="18" aria-hidden="true"></svg>
+        Actions rapides
+      </h2>
+      <div class="quick-actions">
+        <a class="btn btn-primary" routerLink="/admin/qr-codes">
+          <svg [pIcon]="'qrcode'" [size]="16" aria-hidden="true"></svg>
+          <span>Générer un QR code</span>
+        </a>
+        <a class="btn btn-ghost" routerLink="/admin/patients">
+          <svg [pIcon]="'users'" [size]="16" aria-hidden="true"></svg>
+          <span>Rechercher un patient</span>
+        </a>
+        <a class="btn btn-ghost" routerLink="/admin/integration">
+          <svg [pIcon]="'server'" [size]="16" aria-hidden="true"></svg>
+          <span>Brancher notre logiciel</span>
+        </a>
+      </div>
+    </section>
+  }
+</div>

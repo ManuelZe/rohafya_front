@@ -1,0 +1,258 @@
+<div class="page">
+  <app-page-header title="Tableau de bord" subtitle="Vue d'ensemble de votre dossier médical.">
+    <button actions pButton type="button" severity="secondary" [outlined]="true" (click)="refresh()" [disabled]="examsLoading() || facturesLoading()">
+      <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true" [class.spin]="examsLoading() || facturesLoading()"></svg>
+      <span pButtonLabel>Actualiser</span>
+    </button>
+  </app-page-header>
+
+  @if (accessDenied()) {
+    <div class="access-denied" role="alert">{{ accessDeniedMessage }}</div>
+  } @else {
+    <!-- ===== Accueil ===== -->
+    <section class="hero" aria-labelledby="hero-title">
+      <svg class="hero-ecg eden-animated" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="ecg-line" d="M0 44h140l10-14 12 26 12-38 12 30 10-8h124l10-12 12 22 10-10h226" />
+      </svg>
+
+      <div class="hero-main">
+        <app-eden-mark [size]="52" />
+        <div class="hero-text">
+          <p class="hero-date">{{ today }}</p>
+          <h2 id="hero-title">{{ greeting() }}{{ firstName() ? ', ' + firstName() : '' }}</h2>
+          <p class="hero-summary">
+            @if (firstLoad()) {
+              Nous préparons votre tableau de bord…
+            } @else {
+              Vous avez <strong>{{ availableResults() }}</strong> résultat{{ availableResults() > 1 ? 's' : '' }} disponible{{ availableResults() > 1 ? 's' : '' }}
+              @if (unpaid().length > 0) {
+                et <strong>{{ unpaid().length }}</strong> facture{{ unpaid().length > 1 ? 's' : '' }} à régler.
+              } @else {
+                et vos factures sont à jour.
+              }
+            }
+          </p>
+        </div>
+      </div>
+
+      <nav class="hero-actions" aria-label="Actions rapides">
+        <a pButton routerLink="/patients/resultats" class="action">
+          <svg [pIcon]="'share-alt'" [size]="16" aria-hidden="true"></svg>
+          <span pButtonLabel>Partager un résultat</span>
+        </a>
+        <a pButton routerLink="/patients/requests" severity="secondary" [outlined]="true" class="action">
+          <svg [pIcon]="'send'" [size]="16" aria-hidden="true"></svg>
+          <span pButtonLabel>Nouvelle requête</span>
+        </a>
+        <a pButton routerLink="/patients/enregistrement" severity="secondary" [outlined]="true" class="action">
+          <svg [pIcon]="'calendar-plus'" [size]="16" aria-hidden="true"></svg>
+          <span pButtonLabel>Pré-enregistrement</span>
+        </a>
+      </nav>
+    </section>
+
+    <!-- ===== Factures à régler ===== -->
+    @if (unpaid().length > 0) {
+      <div class="alert" role="status">
+        <span class="alert-icon" aria-hidden="true"><svg [pIcon]="'exclamation-triangle'" [size]="18"></svg></span>
+        <div class="alert-text">
+          <strong>{{ unpaid().length }} facture{{ unpaid().length > 1 ? 's' : '' }} en attente de paiement · {{ formatFcfa(unpaidTotal()) }}</strong>
+          <span>Réglez-les pour conserver l'accès à vos résultats d'examens.</span>
+        </div>
+        <a pButton routerLink="/patients/factures" size="small">
+          <span pButtonLabel>Voir mes factures</span>
+          <svg [pIcon]="'arrow-right'" [size]="14" aria-hidden="true"></svg>
+        </a>
+      </div>
+    }
+
+    @if (expiringSoon() > 0) {
+      <div class="alert alert-info" role="status">
+        <span class="alert-icon" aria-hidden="true"><svg [pIcon]="'clock'" [size]="18"></svg></span>
+        <div class="alert-text">
+          <strong>{{ expiringSoon() }} résultat{{ expiringSoon() > 1 ? 's expirent' : ' expire' }} bientôt</strong>
+          <span>Pensez à les consulter ou à les partager avec votre médecin avant leur expiration.</span>
+        </div>
+      </div>
+    }
+
+    <!-- ===== Indicateurs ===== -->
+    <section class="tiles" aria-label="Indicateurs">
+      @for (tile of tiles(); track tile.label) {
+        <a class="tile-link" [routerLink]="tile.link" [attr.aria-label]="tile.label + ' : ' + tile.value + ', ' + tile.hint">
+          <app-kpi-tile [label]="tile.label" [icon]="tile.icon" [accent]="tile.accent" [value]="tile.value" [hint]="tile.hint" [loading]="tile.loading" />
+        </a>
+      }
+    </section>
+
+    <div class="grid">
+      <!-- ===== Derniers résultats ===== -->
+      <section class="card" aria-labelledby="results-title">
+        <header class="card-head">
+          <h2 id="results-title">
+            <svg [pIcon]="'wave-pulse'" [size]="18" aria-hidden="true"></svg>
+            Derniers résultats
+          </h2>
+          <a class="card-link" routerLink="/patients/laboratoire">Tout voir</a>
+        </header>
+
+        @if (examsLoading() && timeline().length === 0) {
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="row-skeleton">
+              <p-skeleton shape="circle" size="2.25rem" />
+              <div class="grow"><p-skeleton width="60%" height="0.9rem" styleClass="mb-2" /><p-skeleton width="35%" height="0.75rem" /></div>
+            </div>
+          }
+        } @else if (timeline().length === 0) {
+          <div class="empty">
+            <svg [pIcon]="'inbox'" [size]="30" aria-hidden="true"></svg>
+            <strong>Aucun résultat pour le moment</strong>
+            <span>Vos résultats d'examens apparaîtront ici dès leur validation.</span>
+          </div>
+        } @else {
+          <ul class="timeline">
+            @for (item of latestResults(); track item.key) {
+              <li>
+                <a class="timeline-item" [routerLink]="item.link">
+                  <span class="kind" [class]="'kind kind-' + item.kind" aria-hidden="true">
+                    <svg [pIcon]="item.kind === 'Laboratoire' ? 'filter' : item.kind === 'Imagerie' ? 'image' : 'wave-pulse'" [size]="16"></svg>
+                  </span>
+                  <span class="timeline-body">
+                    <span class="timeline-title">{{ item.title }}</span>
+                    <span class="timeline-sub">
+                      {{ item.kind }}
+                      @if (item.requestor) {
+                        · {{ item.requestor }}
+                      }
+                    </span>
+                  </span>
+                  <span class="timeline-meta">
+                    @if (item.date) {
+                      <time>{{ item.date | date: 'dd/MM/yyyy' }}</time>
+                    }
+                    @if (expiryLabel(item); as label) {
+                      <span class="expiry" [class.expiry-over]="item.expired">{{ label }}</span>
+                    }
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+        @for (err of examErrors(); track err) {
+          <p class="inline-error">{{ err }}</p>
+        }
+      </section>
+
+      <!-- ===== Factures récentes ===== -->
+      <section class="card" aria-labelledby="invoices-title">
+        <header class="card-head">
+          <h2 id="invoices-title">
+            <svg [pIcon]="'receipt'" [size]="18" aria-hidden="true"></svg>
+            Factures récentes
+          </h2>
+          <a class="card-link" routerLink="/patients/factures">Tout voir</a>
+        </header>
+
+        @if (facturesLoading() && factures().length === 0) {
+          @for (i of [1, 2, 3]; track i) {
+            <div class="row-skeleton"><div class="grow"><p-skeleton width="50%" height="0.9rem" styleClass="mb-2" /><p-skeleton width="30%" height="0.75rem" /></div><p-skeleton width="4.5rem" height="1.4rem" /></div>
+          }
+        } @else if (facturesError()) {
+          <p class="inline-error">{{ facturesError() }}</p>
+        } @else if (recentInvoices().length === 0) {
+          <div class="empty">
+            <svg [pIcon]="'receipt'" [size]="30" aria-hidden="true"></svg>
+            <strong>Aucune facture</strong>
+          </div>
+        } @else {
+          <ul class="list">
+            @for (f of recentInvoices(); track f.reference) {
+              <li>
+                <span class="list-main">
+                  <span class="list-title">{{ formatFcfa(f.total_amount2) }}</span>
+                  <span class="list-sub">{{ f.reference }} · {{ f.date | date: 'dd/MM/yyyy' }}</span>
+                </span>
+                <app-status-tag kind="facture" [status]="f.state" />
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <!-- ===== Prescriptions ===== -->
+      <section class="card" aria-labelledby="prescriptions-title">
+        <header class="card-head">
+          <h2 id="prescriptions-title">
+            <svg [pIcon]="'briefcase'" [size]="18" aria-hidden="true"></svg>
+            Prescriptions récentes
+          </h2>
+          <a class="card-link" routerLink="/patients/prescriptions">Tout voir</a>
+        </header>
+
+        @if (prescriptionsLoading() && prescriptions().length === 0) {
+          @for (i of [1, 2]; track i) {
+            <div class="row-skeleton"><div class="grow"><p-skeleton width="55%" height="0.9rem" styleClass="mb-2" /><p-skeleton width="40%" height="0.75rem" /></div></div>
+          }
+        } @else if (prescriptionsError()) {
+          <p class="inline-error">{{ prescriptionsError() }}</p>
+        } @else if (recentPrescriptions().length === 0) {
+          <div class="empty">
+            <svg [pIcon]="'file-plus'" [size]="30" aria-hidden="true"></svg>
+            <strong>Aucune prescription</strong>
+            <a pButton routerLink="/patients/prescriptions" size="small" [outlined]="true"><span pButtonLabel>Ajouter une prescription</span></a>
+          </div>
+        } @else {
+          <ul class="list">
+            @for (p of recentPrescriptions(); track p.id) {
+              <li>
+                <span class="list-main">
+                  <span class="list-title">{{ p.Description || 'Prescription ' + p.Sequence }}</span>
+                  <span class="list-sub">Dr {{ p.NameDoctor }} · {{ p.Create_date | date: 'dd/MM/yyyy' }}</span>
+                </span>
+                <span class="chip">{{ p.Sequence }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <!-- ===== Requêtes ===== -->
+      <section class="card" aria-labelledby="requests-title">
+        <header class="card-head">
+          <h2 id="requests-title">
+            <svg [pIcon]="'send'" [size]="18" aria-hidden="true"></svg>
+            Mes requêtes
+          </h2>
+          <a class="card-link" routerLink="/patients/requests">Tout voir</a>
+        </header>
+
+        @if (requetesLoading() && requetes().length === 0) {
+          @for (i of [1, 2]; track i) {
+            <div class="row-skeleton"><div class="grow"><p-skeleton width="70%" height="0.9rem" styleClass="mb-2" /><p-skeleton width="30%" height="0.75rem" /></div></div>
+          }
+        } @else if (requetesError()) {
+          <p class="inline-error">{{ requetesError() }}</p>
+        } @else if (recentRequetes().length === 0) {
+          <div class="empty">
+            <svg [pIcon]="'send'" [size]="30" aria-hidden="true"></svg>
+            <strong>Aucune requête envoyée</strong>
+            <span>Une question ? L'administration vous répond.</span>
+          </div>
+        } @else {
+          <ul class="list">
+            @for (r of recentRequetes(); track r.id) {
+              <li>
+                <span class="list-main">
+                  <span class="list-title clamp">{{ r.message }}</span>
+                  <span class="list-sub">{{ r.CreatedAt | date: 'dd/MM/yyyy' }}</span>
+                </span>
+                <app-status-tag kind="requete" [status]="r.valide" />
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,127 @@
+<div class="page">
+  <app-page-header title="Paramètres" subtitle="Règles appliquées aux patients de votre établissement." />
+
+  @if (loading()) {
+    <section class="card">
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    </section>
+  } @else {
+    <form [formRoot]="settingsForm" (submit)="save()">
+      <section class="card" aria-labelledby="identity-title">
+        <h2 class="card-title" id="identity-title">
+          <svg [pIcon]="'building'" [size]="18" aria-hidden="true"></svg>
+          Identité
+        </h2>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="s-name">Nom affiché aux patients *</label>
+            <input id="s-name" class="field" type="text" [formField]="settingsForm.display_name" />
+            @if (settingsForm.display_name().touched() && settingsForm.display_name().invalid()) {
+              <span class="form-error">{{ settingsForm.display_name().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="s-color">Couleur principale</label>
+            <input id="s-color" class="field color-field" type="color" [formField]="settingsForm.primary_color" />
+          </div>
+          <div class="form-row">
+            <label for="s-email">E-mail de contact</label>
+            <input id="s-email" class="field" type="email" [formField]="settingsForm.contact_email" />
+            @if (settingsForm.contact_email().touched() && settingsForm.contact_email().invalid()) {
+              <span class="form-error">{{ settingsForm.contact_email().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="s-phone">Téléphone de contact</label>
+            <input id="s-phone" class="field" type="tel" [formField]="settingsForm.contact_phone" />
+          </div>
+        </div>
+      </section>
+
+      <section class="card spaced" aria-labelledby="rules-title">
+        <h2 class="card-title" id="rules-title">
+          <svg [pIcon]="'lock'" [size]="18" aria-hidden="true"></svg>
+          Accès aux résultats
+        </h2>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="s-days">Durée d'accès au détail d'un résultat (jours) *</label>
+            <input id="s-days" class="field" type="number" [formField]="settingsForm.result_access_days" />
+            <span class="form-hint">Comptée à partir de la date de validation du résultat.</span>
+            @if (settingsForm.result_access_days().touched() && settingsForm.result_access_days().invalid()) {
+              <span class="form-error">{{ settingsForm.result_access_days().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="s-token">Validité d'un QR code (jours) *</label>
+            <input id="s-token" class="field" type="number" [formField]="settingsForm.link_token_days" />
+            <span class="form-hint">Au-delà, l'accueil doit réimprimer un QR code.</span>
+            @if (settingsForm.link_token_days().touched() && settingsForm.link_token_days().invalid()) {
+              <span class="form-error">{{ settingsForm.link_token_days().errors()[0]?.message }}</span>
+            }
+          </div>
+          <label class="check-row full" for="s-block">
+            <input id="s-block" type="checkbox" [formField]="settingsForm.block_unpaid_results" />
+            <span>
+              <strong>Masquer le détail des résultats en cas de facture impayée</strong><br />
+              <span class="muted">Le patient voit la liste de ses résultats, mais pas leurs valeurs, tant qu'une facture reste à régler.</span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      @if (error()) {
+        <div class="banner banner-error spaced" role="alert">
+          <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ error() }}</span>
+        </div>
+      }
+      @if (saved()) {
+        <div class="banner banner-success spaced" role="status">
+          <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>Paramètres enregistrés.</span>
+        </div>
+      }
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="settingsForm().invalid() || saving()">
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+
+    <section class="card spaced" aria-labelledby="managed-title">
+      <h2 class="card-title" id="managed-title">
+        <svg [pIcon]="'lock'" [size]="18" aria-hidden="true"></svg>
+        Fixé par EDEN
+      </h2>
+      <p class="muted small-note first">Ces réglages sont définis par le super-administrateur EDEN. Contactez-le pour les faire évoluer.</p>
+      @if (!pdfEnabled) {
+        <p class="small-note soon-note">
+          <svg [pIcon]="'clock'" [size]="14" aria-hidden="true"></svg>
+          Import des résultats par PDF : fonctionnalité disponible prochainement.
+        </p>
+      }
+      @if (pdfAvailable()) {
+        <dl class="facts" [class.feature-off-inline]="!pdfEnabled">
+          <div><dt>Imports PDF autorisés</dt><dd>{{ quotaText() }}</dd></div>
+          @if (pdfQuota(); as q) {
+            <div>
+              <dt>Utilisés sur la période</dt>
+              <dd>{{ q.used }} / {{ q.limit }}</dd>
+            </div>
+            <div>
+              <dt>Prochain import</dt>
+              <dd>{{ q.next_available_at ? 'le ' + (q.next_available_at | date: "dd/MM/yyyy 'à' HH:mm") : 'possible maintenant' }}</dd>
+            </div>
+          }
+          <div><dt>Lecture des PDF par IA</dt><dd>{{ managed()?.pdf_ai_enabled ? 'Activée' : 'Désactivée' }}</dd></div>
+        </dl>
+      } @else {
+        <p class="muted small-note">Imports PDF : non disponibles (résultats lus directement dans GNU Health).</p>
+      }
+    </section>
+  }
+</div>

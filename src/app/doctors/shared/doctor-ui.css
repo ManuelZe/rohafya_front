@@ -1,0 +1,360 @@
+/* Styles partagés des pages de l'espace docteur (inclus via styleUrls). */
+:host {
+  --doc-text: #1f2937;
+  --doc-muted: #545d6b; /* 6.4:1 sur blanc — WCAG AA pour le petit texte */
+  --doc-border: #e2e8f0;
+  --doc-surface: #ffffff;
+  --doc-soft: #f4f6fa;
+  --doc-primary: #1a54c9;
+  --doc-primary-soft: #eaf0fc;
+  --doc-success: #137a36;
+  --doc-danger: #b91c1c;
+  --series-prescription: #2a78d6;
+  --series-realisation: #eb6834;
+  display: block;
+  color: var(--doc-text);
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.card {
+  background: var(--doc-surface);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  padding: 1.25rem 1.5rem;
+  min-width: 0;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.card-title svg {
+  color: var(--doc-primary);
+  flex-shrink: 0;
+}
+
+.card-title .card-title-aside {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--doc-muted);
+}
+
+.muted {
+  color: var(--doc-muted);
+}
+
+/* ===== Boutons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--doc-primary);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #15359e;
+}
+
+.btn-ghost {
+  background: var(--doc-surface);
+  border-color: var(--doc-border);
+  color: var(--doc-text);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--doc-soft);
+}
+
+.btn:focus-visible,
+.segmented button:focus-visible,
+.chip:focus-visible,
+.link:focus-visible {
+  outline: 3px solid #93b4f0;
+  outline-offset: 2px;
+}
+
+.link {
+  color: var(--doc-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ===== Contrôle segmenté (onglets / filtres) ===== */
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: #e8ebf2;
+  border-radius: 10px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.segmented button {
+  border: 0;
+  background: transparent;
+  padding: 0.45rem 0.85rem;
+  min-height: 36px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--doc-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--doc-surface);
+  color: var(--doc-text);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+/* ===== Barre de filtres ===== */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.search svg {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--doc-muted);
+  pointer-events: none;
+}
+
+.search input,
+.field {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd2dc;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--doc-text);
+  background: var(--doc-surface);
+}
+
+.search input {
+  padding-left: 2.25rem;
+}
+
+.search input:focus,
+.field:focus {
+  outline: 2px solid var(--doc-primary);
+  outline-offset: 1px;
+}
+
+/* ===== Puces ===== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--doc-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--doc-text);
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.swatch-prescription {
+  background: var(--series-prescription);
+}
+
+.swatch-realisation {
+  background: var(--series-realisation);
+}
+
+/* ===== États (chargement / vide / erreur) ===== */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2.25rem 1rem;
+  text-align: center;
+  color: var(--doc-muted);
+  font-size: 0.9rem;
+}
+
+.state svg {
+  color: #9aa6b8;
+}
+
+.state strong {
+  color: var(--doc-text);
+  font-size: 0.95rem;
+}
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  border: 1px solid;
+}
+
+.banner svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.banner-error {
+  background: #fdf0f0;
+  border-color: #f3c2c2;
+  color: var(--doc-danger);
+}
+
+.banner-info {
+  background: var(--doc-primary-soft);
+  border-color: #c7d6f5;
+  color: #173a8a;
+}
+
+.banner-success {
+  background: #ecf8f0;
+  border-color: #b9e3c6;
+  color: var(--doc-success);
+}
+
+.banner .btn {
+  margin-left: auto;
+  min-height: 32px;
+  padding: 0.3rem 0.75rem;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: doc-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner-lg {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+  color: var(--doc-primary);
+}
+
+.skeleton {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #eef1f6 25%, #f7f8fb 50%, #eef1f6 75%);
+  background-size: 200% 100%;
+  animation: doc-shimmer 1.4s ease-in-out infinite;
+}
+
+.is-refreshing {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+@keyframes doc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes doc-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .skeleton {
+    animation-duration: 3s;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+}

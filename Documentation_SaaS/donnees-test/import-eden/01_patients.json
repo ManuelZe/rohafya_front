@@ -1,0 +1,38 @@
+[
+  {
+    "local_ref": "CLB-0001",
+    "first_name": "Aminata",
+    "last_name": "Bello",
+    "email": "aminata.bello@example.com",
+    "phone": "+237 600 000 201",
+    "birth_date": "1990-03-14",
+    "gender": "F"
+  },
+  {
+    "local_ref": "CLB-0002",
+    "first_name": "Jean-Paul",
+    "last_name": "Mbarga",
+    "email": "jeanpaul.mbarga@example.com",
+    "phone": "+237 600 000 202",
+    "birth_date": "1975-11-02",
+    "gender": "M"
+  },
+  {
+    "local_ref": "CLB-0003",
+    "first_name": "Clarisse",
+    "last_name": "Ndzana",
+    "email": "clarisse.ndzana@example.com",
+    "phone": "+237 600 000 203",
+    "birth_date": "2001-07-22",
+    "gender": "F"
+  },
+  {
+    "local_ref": "CLB-0004",
+    "first_name": "Yannick",
+    "last_name": "Fouda",
+    "email": "yannick.fouda@example.com",
+    "phone": "+237 600 000 204",
+    "birth_date": "1968-01-30",
+    "gender": "M"
+  }
+]

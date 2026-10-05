@@ -1,0 +1,107 @@
+<div class="login-container">
+  <div class="login-visual">
+    <div class="future-medical">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Médecine numérique futuriste">
+        <circle cx="100" cy="100" r="90" class="circle-bg" />
+        <g class="medical-elements">
+          <path
+            d="M 100 85 L 110 75 Q 120 70 125 80 Q 130 90 100 115 Q 70 90 75 80 Q 80 70 90 75 Z"
+            class="heart-icon"
+          />
+          <circle cx="100" cy="100" r="50" class="orbit-1" />
+          <circle cx="100" cy="100" r="70" class="orbit-2" />
+          <circle cx="150" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="50" r="4" class="data-point" />
+          <circle cx="50" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="150" r="4" class="data-point" />
+          <line x1="150" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="50" x2="100" y2="100" class="connection-line" />
+          <line x1="50" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="150" x2="100" y2="100" class="connection-line" />
+        </g>
+      </svg>
+      <h2 class="medical-title">Demande d'enregistrement</h2>
+      <p class="medical-subtitle">Plateforme de santé digitale</p>
+    </div>
+  </div>
+
+  <div class="login-form">
+    <div class="form-content">
+      <h1 class="form-title">S'enregistrer</h1>
+      <p class="form-description">Veuillez compléter le formulaire pour soumettre votre demande.</p>
+      <p class="info-note">Note : Cette demande est uniquement destinée aux personnes qui sont ou ont été patients à la PDMD.</p>
+
+      <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">
+        <div class="form-group">
+          <label for="first_name" class="form-label">Nom</label>
+          <input
+            id="first_name"
+            type="text"
+            class="form-input"
+            [formField]="form.first_name"
+            placeholder="Entrez votre nom"
+            aria-label="Nom"
+          />
+          @if (form.first_name().touched() && form.first_name().invalid()) {
+            <span class="form-error">{{ form.first_name().errors()[0]?.message }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="last_name" class="form-label">Prénom</label>
+          <input
+            id="last_name"
+            type="text"
+            class="form-input"
+            [formField]="form.last_name"
+            placeholder="Entrez votre prénom"
+            aria-label="Prénom"
+          />
+          @if (form.last_name().touched() && form.last_name().invalid()) {
+            <span class="form-error">{{ form.last_name().errors()[0]?.message }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input
+            id="email"
+            type="email"
+            class="form-input"
+            [formField]="form.email"
+            placeholder="Entrez votre email"
+            aria-label="Email"
+          />
+          @if (form.email().touched() && form.email().invalid()) {
+            <span class="form-error">{{ form.email().errors()[0]?.message }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="message" class="form-label">Message</label>
+          <textarea
+            id="message"
+            class="form-input textarea-input"
+            [formField]="form.message"
+            placeholder="Votre message (Optionnel)"
+            aria-label="Message"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="form().invalid()" aria-label="S'enregistrer">
+          S'enregistrer
+        </button>
+      </form>
+
+      <div class="register-section">
+        <p class="register-text">
+          Déjà inscrit ?
+          <a routerLink="/connexion" class="register-link" aria-label="Retour à la page de connexion">
+            Retour à la connexion
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

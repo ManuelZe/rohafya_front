@@ -1,0 +1,223 @@
+/* Layout Global aligné sur les dimensions et backgrounds du template */
+.layout-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 1.5rem;
+  background: transparent;
+  box-sizing: border-box;
+  padding: 1.5rem;
+}
+
+.factures-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0; /* évite le débordement des enfants (table) dans une grid column */
+}
+
+/* ===================== KPI Cards ===================== */
+.kpi-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.kpi-card {
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.kpi-card.posted {
+  background-color: #e5ecfa;
+  border: 1px solid #c9d8f2;
+  color: var(--color-primary);
+}
+
+.kpi-card.paid {
+  background-color: #e3f9ee;
+  border: 1px solid #b7ecd3;
+  color: #059669;
+}
+
+.kpi-card.unpaid {
+  background-color: #fbe3e3;
+  border: 1px solid #f5bcbc;
+  color: var(--color-danger);
+}
+
+.kpi-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #313133;
+}
+
+.kpi-value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Container Tableau */
+.table-card {
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 180px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.search-box input {
+  padding-left: 2.25rem;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Overrides DataTable alignés sur .table-card-factures */
+::ng-deep .p-datatable {
+  font-size: 0.88rem;
+}
+
+::ng-deep .p-datatable-table-container {
+  overflow-x: auto; /* scroll horizontal plutôt que colonnes écrasées sur petit écran */
+}
+
+::ng-deep .p-datatable-thead > tr > th {
+  background: #e5ecfa !important;
+  color: var(--color-primary) !important;
+  border-color: #c9d8f2 !important;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+::ng-deep .p-datatable-tbody > tr > td {
+  color: #313133;
+  white-space: nowrap;
+}
+
+::ng-deep .p-datatable-tbody > tr:hover {
+  background: #eef3fc !important;
+}
+
+.id-cell {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.details-column {
+  min-width: 0;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+/* Tablette large : la colonne détails passe sous le tableau */
+@media (max-width: 1280px) {
+  .layout-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablette : layout resserré */
+@media (max-width: 992px) {
+  .layout-wrapper {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+}
+
+/* Tablette portrait / petit écran : KPI sur 2 colonnes */
+@media (max-width: 768px) {
+  .kpi-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .kpi-value {
+    font-size: 1.9rem;
+  }
+
+  .table-card {
+    padding: 1rem;
+  }
+
+  .layout-wrapper {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
+}
+
+/* Mobile : tout sur une seule colonne */
+@media (max-width: 560px) {
+  .kpi-container {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.1rem;
+  }
+
+  .kpi-value {
+    font-size: 1.6rem;
+  }
+
+  .table-card {
+    padding: 0.85rem;
+    border-radius: 8px;
+  }
+
+  ::ng-deep .p-datatable {
+    font-size: 0.82rem;
+  }
+}
+.facture-establishment {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,286 @@
+<div class="page">
+  <app-page-header [title]="item()?.filename || 'Compte rendu PDF'" subtitle="Vérifiez les valeurs lues dans le document avant de les publier.">
+    <a actions class="btn btn-ghost" routerLink="/admin/imports-pdf">
+      <svg [pIcon]="'arrow-left'" [size]="16" aria-hidden="true"></svg>
+      <span>Tous les imports</span>
+    </a>
+  </app-page-header>
+
+  @if (!pdfEnabled) {
+    <div class="banner banner-info" role="status">
+      <svg [pIcon]="'clock'" [size]="16" aria-hidden="true"></svg>
+      <span><strong>Fonctionnalité disponible prochainement.</strong> L'import de résultats médicaux par PDF arrive bientôt dans EDEN : cette page est affichée en aperçu, ses actions sont désactivées.</span>
+    </div>
+  }
+  <div [class.feature-off]="!pdfEnabled" [class.page]="pdfEnabled" [attr.inert]="pdfEnabled ? null : ''">
+
+  @if (notice()) {
+    <div class="banner banner-success" role="status">
+      <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ notice() }}</span>
+    </div>
+  }
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (loading() && !item()) {
+    <section class="card">
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    </section>
+  } @else if (item(); as it) {
+    <section class="card summary" aria-label="État du compte rendu">
+      <span [class]="'pill pill-pdf-' + it.status">{{ statusLabels[it.status] }}</span>
+      <span class="muted">
+        Lu {{ it.method === 'ia' ? 'par IA' : 'par règles' }} · déposé le {{ it.created_at | date: 'dd/MM/yyyy HH:mm' }}
+        {{ it.source === 'api' ? 'par le logiciel' : '' }}
+        @if (it.published_at) {
+          · publié le {{ it.published_at | date: 'dd/MM/yyyy HH:mm' }} ({{ it.exam_code }})
+        }
+      </span>
+    </section>
+
+    @if (editable() && issues().length > 0) {
+      <div class="banner banner-info" role="status">
+        <svg [pIcon]="'exclamation-triangle'" [size]="16" aria-hidden="true"></svg>
+        <div>
+          <strong>Points à vérifier dans le document</strong>
+          <ul class="issues">
+            @for (issue of issues(); track issue) {
+              <li>{{ issue }}</li>
+            }
+          </ul>
+          @if (extraction()?.erreur_ia) {
+            <p class="issue-note">Lecture IA : {{ extraction()?.erreur_ia }}</p>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="review-grid">
+      <section class="card document" aria-labelledby="doc-title">
+        <h2 class="card-title" id="doc-title">
+          <svg [pIcon]="'file-pdf'" [size]="18" aria-hidden="true"></svg>
+          Document d'origine
+          @if (pdfRawUrl(); as raw) {
+            <a class="link card-title-aside" [href]="raw" target="_blank" rel="noopener">Ouvrir<span class="sr-only"> le PDF dans un nouvel onglet</span></a>
+          }
+        </h2>
+        @if (pdfUrl(); as url) {
+          <iframe class="pdf-frame" [src]="url" title="Compte rendu PDF d'origine"></iframe>
+        } @else {
+          <div class="state" role="status">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Chargement du PDF…</span>
+          </div>
+        }
+      </section>
+
+      <section class="card values" aria-labelledby="values-title">
+        <h2 class="card-title" id="values-title">
+          <svg [pIcon]="'list'" [size]="18" aria-hidden="true"></svg>
+          Valeurs extraites
+          <span class="card-title-aside">{{ model().details.length }}</span>
+        </h2>
+
+        @if (editable()) {
+          <form [formRoot]="reviewForm" (submit)="save()">
+            <div class="form-grid">
+              <div class="form-row">
+                <label for="r-ref">Numéro de dossier *</label>
+                <input id="r-ref" class="field" type="text" autocomplete="off" [formField]="reviewForm.local_ref" />
+                @if (reviewForm.local_ref().touched() && reviewForm.local_ref().invalid()) {
+                  <span class="form-error">{{ reviewForm.local_ref().errors()[0]?.message }}</span>
+                }
+              </div>
+              <div class="form-row">
+                <label for="r-date">Date de validation *</label>
+                <input id="r-date" class="field" type="date" [formField]="reviewForm.validation_date" />
+                @if (reviewForm.validation_date().touched() && reviewForm.validation_date().invalid()) {
+                  <span class="form-error">{{ reviewForm.validation_date().errors()[0]?.message }}</span>
+                }
+              </div>
+              <div class="form-row">
+                <label for="r-code">Code de l'examen</label>
+                <input id="r-code" class="field" type="text" autocomplete="off" placeholder="généré si vide" [formField]="reviewForm.exam_code" />
+              </div>
+              <div class="form-row">
+                <label for="r-title">Intitulé</label>
+                <input id="r-title" class="field" type="text" placeholder="Compte rendu d'analyses" [formField]="reviewForm.title" />
+              </div>
+            </div>
+
+            <div class="table-wrap values-table">
+              <table class="rtable">
+                <caption class="sr-only">Valeurs extraites, modifiables</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Analyse</th>
+                    <th scope="col">Valeur</th>
+                    <th scope="col">Unité</th>
+                    <th scope="col">Min</th>
+                    <th scope="col">Max</th>
+                    <th scope="col">État</th>
+                    <th scope="col"><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of reviewForm.details; track $index; let i = $index) {
+                    <tr>
+                      <td data-label="Analyse">
+                        <label class="sr-only" [for]="'v-name-' + i">Analyse, ligne {{ i + 1 }}</label>
+                        <input class="field cell-field" [id]="'v-name-' + i" type="text" [formField]="row.name" />
+                      </td>
+                      <td data-label="Valeur">
+                        <label class="sr-only" [for]="'v-result-' + i">Valeur, ligne {{ i + 1 }}</label>
+                        <input class="field cell-field num-field" [id]="'v-result-' + i" type="text" inputmode="decimal" [formField]="row.result"
+                          [attr.aria-invalid]="row.result().invalid() || null" />
+                      </td>
+                      <td data-label="Unité">
+                        <label class="sr-only" [for]="'v-units-' + i">Unité, ligne {{ i + 1 }}</label>
+                        <input class="field cell-field unit-field" [id]="'v-units-' + i" type="text" [formField]="row.units" />
+                      </td>
+                      <td data-label="Min">
+                        <label class="sr-only" [for]="'v-low-' + i">Minimum, ligne {{ i + 1 }}</label>
+                        <input class="field cell-field num-field" [id]="'v-low-' + i" type="text" inputmode="decimal" [formField]="row.lower_limit"
+                          [attr.aria-invalid]="row.lower_limit().invalid() || null" />
+                      </td>
+                      <td data-label="Max">
+                        <label class="sr-only" [for]="'v-high-' + i">Maximum, ligne {{ i + 1 }}</label>
+                        <input class="field cell-field num-field" [id]="'v-high-' + i" type="text" inputmode="decimal" [formField]="row.upper_limit"
+                          [attr.aria-invalid]="row.upper_limit().invalid() || null" />
+                      </td>
+                      <td data-label="État">
+                        @if (horsNorme(model().details[i])) {
+                          <span class="pill pill-danger">Hors norme</span>
+                        } @else {
+                          <span class="pill pill-active">Normal</span>
+                        }
+                      </td>
+                      <td class="actions-cell">
+                        <button type="button" class="btn btn-danger-ghost btn-sm" (click)="removeRow(i)">
+                          <svg [pIcon]="'trash'" [size]="14" aria-hidden="true"></svg>
+                          <span class="sr-only">Retirer la ligne {{ i + 1 }}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm add-row" (click)="addRow()">
+              <svg [pIcon]="'plus'" [size]="14" aria-hidden="true"></svg>
+              <span>Ajouter une valeur</span>
+            </button>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-danger-ghost" (click)="confirmDelete.set(true)" [disabled]="!!busy()">Supprimer</button>
+              <button type="button" class="btn btn-danger-ghost" (click)="confirmReject.set(true)" [disabled]="!!busy()">Rejeter</button>
+              <button type="button" class="btn btn-ghost" (click)="reanalyse(false)" [disabled]="!!busy()">
+                {{ busy() === 'reanalyse' ? 'Analyse…' : 'Relancer l’analyse' }}
+              </button>
+              @if (it.ai_available) {
+                <button type="button" class="btn btn-ghost" (click)="reanalyse(true)" [disabled]="!!busy()">
+                  {{ busy() === 'ai' ? 'Lecture IA…' : 'Lire avec l’IA' }}
+                </button>
+              }
+              <button type="submit" class="btn btn-ghost" [disabled]="reviewForm().invalid() || !!busy()">
+                {{ busy() === 'save' ? 'Enregistrement…' : 'Enregistrer' }}
+              </button>
+              <button type="button" class="btn btn-primary" (click)="publish()" [disabled]="reviewForm().invalid() || !!busy()">
+                <svg [pIcon]="'send'" [size]="16" aria-hidden="true"></svg>
+                <span>{{ busy() === 'publish' ? 'Publication…' : 'Publier' }}</span>
+              </button>
+            </div>
+          </form>
+        } @else {
+          <dl class="facts">
+            <div><dt>Dossier</dt><dd>{{ it.local_ref || '—' }}</dd></div>
+            <div><dt>Validé le</dt><dd>{{ it.validation_date || '—' }}</dd></div>
+            <div><dt>Code</dt><dd>{{ it.exam_code || '—' }}</dd></div>
+            <div><dt>Intitulé</dt><dd>{{ it.title || '—' }}</dd></div>
+          </dl>
+          <div class="table-wrap values-table">
+            <table class="rtable">
+              <caption class="sr-only">Valeurs du compte rendu</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Analyse</th>
+                  <th scope="col" class="num">Valeur</th>
+                  <th scope="col">Unité</th>
+                  <th scope="col">Normes</th>
+                  <th scope="col">État</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (v of extraction()?.details ?? []; track $index) {
+                  <tr>
+                    <td data-label="Analyse" class="strong">{{ v.name }}</td>
+                    <td data-label="Valeur" class="num">{{ v.result }}</td>
+                    <td data-label="Unité">{{ v.units || '—' }}</td>
+                    <td data-label="Normes">{{ v.normal_range || '—' }}</td>
+                    <td data-label="État">
+                      <span [class]="'pill ' + (v.warning ? 'pill-danger' : 'pill-active')">{{ v.warning ? 'Hors norme' : 'Normal' }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  }
+
+  </div>
+
+  @if (warningsToConfirm(); as warnings) {
+    <div class="overlay" (click)="warningsToConfirm.set(null)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="warn-title" (click)="$event.stopPropagation()">
+        <h2 id="warn-title">Publier malgré ces points ?</h2>
+        <p class="muted">Vérifiez chacun d'eux dans le document d'origine. Après publication, le patient voit ces valeurs.</p>
+        <ul class="issues">
+          @for (w of warnings; track w) {
+            <li>{{ w }}</li>
+          }
+        </ul>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="warningsToConfirm.set(null)">Revenir vérifier</button>
+          <button type="button" class="btn btn-primary" (click)="publish(true)" [disabled]="!!busy()">J'ai vérifié, publier</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (confirmReject()) {
+    <div class="overlay" (click)="confirmReject.set(false)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="reject-title" (click)="$event.stopPropagation()">
+        <h2 id="reject-title">Rejeter ce compte rendu ?</h2>
+        <p class="muted">Il restera dans la liste avec l'état « Rejeté » mais ne sera jamais publié.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="confirmReject.set(false)">Annuler</button>
+          <button type="button" class="btn btn-danger" (click)="reject()">Rejeter</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (confirmDelete()) {
+    <div class="overlay" (click)="confirmDelete.set(false)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-pdf-title" (click)="$event.stopPropagation()">
+        <h2 id="delete-pdf-title">Supprimer ce compte rendu ?</h2>
+        <p class="muted">Le PDF et les valeurs extraites sont effacés définitivement.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="confirmDelete.set(false)">Annuler</button>
+          <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="!!busy()">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

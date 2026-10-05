@@ -1,0 +1,276 @@
+================================================================================
+       EXTRAIRE DES RÉSULTATS DE SANTÉ D'UN PDF — MÊME QUAND SA FORME CHANGE
+================================================================================
+
+Objectif : lire un compte rendu d'analyses au format PDF (envoyé par un
+laboratoire qui n'a ni API ni FHIR), en tirer des valeurs fiables (analyse,
+valeur, unité, normes, hors norme) et les publier dans EDEN au format attendu
+par /ingest/v1/laboratoire.
+
+La règle d'or : UNE VALEUR FAUSSE EST PIRE QU'UNE VALEUR ABSENTE. Tout ce qui
+n'est pas certain part en relecture humaine au lieu d'être publié.
+
+Le code d'exemple, testé, est dans exemples/ (voir §8).
+
+
+1. POURQUOI C'EST DIFFICILE
+---------------------------
+Deux laboratoires impriment la même hémoglobine de deux façons :
+
+  Laboratoire ALPHA (tableau)          Centre BETA (liste)
+  ─────────────────────────────────    ──────────────────────────────────────
+  Hémoglobine | 10,9 * | g/dL |        HB (hémoglobine) .... [12.0-16.0] 10.9
+              | 12,0 - 16,0            g/dl  L
+  Glycémie à jeun | 0,94 | g/L |       Glucose (à jeun) = 5.2 mmol/L
+              | 0,70 - 1,10            [3.9 - 6.1]
+
+Ce qui varie d'un PDF à l'autre, ou d'une version à l'autre du même logiciel :
+  - la mise en page : tableau, liste, deux colonnes, ordre des colonnes ;
+  - le libellé : « Hémoglobine », « HB », « HGB » ;
+  - la virgule ou le point décimal ;
+  - les normes : avant ou après la valeur, entre crochets ou parenthèses,
+    « 12 - 16 », « 12 à 16 », « < 1,30 » ;
+  - l'unité : g/L ou mmol/L pour la glycémie (facteur 0,18), G/L ou x10^9/L ;
+  - le signalement d'une anomalie : *, H, L, ↑, « BAS », gras, couleur ;
+  - la nature du fichier : PDF « texte » (généré par un logiciel) ou PDF
+    « image » (scanné, photographié) sans aucun texte sélectionnable.
+
+
+2. TROIS FAMILLES D'APPROCHES
+-----------------------------
+  Approche              Principe                         Quand la forme change
+  ────────────────────  ───────────────────────────────  ─────────────────────
+  A. Gabarit par        « la valeur est en colonne 2,    Casse. Un gabarit par
+     laboratoire        ligne 14 », coordonnées fixes    labo ET par version.
+  B. Règles             chercher, ligne par ligne, un    Résiste : la position
+     indépendantes de   nom d'analyse connu, puis dans   n'a plus d'importance.
+     la mise en page    le reste de la ligne les normes, Casse seulement sur un
+                        l'unité et la valeur             libellé ou une unité
+                                                         inconnus (détectés).
+  C. Lecture par un     un modèle (Claude) lit le PDF,   Résiste aux tableaux,
+     modèle d'IA        y compris scanné, et recopie     colonnes, scans. Peut
+                        les valeurs dans un format JSON  se tromper : doit être
+                        imposé                           contrôlé (§5).
+
+Recommandation : B en premier (gratuit, local, prévisible), C en repli quand B
+ne suffit pas, et dans les deux cas les mêmes contrôles automatiques (§5) puis
+une relecture humaine de tout ce qui est douteux. On évite A : chaque
+changement de logiciel chez un laboratoire casse silencieusement l'extraction.
+
+
+3. LA CHAÎNE RECOMMANDÉE
+------------------------
+  PDF reçu
+    │
+    ├─ 1. Le PDF contient-il du texte ?  ── non ──► OCR (§4.4) ou lecture IA (C)
+    │
+    ├─ 2. Extraction par règles (B) : en-tête (dossier, date de validation)
+    │     + une ligne par analyse reconnue + liste des lignes NON reconnues
+    │
+    ├─ 3. Suffisant ?  (texte présent, aucune ligne de résultat non reconnue,
+    │                   unité et normes trouvées partout)
+    │       non ──► lecture IA (C), puis même normalisation que B
+    │
+    ├─ 4. Contrôles automatiques (§5)
+    │
+    ├─ 5. Tout est vert ?  ── non ──► fichier « à relire » pour un humain,
+    │                                 rien n'est publié
+    │
+    └─ 6. Envoi à EDEN : POST /ingest/v1/laboratoire (clé d'API), en gardant
+          le PDF d'origine et la trace de l'extraction
+
+
+4. L'APPROCHE PAR RÈGLES (B), PAS À PAS
+---------------------------------------
+Fichier : exemples/extraire_regles.py
+
+4.1 Lire le texte
+    pdfplumber (ou pdfminer) extrait le texte ligne par ligne, dans l'ordre de
+    lecture. Pour un tableau, chaque rangée devient une ligne :
+      « Hémoglobine 10,9 * g/dL 12,0 - 16,0 »
+
+4.2 Normaliser chaque ligne
+    minuscules, accents retirés, virgule décimale entre deux chiffres -> point :
+      « hemoglobine 10.9 * g/dl 12.0 - 16.0 »
+
+4.3 Reconnaître l'analyse grâce à un DICTIONNAIRE (le cœur du dispositif)
+    Pour chaque analyse : ses synonymes, l'unité de référence d'EDEN et les
+    unités acceptées avec leur facteur de conversion :
+      HB  : « hemoglobine », « hb », « hgb »    -> g/dl   (g/l x 0,1)
+      GLY : « glycemie », « glucose »           -> g/l    (mmol/l x 0,18)
+    Le synonyme est cherché comme un mot entier (« hb » ne doit pas être trouvé
+    au milieu d'un autre mot).
+
+    Puis, dans la suite de la ligne, et DANS CET ORDRE :
+      1. retirer l'intervalle de référence (« 12.0 - 16.0 », « 4.0 a 10.0 »,
+         « < 1.30 »), qu'il soit avant ou après la valeur ;
+      2. retirer l'unité reconnue (avant de chercher la valeur : « x10^9/l »
+         contient des chiffres) ;
+      3. la valeur est le premier nombre restant ;
+      4. convertir valeur et normes dans l'unité de référence ;
+      5. recalculer « hors norme » à partir des normes, et y ajouter les
+         marqueurs imprimés (*, H, L, bas, haut).
+
+4.4 PDF scanné (aucun texte)
+    Ajouter une couche de texte par OCR, puis appliquer la même chaîne :
+      sudo apt install ocrmypdf tesseract-ocr-fra
+      ocrmypdf -l fra --deskew --rotate-pages scan.pdf scan_texte.pdf
+    (non testé ici : ces outils ne sont pas installés sur le poste de
+    développement). L'OCR confond parfois 0/O, 1/l, 5/S : les contrôles du §5 et
+    la relecture sont indispensables. La lecture IA (C) est souvent plus fiable
+    sur les scans de mauvaise qualité.
+
+4.5 Ce qui rend cette approche résistante aux changements de forme
+    - elle ne dépend d'aucune position, d'aucune colonne, d'aucun ordre ;
+    - elle accepte virgule ou point, normes avant ou après, plusieurs unités ;
+    - elle DÉTECTE ce qu'elle ne sait pas lire : une ligne qui porte des normes
+      mais aucune analyse connue est listée dans « lignes_non_reconnues »
+      (exemple : « Ferritine 8 ng/mL 15 - 150 ») et le document part en
+      relecture. On ajoute alors la ferritine au dictionnaire : une ligne de
+      code, valable pour tous les laboratoires.
+
+
+5. LES CONTRÔLES AUTOMATIQUES (OBLIGATOIRES)
+--------------------------------------------
+Fichier : exemples/valider.py — appliqués à TOUTE extraction, règles ou IA.
+
+  Contrôle                         Ce qu'il attrape
+  ───────────────────────────────  ─────────────────────────────────────────
+  Analyse connue du dictionnaire   libellé mal lu, analyse non prévue
+  Valeur numérique                 « non mesurable », texte à la place
+  ANCRAGE : la valeur imprimée     valeur INVENTÉE par l'IA ou mal lue :
+  existe dans le texte du PDF      215 au lieu de 251 -> rejet
+  Valeur plausible (bornes         virgule perdue (109 au lieu de 10,9 g/dl
+  physiologiques par analyse)      d'hémoglobine), erreur d'unité
+  « Hors norme » recalculé         marquage oublié ou erroné par l'IA ou l'OCR
+  En-tête complet                  dossier patient ou date de validation absents
+
+Un seul échec -> le document entier part en relecture. On ne publie pas un
+compte rendu à moitié : un médecin lirait un bilan incomplet sans le savoir.
+
+Pour l'ancrage, on compare la valeur TELLE QU'IMPRIMÉE (avant conversion
+d'unité) au texte du PDF : 5,2 mmol/L doit se trouver dans le PDF, pas
+0,936 g/L.
+
+
+6. LA LECTURE PAR UN MODÈLE D'IA (C)
+------------------------------------
+Fichiers : exemples/extraire_ia.py (appel à Claude) et exemples/pont_ia.py
+
+6.1 Principe : le modèle RECOPIE, notre code INTERPRÈTE
+    Claude reçoit le PDF tel quel (il lit aussi les PDF scannés) et doit
+    remplir un schéma JSON imposé : pour chaque analyse, le libellé, la valeur,
+    l'unité et les normes EXACTEMENT comme imprimés, sans conversion. Cette
+    sortie passe ensuite par le même analyseur que l'approche B (pont_ia.py) :
+    mêmes synonymes, mêmes conversions, mêmes contrôles. Le modèle règle le
+    problème de mise en page ; les règles médicales restent dans un code
+    testé et prévisible.
+
+6.2 Paramètres utilisés
+    - modèle claude-opus-5-5, effort « high » (la précision prime) ;
+    - format de sortie imposé par schéma JSON (output_config.format) : la
+      réponse est toujours un JSON valide qui respecte le schéma ;
+    - le PDF est envoyé en bloc « document » (base64, 32 Mo et 600 pages au
+      maximum par requête) ;
+    - repli automatique côté API si le modèle refuse la requête
+      (fallbacks: "default") — on vérifie quand même stop_reason ;
+    - clé d'API Anthropic dans ANTHROPIC_API_KEY ; « pip install anthropic ».
+
+6.3 Ce qu'il faut savoir avant de l'activer
+    - CONFIDENTIALITÉ : le PDF (nom du patient, résultats) est envoyé à un
+      service externe. Il faut au préalable un accord de traitement des données
+      avec le fournisseur, l'information des patients et la validation de
+      l'établissement. Sans cela, n'utiliser que l'approche B (tout reste sur
+      nos serveurs) : c'est le comportement par défaut de pipeline.py (sans
+      l'option --ia).
+    - Coût : chaque page lue est facturée ; n'appeler l'IA qu'en repli.
+    - L'IA peut se tromper ou inventer une valeur : d'où l'ancrage du §5.
+
+
+7. QUAND UN LABORATOIRE CHANGE SA MISE EN PAGE
+----------------------------------------------
+  Changement                         Effet sur la chaîne       Action
+  ─────────────────────────────────  ────────────────────────  ───────────────
+  Colonnes réordonnées, tableau ->   aucun (B ne dépend pas    rien
+  liste, autre police                de la position)
+  Nouveau libellé (« Hb totale »)    ligne non reconnue ->     ajouter le
+                                     relecture                 synonyme
+  Nouvelle unité (µmol/L)            normes/valeur non         ajouter l'unité
+                                     converties -> confiance   et son facteur
+                                     < 1 -> relecture
+  Passage au scan                    plus de texte -> OCR ou   rien, ou activer
+                                     IA                        l'IA
+  Valeur sans normes imprimées       confiance < 1 ->          normes par
+                                     relecture                 défaut dans le
+                                                               dictionnaire (si
+                                                               validées par un
+                                                               biologiste)
+
+Pour détecter les régressions avant les patients :
+  1. constituer un corpus : quelques PDF réels par laboratoire (anonymisés) et,
+     pour chacun, le JSON attendu, vérifié une fois par un humain ;
+  2. à chaque modification du dictionnaire ou du code, réextraire tout le
+     corpus et comparer au JSON attendu (test automatique) ;
+  3. surveiller en production le taux de documents « à relire » par
+     laboratoire : une hausse soudaine signale un changement de format.
+
+
+8. EXEMPLES FOURNIS (TESTÉS)
+----------------------------
+  exemples/generer_pdfs.py     génère labo_alpha.pdf (tableau, virgules) et
+                               labo_beta.pdf (liste, points, mmol/L, normes
+                               avant la valeur) : même contenu, deux formes
+  exemples/extraire_regles.py  approche B + lecture de l'en-tête
+  exemples/valider.py          contrôles du §5 (démonstration : une valeur
+                               inventée est rejetée)
+  exemples/pont_ia.py          sortie « recopiée » de l'IA -> analyseur B
+  exemples/extraire_ia.py      appel à Claude (NON exécuté ici : nécessite une
+                               clé Anthropic et l'accord du §6.3)
+  exemples/pipeline.py         chaîne complète, envoi à EDEN ou fichier
+                               « .a_relire.json »
+
+Installation (dans un environnement Python dédié) :
+  pip install pdfplumber requests          # approche B
+  pip install anthropic                     # approche C, si autorisée
+  pip install fpdf2                         # seulement pour generer_pdfs.py
+
+Essais :
+  cd exemples
+  python extraire_regles.py labo_alpha.pdf labo_beta.pdf
+  python valider.py
+  python pont_ia.py
+  export EDEN_API_URL=... EDEN_API_KEY=...
+  python pipeline.py labo_alpha.pdf LAB-CLB-1201 "NFS et glycémie"
+
+Résultats constatés lors des essais :
+  - les deux PDF donnent les MÊMES 5 valeurs (hémoglobine et VGM hors norme),
+    la glycémie de BETA étant convertie de 5,2 mmol/L en 0,936 g/L ;
+  - dossier CLB-0001 et date 2026-09-28 lus dans les deux en-têtes ;
+  - pipeline.py publie ALPHA et BETA dans EDEN (HTTP 200) ; un compte rendu
+    contenant une ferritine (absente du dictionnaire) part en relecture ;
+  - valider.py rejette deux valeurs inventées (215 et 640 plaquettes et
+    leucocytes) et corrige un « hors norme » oublié.
+
+Le dictionnaire fourni ne contient que 5 analyses, à titre de démonstration.
+Pour un usage réel, il doit être établi et validé par un biologiste (libellés,
+unités, facteurs de conversion, bornes plausibles).
+
+
+9. INTÉGRATION DANS EDEN
+------------------------
+Cette chaîne est maintenant INTÉGRÉE à EDEN (méthode « Scan / PDF de
+résultats ») :
+  - dépôt : page /admin/imports-pdf, ou POST /ingest/v1/pdf avec la clé d'API
+    (voir connexion/05_LOGICIEL_ETABLISSEMENT.txt, 3 bis) ;
+  - extraction côté serveur : DoctorAPI/saas/pdf_extraction.py (règles et
+    contrôles de cette fiche), dictionnaire DoctorAPI/saas/analyses_pdf.json ;
+  - IA en repli : seulement si ANTHROPIC_API_KEY est configurée ET que le
+    super-administrateur l'a autorisée pour l'établissement ;
+  - relecture humaine obligatoire : PDF d'origine à côté des valeurs, points à
+    confirmer avant publication ; le PDF d'origine est conservé ;
+  - quota : nombre de fichiers par période, réglé par le super-administrateur
+    (par défaut 10 par jour).
+La solution a) reste possible : un service chez l'établissement lit les PDF et
+appelle l'API EDEN (c'est ce que fait pipeline.py).
+Interventions : « pip install pdfplumber » sur le serveur de l'API, et faire
+valider analyses_pdf.json par un biologiste avant usage réel.

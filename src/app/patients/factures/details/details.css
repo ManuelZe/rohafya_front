@@ -1,0 +1,303 @@
+.details-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.details-card {
+  background: var(--color-surface);
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  overflow: hidden; /* filet de sécurité : rien ne peut visuellement dépasser la carte */
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.details-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.ref-badge {
+  background-color: #eef2ff;
+  color: #4f46e5;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  background: #fafafa;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.meta-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meta-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #111827;
+  overflow-wrap: anywhere;
+}
+
+.meta-value.highlight {
+  color: #059669;
+  font-weight: 700;
+}
+
+.table-wrapper {
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.empty-message {
+  color: #9ca3af;
+  padding: 1.5rem 0 !important;
+}
+
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  border-radius: 8px;
+  background: var(--color-surface);
+  border: 1px dashed #d1d5db;
+  text-align: center;
+  min-height: 250px;
+}
+
+.state-box p {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.error-box {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.error-icon {
+  font-size: 2rem;
+  color: var(--color-danger);
+}
+
+.error-box p {
+  color: #991b1b;
+}
+
+.info-icon {
+  font-size: 2rem;
+  color: #9ca3af;
+}
+
+.loading-box {
+  border-color: #cbd5e1;
+}
+
+.empty-box {
+  border-color: #d1d5db;
+}
+
+/* ===================== PRODUITS / PRESTATIONS ===================== */
+
+.products-section {
+  margin-top: 0.5rem;
+}
+
+.products-section h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Permet le scroll horizontal si le tableau dépasse (avant le mode "cartes" mobile) */
+.table-scroll {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.products-table {
+  width: 100%;
+  min-width: 320px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.products-table thead th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.products-table thead th:last-child {
+  text-align: right;
+}
+
+.products-table tbody td {
+  padding: 0.65rem 0.9rem;
+  color: #111827;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.products-table tbody tr:nth-child(even) td {
+  background: #fbfbfc;
+}
+
+.products-table tbody td:last-child {
+  text-align: right;
+  font-weight: 600;
+  color: #374151;
+  font-variant-numeric: tabular-nums;
+}
+
+.products-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.products-table tbody tr:hover td {
+  background: #eef2ff;
+}
+
+.no-products {
+  margin: 0;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.88rem;
+  background: #fafafa;
+  border: 1px dashed #e5e7eb;
+  border-radius: 6px;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+/* Tablette : en-tête et méta empilés légèrement, padding réduit */
+@media (max-width: 640px) {
+  .details-card {
+    padding: 1rem;
+  }
+
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-header h3 {
+    font-size: 1rem;
+  }
+}
+
+/* Mobile : le tableau de produits devient une liste de cartes */
+@media (max-width: 480px) {
+  .products-table thead {
+    display: none;
+  }
+
+  .products-table {
+    min-width: 0; /* annule le min-width: 320px hérité, qui provoquait le débordement */
+  }
+
+  .products-table,
+  .products-table tbody,
+  .products-table tr,
+  .products-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box; /* le padding ne doit plus s'ajouter à width: 100% */
+  }
+
+  .products-table tbody tr {
+    margin-bottom: 0.6rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-surface) !important;
+  }
+
+  .products-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .products-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-bottom: none !important;
+    background: transparent !important;
+    text-align: left !important;
+    overflow-wrap: anywhere; /* évite qu'un nom de produit long ne pousse la carte hors du conteneur */
+  }
+
+  .products-table tbody td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 1rem;
+  }
+
+  .table-scroll {
+    overflow-x: visible;
+    border: none;
+  }
+}

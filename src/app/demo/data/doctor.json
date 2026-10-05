@@ -1,0 +1,275 @@
+{
+  "user": {
+    "id": 990002,
+    "patient_id": null,
+    "doctor_id": 99801,
+    "email": "paul.ekane@demo.eden",
+    "first_name": "Paul",
+    "last_name": "EKANÉ (Démo)",
+    "username": "DEMO-D-0001",
+    "roles": [{ "id": 2, "name": "Doctor" }]
+  },
+  "directory": [
+    {
+      "id": 99801,
+      "DoctorNO": "DOC-DEMO-0001",
+      "DoctorName": "Dr Paul",
+      "DoctorLastname": "EKANÉ (Démo)",
+      "DoctorFederationID": "DEMO-D-0001",
+      "user": 990002,
+      "DoctorPhone": "+237 600 000 101",
+      "DoctorPhone2": "",
+      "DoctorEmail": "paul.ekane@demo.eden",
+      "DoctorNat": "Camerounaise",
+      "DoctorCNI": "DEMO000000101",
+      "DoctorPOB": "Douala",
+      "CreatedAt": "@J-300",
+      "ModifiedAt": "@J-20",
+      "DoctorDOB": "1979-09-03",
+      "Speciality": "Médecine générale",
+      "doctor_is_confirmed": true,
+      "CodeIdentification": "ONMC-DEMO-1001",
+      "DoctorGender": "M"
+    },
+    {
+      "id": 99802,
+      "DoctorNO": "DOC-DEMO-0002",
+      "DoctorName": "Dr Solange",
+      "DoctorLastname": "MBIA (Démo)",
+      "DoctorFederationID": "DEMO-D-0002",
+      "user": 990003,
+      "DoctorPhone": "+237 600 000 102",
+      "DoctorPhone2": "",
+      "DoctorEmail": "solange.mbia@demo.eden",
+      "DoctorNat": "Camerounaise",
+      "DoctorCNI": "DEMO000000102",
+      "DoctorPOB": "Yaoundé",
+      "CreatedAt": "@J-280",
+      "ModifiedAt": "@J-40",
+      "DoctorDOB": "1984-02-17",
+      "Speciality": "Gynécologie",
+      "doctor_is_confirmed": true,
+      "CodeIdentification": "ONMC-DEMO-1002",
+      "DoctorGender": "F"
+    },
+    {
+      "id": 99803,
+      "DoctorNO": "DOC-DEMO-0003",
+      "DoctorName": "Dr Hervé",
+      "DoctorLastname": "TCHOUA (Démo)",
+      "DoctorFederationID": "DEMO-D-0003",
+      "user": 990004,
+      "DoctorPhone": "+237 600 000 103",
+      "DoctorPhone2": "",
+      "DoctorEmail": "herve.tchoua@demo.eden",
+      "DoctorNat": "Camerounaise",
+      "DoctorCNI": "DEMO000000103",
+      "DoctorPOB": "Bafoussam",
+      "CreatedAt": "@J-260",
+      "ModifiedAt": "@J-60",
+      "DoctorDOB": "1975-11-30",
+      "Speciality": "Cardiologie",
+      "doctor_is_confirmed": true,
+      "CodeIdentification": "ONMC-DEMO-1003",
+      "DoctorGender": "M"
+    }
+  ],
+  "registered_patients": 14,
+  "commissions": [
+    { "date": "@J-0T08:40", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
+    { "date": "@J-0T09:15", "kind": "prescription", "produit": "CP V01", "patient": "Jean-Marc ONANA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
+    { "date": "@J-0T11:05", "kind": "realisation", "produit": "CP V02", "patient": "Estelle KAMGA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
+    { "date": "@J-1T10:20", "kind": "prescription", "produit": "CP V01", "patient": "Estelle KAMGA (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
+    { "date": "@J-2T14:00", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Fer sérique", "montant": 850 },
+    { "date": "@J-2T14:05", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Ferritine", "montant": 1200 },
+    { "date": "@J-4T08:10", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
+    { "date": "@J-5T16:30", "kind": "realisation", "produit": "CP V02", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Spirométrie", "montant": 3000 },
+    { "date": "@J-6T09:45", "kind": "prescription", "produit": "CP V01", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Radiographie du thorax (face)", "montant": 1500 },
+    { "date": "@J-9T10:00", "kind": "realisation", "produit": "CP V02", "patient": "Aïcha NGONO (Démo)", "examen": "Spirométrie", "montant": 3000 },
+    { "date": "@J-11T08:25", "kind": "prescription", "produit": "CP V01", "patient": "Jean-Marc ONANA (Démo)", "examen": "Créatininémie", "montant": 400 },
+    { "date": "@J-13T15:10", "kind": "prescription", "produit": "CP V01", "patient": "Grâce NJOYA (Démo)", "examen": "Goutte épaisse (paludisme)", "montant": 350 },
+    { "date": "@J-16T09:00", "kind": "prescription", "produit": "CP V01", "patient": "Grâce NJOYA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
+    { "date": "@J-19T11:30", "kind": "realisation", "produit": "CP V02", "patient": "Estelle KAMGA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
+    { "date": "@J-22T10:15", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Échographie abdomino-pelvienne", "montant": 2500 },
+    { "date": "@J-26T08:50", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
+    { "date": "@J-31T09:30", "kind": "realisation", "produit": "CP V02", "patient": "Jean-Marc ONANA (Démo)", "examen": "Spirométrie", "montant": 3000 },
+    { "date": "@J-35T14:20", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Examen cytobactériologique des urines (ECBU)", "montant": 1000 },
+    { "date": "@J-40T10:40", "kind": "prescription", "produit": "CP V01", "patient": "Chantal ABENA (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
+    { "date": "@J-44T08:05", "kind": "prescription", "produit": "CP V01", "patient": "Chantal ABENA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
+    { "date": "@J-52T11:50", "kind": "realisation", "produit": "CP V02", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
+    { "date": "@J-58T09:25", "kind": "prescription", "produit": "CP V01", "patient": "Grâce NJOYA (Démo)", "examen": "Créatininémie", "montant": 400 },
+    { "date": "@J-64T15:35", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Radiographie du thorax (face)", "montant": 1500 },
+    { "date": "@J-71T10:10", "kind": "prescription", "produit": "CP V01", "patient": "Estelle KAMGA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
+    { "date": "@J-79T08:45", "kind": "realisation", "produit": "CP V02", "patient": "Chantal ABENA (Démo)", "examen": "Spirométrie", "montant": 3000 },
+    { "date": "@J-88T13:15", "kind": "prescription", "produit": "CP V01", "patient": "Jean-Marc ONANA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
+    { "date": "@J-97T09:55", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Goutte épaisse (paludisme)", "montant": 350 },
+    { "date": "@J-108T10:30", "kind": "prescription", "produit": "CP V01", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Échographie abdomino-pelvienne", "montant": 2500 },
+    { "date": "@J-121T11:05", "kind": "realisation", "produit": "CP V02", "patient": "Grâce NJOYA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
+    { "date": "@J-135T08:20", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
+    { "date": "@J-150T09:40", "kind": "prescription", "produit": "CP V01", "patient": "Chantal ABENA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
+    { "date": "@J-166T14:10", "kind": "prescription", "produit": "CP V01", "patient": "Estelle KAMGA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 }
+  ],
+  "other_patient_results": [
+    {
+      "send_result": {
+        "id": 99651,
+        "doctor_id": 99801,
+        "patient_id": 99011,
+        "exam_type": "Laboratoire",
+        "exam_code": "LAB-DEMO-0520",
+        "patient_federation_id": "DEMO-P-0011",
+        "envoi_email": true,
+        "sended_at": "@J-1T17:45"
+      },
+      "summary": {
+        "name": "LAB-DEMO-0520",
+        "test": "Créatininémie et ionogramme",
+        "patient": "Jean-Marc ONANA (Démo)",
+        "date_requested": "@J-3T08:00",
+        "date_analysis": "@J-3T11:00",
+        "done_date": "@J-3T11:30",
+        "validation_date": "@J-2T09:00",
+        "requestor": "Paul EKANÉ",
+        "done_by": "Clarisse ATANGANA",
+        "validated_by": "Dr Martin OWONA",
+        "renseignements": "Suivi d'une hypertension artérielle traitée.",
+        "analytes_summary": "Fonction rénale normale. Kaliémie normale.",
+        "results": "",
+        "diagnosis": "",
+        "serializer": "{\"Analyte_line\": \"[['Créatininémie', 9.8, 'mg/l', '', ''], ['Sodium', 139, 'mmol/l', '', ''], ['Potassium', 4.2, 'mmol/l', '', '']]\"}"
+      },
+      "details": [
+        { "name": "Créatininémie", "result": 9.8, "result_text": "", "units": "mg/l", "normal_range": "6 – 12", "remarks": "", "warning": false },
+        { "name": "Sodium", "result": 139, "result_text": "", "units": "mmol/l", "normal_range": "135 – 145", "remarks": "", "warning": false },
+        { "name": "Potassium", "result": 4.2, "result_text": "", "units": "mmol/l", "normal_range": "3,5 – 5,0", "remarks": "", "warning": false }
+      ]
+    },
+    {
+      "send_result": {
+        "id": 99652,
+        "doctor_id": 99801,
+        "patient_id": 99012,
+        "exam_type": "Imagerie",
+        "exam_code": "IMG-DEMO-0102",
+        "patient_federation_id": "DEMO-P-0012",
+        "envoi_email": false,
+        "sended_at": "@J-5T08:30"
+      },
+      "summary": {
+        "number": "IMG-DEMO-0102",
+        "requested_test": "Radiographie du thorax (face)",
+        "patient": "Ibrahim MOUSSA (Démo)",
+        "request_date": "@J-6T09:45",
+        "date": "@J-6T10:20",
+        "requestor": "Paul EKANÉ",
+        "realisateur": "Dr Hervé TCHOUA",
+        "doctor": "Dr Hervé TCHOUA",
+        "validated_by": "Dr Hervé TCHOUA",
+        "validation_date": "@J-5T08:00",
+        "indication": "Toux fébrile depuis 5 jours.",
+        "technique": "Cliché de face en inspiration profonde.",
+        "resultat": "Opacité alvéolaire de la base droite avec bronchogramme aérien. Pas d'épanchement pleural.",
+        "conclusion": "Aspect évocateur d'une pneumopathie de la base droite."
+      },
+      "details": [
+        {
+          "description": "Radiographie du thorax de face — 1 image",
+          "date": "@J-6T10:20",
+          "institution": "Centre de démonstration EDEN",
+          "ref_physician": "Dr Hervé TCHOUA",
+          "req_physician": "Dr Paul EKANÉ",
+          "link": ""
+        }
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "id": 99901,
+      "titre": "Nouveau : le partage de résultats en un clic",
+      "date": "@J-3",
+      "description": "Vos patients peuvent désormais vous partager leurs résultats de laboratoire, d'imagerie et d'exploration fonctionnelle directement depuis leur espace EDEN. Vous les retrouvez dans la rubrique « Résultats reçus ».",
+      "url": null,
+      "is_visible": true
+    },
+    {
+      "id": 99902,
+      "titre": "Campagne de dépistage du diabète",
+      "date": "@J-15",
+      "description": "Du 1er au 15 du mois prochain, la glycémie à jeun est proposée à tarif réduit dans tous nos centres partenaires. N'hésitez pas à orienter vos patients à risque.",
+      "url": null,
+      "is_visible": true
+    },
+    {
+      "id": 99903,
+      "titre": "Rappel : clôture mensuelle des commissions",
+      "date": "@J-28",
+      "description": "Les commissions sont arrêtées le 20 de chaque mois. Les montants du cycle en cours restent visibles en temps réel dans votre tableau de bord.",
+      "url": null,
+      "is_visible": true
+    }
+  ],
+  "requests": [
+    {
+      "id": 99751,
+      "CreatedAt": "@J-9",
+      "CreatedBy": 990002,
+      "UpdatedAt": "@J-7",
+      "UpdatedBy": "Administration",
+      "first_name": "Paul",
+      "last_name": "EKANÉ (Démo)",
+      "email": "paul.ekane@demo.eden",
+      "message": "Je ne retrouve pas la commission d'une échographie prescrite le mois dernier.",
+      "administration": false,
+      "commission": true,
+      "connection": false,
+      "error": false,
+      "etat_patient": false,
+      "patient_request_connexion": false,
+      "patient_request_examen_out": false,
+      "patient_request_other_administration": false,
+      "patient_request_prix_examen": false,
+      "revendication_examen": false,
+      "suggestion": false,
+      "valide": true
+    }
+  ],
+  "notifications": [
+    {
+      "id": 99551,
+      "user_id": 990002,
+      "title": "Nouveau résultat partagé",
+      "message": "Jean-Marc ONANA (Démo) vous a partagé un résultat de laboratoire (LAB-DEMO-0520).",
+      "is_read": false,
+      "created_at": "@J-1T17:45",
+      "updated_at": null,
+      "read_at": null,
+      "all_users": false,
+      "types": 1
+    },
+    {
+      "id": 99552,
+      "user_id": 990002,
+      "title": "Relevé de commissions disponible",
+      "message": "Le relevé du cycle précédent a été facturé. Consultez-le dans la rubrique Commissions.",
+      "is_read": false,
+      "created_at": "@J-8T08:00",
+      "updated_at": null,
+      "read_at": null,
+      "all_users": false,
+      "types": 2
+    },
+    {
+      "id": 99553,
+      "user_id": null,
+      "title": "Maintenance programmée",
+      "message": "Une courte maintenance de la plateforme aura lieu dimanche entre 2 h et 4 h.",
+      "is_read": true,
+      "created_at": "@J-20T10:00",
+      "updated_at": null,
+      "read_at": "@J-19T09:00",
+      "all_users": true,
+      "types": 3
+    }
+  ]
+}

@@ -1,0 +1,546 @@
+:host {
+  --primary-color: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --primary-light: var(--color-primary-light);
+  --danger-color: var(--color-danger);
+  --danger-light: #fef2f2;
+  --surface-color: var(--color-surface);
+  --bg-color: var(--color-bg);
+  --border-color: var(--color-border);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+:host, :host *, :host *::before, :host *::after {
+  box-sizing: border-box;
+}
+
+.devis-container {
+  padding: 24px;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+  background: transparent;
+  overflow-x: hidden;
+}
+
+.access-denied-message {
+  background: #fdeeee;
+  border: 1px solid #f5bcbc;
+  color: var(--danger-color);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.3px;
+}
+
+.error-banner {
+  background-color: var(--danger-light);
+  color: var(--danger-color);
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.9rem;
+}
+
+/* Cartes d'étapes */
+.devis-card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.search-card {
+  overflow: visible;
+}
+
+.devis-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.devis-card-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  flex: 1;
+}
+
+.step-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  color: var(--primary-hover);
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.devis-card-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-link-danger {
+  border: none;
+  background: transparent;
+  color: var(--danger-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-link-danger:hover {
+  background-color: var(--danger-light);
+}
+
+/* Formulaire */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.form-row select {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: var(--color-surface);
+  color: var(--text-main);
+}
+
+.form-row select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* Recherche d'examen */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background-color: var(--color-surface);
+}
+
+.search-input-row svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.search-input-row input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text-main);
+  background: transparent;
+}
+
+.search-input-row:has(input:focus) {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 20;
+}
+
+.search-dropdown-message {
+  padding: 14px 16px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.search-dropdown-error {
+  color: var(--danger-color);
+}
+
+.search-result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background-color: var(--primary-light);
+}
+
+.search-result-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.search-result-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.search-result-price {
+  font-weight: 700;
+  color: var(--primary-hover);
+}
+
+/* Panier d'examens sélectionnés */
+.cart-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.cart-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cart-item-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-item-code {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.cart-item-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cart-item-qty label {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.cart-item-qty input {
+  width: 56px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 5px 6px;
+  font-size: 0.85rem;
+  text-align: center;
+  background-color: var(--color-surface);
+  color: var(--text-main);
+}
+
+.cart-item-price {
+  flex-shrink: 0;
+  min-width: 90px;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.icon-btn-danger:hover {
+  background-color: var(--danger-light);
+  color: var(--danger-color);
+}
+
+.cart-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  border-top: 1px dashed var(--border-color);
+}
+
+.cart-summary strong {
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--color-surface);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+/* Résultat du devis */
+.result-card .devis-card-header {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stale-badge {
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.result-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.result-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.result-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.result-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.result-table tfoot td {
+  padding: 12px 10px;
+  font-weight: 800;
+  border-top: 2px solid var(--border-color);
+  border-bottom: none;
+}
+
+.amount-cell {
+  font-weight: 700;
+  text-align: right;
+}
+
+.line-error {
+  color: var(--danger-color);
+  font-style: italic;
+  text-align: center;
+}
+
+.cell-primary {
+  font-weight: 600;
+  color: var(--text-main);
+  font-size: 0.88rem;
+}
+
+.cell-secondary {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* États généraux */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner.large {
+  width: 30px;
+  height: 30px;
+  border-width: 3px;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Adaptation mobile */
+@media (max-width: 640px) {
+  .devis-container {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .devis-card-body {
+    padding: 14px 16px;
+  }
+
+  .devis-card-header {
+    padding: 12px 16px;
+  }
+
+  .cart-item {
+    flex-wrap: wrap;
+  }
+
+  .cart-item-info {
+    flex-basis: 100%;
+  }
+
+  .cart-item-price {
+    text-align: left;
+    min-width: 0;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}

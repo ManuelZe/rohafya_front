@@ -1,0 +1,175 @@
+<div class="page">
+  <app-page-header
+    title="Imports PDF"
+    subtitle="Déposez un compte rendu d'analyses : EDEN en extrait les valeurs, vous les vérifiez, puis vous les publiez dans le dossier du patient."
+  />
+
+  @if (!pdfEnabled) {
+    <div class="banner banner-info" role="status">
+      <svg [pIcon]="'clock'" [size]="16" aria-hidden="true"></svg>
+      <span><strong>Fonctionnalité disponible prochainement.</strong> L'import de résultats médicaux par PDF arrive bientôt dans EDEN : cette page est affichée en aperçu, ses actions sont désactivées.</span>
+    </div>
+  }
+  <div [class.feature-off]="!pdfEnabled" [class.page]="pdfEnabled" [attr.inert]="pdfEnabled ? null : ''">
+
+  @if (!available()) {
+    <div class="banner banner-info" role="status">
+      <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>Cet établissement est relié directement à GNU Health : ses résultats y sont lus en direct, l'import PDF n'est pas nécessaire.</span>
+    </div>
+  } @else {
+  <section class="card" aria-labelledby="upload-title">
+    <h2 class="card-title" id="upload-title">
+      <svg [pIcon]="'cloud-upload'" [size]="18" aria-hidden="true"></svg>
+      Déposer un compte rendu
+      @if (quota(); as q) {
+        <span class="card-title-aside quota-badge" [class.is-full]="quotaReached()">{{ q.used }} / {{ q.limit }} utilisés</span>
+      }
+    </h2>
+    @if (quota(); as q) {
+      @if (quotaReached()) {
+        <div class="banner banner-error notice" role="status">
+          <svg [pIcon]="'clock'" [size]="16" aria-hidden="true"></svg>
+          <span>
+            Limite atteinte ({{ quotaText() }}). Prochain dépôt possible le
+            {{ q.next_available_at | date: "dd/MM/yyyy 'à' HH:mm" }}.
+          </span>
+        </div>
+      } @else {
+        <p class="muted small-note first">
+          Votre établissement peut importer {{ quotaText() }} : il en reste {{ q.remaining }} sur la période en cours.
+        </p>
+      }
+    }
+    <form [formRoot]="uploadForm" (submit)="upload()">
+      <div class="form-grid">
+        <div class="form-row full">
+          <label for="pdf-file">Fichier PDF * <span class="form-hint">(10 Mo maximum)</span></label>
+          <input id="pdf-file" class="field file-field" type="file" accept="application/pdf,.pdf" (change)="onFile($event)" />
+          @if (fileError()) {
+            <span class="form-error" role="alert">{{ fileError() }}</span>
+          }
+        </div>
+        <div class="form-row">
+          <label for="pdf-ref">Numéro de dossier</label>
+          <input id="pdf-ref" class="field" type="text" autocomplete="off" [formField]="uploadForm.local_ref" />
+          <span class="form-hint">Facultatif : sinon il est lu dans le PDF.</span>
+        </div>
+        <div class="form-row">
+          <label for="pdf-code">Code de l'examen</label>
+          <input id="pdf-code" class="field" type="text" autocomplete="off" [formField]="uploadForm.exam_code" />
+          <span class="form-hint">Facultatif : généré à la publication.</span>
+        </div>
+        <div class="form-row full">
+          <label for="pdf-title">Intitulé</label>
+          <input id="pdf-title" class="field" type="text" placeholder="ex. Bilan sanguin" [formField]="uploadForm.title" />
+        </div>
+      </div>
+      @if (uploadError()) {
+        <div class="banner banner-error notice" role="alert">
+          <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ uploadError() }}</span>
+        </div>
+      }
+      <p class="muted small-note">
+        Lecture : {{ aiAvailable() ? 'règles, puis IA en repli pour les PDF scannés ou non reconnus' : 'règles (les PDF scannés demandent une saisie manuelle)' }}.
+        Aucun résultat n'est publié sans votre validation.
+      </p>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="!file() || uploadForm().invalid() || uploading() || quotaReached()">
+          @if (uploading()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Analyse en cours…</span>
+          } @else {
+            <svg [pIcon]="'upload'" [size]="16" aria-hidden="true"></svg>
+            <span>Déposer et analyser</span>
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+  }
+
+  <section class="card" aria-labelledby="queue-title">
+    <h2 class="card-title" id="queue-title">
+      <svg [pIcon]="'file-pdf'" [size]="18" aria-hidden="true"></svg>
+      Comptes rendus déposés
+    </h2>
+    <div class="toolbar">
+      <div class="segmented" role="group" aria-label="Filtrer par état">
+        @for (filter of filters; track filter.value) {
+          <button type="button" [attr.aria-pressed]="status() === filter.value" (click)="setStatus(filter.value)">
+            {{ filter.label }}
+            @if (filter.value && counts(); as c) {
+              <span class="count">{{ c[filter.value] }}</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="banner banner-error notice" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ error() }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+      </div>
+    }
+
+    @if (loading() && !loaded()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="state">
+        <svg [pIcon]="'file-pdf'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucun compte rendu</strong>
+        <span>Les PDF déposés ici, ou envoyés par votre logiciel, apparaîtront dans cette liste.</span>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="loading()">
+        <table class="rtable">
+          <caption class="sr-only">Comptes rendus PDF déposés</caption>
+          <thead>
+            <tr>
+              <th scope="col">Fichier</th>
+              <th scope="col">Dossier</th>
+              <th scope="col" class="num">Valeurs</th>
+              <th scope="col" class="num">À vérifier</th>
+              <th scope="col">État</th>
+              <th scope="col">Déposé le</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.id) {
+              <tr>
+                <td data-label="Fichier">
+                  <div>
+                    <span class="strong block">{{ item.filename || 'Compte rendu ' + item.id }}</span>
+                    <span class="muted block small">
+                      {{ sizeLabel(item.file_size) }} · {{ item.source === 'api' ? 'logiciel' : 'dépôt manuel' }}{{ item.method === 'ia' ? ' · lu par IA' : '' }}
+                    </span>
+                  </div>
+                </td>
+                <td data-label="Dossier" class="mono">{{ item.local_ref || '—' }}</td>
+                <td data-label="Valeurs" class="num">{{ item.values_count }}</td>
+                <td data-label="À vérifier" class="num">{{ item.issues_count }}</td>
+                <td data-label="État"><span [class]="'pill pill-pdf-' + item.status">{{ statusLabels[item.status] }}</span></td>
+                <td data-label="Déposé le">{{ item.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td class="actions-cell">
+                  <a class="btn btn-ghost btn-sm" [routerLink]="['/admin/imports-pdf', item.id]">
+                    {{ item.status === 'publie' || item.status === 'rejete' ? 'Voir' : 'Vérifier' }}<span class="sr-only"> {{ item.filename }}</span>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />
+    }
+  </section>
+  </div>
+</div>

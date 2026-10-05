@@ -1,0 +1,134 @@
+<div class="page">
+  <app-page-header title="Commissions par mois" subtitle="Chaque mois couvre la période du 21 du mois précédent au 20 du mois.">
+    <div actions class="segmented" role="group" aria-label="Statut de facturation">
+      <button type="button" [attr.aria-pressed]="type() === 'invoiced'" (click)="setType('invoiced')">Facturées</button>
+      <button type="button" [attr.aria-pressed]="type() === 'not_invoiced'" (click)="setType('not_invoiced')">Non facturées</button>
+    </div>
+  </app-page-header>
+
+  <!-- Sélecteur de mois -->
+  <section class="card month-picker" aria-label="Choix du mois">
+    <button type="button" class="btn btn-ghost nav-btn" (click)="shiftMonth(-1)" [disabled]="!canPrev()" aria-label="Mois précédent">
+      <svg [pIcon]="'chevron-left'" [size]="16" aria-hidden="true"></svg>
+    </button>
+    <div class="months" role="group" [attr.aria-label]="'Mois de ' + year">
+      @for (m of months; track m.value) {
+        <button
+          type="button"
+          class="month"
+          [class.month-current]="m.current"
+          [attr.aria-pressed]="selectedMonth() === m.value"
+          [attr.aria-label]="m.label + ' ' + year + (m.current ? ' (cycle en cours)' : '')"
+          [disabled]="!m.available"
+          (click)="selectMonth(m.value)"
+        >
+          {{ m.short }}
+        </button>
+      }
+    </div>
+    <button type="button" class="btn btn-ghost nav-btn" (click)="shiftMonth(1)" [disabled]="!canNext()" aria-label="Mois suivant">
+      <svg [pIcon]="'chevron-right'" [size]="16" aria-hidden="true"></svg>
+    </button>
+  </section>
+
+  <div class="period-head">
+    <h2>{{ monthLabel() }}</h2>
+    <span class="chip">
+      <svg [pIcon]="'calendar'" [size]="12" aria-hidden="true"></svg>
+      {{ periodLabel() }}
+    </span>
+    @if (isCurrentCycle()) {
+      <span class="chip chip-live">Cycle en cours</span>
+    }
+    <button type="button" class="btn btn-ghost refresh" (click)="refresh()" [disabled]="month.loading()">
+      @if (month.loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span class="sr-only">Actualiser</span>
+    </button>
+  </div>
+
+  @if (month.error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ month.error() }}</span>
+      <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+    </div>
+  } @else {
+    <section class="kpis" aria-label="Synthèse du mois" [class.is-refreshing]="month.refreshing()">
+      <app-kpi-tile
+        [label]="type() === 'invoiced' ? 'Total facturé' : 'Total non facturé'"
+        icon="wallet"
+        accent="#1a54c9"
+        [value]="totalValue()"
+        [loading]="month.loading() && !month.data()"
+      />
+      <app-kpi-tile label="Commissions" icon="list" accent="#0d9488" [value]="commissionsValue()" [loading]="month.loading() && !month.data()" />
+      <app-kpi-tile label="Patients" icon="users" accent="#b45309" [value]="patientsValue()" [loading]="month.loading() && !month.data()" />
+    </section>
+
+    @if (month.data(); as data) {
+      <section class="card" aria-labelledby="split-title" [class.is-refreshing]="month.refreshing()">
+        <h3 id="split-title" class="card-title">
+          <svg [pIcon]="'chart-pie'" [size]="18" aria-hidden="true"></svg>
+          Répartition
+        </h3>
+        <app-stacked-meter [prescription]="data.prescription" [realisation]="data.realisation" />
+      </section>
+
+      <section class="card" aria-labelledby="lines-title" [class.is-refreshing]="month.refreshing()">
+        <h3 id="lines-title" class="card-title">
+          <svg [pIcon]="'list'" [size]="18" aria-hidden="true"></svg>
+          Détail des commissions
+          <span class="card-title-aside">{{ lines().length }} ligne(s)</span>
+        </h3>
+
+        @if (lines().length === 0) {
+          <div class="state">
+            <svg [pIcon]="'inbox'" [size]="30" aria-hidden="true"></svg>
+            <strong>Aucune commission {{ type() === 'invoiced' ? 'facturée' : 'non facturée' }} ce mois-ci</strong>
+            @if (type() === 'invoiced') {
+              <button type="button" class="btn btn-ghost" (click)="setType('not_invoiced')">Voir les non facturées</button>
+            }
+          </div>
+        } @else {
+          <ul class="lines">
+            @for (line of lines(); track $index) {
+              <li>
+                <div class="line-main">
+                  <span class="line-title">{{ line.examen }}</span>
+                  <span class="line-sub">
+                    {{ line.patient }}
+                    @if (line.date) {
+                      · {{ line.date | date: 'dd/MM/yyyy' }}
+                    }
+                  </span>
+                </div>
+                @if (line.kind) {
+                  <app-status-tag kind="commissionKind" [status]="line.kind" />
+                }
+                <strong class="line-value">{{ line.points | points }}</strong>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      @if (data.patientNames.length > 0) {
+        <section class="card" aria-labelledby="patients-title">
+          <h3 id="patients-title" class="card-title">
+            <svg [pIcon]="'users'" [size]="18" aria-hidden="true"></svg>
+            Patients du mois
+          </h3>
+          <ul class="patients">
+            @for (name of data.patientNames; track name) {
+              <li class="chip">{{ name }}</li>
+            }
+          </ul>
+        </section>
+      }
+    }
+  }
+</div>

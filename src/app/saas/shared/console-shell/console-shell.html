@@ -1,0 +1,97 @@
+<div class="shell">
+  <ng-template #sidebarContent let-mobile="mobile">
+    <div class="sidebar-header">
+      <div class="profile-card">
+        <div class="profile-avatar" aria-hidden="true">
+          <svg [pIcon]="'shield'" [size]="20"></svg>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">{{ userName() }}</div>
+          <div class="profile-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>{{ roleLabel() }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if (tenants().length > 1) {
+        <div class="tenant-switcher">
+          <label class="tenant-label" [for]="tenantSelectId + (mobile ? '-m' : '')">Établissement</label>
+          <select
+            class="tenant-select"
+            [id]="tenantSelectId + (mobile ? '-m' : '')"
+            [value]="selectedTenantId() ?? ''"
+            (change)="onTenantChange($event, mobile)"
+          >
+            @for (tenant of tenants(); track tenant.id) {
+              <option [value]="tenant.id" [selected]="tenant.id === selectedTenantId()">{{ tenant.name }}</option>
+            }
+          </select>
+        </div>
+      } @else if (tenants().length === 1) {
+        <div class="tenant-single">
+          <svg [pIcon]="'building'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ tenants()[0].name }}</span>
+        </div>
+      }
+    </div>
+
+    <nav class="sidebar-nav" [attr.aria-label]="navLabel()">
+      @for (entry of menu(); track entry.link) {
+        <a
+          class="menu-item"
+          [routerLink]="entry.disabled ? null : entry.link"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          [routerLinkActiveOptions]="{ exact: !!entry.exact }"
+          [class.menu-item-locked]="entry.disabled"
+          [attr.aria-disabled]="entry.disabled || null"
+          (click)="entry.disabled ? null : onNavigate()"
+        >
+          <svg [pIcon]="entry.icon" [size]="20" aria-hidden="true"></svg>
+          <span>{{ entry.label }}</span>
+          @if (entry.hint) {
+            <span class="menu-hint">{{ entry.hint }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-date">
+        <svg [pIcon]="'calendar'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ currentDate }}</span>
+      </div>
+      @if (switchLink(); as target) {
+        <a class="footer-btn switch-btn" [routerLink]="target.link" (click)="onNavigate()">
+          <svg [pIcon]="'arrow-right-arrow-left'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ target.label }}</span>
+        </a>
+      }
+      <button type="button" class="logout-btn" (click)="logout()">
+        <svg [pIcon]="'sign-out'" [size]="16" aria-hidden="true"></svg>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </ng-template>
+
+  <p-drawer
+    [visible]="sidebarService.visible()"
+    (visibleChange)="sidebarService.set($event)"
+    [modal]="true"
+    [closable]="true"
+    class="sidebar-mobile"
+    styleClass="doctor-drawer"
+    ariaCloseLabel="Fermer le menu"
+  >
+    <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: true }" />
+  </p-drawer>
+
+  <aside class="sidebar-desktop">
+    <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: false }" />
+  </aside>
+
+  <main class="main-content" id="contenu">
+    <router-outlet />
+  </main>
+</div>

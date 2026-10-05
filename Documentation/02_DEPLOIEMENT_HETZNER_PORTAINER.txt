@@ -1,0 +1,658 @@
+================================================================================
+          EDEN — DÉPLOIEMENT SUR SERVEUR HETZNER AVEC DOCKER ET PORTAINER CE
+================================================================================
+
+Document  : 02_DEPLOIEMENT_HETZNER_PORTAINER.txt
+Public    : responsable du déploiement / administrateur système
+Prérequis : avoir lu 01_VERSIONNAGE_GIT.txt (le déploiement repose sur les tags Git)
+Contexte  : EDEN est une application Angular 22 avec rendu serveur (SSR). Elle
+            s'exécute dans un conteneur Docker (serveur Node.js) sur un serveur
+            Hetzner, administré avec Portainer CE. Elle appelle l'API Flask
+            (DoctorAPI) depuis le navigateur des utilisateurs.
+
+Convention : les valeurs à remplacer sont notées en MAJUSCULES entre < >.
+             Exemple : <IP_SERVEUR> = adresse IPv4 du serveur Hetzner.
+             Les commandes précédées de « poste$ » se tapent sur VOTRE ordinateur,
+             celles précédées de « serveur$ » sur le serveur (après connexion SSH).
+
+
+SOMMAIRE
+--------
+  0.  Vue d'ensemble et architecture
+  1.  Informations et accès à réunir avant de commencer
+  2.  Accès sécurisé au serveur (SSH, tunnel vers Portainer)
+  3.  Préparation et sécurisation du serveur Hetzner
+  4.  L'image Docker d'EDEN : ce qu'elle contient, la tester en local
+  5.  Registre d'images (GitHub Container Registry) et accès depuis Portainer
+  6.  Nom de domaine, HTTPS et reverse proxy (Nginx Proxy Manager)
+  7.  Prérequis côté API Flask (HTTPS, CORS)
+  8.  PREMIÈRE MISE EN PRODUCTION, pas à pas
+  9.  Automatisation (GitHub Actions + API Portainer)
+  10. Déployer une nouvelle version (procédure courante)
+  11. Revenir à la version précédente (rollback)
+  12. Environnement de préproduction (recommandé)
+  13. Listes de contrôle (avant / après chaque mise en production)
+  Annexe A. Contenu du dossier Documentation
+  Annexe B. Variables de configuration du conteneur
+
+
+================================================================================
+0. VUE D'ENSEMBLE ET ARCHITECTURE
+================================================================================
+
+  POSTE DÉVELOPPEUR                GITHUB                         SERVEUR HETZNER
+  ──────────────────               ──────                         ───────────────
+  release.sh ──(tag vX.Y.Z)──►  dépôt eden-app
+                                    │ GitHub Actions
+                                    ▼
+                               tests + build
+                                    │
+                                    ▼
+                          ghcr.io/…/eden-app:X.Y.Z ──(pull)──►  Portainer CE
+                                                                  │ stack « eden-production »
+  deployer-portainer.sh ──(API Portainer, via tunnel SSH)──►       ▼
+                                                              conteneur eden-app (Node, port 4000)
+                                                                  ▲  réseau Docker « proxy »
+  NAVIGATEUR ──HTTPS 443──► Nginx Proxy Manager (certificat Let's Encrypt) ──┘
+      │
+      └──HTTPS──► API Flask DoctorAPI (appels directs du navigateur : CORS)
+
+Principes :
+  - Une version = une image immuable eden-app:X.Y.Z. On ne modifie JAMAIS un conteneur
+    à la main : on déploie une autre image.
+  - La configuration (URL de l'API, domaines) est fournie AU DÉMARRAGE du conteneur
+    par des variables d'environnement : la même image sert en préproduction et en
+    production, et changer l'URL de l'API ne nécessite pas de reconstruire.
+  - Seuls les ports 80/443 (proxy) et 22 (SSH) sont ouverts sur Internet.
+    Portainer et le conteneur EDEN ne sont joignables que depuis le serveur lui-même.
+  - Le conteneur exécute l'application en utilisateur non-root, système de fichiers en
+    lecture seule, mémoire limitée à 512 Mo, journaux limités.
+
+Adaptations apportées à l'application pour ce déploiement (déjà faites dans le code) :
+  - src/environments/environment.ts : l'URL de l'API est lue à l'exécution
+    (auparavant, l'URL de DÉVELOPPEMENT était codée en dur dans tous les services) ;
+  - src/server.ts : routes /env.js (configuration) et /healthz (santé + version),
+    en-têtes de sécurité, arrêt propre ;
+  - angular.json : la liste des domaines autorisés n'est plus « * » (faille SSRF) ;
+    les domaines de production sont donnés par la variable NG_ALLOWED_HOSTS.
+
+
+================================================================================
+1. INFORMATIONS ET ACCÈS À RÉUNIR AVANT DE COMMENCER
+================================================================================
+
+Cocher chaque ligne avant de passer à la suite :
+
+  [ ] <IP_SERVEUR>      IPv4 publique du serveur Hetzner
+                        (Hetzner Cloud Console > Servers > colonne « Public IP »)
+  [ ] Accès root SSH au serveur (clé SSH ajoutée à la création, ou mot de passe root)
+  [ ] Système du serveur : Ubuntu 22.04/24.04 LTS ou Debian 12
+                        serveur$ cat /etc/os-release
+  [ ] Ressources minimales : 2 vCPU, 4 Go de RAM, 40 Go de disque (type CX22 ou mieux)
+  [ ] Accès administrateur à Portainer CE (déjà installé) et son URL/port (souvent 9443)
+  [ ] <DOMAINE_EDEN>    nom de domaine public d'EDEN, ex. eden.pdmdsante.com
+  [ ] Accès à la zone DNS du domaine (registrar ou Hetzner DNS) pour créer un enregistrement
+  [ ] <URL_API>         URL HTTPS de l'API Flask, ex. https://site.pdmdsante.com/
+                        (voir étape 7 : l'API DOIT être en HTTPS)
+  [ ] Accès au code de l'API Flask (pour la liste CORS, étape 7)
+  [ ] <ORGANISATION>    organisation GitHub qui héberge le dépôt, ex. pdmdsante
+  [ ] Dépôt Git en place et poussé sur GitHub (document 01, section 4)
+  [ ] <EMAIL_ADMIN>     adresse e-mail pour Let's Encrypt (alertes d'expiration)
+
+Outils sur VOTRE poste :
+    poste$ sudo apt install -y git curl jq openssh-client
+    Docker (facultatif, pour tester l'image en local) : https://docs.docker.com/engine/install/
+
+
+================================================================================
+2. ACCÈS SÉCURISÉ AU SERVEUR (SSH, TUNNEL VERS PORTAINER)
+================================================================================
+
+2.1 Clé SSH personnelle (si vous n'en avez pas déjà une)
+    poste$ ssh-keygen -t ed25519 -C "<VOTRE_EMAIL>"
+    poste$ cat ~/.ssh/id_ed25519.pub        # clé PUBLIQUE, à installer sur le serveur
+
+2.2 Première connexion en root
+    poste$ ssh root@<IP_SERVEUR>
+    À la première connexion, taper « yes » pour accepter l'empreinte du serveur.
+    Si la clé n'a pas été fournie à la création du serveur :
+    poste$ ssh-copy-id root@<IP_SERVEUR>
+
+2.3 Raccourci de connexion (confort) : ajouter dans ~/.ssh/config sur votre poste
+        Host eden
+            HostName <IP_SERVEUR>
+            User deploy
+            IdentityFile ~/.ssh/id_ed25519
+            # tunnels vers Portainer et Nginx Proxy Manager (étapes 5, 6, 10)
+            LocalForward 9443 127.0.0.1:9443
+            LocalForward 8181 127.0.0.1:81
+    Ensuite :  poste$ ssh eden   (l'utilisateur « deploy » est créé à l'étape 3)
+
+2.4 Tunnel SSH vers Portainer (méthode d'accès recommandée)
+    Portainer ne doit PAS être ouvert sur Internet : on y accède à travers SSH.
+    poste$ ssh -N -L 9443:127.0.0.1:9443 deploy@<IP_SERVEUR>
+      (-N : pas de terminal, la commande « reste bloquée » tant que le tunnel est ouvert)
+    Puis dans le navigateur : https://localhost:9443
+      Le certificat de Portainer est auto-signé : « Avancé > Continuer » est normal ici.
+    Fermer le tunnel : Ctrl+C.
+
+    Si Portainer est aujourd'hui accessible via https://<IP_SERVEUR>:9443 depuis Internet,
+    restreindre ce port (étape 3.3) dès que le tunnel fonctionne.
+
+
+================================================================================
+3. PRÉPARATION ET SÉCURISATION DU SERVEUR HETZNER
+================================================================================
+
+3.1 Instantané de sécurité AVANT toute modification
+    Hetzner Cloud Console > Servers > <votre serveur> > Snapshots > Take snapshot
+    (nom : avant-preparation-eden). Permet de tout annuler en cas de problème.
+    Serveur dédié (Hetzner Robot) : sauvegarder /etc et la liste des conteneurs.
+
+3.2 Exécuter le script de préparation (idempotent : ré-exécutable sans risque)
+    poste$ scp Documentation/serveur/preparation-serveur-hetzner.sh root@<IP_SERVEUR>:/root/
+    poste$ ssh root@<IP_SERVEUR> 'bash /root/preparation-serveur-hetzner.sh deploy'
+
+    Le script (détail dans son en-tête) :
+      1. met à jour le système, installe curl, jq, ufw, fail2ban ;
+      2. crée 2 Go de swap s'il n'y en a pas (évite les arrêts brutaux par manque de RAM) ;
+      3. crée l'utilisateur d'exploitation « deploy » (sudo + docker) avec vos clés SSH ;
+      4. installe Docker s'il est absent et limite la taille des journaux Docker ;
+      5. active le pare-feu UFW : SSH, 80, 443 seulement ;
+      6. active fail2ban (bannit les IP qui attaquent SSH) et les mises à jour de sécurité ;
+      7. désactive la connexion SSH par mot de passe (seulement si une clé est en place) ;
+      8. crée le réseau Docker « proxy » partagé par le reverse proxy et EDEN ;
+      9. laisse Portainer tel quel s'il existe (sinon l'installe, en local uniquement).
+
+    À la fin, AVANT de fermer la session root, dans un AUTRE terminal :
+    poste$ ssh deploy@<IP_SERVEUR>                  # doit fonctionner
+    serveur$ docker ps                              # doit lister les conteneurs sans sudo
+             (si « permission denied » : se déconnecter/reconnecter pour activer le groupe docker)
+    serveur$ sudo passwd deploy                     # mot de passe pour sudo
+
+3.3 Pare-feu Hetzner Cloud (en plus d'UFW — IMPORTANT)
+    Docker insère ses propres règles réseau et CONTOURNE UFW pour les ports publiés.
+    Le pare-feu Hetzner, lui, filtre AVANT que le trafic n'atteigne le serveur.
+
+    Hetzner Cloud Console > Firewalls > Create Firewall > nom « eden-web »
+      Règles entrantes (Inbound) :
+        ICMP         Any IPv4 / Any IPv6       (ping, diagnostic)
+        TCP 22       <VOTRE_IP_FIXE>/32 si possible, sinon Any   (SSH)
+        TCP 80       Any IPv4 / Any IPv6       (HTTP -> redirection HTTPS, Let's Encrypt)
+        TCP 443      Any IPv4 / Any IPv6       (HTTPS)
+      AUCUNE règle pour 9443 (Portainer), 81 (admin proxy), 4000 (EDEN).
+      Apply to > Servers > <votre serveur> > Create Firewall.
+    Serveur dédié (Robot) : robot.hetzner.com > Server > Firewall, mêmes règles.
+
+    Vérification depuis votre poste (doivent échouer / expirer) :
+    poste$ curl -k --max-time 5 https://<IP_SERVEUR>:9443      # Portainer : fermé
+    poste$ curl --max-time 5 http://<IP_SERVEUR>:4000           # EDEN direct : fermé
+
+3.4 Sauvegardes automatiques du serveur
+    Hetzner Cloud Console > Servers > <serveur> > Backups > Enable backups
+    (7 sauvegardes quotidiennes glissantes, +20 % du prix du serveur).
+    EDEN lui-même ne stocke aucune donnée (tout est dans l'API) ; ce qui doit être
+    sauvegardé est la configuration : Portainer, Nginx Proxy Manager (certificats) —
+    voir 03_EXPLOITATION_ET_DEPANNAGE.txt, section 3.
+
+
+================================================================================
+4. L'IMAGE DOCKER D'EDEN : CE QU'ELLE CONTIENT, LA TESTER EN LOCAL
+================================================================================
+
+4.1 Fichiers
+    Documentation/docker/Dockerfile               recette de l'image
+    Documentation/docker/Dockerfile.dockerignore  fichiers exclus (node_modules, .git, secrets…)
+
+4.2 Construction en 3 étapes (« multi-stage »)
+    1. deps    : npm ci — dépendances exactes de package-lock.json (mise en cache) ;
+    2. build   : ng build --configuration production (navigateur + serveur SSR + pages
+                 pré-rendues) ;
+    3. runtime : image finale node:24-alpine contenant UNIQUEMENT dist/eden_app
+                 (~180 Mo), utilisateur « node » (non-root), tini (arrêt propre),
+                 fuseau Africa/Douala, contrôle de santé /healthz toutes les 30 s.
+    Étiquettes intégrées : version, commit Git, date de construction.
+
+4.3 Tester l'image sur votre poste (facultatif mais recommandé avant la 1re mise en ligne)
+    poste$ cd <dossier>/eden_app
+    poste$ docker build -f Documentation/docker/Dockerfile \
+             --build-arg APP_VERSION=0.0.0-local -t eden-app:local .
+           (5 à 10 minutes la première fois)
+    poste$ docker run -d --name eden-local -p 127.0.0.1:4000:4000 \
+             -e API_URL=https://site.pdmdsante.com/ \
+             -e NG_ALLOWED_HOSTS=localhost eden-app:local
+    poste$ curl http://localhost:4000/healthz
+           -> {"status":"ok","version":"0.0.0-local",...}
+    poste$ curl http://localhost:4000/env.js
+           -> window.__EDEN_ENV__ = {"apiUrl":"https://site.pdmdsante.com/","version":"0.0.0-local"};
+    Navigateur : http://localhost:4000/intro
+    Nettoyage : poste$ docker rm -f eden-local
+
+    Résultats obtenus lors de la validation de cette documentation :
+      image 178 Mo, conteneur « healthy », ~36 Mo de RAM au repos, démarrage < 5 s,
+      fonctionnement vérifié en lecture seule sans aucune capacité Linux,
+      domaine non autorisé -> 400 (protection SSRF active).
+
+
+================================================================================
+5. REGISTRE D'IMAGES (GITHUB CONTAINER REGISTRY) ET ACCÈS DEPUIS PORTAINER
+================================================================================
+
+Les images sont publiées par GitHub Actions sur : ghcr.io/<organisation>/eden-app
+(privé). Le serveur doit pouvoir les TÉLÉCHARGER : on donne à Portainer un jeton
+en lecture seule.
+
+5.1 Créer un jeton de lecture (idéalement avec un compte GitHub « service » dédié,
+    membre de l'organisation, plutôt qu'un compte personnel)
+    GitHub > Settings (du compte) > Developer settings > Personal access tokens >
+    Tokens (classic) > Generate new token (classic)
+      Note        : portainer-hetzner-lecture-images
+      Expiration  : 1 an (noter la date de renouvellement dans le calendrier de l'équipe)
+      Scopes      : [x] read:packages     (RIEN d'autre)
+    Copier le jeton (ghp_…) : il ne sera plus affiché.
+
+5.2 Déclarer le registre dans Portainer
+    (tunnel ouvert, étape 2.4) https://localhost:9443
+    Menu de gauche > Registries > + Add registry > « Custom registry »
+      Name                 : GHCR
+      Registry URL         : ghcr.io
+      Authentication       : activé
+      Username             : <compte GitHub du jeton>
+      Password             : <jeton ghp_…>
+    > Add registry.
+    Portainer utilisera automatiquement ces identifiants pour toute image ghcr.io/…
+
+5.3 Vérifier (après la première release, document 01 section 9)
+    serveur$ docker pull ghcr.io/<organisation>/eden-app:1.0.0
+    Si « unauthorized » depuis la ligne de commande, c'est normal : seul Portainer
+    connaît le jeton. Test équivalent :
+    serveur$ echo <JETON> | docker login ghcr.io -u <COMPTE> --password-stdin
+    serveur$ docker pull ghcr.io/<organisation>/eden-app:1.0.0 && docker logout ghcr.io
+
+Alternative sans GitHub : Docker Hub (compte + dépôt privé) ou registre auto-hébergé.
+Remplacer alors ghcr.io/<organisation>/eden-app par l'adresse du registre dans
+EDEN_IMAGE (stack) et dans Documentation/scripts/deploiement.conf.
+
+
+================================================================================
+6. NOM DE DOMAINE, HTTPS ET REVERSE PROXY (NGINX PROXY MANAGER)
+================================================================================
+
+Pourquoi un reverse proxy : il reçoit tout le trafic 80/443, gère le certificat HTTPS
+(Let's Encrypt, renouvelé automatiquement), redirige HTTP vers HTTPS et transmet les
+requêtes au conteneur EDEN. Nginx Proxy Manager (NPM) s'administre avec une interface
+web, comme Portainer.
+
+SI UN REVERSE PROXY EXISTE DÉJÀ SUR LE SERVEUR (Traefik, Nginx, Caddy…) : ne pas
+installer NPM (conflit sur les ports 80/443). Relier ce proxy au réseau Docker « proxy »
+et créer une règle <DOMAINE_EDEN> -> http://eden-app-production:4000, avec transmission
+des en-têtes Host et X-Forwarded-*. Passer ensuite à l'étape 7.
+    Vérifier : serveur$ sudo ss -ltnp | grep -E ':80 |:443 '
+
+6.1 Enregistrement DNS (à faire en premier : la propagation peut prendre du temps)
+    Chez le gestionnaire du domaine :
+      Type A     Nom : eden     Valeur : <IP_SERVEUR>     TTL : 300
+      (Type AAAA vers l'IPv6 du serveur si elle est utilisée)
+    Vérifier : poste$ dig +short <DOMAINE_EDEN>      -> doit afficher <IP_SERVEUR>
+
+6.2 Déployer Nginx Proxy Manager dans Portainer
+    Portainer > Stacks > + Add stack
+      Name         : reverse-proxy
+      Build method : Web editor
+      Coller le contenu de Documentation/portainer/nginx-proxy-manager-stack.yml
+    > Deploy the stack
+    Vérifier : Containers > nginx-proxy-manager = running.
+
+6.3 Première connexion à l'administration de NPM (port 81, local uniquement)
+    poste$ ssh -N -L 8181:127.0.0.1:81 deploy@<IP_SERVEUR>
+    Navigateur : http://localhost:8181
+    Selon la version : identifiants initiaux admin@example.com / changeme, ou
+    assistant de création du compte. Définir immédiatement un e-mail et un mot de
+    passe robuste (stockés dans le gestionnaire de mots de passe de l'équipe).
+
+    La règle de proxy pour EDEN se crée APRÈS le premier démarrage d'EDEN (étape 8.6).
+
+
+================================================================================
+7. PRÉREQUIS CÔTÉ API FLASK (HTTPS, CORS)
+================================================================================
+
+EDEN (dans le navigateur) appelle l'API Flask directement. Deux conditions, sans
+lesquelles la page s'affiche mais AUCUNE donnée ne se charge :
+
+7.1 L'API doit être servie en HTTPS
+    Une page HTTPS ne peut pas appeler une API en HTTP (« contenu mixte » bloqué par
+    tous les navigateurs). L'URL de développement http://65.21.73.170:1236/ n'est donc
+    PAS utilisable en production.
+    Vérifier : poste$ curl -s https://site.pdmdsante.com/hello     -> « Hello, World! »
+    Si l'API n'a pas de HTTPS : ajouter dans NPM un Proxy Host (ex. api.pdmdsante.com ->
+    http://<IP_API>:1236, certificat Let's Encrypt, Force SSL), puis utiliser
+    https://api.pdmdsante.com/ comme <URL_API>.
+
+7.2 L'API doit autoriser le domaine d'EDEN (CORS)
+    Fichier DoctorAPI/DoctorAPI/__init__.py, appel CORS(...) :
+        origins=["http://localhost:4200", "http://localhost:8081", "https://eden.pdmdsante.com"]
+    Le domaine exact <DOMAINE_EDEN>, avec https:// et sans « / » final, doit y figurer.
+    Si vous utilisez un autre domaine (ou la préproduction), l'ajouter et redémarrer l'API.
+
+7.3 Contrôle automatique : le script verifier-deploiement.sh (étape 8.7) teste ces deux
+    points et indique précisément quoi corriger.
+
+
+================================================================================
+8. PREMIÈRE MISE EN PRODUCTION, PAS À PAS
+================================================================================
+
+Prérequis : étapes 1 à 7 terminées ; dépôt GitHub configuré (document 01, sections 4
+et 10) ; workflows installés (document 01, 4.7).
+
+8.1 Créer la version 1.0.0 (sur votre poste)
+    poste$ git switch main && git pull
+    poste$ bash Documentation/scripts/release.sh 1.0.0 --dry-run     # relire
+    poste$ bash Documentation/scripts/release.sh 1.0.0
+
+8.2 Suivre la construction de l'image
+    GitHub > dépôt eden-app > onglet Actions > workflow « Release » (v1.0.0)
+    Attendre les coches vertes : Vérifications, Image Docker 1.0.0, Release GitHub.
+    Contrôle : GitHub > Packages > eden-app > étiquette « 1.0.0 » présente.
+    En cas d'échec : cliquer sur l'étape en rouge et lire le message (03, section 5).
+
+8.3 Créer la stack EDEN dans Portainer
+    Tunnel ouvert (2.4) > https://localhost:9443 > environnement « local » (ou le nom
+    de votre environnement Docker) > Stacks > + Add stack
+      Name          : eden-production       (ce nom est utilisé par les scripts)
+      Build method  : Web editor
+      Web editor    : coller Documentation/portainer/eden-stack.yml
+      Environment variables : cliquer « Advanced mode », coller le contenu de
+        Documentation/portainer/eden-stack.env.example en l'adaptant :
+          EDEN_ENV=production
+          EDEN_IMAGE=ghcr.io/<organisation>/eden-app
+          EDEN_VERSION=1.0.0
+          API_URL=<URL_API>                (HTTPS, avec « / » final)
+          EDEN_DOMAINS=<DOMAINE_EDEN>
+          EDEN_HTTP_PORT=4000
+          TZ=Africa/Douala
+    > Deploy the stack
+    Portainer télécharge l'image (quelques dizaines de secondes).
+
+8.4 Vérifier le conteneur
+    Portainer > Containers > eden-app-production
+      État « running », puis « healthy » après ~30 s (colonne Status).
+      Onglet « Logs » : « EDEN 1.0.0 — serveur Node Express à l'écoute sur http://localhost:4000 »
+    En ligne de commande :
+    serveur$ curl -s http://127.0.0.1:4000/healthz
+             -> {"status":"ok","version":"1.0.0",...}
+
+    Message « Allowing all hosts via "*" is a security risk » dans les logs = la
+    variable EDEN_DOMAINS n'est pas prise en compte : revoir 8.3.
+
+8.5 Vérifier que EDEN et NPM partagent le réseau
+    Portainer > Networks > proxy : les conteneurs nginx-proxy-manager ET
+    eden-app-production doivent apparaître.
+
+8.6 Publier EDEN sur son domaine (Nginx Proxy Manager, tunnel 6.3 ouvert)
+    http://localhost:8181 > Hosts > Proxy Hosts > Add Proxy Host
+      Onglet « Details »
+        Domain Names           : <DOMAINE_EDEN>
+        Scheme                 : http
+        Forward Hostname / IP  : eden-app-production      (nom du conteneur)
+        Forward Port           : 4000
+        [ ] Cache Assets   [x] Block Common Exploits   [ ] Websockets Support
+        (« Cache Assets » DOIT rester décoché : il mettrait en cache /env.js, qui est
+         généré dynamiquement ; le serveur EDEN gère déjà le cache des fichiers statiques.)
+      Onglet « SSL »
+        SSL Certificate        : Request a new SSL Certificate
+        [x] Force SSL   [x] HTTP/2 Support   [x] HSTS Enabled
+        Email for Let's Encrypt: <EMAIL_ADMIN>
+        [x] I Agree to the Let's Encrypt Terms of Service
+    > Save. Le certificat est obtenu en ~30 s (le DNS de 6.1 doit déjà pointer
+      vers le serveur et le port 80 être ouvert, étape 3.3).
+    Navigateur : https://<DOMAINE_EDEN>  -> écran de démarrage EDEN puis accueil.
+
+8.7 Contrôles automatiques de bout en bout (sur votre poste)
+    poste$ cp Documentation/scripts/deploiement.conf.example Documentation/scripts/deploiement.conf
+    poste$ chmod 600 Documentation/scripts/deploiement.conf
+    Éditer deploiement.conf (au minimum EDEN_PUBLIC_URL=https://<DOMAINE_EDEN>), puis :
+    poste$ bash Documentation/scripts/verifier-deploiement.sh https://<DOMAINE_EDEN> 1.0.0
+    Tous les contrôles doivent être « ✔ ». Chaque « ✖ » indique la correction à faire
+    (certificat, redirection HTTPS, version, URL de l'API, CORS, en-têtes…).
+
+8.8 Recette fonctionnelle (manuelle, 10 minutes)
+    [ ] Connexion patient -> tableau de bord : factures et examens s'affichent
+    [ ] Connexion docteur -> tableau de bord : solde du cycle en points
+    [ ] Commissions > Relevé, Par mois, Par année, Par période
+    [ ] Résultats reçus : ouverture d'un résultat
+    [ ] Notifications : bouton « Retour »
+    [ ] Déconnexion
+    [ ] Sur téléphone (affichage mobile, menu latéral)
+    [ ] Console du navigateur (F12) : aucune erreur rouge « CORS » ou « Mixed Content »
+
+8.9 Consigner : date, version 1.0.0, personne, résultat des contrôles
+    (historique-deploiements.log est tenu automatiquement par les scripts à partir
+    de la version suivante).
+
+
+================================================================================
+9. AUTOMATISATION (GITHUB ACTIONS + API PORTAINER)
+================================================================================
+
+9.1 Ce qui est automatisé
+    À chaque push / Pull Request (workflow « CI ») :
+      tests unitaires, build de production, construction de l'image (sans publication).
+    À chaque tag vX.Y.Z (workflow « Release ») :
+      vérifications, image publiée sur ghcr.io, release GitHub avec notes,
+      puis — si activé — déploiement sur Portainer APRÈS APPROBATION MANUELLE,
+      suivi des contrôles de verifier-deploiement.sh.
+    Sur votre poste (scripts) :
+      release.sh (version), deployer-portainer.sh (déploiement), rollback.sh,
+      verifier-deploiement.sh, build-push.sh (construction sans CI, secours).
+
+9.2 Jeton d'API Portainer (nécessaire aux scripts de déploiement)
+    Portainer > menu utilisateur (en haut à droite) > My account > Access tokens >
+    + Add access token > description « deploiement-eden » > copier le jeton ptr_…
+    Le reporter dans Documentation/scripts/deploiement.conf (PORTAINER_API_KEY).
+    Idéalement : créer dans Portainer un utilisateur « deploiement » dédié, avec les
+    droits limités à l'environnement concerné, et générer le jeton sur ce compte.
+
+9.3 Comment les scripts atteignent Portainer — choisir UNE option
+
+    OPTION A (RECOMMANDÉE, par défaut) : déploiement lancé depuis le poste de
+    l'administrateur, via le tunnel SSH. Portainer reste invisible d'Internet.
+      poste$ ssh -N -L 9443:127.0.0.1:9443 deploy@<IP_SERVEUR>     (terminal 1)
+      poste$ bash Documentation/scripts/deployer-portainer.sh 1.1.0  (terminal 2)
+      deploiement.conf : PORTAINER_URL="https://localhost:9443", PORTAINER_INSECURE=1
+      GitHub : variable DEPLOY_AUTO absente ou « false ».
+
+    OPTION B : déploiement 100 % automatique depuis GitHub Actions. GitHub doit alors
+    joindre Portainer : exposer Portainer via NPM sous un nom dédié
+    (ex. portainer.pdmdsante.com -> https://portainer:9443, certificat Let's Encrypt,
+    Access List NPM limitant l'accès), et utiliser un jeton d'un utilisateur Portainer
+    aux droits minimaux. Puis dans GitHub (document 01, 10.4) :
+      Secrets (environnement production) :
+        PORTAINER_URL        = https://portainer.pdmdsante.com
+        PORTAINER_API_KEY    = ptr_…
+        PORTAINER_STACK_NAME = eden-production
+      Variables : DEPLOY_AUTO = true, EDEN_PUBLIC_URL = https://<DOMAINE_EDEN>
+      Environnement « production » avec « Required reviewers » : le déploiement attend
+      un clic d'approbation dans GitHub.
+    Compromis : plus rapide, mais Portainer (qui contrôle tout le serveur) devient
+    joignable depuis Internet. À réserver à une équipe capable de le surveiller.
+
+    OPTION C : runner GitHub « self-hosted » installé sur le serveur (accès local à
+    Portainer, rien d'exposé). Plus complexe à maintenir ; non détaillé ici.
+
+9.4 Webhook Portainer : Portainer CE propose, pour certaines stacks, une URL de
+    « webhook » de redéploiement. Elle ne permet PAS de choisir la version (elle
+    redéploie la même configuration) : l'API utilisée par deployer-portainer.sh est
+    préférée car elle change EDEN_VERSION de façon traçable.
+
+9.5 Ce qui n'est volontairement PAS automatisé
+    - La décision de mettre en production (approbation humaine).
+    - Les mises à jour automatiques d'image type « Watchtower » : elles
+      déploieraient sans contrôle ni traçabilité. À ne pas installer pour EDEN.
+
+
+================================================================================
+10. DÉPLOYER UNE NOUVELLE VERSION (PROCÉDURE COURANTE)
+================================================================================
+
+10.1 Créer la version (document 01, section 9)
+    poste$ git switch main && git pull
+    poste$ bash Documentation/scripts/release.sh minor        # ou patch / major
+    Attendre la fin du workflow « Release » (onglet Actions, ~5-10 min).
+
+10.2 Déployer — au choix :
+
+    a) Option B activée : GitHub > Actions > Release vX.Y.Z > « Review deployments »
+       > cocher production > Approve and deploy. Le workflow déploie et vérifie.
+
+    b) Script (option A) :
+       poste$ ssh -N -L 9443:127.0.0.1:9443 deploy@<IP_SERVEUR>          # terminal 1
+       poste$ bash Documentation/scripts/deployer-portainer.sh --statut   # version actuelle
+       poste$ bash Documentation/scripts/deployer-portainer.sh X.Y.Z      # déploiement
+       Le script : change EDEN_VERSION, redéploie avec téléchargement de l'image,
+       attend que https://<DOMAINE_EDEN>/healthz annonce X.Y.Z, puis consigne
+       l'opération dans Documentation/scripts/historique-deploiements.log.
+
+    c) Manuellement dans Portainer :
+       Stacks > eden-production > onglet « Editor » > Environment variables :
+       modifier EDEN_VERSION=X.Y.Z > « Update the stack » > activer
+       « Re-pull image and redeploy » > Update.
+       NE PAS modifier le fichier de la stack à cette occasion.
+
+10.3 Contrôler
+    poste$ bash Documentation/scripts/verifier-deploiement.sh "" X.Y.Z
+    + recette rapide (8.8) sur les parties modifiées par la version.
+
+    Interruption de service : quelques secondes pendant le redémarrage du conteneur
+    (NPM renvoie « 502 Bad Gateway » pendant ce court instant). Déployer de préférence
+    en heure creuse ; prévenir les utilisateurs pour les versions majeures.
+
+
+================================================================================
+11. REVENIR À LA VERSION PRÉCÉDENTE (ROLLBACK)
+================================================================================
+
+Quand : la nouvelle version provoque une erreur bloquante. Durée : ~1 minute.
+Aucune reconstruction : l'image de chaque version reste disponible sur le registre.
+
+    Par script (tunnel ouvert) :
+    poste$ bash Documentation/scripts/rollback.sh             # version précédant l'actuelle
+    poste$ bash Documentation/scripts/rollback.sh 1.4.2       # version précise
+
+    Dans Portainer : même procédure que 10.2 c) avec l'ANCIEN numéro de version.
+
+Ensuite :
+    - vérifier (10.3) ;
+    - noter l'incident (date, version fautive, symptôme) ;
+    - corriger par un hotfix (document 01, section 12) -> nouvelle version X.Y.(Z+1) ;
+    - ne JAMAIS supprimer ni déplacer le tag de la version fautive.
+
+
+================================================================================
+12. ENVIRONNEMENT DE PRÉPRODUCTION (RECOMMANDÉ)
+================================================================================
+
+Tester une version sur le vrai serveur, avec la même image, avant la production.
+
+    1. DNS : preprod-eden.pdmdsante.com -> <IP_SERVEUR> (type A)
+    2. Portainer > Stacks > + Add stack « eden-preprod », même fichier eden-stack.yml,
+       variables :
+         EDEN_ENV=preprod           EDEN_HTTP_PORT=4001
+         EDEN_VERSION=1.3.0-rc.1    EDEN_DOMAINS=preprod-eden.pdmdsante.com
+         API_URL=<URL de l'API de test si elle existe, sinon <URL_API>>
+    3. NPM : Proxy Host preprod-eden.pdmdsante.com -> eden-app-preprod:4000 (+ SSL),
+       idéalement protégé par une « Access List » (mot de passe) dans NPM.
+    4. API Flask : ajouter https://preprod-eden.pdmdsante.com à la liste CORS.
+    5. Pré-versions depuis develop (document 01, section 8), déploiement avec
+       PORTAINER_STACK_NAME=eden-preprod (variable d'environnement ou second fichier
+       de configuration) :
+         PORTAINER_STACK_NAME=eden-preprod EDEN_PUBLIC_URL=https://preprod-eden.pdmdsante.com \
+           bash Documentation/scripts/deployer-portainer.sh 1.3.0-rc.1
+    Attention : si la préproduction utilise l'API de PRODUCTION, les actions faites en
+    préproduction (requêtes, suggestions…) modifient de vraies données.
+
+
+================================================================================
+13. LISTES DE CONTRÔLE
+================================================================================
+
+AVANT CHAQUE MISE EN PRODUCTION
+  [ ] La Pull Request est fusionnée dans main, CI verte
+  [ ] release.sh exécuté, workflow « Release » vert, image X.Y.Z présente sur GHCR
+  [ ] Notes de version relues (breaking changes ? migration côté API ?)
+  [ ] Version précédente notée (pour un éventuel rollback) : deployer-portainer.sh --statut
+  [ ] Créneau choisi (heure creuse) et utilisateurs prévenus si nécessaire
+  [ ] Snapshot Hetzner si la version touche aussi à la configuration du serveur
+
+APRÈS CHAQUE MISE EN PRODUCTION
+  [ ] verifier-deploiement.sh : tous les contrôles « ✔ », version = X.Y.Z
+  [ ] Portainer : conteneur « healthy », pas d'erreur dans les logs
+  [ ] Recette rapide (8.8) des fonctions modifiées
+  [ ] historique-deploiements.log à jour ; release GitHub publiée
+  [ ] Surveillance renforcée pendant l'heure qui suit (03, section 1)
+
+UNE FOIS (MISE EN PLACE)
+  [ ] Dépôt Git poussé, main protégée, tags protégés
+  [ ] Serveur préparé (étape 3), pare-feu Hetzner actif, sauvegardes Hetzner activées
+  [ ] Portainer accessible uniquement par tunnel SSH
+  [ ] Registre GHCR déclaré dans Portainer (jeton read:packages, date d'expiration notée)
+  [ ] DNS + NPM + certificat HTTPS + Force SSL + HSTS
+  [ ] API en HTTPS et domaine EDEN dans la liste CORS
+  [ ] Points de vigilance de 03_EXPLOITATION_ET_DEPANNAGE.txt, section 6, traités
+
+
+================================================================================
+ANNEXE A. CONTENU DU DOSSIER Documentation
+================================================================================
+
+  00_LISEZMOI.txt                          point d'entrée, ordre de lecture
+  01_VERSIONNAGE_GIT.txt                   gestion des versions avec Git
+  02_DEPLOIEMENT_HETZNER_PORTAINER.txt     ce document
+  03_EXPLOITATION_ET_DEPANNAGE.txt         surveillance, sauvegardes, pannes
+
+  docker/Dockerfile                        recette de l'image
+  docker/Dockerfile.dockerignore           exclusions du contexte de build
+
+  portainer/eden-stack.yml                 stack EDEN à coller dans Portainer
+  portainer/eden-stack.env.example         variables de la stack (modèle)
+  portainer/nginx-proxy-manager-stack.yml  stack du reverse proxy HTTPS
+
+  serveur/preparation-serveur-hetzner.sh   préparation/sécurisation du serveur
+
+  scripts/lib-commun.sh                    fonctions partagées par les scripts
+  scripts/installer-outils-git.sh          hooks et réglages Git (chaque poste)
+  scripts/installer-ci.sh                  copie les workflows dans .github/workflows
+  scripts/release.sh                       crée une version (tag, changelog, push)
+  scripts/build-push.sh                    construit/publie l'image sans CI (secours)
+  scripts/deployer-portainer.sh            déploie une version via l'API Portainer
+  scripts/rollback.sh                      revient à une version précédente
+  scripts/verifier-deploiement.sh          contrôles de bout en bout
+  scripts/deploiement.conf.example         modèle de configuration (secrets) des scripts
+
+  git/hooks/commit-msg                     contrôle des messages de commit
+  git/gitmessage.txt                       modèle de message de commit
+
+  ci/github-actions/ci.yml                 intégration continue (tests, build)
+  ci/github-actions/release.yml            publication de l'image et déploiement
+
+
+================================================================================
+ANNEXE B. VARIABLES DE CONFIGURATION DU CONTENEUR
+================================================================================
+
+  Variable (stack)   Transmise au conteneur        Rôle
+  ----------------   ----------------------        ----------------------------------
+  EDEN_VERSION       (étiquette de l'image)        version déployée, ex. 1.4.2
+  EDEN_IMAGE         (nom de l'image)              ghcr.io/<organisation>/eden-app
+  EDEN_ENV           (nom du conteneur)            production | preprod
+  API_URL            API_URL                       URL HTTPS de l'API Flask, « / » final
+  EDEN_DOMAINS       NG_ALLOWED_HOSTS              domaine(s) autorisés, séparés par « , »
+  —                  NG_TRUST_PROXY_HEADERS        en-têtes du proxy pris en compte (fixe)
+  EDEN_HTTP_PORT     (port publié sur 127.0.0.1)   4000 (production), 4001 (préprod)
+  TZ                 TZ                            Africa/Douala
+  —                  APP_VERSION                   intégrée à l'image (renvoyée par /healthz)
+
+  Points d'accès techniques du conteneur :
+    /healthz   santé et version (JSON) — utilisé par Docker, Portainer et les scripts
+    /env.js    configuration transmise au navigateur (URL de l'API, version)

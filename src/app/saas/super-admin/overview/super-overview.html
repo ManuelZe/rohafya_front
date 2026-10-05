@@ -1,0 +1,79 @@
+<div class="page">
+  <app-page-header title="Vue d'ensemble" subtitle="L'activité de toute la plateforme EDEN.">
+    <button actions type="button" class="btn btn-ghost" (click)="load()" [disabled]="loading()">
+      @if (loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span>Actualiser</span>
+    </button>
+  </app-page-header>
+
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+    </div>
+  }
+
+  <div class="kpis">
+    <app-kpi-tile label="Établissements" icon="building" accent="#1a54c9" [value]="count(stats()?.tenants)" [hint]="count(stats()?.tenants_active) + ' actif(s)'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
+    <app-kpi-tile label="Comptes" icon="users" accent="#137a36" [value]="count(stats()?.users)" [hint]="count(stats()?.patients) + ' patients · ' + count(stats()?.doctors) + ' médecins'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
+    <app-kpi-tile label="Rattachements" icon="link" accent="#6d28d9" [value]="count(stats()?.links_active)" [hint]="count(stats()?.links_pending) + ' en attente'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
+    <app-kpi-tile label="Données reçues" icon="database" accent="#b45309" [value]="count(stats()?.records_total)" hint="Par l'API EDEN et FHIR" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
+  </div>
+
+  <div class="two-cols">
+    <section class="card" aria-labelledby="tenants-title">
+      <h2 class="card-title" id="tenants-title">
+        <svg [pIcon]="'building'" [size]="18" aria-hidden="true"></svg>
+        Établissements
+        <a class="link card-title-aside" routerLink="/super-admin/etablissements">Gérer</a>
+      </h2>
+      @if (tenants(); as list) {
+        @if (list.length === 0) {
+          <div class="state"><span>Aucun établissement.</span></div>
+        } @else {
+          <ul class="activity">
+            @for (tenant of list; track tenant.id) {
+              <li>
+                <div>
+                  <a class="link" [routerLink]="['/super-admin/etablissements', tenant.id]">{{ tenant.display_name }}</a>
+                  <span class="who">{{ sourceLabels[tenant.source_type] }} · {{ tenant.stats.links_active }} rattaché(s)</span>
+                </div>
+                <span [class]="'pill ' + (tenant.is_active ? 'pill-active' : 'pill-revoked')">{{ tenant.is_active ? 'Actif' : 'Suspendu' }}</span>
+              </li>
+            }
+          </ul>
+        }
+      } @else {
+        <div class="state" role="status"><span class="spinner" aria-hidden="true"></span></div>
+      }
+    </section>
+
+    <section class="card" aria-labelledby="activity-title">
+      <h2 class="card-title" id="activity-title">
+        <svg [pIcon]="'history'" [size]="18" aria-hidden="true"></svg>
+        Activité récente
+        <a class="link card-title-aside" routerLink="/super-admin/journal">Tout voir</a>
+      </h2>
+      @if ((stats()?.recent_activity ?? []).length === 0) {
+        <div class="state"><span>Aucune activité.</span></div>
+      } @else {
+        <ul class="activity">
+          @for (entry of stats()?.recent_activity; track entry.id) {
+            <li>
+              <div>
+                <strong>{{ auditLabel(entry.action) }}</strong>
+                <span class="who">{{ entry.establishment || 'Plateforme' }}{{ entry.target ? ' · ' + entry.target : '' }}</span>
+              </div>
+              <time>{{ entry.created_at | date: 'dd/MM HH:mm' }}</time>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+</div>

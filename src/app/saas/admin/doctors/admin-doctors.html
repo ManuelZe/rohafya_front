@@ -1,0 +1,99 @@
+<div class="page">
+  <app-page-header title="Médecins" subtitle="Les médecins EDEN rattachés à votre établissement (prescripteurs, correspondants)." />
+
+  <section class="card" aria-labelledby="add-doctor-title">
+    <h2 class="card-title" id="add-doctor-title">
+      <svg [pIcon]="'user-plus'" [size]="18" aria-hidden="true"></svg>
+      Rattacher un médecin
+    </h2>
+    <form class="inline-form" [formRoot]="addForm" (submit)="add()">
+      <div class="form-row grow">
+        <label for="doctor-id">Matricule ou e-mail du médecin</label>
+        <input id="doctor-id" class="field" type="text" autocomplete="off" [formField]="addForm.identifier" />
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="addForm().invalid() || adding()">
+        {{ adding() ? 'Ajout…' : 'Rattacher' }}
+      </button>
+    </form>
+    @if (addError()) {
+      <div class="banner banner-error notice" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ addError() }}</span>
+      </div>
+    }
+  </section>
+
+  <section class="card" aria-labelledby="doctors-title">
+    <h2 class="card-title" id="doctors-title">
+      <svg [pIcon]="'users'" [size]="18" aria-hidden="true"></svg>
+      Médecins rattachés
+      <span class="card-title-aside">{{ doctors()?.length ?? 0 }}</span>
+    </h2>
+
+    @if (error()) {
+      <div class="banner banner-error" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ error() }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+      </div>
+    }
+
+    @if (loading() && !doctors()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    } @else if ((doctors() ?? []).length === 0) {
+      <div class="state">
+        <svg [pIcon]="'user-plus'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucun médecin rattaché</strong>
+        <span>Ajoutez vos médecins correspondants avec leur matricule ou leur e-mail.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="rtable">
+          <caption class="sr-only">Médecins rattachés à l'établissement</caption>
+          <thead>
+            <tr>
+              <th scope="col">Médecin</th>
+              <th scope="col">Spécialité</th>
+              <th scope="col">Matricule</th>
+              <th scope="col">E-mail</th>
+              <th scope="col">Depuis</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (doctor of doctors(); track doctor.id) {
+              <tr>
+                <td data-label="Médecin" class="strong">{{ doctor.name || '—' }}</td>
+                <td data-label="Spécialité">{{ doctor.speciality || '—' }}</td>
+                <td data-label="Matricule" class="mono">{{ doctor.matricule || '—' }}</td>
+                <td data-label="E-mail">{{ doctor.email || '—' }}</td>
+                <td data-label="Depuis">{{ doctor.created_at | date: 'dd/MM/yyyy' }}</td>
+                <td class="actions-cell">
+                  <button type="button" class="btn btn-danger-ghost btn-sm" (click)="confirm.set(doctor)">
+                    Retirer<span class="sr-only"> {{ doctor.name }}</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @if (confirm(); as doctor) {
+    <div class="overlay" (click)="confirm.set(null)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="remove-doctor-title" (click)="$event.stopPropagation()">
+        <h2 id="remove-doctor-title">Retirer {{ doctor.name }} ?</h2>
+        <p class="muted">Le médecin garde son compte EDEN ; il n'apparaîtra simplement plus parmi les médecins de l'établissement.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="confirm.set(null)">Annuler</button>
+          <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="removing()">{{ removing() ? 'Retrait…' : 'Retirer' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

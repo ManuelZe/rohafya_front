@@ -1,0 +1,48 @@
+services:
+  eden-app:
+    image: ${EDEN_IMAGE:-ghcr.io/manuelze/eden-app}:${EDEN_VERSION}
+    container_name: eden-app-${EDEN_ENV:-production}
+    restart: unless-stopped
+    environment:
+      API_URL: https://site.pdmdsante.com/
+      # Nom de domaine pur sans "https://" (ajoutez localhost/127.0.0.1 pour le healthcheck)
+      NG_ALLOWED_HOSTS: "eden.stones-enterprise.com,localhost,127.0.0.1"
+      # Ajout de x-forwarded-scheme dans les en-têtes proxy autorisés
+      NG_TRUST_PROXY_HEADERS: "x-forwarded-host,x-forwarded-proto,x-forwarded-for,x-forwarded-scheme"
+      TZ: ${TZ:-Africa/Douala}
+    # Public access http://65.21.73.170:9632 -> port 4000 of the container
+    ports:
+      - "9632:4000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4000/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 512M }
+        reservations: { memory: 128M }
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    labels:
+      com.pdmdsante.app: "eden"
+      com.pdmdsante.env: "${EDEN_ENV:-production}"
+      com.pdmdsante.version: "${EDEN_VERSION}"
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.117.0.0/16

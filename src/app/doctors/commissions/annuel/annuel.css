@@ -1,0 +1,103 @@
+.year-select {
+  width: auto;
+  font-weight: 700;
+}
+
+.refresh {
+  margin-left: auto;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.chart-head .card-title {
+  margin: 0;
+}
+
+.segmented button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.chart-skeleton {
+  height: 260px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.ytable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ytable th,
+.ytable td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--doc-border);
+  text-align: left;
+}
+
+.ytable thead th {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--doc-muted);
+}
+
+.ytable tbody th {
+  font-weight: 600;
+}
+
+.ytable tfoot th,
+.ytable tfoot td {
+  border-bottom: 0;
+  border-top: 2px solid var(--doc-border);
+  font-weight: 800;
+}
+
+.num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+@media (max-width: 1200px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .kpis {
+    gap: 0.75rem;
+  }
+
+  /* Libellé masqué visuellement mais conservé pour les lecteurs d'écran. */
+  .refresh span:not(.spinner) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}

@@ -1,0 +1,87 @@
+@if (info()) {
+  <p class="code-info" role="status">{{ info() }}</p>
+}
+
+@switch (step()) {
+  @case ('email') {
+    <form [formRoot]="emailForm" (submit)="submitEmail()" class="credentials-form">
+      <div class="form-group">
+        <label for="login-email" class="form-label">Adresse e-mail</label>
+        <input
+          id="login-email"
+          type="email"
+          class="form-input"
+          autocomplete="email"
+          inputmode="email"
+          [formField]="emailForm.email"
+          placeholder="vous@exemple.com"
+        />
+        @if (emailForm.email().touched() && emailForm.email().invalid()) {
+          <span class="form-error">{{ emailForm.email().errors()[0]?.message }}</span>
+        }
+      </div>
+      <button type="submit" class="submit-btn" [disabled]="emailForm().invalid() || busy()">
+        {{ busy() ? 'Envoi…' : 'Recevoir un code' }}
+      </button>
+    </form>
+  }
+
+  @case ('code') {
+    <form [formRoot]="codeForm" (submit)="submitCode()" class="credentials-form">
+      <div class="form-group">
+        <label for="login-code" class="form-label">Code reçu par e-mail</label>
+        <input
+          id="login-code"
+          type="text"
+          class="form-input code-input"
+          autocomplete="one-time-code"
+          inputmode="numeric"
+          [formField]="codeForm.code"
+          placeholder="123456"
+        />
+        @if (codeForm.code().touched() && codeForm.code().invalid()) {
+          <span class="form-error">{{ codeForm.code().errors()[0]?.message }}</span>
+        }
+      </div>
+      <button type="submit" class="submit-btn" [disabled]="codeForm().invalid() || busy()">
+        {{ busy() ? 'Vérification…' : 'Se connecter' }}
+      </button>
+      <div class="code-actions">
+        <button type="button" class="code-link" (click)="resend()" [disabled]="busy()">Renvoyer le code</button>
+        <button type="button" class="code-link" (click)="changeEmail()" [disabled]="busy()">Changer d'adresse</button>
+      </div>
+    </form>
+  }
+
+  @case ('names') {
+    <form [formRoot]="namesForm" (submit)="submitNames()" class="credentials-form">
+      <div class="form-group">
+        <label for="login-first-name" class="form-label">Prénom</label>
+        <input id="login-first-name" type="text" class="form-input" autocomplete="given-name" [formField]="namesForm.first_name" />
+        @if (namesForm.first_name().touched() && namesForm.first_name().invalid()) {
+          <span class="form-error">{{ namesForm.first_name().errors()[0]?.message }}</span>
+        }
+      </div>
+      <div class="form-group">
+        <label for="login-last-name" class="form-label">Nom</label>
+        <input id="login-last-name" type="text" class="form-input" autocomplete="family-name" [formField]="namesForm.last_name" />
+        @if (namesForm.last_name().touched() && namesForm.last_name().invalid()) {
+          <span class="form-error">{{ namesForm.last_name().errors()[0]?.message }}</span>
+        }
+      </div>
+      <button type="submit" class="submit-btn" [disabled]="namesForm().invalid() || busy()">
+        {{ busy() ? 'Création…' : 'Créer mon compte' }}
+      </button>
+      <div class="code-actions">
+        <button type="button" class="code-link" (click)="changeEmail()" [disabled]="busy()">Changer d'adresse</button>
+      </div>
+    </form>
+  }
+}
+
+@if (errorMessage()) {
+  <div class="error-message" role="alert" aria-live="assertive">
+    <span class="error-icon" aria-hidden="true">⚠️</span>
+    <span>{{ errorMessage() }}</span>
+  </div>
+}

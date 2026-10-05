@@ -1,0 +1,78 @@
+================================================================================
+                 CONNEXION — MÉDECIN
+================================================================================
+
+Le médecin reçoit les résultats que ses patients lui partagent, quel que soit
+l'établissement qui les a produits. Pour l'établissement GNU Health (PDMD Santé),
+il suit aussi ses commissions si ce module est activé.
+
+Espace : https://eden.pdmdsante.com/doctors
+
+
+1. AVOIR UN COMPTE MÉDECIN
+--------------------------
+Les comptes médecins existants sont importés de GNU Health (PDMD Santé) avec
+leur matricule. Un établissement peut ensuite rattacher le médecin à son propre
+espace (page « Médecins » de l'administration) avec son matricule ou son e-mail.
+
+
+2. SE CONNECTER AVEC SON E-MAIL (RECOMMANDÉ)
+--------------------------------------------
+  1. https://eden.pdmdsante.com/connexion, onglet « Code par e-mail ».
+  2. Adresse e-mail du profil médecin > « Recevoir un code ».
+  3. Code à 6 chiffres reçu (valable 10 minutes) > « Se connecter ».
+  4. EDEN ouvre directement l'espace /doctors.
+
+Condition : l'e-mail ne doit être utilisé que par un seul compte EDEN.
+
+
+3. SE CONNECTER AVEC SON IDENTIFIANT ET SON MOT DE PASSE
+--------------------------------------------------------
+  1. Onglet « Mot de passe », cliquer sur « Patient » (seul bouton affiché ; il
+     active la connexion), saisir identifiant et mot de passe, « Se connecter ».
+  2. EDEN ouvre /doctors. Si le compte est aussi patient, il ouvre l'espace
+     patient : utilisez alors la connexion par code (section 2), qui donne la
+     priorité à l'espace médecin.
+  Identifiants oubliés : « Mot de passe oublié? », saisir son matricule ; de
+  nouveaux identifiants sont envoyés par e-mail.
+
+
+4. PREMIÈRE CONNEXION : CONFIRMER SON PROFIL
+--------------------------------------------
+Tant que le profil n'est pas confirmé, seule la page « Paramètres » est
+accessible. Vérifier les informations (nom, prénom, date et lieu de naissance,
+CNI, téléphones, e-mail) et les enregistrer : tout l'espace se débloque.
+
+
+5. CE QUE L'ON TROUVE DANS L'ESPACE
+-----------------------------------
+  Tableau de bord     résultats reçus (et, si activé, solde du cycle de
+                      commissions, activité du jour, examens les plus fréquents)
+  Commissions         relevé, par mois, par année, par période — uniquement
+                      pour l'établissement GNU Health qui a activé ce module
+  Résultats reçus     résultats partagés par les patients, tous établissements ;
+                      chaque consultation est inscrite au journal de
+                      l'établissement concerné
+  Actualités, Requêtes, Notifications, Paramètres
+
+Un médecin qui est aussi patient ouvre son espace patient avec le bouton
+« Mon espace patient » en bas de la barre latérale ; pour revenir, aller à
+l'adresse https://eden.pdmdsante.com/doctors.
+
+
+6. DÉPANNAGE
+------------
+  Situation                                       Que faire
+  ──────────────────────────────────────────────  ──────────────────────────────
+  Pas de menu « Commissions »                     Aucun établissement GNU Health
+                                                  n'a activé le module pour vous.
+  « Ce résultat ne vous a pas été partagé »       Le patient doit vous partager
+                                                  le résultat depuis son espace
+                                                  (votre matricule lui suffit).
+  Arrivée dans l'espace patient                   Compte médecin + patient
+                                                  connecté par mot de passe avec
+                                                  « Patient » : utilisez la
+                                                  connexion par code, ou ouvrez
+                                                  directement /doctors.
+  « Plusieurs comptes utilisent cette adresse »   Connexion par identifiant et
+                                                  mot de passe, ou support.

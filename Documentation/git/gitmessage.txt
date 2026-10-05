@@ -1,0 +1,14 @@
+
+# <type>(<portée>): <description courte, à l'impératif, sans point final>
+#
+# Types : feat (fonctionnalité) | fix (correction) | perf | refactor | style
+#         docs | test | build | ci | chore | revert
+# Portées usuelles : patients, docteur, commissions, notifications, connexion,
+#                    ui, api, deploiement
+# Ajouter « ! » après le type pour un changement incompatible : feat!: ...
+#
+# Corps (facultatif) : POURQUOI ce changement, pas COMMENT.
+#
+# Pied (facultatif) :
+#   BREAKING CHANGE: description de ce qui casse
+#   Refs: #123

@@ -1,0 +1,153 @@
+<div class="page">
+  <app-page-header title="Patients" subtitle="Dossiers connus de l'établissement et leur rattachement à EDEN.">
+    @if (!isGnuHealth()) {
+      <button actions type="button" class="btn btn-primary" (click)="toggleForm()" [attr.aria-expanded]="showForm()">
+        <svg [pIcon]="showForm() ? 'times' : 'plus'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ showForm() ? 'Fermer' : 'Ajouter un dossier' }}</span>
+      </button>
+    }
+  </app-page-header>
+
+  @if (showForm()) {
+    <section class="card" aria-labelledby="new-patient-title">
+      <h2 class="card-title" id="new-patient-title">
+        <svg [pIcon]="'user-plus'" [size]="18" aria-hidden="true"></svg>
+        Nouveau dossier
+      </h2>
+      <p class="muted form-intro">
+        Pour les établissements sans logiciel relié : les dossiers envoyés par l'API ou FHIR apparaissent automatiquement.
+      </p>
+      <form [formRoot]="patientForm" (submit)="savePatient()">
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="p-ref">Numéro de dossier *</label>
+            <input id="p-ref" class="field" type="text" [formField]="patientForm.local_ref" />
+            @if (patientForm.local_ref().touched() && patientForm.local_ref().invalid()) {
+              <span class="form-error">{{ patientForm.local_ref().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="p-email">E-mail du patient</label>
+            <input id="p-email" class="field" type="email" autocomplete="off" [formField]="patientForm.email" />
+            <span class="form-hint">Sert à valider automatiquement le rattachement.</span>
+            @if (patientForm.email().touched() && patientForm.email().invalid()) {
+              <span class="form-error">{{ patientForm.email().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="p-last">Nom *</label>
+            <input id="p-last" class="field" type="text" [formField]="patientForm.last_name" />
+            @if (patientForm.last_name().touched() && patientForm.last_name().invalid()) {
+              <span class="form-error">{{ patientForm.last_name().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="p-first">Prénom</label>
+            <input id="p-first" class="field" type="text" [formField]="patientForm.first_name" />
+          </div>
+        </div>
+        @if (formError()) {
+          <div class="banner banner-error" role="alert">
+            <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+            <span>{{ formError() }}</span>
+          </div>
+        }
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="toggleForm()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="patientForm().invalid() || saving()">
+            {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <section class="card">
+    <div class="toolbar">
+      <div class="search">
+        <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
+        <label class="sr-only" for="patient-search">Rechercher un patient</label>
+        <input id="patient-search" type="search" placeholder="Nom, e-mail ou dossier" [value]="query()" (input)="onSearch($event)" />
+      </div>
+      <span class="muted total" aria-live="polite">{{ total() }} dossier(s)</span>
+    </div>
+
+    @if (notice()) {
+      <div class="banner banner-info notice" role="status">
+        <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ notice() }}</span>
+      </div>
+    }
+    @if (error()) {
+      <div class="banner banner-error notice" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ error() }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+      </div>
+    }
+
+    @if (loading() && !loaded()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    } @else if (rows().length === 0) {
+      <div class="state">
+        <svg [pIcon]="'users'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucun dossier</strong>
+        <span>{{ query() ? 'Aucun résultat pour cette recherche.' : "Les dossiers apparaîtront dès que votre logiciel les enverra." }}</span>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="loading()">
+        <table class="rtable">
+          <caption class="sr-only">Patients de l'établissement</caption>
+          <thead>
+            <tr>
+              <th scope="col">Dossier</th>
+              <th scope="col">Patient</th>
+              <th scope="col">E-mail</th>
+              <th scope="col">Rattachement</th>
+              @if (!isGnuHealth()) {
+                <th scope="col" class="num">Données</th>
+              }
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.local_ref) {
+              <tr>
+                <td data-label="Dossier" class="mono">{{ row.local_ref }}</td>
+                <td data-label="Patient" class="strong">{{ fullName(row) }}</td>
+                <td data-label="E-mail">{{ row.email || '—' }}</td>
+                <td data-label="Rattachement">
+                  <span [class]="'pill pill-' + row.link_status">{{ statusLabels[row.link_status] }}</span>
+                </td>
+                @if (!isGnuHealth()) {
+                  <td data-label="Données" class="num">{{ row.records ?? 0 }}</td>
+                }
+                <td class="actions-cell">
+                  <span class="cell-actions">
+                    <a class="btn btn-ghost btn-sm" [routerLink]="['/admin/patients', row.local_ref]">
+                      Voir<span class="sr-only"> le dossier {{ row.local_ref }}</span>
+                    </a>
+                    @if (row.link_status === 'none' || row.link_status === 'revoked') {
+                      <button type="button" class="btn btn-primary btn-sm" (click)="issueQr(row)" [disabled]="issuing() === row.local_ref">
+                        <svg [pIcon]="'qrcode'" [size]="14" aria-hidden="true"></svg>
+                        <span>QR code<span class="sr-only"> pour {{ row.local_ref }}</span></span>
+                      </button>
+                    }
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />
+    }
+  </section>
+
+  @if (ticket(); as t) {
+    <app-qr-ticket [token]="t" (closed)="ticket.set(null)" />
+  }
+</div>

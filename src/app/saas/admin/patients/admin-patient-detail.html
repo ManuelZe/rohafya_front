@@ -1,0 +1,144 @@
+<div class="page">
+  <app-page-header [title]="'Dossier ' + ref()" subtitle="Rattachement, données reçues et QR codes de ce dossier.">
+    <a actions class="btn btn-ghost" routerLink="/admin/patients">
+      <svg [pIcon]="'arrow-left'" [size]="16" aria-hidden="true"></svg>
+      <span>Tous les patients</span>
+    </a>
+  </app-page-header>
+
+  @if (notice()) {
+    <div class="banner banner-success" role="status">
+      <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ notice() }}</span>
+    </div>
+  }
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (loading() && !detail()) {
+    <section class="card">
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    </section>
+  } @else if (detail(); as d) {
+    <section class="card" aria-labelledby="identity-title">
+      <h2 class="card-title" id="identity-title">
+        <svg [pIcon]="'user'" [size]="18" aria-hidden="true"></svg>
+        Identité connue de l'établissement
+        <span [class]="'pill card-title-aside pill-' + d.patient.link_status">{{ statusLabels[d.patient.link_status] }}</span>
+      </h2>
+      <dl class="facts">
+        <div><dt>Nom</dt><dd>{{ d.patient.last_name || '—' }}</dd></div>
+        <div><dt>Prénom</dt><dd>{{ d.patient.first_name || '—' }}</dd></div>
+        <div><dt>E-mail</dt><dd>{{ d.patient.email || '—' }}</dd></div>
+        <div><dt>Téléphone</dt><dd>{{ d.patient.phone || '—' }}</dd></div>
+        <div><dt>Naissance</dt><dd>{{ d.patient.birth_date ? (d.patient.birth_date | date: 'dd/MM/yyyy') : '—' }}</dd></div>
+        <div><dt>Compte EDEN</dt><dd>{{ d.patient.account?.patient_email || (d.patient.link_status === 'none' ? 'Aucun' : '—') }}</dd></div>
+      </dl>
+      <div class="form-actions">
+        @if (d.patient.link_status === 'pending') {
+          <button type="button" class="btn btn-danger-ghost" (click)="revoke()" [disabled]="busy()">Refuser</button>
+          <button type="button" class="btn btn-primary" (click)="approve()" [disabled]="busy()">
+            <svg [pIcon]="'check'" [size]="16" aria-hidden="true"></svg>
+            <span>Valider le rattachement</span>
+          </button>
+        } @else if (d.patient.link_status === 'active' && d.patient.link_id) {
+          <button type="button" class="btn btn-danger-ghost" (click)="revoke()" [disabled]="busy()">
+            <svg [pIcon]="'ban'" [size]="16" aria-hidden="true"></svg>
+            <span>Retirer le rattachement</span>
+          </button>
+        } @else if (d.patient.link_status === 'none' || d.patient.link_status === 'revoked') {
+          <button type="button" class="btn btn-primary" (click)="issueQr()" [disabled]="busy()">
+            <svg [pIcon]="'qrcode'" [size]="16" aria-hidden="true"></svg>
+            <span>Générer un QR code</span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="records-title">
+      <h2 class="card-title" id="records-title">
+        <svg [pIcon]="'database'" [size]="18" aria-hidden="true"></svg>
+        Données reçues
+        <span class="card-title-aside">{{ d.records.length }}</span>
+      </h2>
+      @if (d.records.length === 0) {
+        <div class="state"><span>Aucune donnée reçue pour ce dossier.</span></div>
+      } @else {
+        <div class="table-wrap">
+          <table class="rtable">
+            <caption class="sr-only">Données reçues pour ce dossier</caption>
+            <thead>
+              <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Code</th>
+                <th scope="col">Intitulé</th>
+                <th scope="col">Validé le</th>
+                <th scope="col" class="num">Valeurs</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (record of d.records; track record.id) {
+                <tr>
+                  <td data-label="Type">{{ kindLabels[record.kind] }}</td>
+                  <td data-label="Code" class="mono">{{ record.code }}</td>
+                  <td data-label="Intitulé" class="strong">{{ record.title }}</td>
+                  <td data-label="Validé le">{{ record.validated_at ? (record.validated_at | date: 'dd/MM/yyyy') : '—' }}</td>
+                  <td data-label="Valeurs" class="num">{{ record.details_count }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="card" aria-labelledby="tokens-title">
+      <h2 class="card-title" id="tokens-title">
+        <svg [pIcon]="'qrcode'" [size]="18" aria-hidden="true"></svg>
+        QR codes émis
+      </h2>
+      @if (d.tokens.length === 0) {
+        <div class="state"><span>Aucun QR code émis pour ce dossier.</span></div>
+      } @else {
+        <div class="table-wrap">
+          <table class="rtable">
+            <caption class="sr-only">QR codes émis pour ce dossier</caption>
+            <thead>
+              <tr>
+                <th scope="col">Émis le</th>
+                <th scope="col">Expire le</th>
+                <th scope="col">État</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (token of d.tokens; track token.id) {
+                <tr>
+                  <td data-label="Émis le">{{ token.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td data-label="Expire le">{{ token.expires_at | date: 'dd/MM/yyyy' }}</td>
+                  <td data-label="État"><span [class]="'pill pill-' + token.status">{{ tokenLabels[token.status] }}</span></td>
+                  <td class="actions-cell">
+                    @if (token.status === 'active') {
+                      <button type="button" class="btn btn-danger-ghost btn-sm" (click)="revokeToken(token.id)" [disabled]="busy()">Annuler</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
+  @if (ticket(); as t) {
+    <app-qr-ticket [token]="t" (closed)="ticket.set(null)" />
+  }
+</div>

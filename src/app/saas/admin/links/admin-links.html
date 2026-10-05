@@ -1,0 +1,86 @@
+<div class="page">
+  <app-page-header
+    title="Rattachements"
+    subtitle="Les comptes EDEN reliés à vos dossiers. Un rattachement est en attente quand l'e-mail du compte diffère de celui du dossier."
+  />
+
+  <section class="card">
+    <div class="toolbar">
+      <div class="segmented" role="group" aria-label="Filtrer par état">
+        @for (filter of filters; track filter.value) {
+          <button type="button" [attr.aria-pressed]="status() === filter.value" (click)="setStatus(filter.value)">{{ filter.label }}</button>
+        }
+      </div>
+      <span class="muted total" aria-live="polite">{{ total() }} rattachement(s)</span>
+    </div>
+
+    @if (error()) {
+      <div class="banner banner-error notice" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ error() }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+      </div>
+    }
+
+    @if (loading() && !loaded()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="state">
+        <svg [pIcon]="'link'" [size]="32" aria-hidden="true"></svg>
+        <strong>{{ status() === 'pending' ? 'Aucune demande en attente' : 'Aucun rattachement' }}</strong>
+        <span>Les patients se rattachent en scannant le QR code de leur facture.</span>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="loading()">
+        <table class="rtable">
+          <caption class="sr-only">Rattachements de l'établissement</caption>
+          <thead>
+            <tr>
+              <th scope="col">Patient</th>
+              <th scope="col">Compte EDEN</th>
+              <th scope="col">Dossier</th>
+              <th scope="col">Méthode</th>
+              <th scope="col">Date</th>
+              <th scope="col">État</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (link of items(); track link.id) {
+              <tr>
+                <td data-label="Patient" class="strong">{{ link.patient_name || '—' }}</td>
+                <td data-label="Compte EDEN">{{ link.patient_email || '—' }}</td>
+                <td data-label="Dossier" class="mono">
+                  <a class="link" [routerLink]="['/admin/patients', link.local_ref]">{{ link.local_ref }}</a>
+                </td>
+                <td data-label="Méthode">{{ method(link) }}</td>
+                <td data-label="Date">{{ (link.updated_at || link.created_at) | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td data-label="État"><span [class]="'pill pill-' + link.status">{{ statusLabels[link.status] }}</span></td>
+                <td class="actions-cell">
+                  <span class="cell-actions">
+                    @if (link.status === 'pending') {
+                      <button type="button" class="btn btn-danger-ghost btn-sm" (click)="revoke(link)" [disabled]="busyId() === link.id">
+                        Refuser<span class="sr-only"> le rattachement de {{ link.patient_name }}</span>
+                      </button>
+                      <button type="button" class="btn btn-primary btn-sm" (click)="approve(link)" [disabled]="busyId() === link.id">
+                        Valider<span class="sr-only"> le rattachement de {{ link.patient_name }}</span>
+                      </button>
+                    } @else if (link.status === 'active') {
+                      <button type="button" class="btn btn-danger-ghost btn-sm" (click)="revoke(link)" [disabled]="busyId() === link.id">
+                        Retirer<span class="sr-only"> le rattachement de {{ link.patient_name }}</span>
+                      </button>
+                    }
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />
+    }
+  </section>
+</div>

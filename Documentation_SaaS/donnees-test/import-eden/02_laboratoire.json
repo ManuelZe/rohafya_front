@@ -1,0 +1,89 @@
+[
+  {
+    "local_ref": "CLB-0001",
+    "name": "LAB-CLB-1001",
+    "rec_name": "LAB-CLB-1001",
+    "test": "Numération Formule Sanguine (NFS)",
+    "date_requested": "2026-09-27T08:10:00",
+    "date_analysis": "2026-09-27T10:45:00",
+    "done_date": "2026-09-27T11:20:00",
+    "validation_date": "2026-09-28T09:30:00",
+    "requestor": "Dr Paul Ekané",
+    "done_by": "Rodrigue Essomba",
+    "validated_by": "Dr Martin Owona",
+    "renseignements": "Fatigue depuis deux semaines.",
+    "analytes_summary": "Anémie microcytaire légère. Plaquettes et leucocytes normaux.",
+    "results": "Hémoglobine abaissée.",
+    "diagnosis": "Anémie ferriprive probable, à confirmer par un bilan martial.",
+    "state": "validated",
+    "details": [
+      { "code": "HB", "name": "Hémoglobine", "result": 10.9, "result_text": "", "units": "g/dl", "lower_limit": 12, "upper_limit": 16, "normal_range": "12 – 16", "remarks": "Bas", "warning": true },
+      { "code": "VGM", "name": "Volume globulaire moyen", "result": 74, "result_text": "", "units": "fl", "lower_limit": 80, "upper_limit": 100, "normal_range": "80 – 100", "remarks": "Microcytose", "warning": true },
+      { "code": "GB", "name": "Leucocytes", "result": 6.4, "result_text": "", "units": "G/l", "lower_limit": 4, "upper_limit": 10, "normal_range": "4 – 10", "remarks": "", "warning": false },
+      { "code": "PLQ", "name": "Plaquettes", "result": 251, "result_text": "", "units": "G/l", "lower_limit": 150, "upper_limit": 400, "normal_range": "150 – 400", "remarks": "", "warning": false }
+    ]
+  },
+  {
+    "local_ref": "CLB-0001",
+    "name": "LAB-CLB-1002",
+    "rec_name": "LAB-CLB-1002",
+    "test": "Glycémie à jeun et HbA1c",
+    "date_requested": "2026-09-27T08:10:00",
+    "date_analysis": "2026-09-27T12:00:00",
+    "done_date": "2026-09-27T12:30:00",
+    "validation_date": "2026-09-28T09:40:00",
+    "requestor": "Dr Paul Ekané",
+    "done_by": "Rodrigue Essomba",
+    "validated_by": "Dr Martin Owona",
+    "analytes_summary": "Glycémie et HbA1c normales.",
+    "state": "validated",
+    "details": [
+      { "code": "GLY", "name": "Glycémie à jeun", "result": 0.94, "result_text": "", "units": "g/l", "lower_limit": 0.7, "upper_limit": 1.1, "normal_range": "0,70 – 1,10", "remarks": "", "warning": false },
+      { "code": "HBA1C", "name": "Hémoglobine glyquée (HbA1c)", "result": 5.6, "result_text": "", "units": "%", "lower_limit": null, "upper_limit": 6, "normal_range": "< 6,0", "remarks": "", "warning": false }
+    ]
+  },
+  {
+    "local_ref": "CLB-0002",
+    "name": "LAB-CLB-1003",
+    "rec_name": "LAB-CLB-1003",
+    "test": "Bilan rénal (créatinine, urée, ionogramme)",
+    "date_requested": "2026-09-24T07:30:00",
+    "date_analysis": "2026-09-24T11:00:00",
+    "done_date": "2026-09-24T11:40:00",
+    "validation_date": "2026-09-25T08:15:00",
+    "requestor": "Dr Solange Mbia",
+    "done_by": "Clarisse Atangana",
+    "validated_by": "Dr Martin Owona",
+    "renseignements": "Suivi d'une hypertension artérielle traitée.",
+    "analytes_summary": "Créatininémie légèrement élevée. Kaliémie normale.",
+    "diagnosis": "Insuffisance rénale débutante à surveiller.",
+    "state": "validated",
+    "details": [
+      { "code": "CREA", "name": "Créatininémie", "result": 14.2, "result_text": "", "units": "mg/l", "lower_limit": 6, "upper_limit": 12, "normal_range": "6 – 12", "remarks": "Élevé", "warning": true },
+      { "code": "UREE", "name": "Urée", "result": 0.38, "result_text": "", "units": "g/l", "lower_limit": 0.15, "upper_limit": 0.45, "normal_range": "0,15 – 0,45", "remarks": "", "warning": false },
+      { "code": "NA", "name": "Sodium", "result": 139, "result_text": "", "units": "mmol/l", "lower_limit": 135, "upper_limit": 145, "normal_range": "135 – 145", "remarks": "", "warning": false },
+      { "code": "K", "name": "Potassium", "result": 4.4, "result_text": "", "units": "mmol/l", "lower_limit": 3.5, "upper_limit": 5, "normal_range": "3,5 – 5,0", "remarks": "", "warning": false }
+    ]
+  },
+  {
+    "local_ref": "CLB-0003",
+    "name": "LAB-CLB-0950",
+    "rec_name": "LAB-CLB-0950",
+    "test": "Goutte épaisse (paludisme)",
+    "date_requested": "2026-05-11T09:00:00",
+    "date_analysis": "2026-05-11T10:30:00",
+    "done_date": "2026-05-11T11:00:00",
+    "validation_date": "2026-05-12T08:00:00",
+    "requestor": "Dr Paul Ekané",
+    "done_by": "Rodrigue Essomba",
+    "validated_by": "Dr Martin Owona",
+    "renseignements": "Fièvre depuis 48 heures.",
+    "microscopie": "Présence de trophozoïtes de Plasmodium falciparum.",
+    "results": "Densité parasitaire : 1 200 parasites/µl.",
+    "diagnosis": "Accès palustre simple.",
+    "state": "validated",
+    "details": [
+      { "code": "GE", "name": "Densité parasitaire", "result": 1200, "result_text": "P. falciparum", "units": "parasites/µl", "normal_range": "0", "remarks": "Positif", "warning": true }
+    ]
+  }
+]

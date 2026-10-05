@@ -1,0 +1,14 @@
+:host {
+  display: contents;
+}
+
+.hamburger-btn {
+  display: none;
+  margin-right: 0.75rem;
+}
+
+@media (max-width: 992px) {
+  .hamburger-btn {
+    display: flex !important;
+  }
+}

@@ -1,0 +1,110 @@
+<div class="parametres-container">
+  <app-page-header title="Paramètres" subtitle="Gérez vos informations personnelles"></app-page-header>
+
+  @if (accessDenied()) {
+    <div class="access-denied-message">
+      {{ accessDeniedMessage }}
+    </div>
+  } @else {
+    @if (!isConfirmed()) {
+      <div class="confirm-banner" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <div>
+          <strong>Votre profil est incomplet.</strong>
+          <span>Merci de compléter les informations ci-dessous : votre accès complet à l'espace patient sera débloqué une fois votre profil confirmé.</span>
+        </div>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="error-banner" role="alert">
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="success-banner" role="status">
+        <span>{{ successMessage() }}</span>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="state-container">
+        <app-eden-loader label="Chargement de vos informations" />
+      </div>
+    } @else {
+      <section class="form-wrapper">
+        <form class="profile-form" [formRoot]="profileForm" (submit)="submit()">
+          <div class="form-grid">
+            <div class="form-row">
+              <label for="PatientLastname">Nom <span class="required">*</span></label>
+              <input id="PatientLastname" type="text" [formField]="profileForm.PatientLastname" placeholder="Votre nom" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientName">Prénom <span class="required">*</span></label>
+              <input id="PatientName" type="text" [formField]="profileForm.PatientName" placeholder="Votre prénom" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientDOB">Date de naissance <span class="required">*</span></label>
+              <input id="PatientDOB" type="date" [formField]="profileForm.PatientDOB" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientGender">Genre <span class="required">*</span></label>
+              <select id="PatientGender" [formField]="profileForm.PatientGender">
+                <option value="">Sélectionner...</option>
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label for="PatientPOB">Lieu de naissance <span class="required">*</span></label>
+              <input id="PatientPOB" type="text" [formField]="profileForm.PatientPOB" placeholder="Ville de naissance" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientNat">Nationalité <span class="required">*</span></label>
+              <input id="PatientNat" type="text" [formField]="profileForm.PatientNat" placeholder="Ex: Camerounaise" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientCNI">Numéro CNI <span class="required">*</span></label>
+              <input id="PatientCNI" type="text" [formField]="profileForm.PatientCNI" placeholder="Numéro de carte d'identité" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientPhone">Téléphone <span class="required">*</span></label>
+              <input id="PatientPhone" type="text" [formField]="profileForm.PatientPhone" placeholder="Ex: 675478110" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientPhone2">Téléphone secondaire</label>
+              <input id="PatientPhone2" type="text" [formField]="profileForm.PatientPhone2" placeholder="Optionnel" />
+            </div>
+
+            <div class="form-row">
+              <label for="PatientEmail">Email <span class="required">*</span></label>
+              <input id="PatientEmail" type="email" [formField]="profileForm.PatientEmail" placeholder="vous@exemple.com" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="spinner"></span>
+              }
+              <span>{{ submitting() ? 'Enregistrement...' : 'Enregistrer les modifications' }}</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+  }
+</div>

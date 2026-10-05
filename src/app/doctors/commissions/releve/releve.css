@@ -1,0 +1,173 @@
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.state-select {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.selection-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 1rem 0 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  background: var(--doc-soft);
+  font-size: 0.85rem;
+}
+
+.reset {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.row-skeleton {
+  display: block;
+  height: 2.75rem;
+  margin-top: 0.6rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.rtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.rtable th {
+  padding: 0.7rem 0.75rem;
+  text-align: left;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--doc-muted);
+  border-bottom: 1px solid var(--doc-border);
+  white-space: nowrap;
+}
+
+.rtable td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--doc-border);
+  vertical-align: middle;
+}
+
+.rtable tbody tr:hover {
+  background: #f8fafc;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.validated {
+  display: inline-flex;
+  color: var(--doc-success);
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.footnote {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 1200px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile : chaque ligne devient une carte, les en-têtes passent en libellés. */
+@media (max-width: 720px) {
+  .kpis {
+    gap: 0.75rem;
+  }
+
+  .state-select {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .toolbar .btn {
+    flex: 1 1 auto;
+  }
+
+  .rtable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .rtable,
+  .rtable tbody,
+  .rtable tr,
+  .rtable td {
+    display: block;
+    width: 100%;
+  }
+
+  .rtable tr {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--doc-border);
+    border-radius: 10px;
+  }
+
+  .rtable td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed #edf0f5;
+    text-align: right;
+  }
+
+  .rtable td:last-child {
+    border-bottom: 0;
+  }
+
+  .rtable td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--doc-muted);
+    text-align: left;
+  }
+}

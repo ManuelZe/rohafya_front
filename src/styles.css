@@ -1,0 +1,49 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'tailwindcss';
+
+:root {
+  --color-primary: #1a54c9;
+  --color-primary-hover: #15359e;
+  --color-primary-light: #eff6ff;
+  --color-danger: #db1d1d;
+  --color-danger-hover: #b91c1c;
+  --color-accent: #ffa600;
+  --color-text: #2d3748;
+  --color-text-muted: #718096;
+  --color-border: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-bg: #f8fafc;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* ===== EDEN — arrière-plans des interfaces =====
+     Motif discret de croix médicales + halos bleu/teal : donne de la profondeur
+     sans concurrencer le contenu (les cartes restent blanches et lisibles). */
+  --eden-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M15 13h2v2h2v2h-2v2h-2v-2h-2v-2h2z' fill='%231a54c9' fill-opacity='0.045'/%3E%3C/svg%3E");
+  --eden-surface-bg:
+    radial-gradient(1100px 520px at 100% -8%, rgba(26, 84, 201, 0.11), transparent 62%),
+    radial-gradient(900px 480px at -8% 108%, rgba(13, 148, 136, 0.09), transparent 60%),
+    var(--eden-pattern),
+    linear-gradient(180deg, #f1f4fa 0%, #e9edf5 100%);
+  --eden-auth-bg:
+    radial-gradient(900px 600px at 0% 0%, rgba(26, 84, 201, 0.18), transparent 60%),
+    radial-gradient(800px 560px at 100% 100%, rgba(13, 148, 136, 0.16), transparent 60%),
+    var(--eden-pattern),
+    linear-gradient(135deg, #f5f7fb 0%, #dfe6f3 100%);
+}
+
+/* Respecte le réglage système « réduire les animations » pour tous les SVG animés EDEN. */
+@media (prefers-reduced-motion: reduce) {
+  .eden-animated,
+  .eden-animated * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

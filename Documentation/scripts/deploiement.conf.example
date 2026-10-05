@@ -1,0 +1,32 @@
+# =============================================================================
+#  Configuration des scripts de déploiement EDEN
+#  Copier en « deploiement.conf » (même dossier) et compléter.
+#  deploiement.conf est ignoré par Git : il contient des SECRETS, ne jamais le committer.
+#    cp Documentation/scripts/deploiement.conf.example Documentation/scripts/deploiement.conf
+#    chmod 600 Documentation/scripts/deploiement.conf
+#
+#  Forme ${VARIABLE:-valeur} : une valeur passée en ligne de commande reste prioritaire,
+#  ex. PORTAINER_STACK_NAME=eden-preprod bash Documentation/scripts/deployer-portainer.sh 1.3.0-rc.1
+# =============================================================================
+
+# --- Registre d'images (GitHub Container Registry) ---------------------------
+EDEN_IMAGE="${EDEN_IMAGE:-ghcr.io/pdmdsante/eden-app}"
+# Utilisateur GitHub + jeton (PAT classique, droits write:packages) pour build-push.sh
+REGISTRY_USER="${REGISTRY_USER:-votre-compte-github}"
+REGISTRY_TOKEN="${REGISTRY_TOKEN:-ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}"
+
+# --- Portainer ----------------------------------------------------------------
+# Via tunnel SSH (recommandé, Portainer non exposé) :
+#   ssh -N -L 9443:127.0.0.1:9443 deploy@IP_DU_SERVEUR    (dans un autre terminal)
+PORTAINER_URL="${PORTAINER_URL:-https://localhost:9443}"
+# Jeton d'API : Portainer > (menu utilisateur) My account > Access tokens > Add access token
+PORTAINER_API_KEY="${PORTAINER_API_KEY:-ptr_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}"
+# Nom exact de la stack dans Portainer
+PORTAINER_STACK_NAME="${PORTAINER_STACK_NAME:-eden-production}"
+# 1 = accepter le certificat auto-signé de Portainer (cas du tunnel SSH)
+PORTAINER_INSECURE="${PORTAINER_INSECURE:-1}"
+
+# --- Vérifications après déploiement -----------------------------------------
+EDEN_PUBLIC_URL="${EDEN_PUBLIC_URL:-https://eden.pdmdsante.com}"
+# Délai maximal d'attente de la nouvelle version (secondes)
+DEPLOY_TIMEOUT="${DEPLOY_TIMEOUT:-180}"

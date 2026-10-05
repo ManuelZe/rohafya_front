@@ -1,0 +1,6 @@
+<a [routerLink]="link()" class="notification-bell" aria-label="Voir les notifications">
+  <svg data-p-icon="bell" size="20"></svg>
+  @if (hasUnread()) {
+    <span class="notification-bell-badge">{{ badgeLabel() }}</span>
+  }
+</a>

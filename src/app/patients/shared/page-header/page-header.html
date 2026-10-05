@@ -1,0 +1,15 @@
+<header class="page-header">
+  <section class="page-heading">
+    <div class="page-heading-top">
+      <app-sidebar-toggle-button />
+      <h1>{{ title() }}</h1>
+    </div>
+    @if (subtitle()) {
+      <p class="page-subtitle">{{ subtitle() }}</p>
+    }
+  </section>
+
+  <div class="page-header-actions">
+    <ng-content select="[actions]" />
+  </div>
+</header>

@@ -1,0 +1,118 @@
+<div class="page etablissements-page">
+  <app-page-header title="Mes établissements" subtitle="Les établissements dont les résultats et factures apparaissent dans votre compte." />
+
+  <section class="card" aria-labelledby="add-title">
+    <h2 class="card-title" id="add-title">
+      <svg [pIcon]="'qrcode'" [size]="18" aria-hidden="true"></svg>
+      Ajouter un établissement
+    </h2>
+    <p class="muted intro">
+      Scannez le QR code imprimé sur votre facture avec l’appareil photo de votre téléphone, ou saisissez le code écrit en dessous
+      (par exemple <strong>K7P-4QX</strong>).
+    </p>
+    <form class="add-form" [formRoot]="codeForm" (submit)="addEstablishment()">
+      <label class="sr-only" for="link-code">Code de rattachement</label>
+      <input
+        id="link-code"
+        class="field code-field"
+        type="text"
+        autocomplete="off"
+        autocapitalize="characters"
+        placeholder="Code de la facture"
+        [formField]="codeForm.code"
+      />
+      <button type="submit" class="btn btn-primary" [disabled]="codeForm().invalid() || adding()">
+        @if (adding()) {
+          <span class="spinner" aria-hidden="true"></span>
+        } @else {
+          <svg [pIcon]="'link'" [size]="16" aria-hidden="true"></svg>
+        }
+        <span>Rattacher</span>
+      </button>
+    </form>
+    @if (addError()) {
+      <div class="banner banner-error" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ addError() }}</span>
+      </div>
+    }
+  </section>
+
+  @if (success()) {
+    <div class="banner banner-success" role="status">
+      <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ success() }}</span>
+    </div>
+  }
+
+  @if (loadError()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ loadError() }}</span>
+      <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+    </div>
+  }
+
+  @if (loading() && !links()) {
+    <section class="card">
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    </section>
+  } @else if (links(); as list) {
+    @if (list.length === 0) {
+      <section class="card">
+        <div class="state">
+          <svg [pIcon]="'building'" [size]="32" aria-hidden="true"></svg>
+          <strong>Aucun établissement rattaché</strong>
+          <span>Scannez le QR code de votre prochaine facture pour voir vos résultats ici.</span>
+        </div>
+      </section>
+    } @else {
+      <ul class="links-grid" aria-label="Établissements rattachés">
+        @for (link of list; track trackLink(link)) {
+          <li class="card link-card">
+            <div class="link-head">
+              <span class="link-icon" aria-hidden="true"><svg [pIcon]="'building'" [size]="20"></svg></span>
+              <div class="link-identity">
+                <h3>{{ link.establishment }}</h3>
+                <span class="muted">Dossier n° {{ link.local_ref }}</span>
+              </div>
+              <span class="status" [class.status-pending]="link.status === 'pending'">{{ statusLabels[link.status] }}</span>
+            </div>
+            @if (link.status === 'pending') {
+              <p class="muted small">L’établissement doit confirmer ce rattachement : vos résultats apparaîtront ensuite automatiquement.</p>
+            } @else if (link.verified_at) {
+              <p class="muted small">Rattaché le {{ link.verified_at | date: 'dd/MM/yyyy' }}</p>
+            }
+            <div class="link-actions">
+              <button type="button" class="btn btn-ghost" (click)="askRemove(link)">
+                <svg [pIcon]="'trash'" [size]="14" aria-hidden="true"></svg>
+                <span>Retirer<span class="sr-only"> {{ link.establishment }}</span></span>
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  }
+
+  @if (confirmRemove(); as link) {
+    <div class="confirm-overlay" (click)="cancelRemove()">
+      <div class="card confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" (click)="$event.stopPropagation()">
+        <h2 id="confirm-title">Retirer {{ link.establishment }} ?</h2>
+        <p class="muted">
+          Ses résultats et factures n’apparaîtront plus dans votre compte. Rien n’est supprimé chez l’établissement : vous pourrez le
+          rattacher de nouveau avec un nouveau QR code.
+        </p>
+        <div class="confirm-actions">
+          <button type="button" class="btn btn-ghost" (click)="cancelRemove()">Annuler</button>
+          <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="removing()">
+            {{ removing() ? 'Retrait…' : 'Retirer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

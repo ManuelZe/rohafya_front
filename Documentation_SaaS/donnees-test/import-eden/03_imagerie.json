@@ -1,0 +1,51 @@
+[
+  {
+    "local_ref": "CLB-0002",
+    "number": "IMG-CLB-2001",
+    "rec_name": "IMG-CLB-2001",
+    "requested_test": "Échographie abdominale",
+    "request_date": "2026-09-25T09:00:00",
+    "date": "2026-09-26T10:30:00",
+    "done_date": "2026-09-26T10:30:00",
+    "validation_date": "2026-09-26T16:00:00",
+    "requestor": "Dr Solange Mbia",
+    "realisateur": "Dr Hervé Tchoua",
+    "doctor": "Dr Hervé Tchoua",
+    "validated_by": "Dr Hervé Tchoua",
+    "indication": "Bilan d'une insuffisance rénale débutante.",
+    "technique": "Examen par voie sous-costale et lombaire, sonde convexe 3,5 MHz.",
+    "resultat": "Reins de taille normale (droit 105 mm, gauche 108 mm), bonne différenciation cortico-médullaire. Pas de dilatation des cavités pyélocalicielles. Foie et vésicule sans particularité.",
+    "conclusion": "Échographie abdominale normale.",
+    "state": "done",
+    "details": [
+      {
+        "description": "Échographie abdominale — 18 images",
+        "date": "2026-09-26T10:30:00",
+        "institution": "Clinique de test EDEN",
+        "ref_physician": "Dr Hervé Tchoua",
+        "req_physician": "Dr Solange Mbia",
+        "link": ""
+      }
+    ]
+  },
+  {
+    "local_ref": "CLB-0004",
+    "number": "IMG-CLB-2002",
+    "rec_name": "IMG-CLB-2002",
+    "requested_test": "Radiographie du thorax (face)",
+    "request_date": "2026-09-29T15:00:00",
+    "date": "2026-09-30T09:10:00",
+    "done_date": "2026-09-30T09:10:00",
+    "validation_date": "2026-09-30T11:00:00",
+    "requestor": "Dr Paul Ekané",
+    "realisateur": "Dr Hervé Tchoua",
+    "doctor": "Dr Hervé Tchoua",
+    "validated_by": "Dr Hervé Tchoua",
+    "indication": "Toux persistante depuis trois semaines.",
+    "technique": "Cliché de face en inspiration profonde.",
+    "resultat": "Parenchyme pulmonaire sans opacité. Silhouette cardiaque de taille normale. Culs-de-sac pleuraux libres.",
+    "conclusion": "Radiographie thoracique normale.",
+    "state": "done",
+    "details": []
+  }
+]

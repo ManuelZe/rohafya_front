@@ -1,0 +1,190 @@
+<div class="exam-container">
+  <app-page-header title="Laboratoire" subtitle="Consultez vos résultats d'examens de laboratoire"></app-page-header>
+
+  @if (accessDenied()) {
+    <div class="access-denied-message">
+      {{ accessDeniedMessage }}
+    </div>
+  } @else {
+    @if (errorMessage()) {
+      <div class="error-banner" role="alert">
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="state-container loading-state">
+        <app-eden-loader label="Chargement des résultats de laboratoire" />
+      </div>
+    }
+
+    @if (!loading() && results().length > 0) {
+      <div class="filters-bar">
+        <div class="filter-switch">
+          <button type="button" class="filter-btn" [class.active]="expirationFilter() === 'all'" (click)="setExpirationFilter('all')">
+            Toutes
+          </button>
+          <button type="button" class="filter-btn" [class.active]="expirationFilter() === 'available'" (click)="setExpirationFilter('available')">
+            Disponibles
+          </button>
+          <button type="button" class="filter-btn" [class.active]="expirationFilter() === 'expired'" (click)="setExpirationFilter('expired')">
+            Expirées
+          </button>
+        </div>
+
+        <div class="date-filter">
+          <label>
+            <span>Du</span>
+            <input type="date" [value]="dateFrom()" (change)="onDateFromChange($event)" />
+          </label>
+          <label>
+            <span>Au</span>
+            <input type="date" [value]="dateTo()" (change)="onDateToChange($event)" />
+          </label>
+        </div>
+
+        @if (hasActiveFilters()) {
+          <button type="button" class="btn-reset" (click)="resetFilters()">Réinitialiser</button>
+        }
+      </div>
+    }
+
+    @if (!loading() && results().length === 0) {
+      <div class="state-container empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 2v6.5L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2l-5-11.5V2"></path>
+            <path d="M8.5 2h7"></path>
+            <path d="M7 15h10"></path>
+          </svg>
+        </div>
+        <h3>Aucun résultat de laboratoire</h3>
+        <p>Vous n'avez encore aucun résultat de laboratoire disponible.</p>
+      </div>
+    }
+
+    @if (!loading() && results().length > 0 && filteredResults().length === 0) {
+      <div class="state-container empty-state">
+        <h3>Aucun résultat ne correspond aux filtres</h3>
+        <p>Essayez d'élargir la période ou de modifier le filtre de disponibilité.</p>
+        <button type="button" class="btn btn-secondary" (click)="resetFilters()">Réinitialiser les filtres</button>
+      </div>
+    }
+
+    @if (!loading() && filteredResults().length > 0) {
+      <div class="exam-grid">
+        @for (r of filteredResults(); track r.id) {
+          <article class="exam-card" (click)="openViewer(r)">
+            <div class="exam-card-header">
+              <app-status-tag kind="expiration" [status]="r.statut_expiration ? 'true' : 'false'" />
+              <span class="exam-code">{{ r.name }}</span>
+            </div>
+
+            <div class="card-body">
+              <h2 class="exam-title" [title]="r.test">{{ r.test }}</h2>
+              @if (r.establishment) {
+                <p class="exam-meta">Établissement : {{ r.establishment }}</p>
+              }
+
+              @if (r.requestor) {
+                <p class="exam-meta">Prescripteur : {{ r.requestor }}</p>
+              }
+              @if (r.validated_by) {
+                <p class="exam-meta">Validé par : {{ r.validated_by }}</p>
+              }
+
+              <div class="card-footer-meta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <time>{{ r.validation_date | date: 'dd/MM/yyyy à HH:mm' }}</time>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button
+                type="button"
+                class="icon-btn-share"
+                [disabled]="r.statut_expiration"
+                (click)="openShare(r, $event)"
+                [attr.aria-label]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : 'Partager ce résultat'"
+                [attr.title]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : 'Partager'"
+              >
+                <svg [pIcon]="'share-alt'" [size]="16"></svg>
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Voir le détail
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    <!-- Modal Visualiseur -->
+    @if (selectedResult(); as result) {
+      <div class="viewer-modal-overlay" (click)="closeViewer()">
+        <div class="viewer-modal-wrapper" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+          <button type="button" class="viewer-modal-close" (click)="closeViewer()" aria-label="Fermer la vue du résultat">&times;</button>
+
+          <div class="viewer-modal-header">
+            <h3>{{ result.test }}</h3>
+            <p>
+              <app-status-tag kind="expiration" [status]="result.statut_expiration ? 'true' : 'false'" />
+              <span>&middot; {{ result.name }}</span>
+            </p>
+          </div>
+
+          <div class="viewer-modal-body">
+            @if (moreInfoLoading()) {
+              <div class="state-container">
+                <app-eden-loader label="Chargement des informations complémentaires" />
+              </div>
+            } @else if (moreInfoBlockedMessage()) {
+              <div class="blocked-banner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>{{ moreInfoBlockedMessage() }}</span>
+              </div>
+            } @else if (!moreInfoItems() || moreInfoItems()!.length === 0) {
+              <div class="state-container">
+                <p>Aucune donnée détaillée disponible pour ce résultat.</p>
+              </div>
+            } @else {
+              @for (entry of moreInfoItems(); track $index) {
+                <div class="detail-section">
+                  <dl class="detail-list">
+                    @for (item of detailEntries(entry); track item.label) {
+                      <div class="detail-item">
+                        <dt>{{ item.label }}</dt>
+                        <dd>{{ item.value }}</dd>
+                      </div>
+                    }
+                  </dl>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <app-share-exam-dialog
+      [open]="shareTarget() !== null"
+      examType="Laboratoire"
+      [examCode]="shareTarget()?.name ?? ''"
+      [examLabel]="shareTarget()?.test ?? ''"
+      (closed)="closeShare()"
+    />
+  }
+</div>

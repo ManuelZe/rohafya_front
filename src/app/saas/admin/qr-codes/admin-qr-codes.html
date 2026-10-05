@@ -1,0 +1,126 @@
+<div class="page">
+  <app-page-header
+    title="QR codes"
+    subtitle="Le QR code relie le dossier d'un patient à son compte EDEN. Il est normalement imprimé sur la facture par votre logiciel."
+  />
+
+  <section class="card" aria-labelledby="issue-title">
+    <h2 class="card-title" id="issue-title">
+      <svg [pIcon]="'qrcode'" [size]="18" aria-hidden="true"></svg>
+      Générer un QR code
+    </h2>
+    <p class="muted form-intro">
+      Si l'e-mail saisi est celui du compte EDEN du patient, le rattachement est immédiat ; sinon il vous sera soumis pour validation.
+      Une nouvelle génération annule le QR code précédent du même dossier.
+    </p>
+    <form [formRoot]="qrForm" (submit)="issue()">
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="qr-ref">Numéro de dossier *</label>
+          <input id="qr-ref" class="field" type="text" autocomplete="off" [formField]="qrForm.local_ref" />
+          @if (qrForm.local_ref().touched() && qrForm.local_ref().invalid()) {
+            <span class="form-error">{{ qrForm.local_ref().errors()[0]?.message }}</span>
+          }
+        </div>
+        <div class="form-row">
+          <label for="qr-email">E-mail du patient</label>
+          <input id="qr-email" class="field" type="email" autocomplete="off" [formField]="qrForm.email" />
+          <span class="form-hint">Facultatif si l'e-mail est déjà connu du dossier.</span>
+          @if (qrForm.email().touched() && qrForm.email().invalid()) {
+            <span class="form-error">{{ qrForm.email().errors()[0]?.message }}</span>
+          }
+        </div>
+      </div>
+      @if (formError()) {
+        <div class="banner banner-error notice" role="alert">
+          <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ formError() }}</span>
+        </div>
+      }
+      @if (notice()) {
+        <div class="banner banner-info notice" role="status">
+          <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ notice() }}</span>
+        </div>
+      }
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="qrForm().invalid() || issuing()">
+          @if (issuing()) {
+            <span class="spinner" aria-hidden="true"></span>
+          } @else {
+            <svg [pIcon]="'qrcode'" [size]="16" aria-hidden="true"></svg>
+          }
+          <span>Générer</span>
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="history-title">
+    <h2 class="card-title" id="history-title">
+      <svg [pIcon]="'history'" [size]="18" aria-hidden="true"></svg>
+      Historique
+      <span class="card-title-aside">{{ total() }}</span>
+    </h2>
+
+    @if (error()) {
+      <div class="banner banner-error" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ error() }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+      </div>
+    }
+
+    @if (loading() && !loaded()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    } @else if (tokens().length === 0) {
+      <div class="state">
+        <span>Aucun QR code émis pour le moment.</span>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="loading()">
+        <table class="rtable">
+          <caption class="sr-only">QR codes émis</caption>
+          <thead>
+            <tr>
+              <th scope="col">Dossier</th>
+              <th scope="col">E-mail attendu</th>
+              <th scope="col">Émis le</th>
+              <th scope="col">Expire le</th>
+              <th scope="col">État</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (token of tokens(); track token.id) {
+              <tr>
+                <td data-label="Dossier" class="mono">
+                  <a class="link" [routerLink]="['/admin/patients', token.local_ref]">{{ token.local_ref }}</a>
+                </td>
+                <td data-label="E-mail attendu">{{ token.email_hint || '—' }}</td>
+                <td data-label="Émis le">{{ token.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td data-label="Expire le">{{ token.expires_at | date: 'dd/MM/yyyy' }}</td>
+                <td data-label="État"><span [class]="'pill pill-' + token.status">{{ statusLabels[token.status] }}</span></td>
+                <td class="actions-cell">
+                  @if (token.status === 'active') {
+                    <button type="button" class="btn btn-danger-ghost btn-sm" (click)="revoke(token)" [disabled]="busyId() === token.id">
+                      Annuler<span class="sr-only"> le QR code du dossier {{ token.local_ref }}</span>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />
+    }
+  </section>
+
+  @if (ticket(); as t) {
+    <app-qr-ticket [token]="t" (closed)="ticket.set(null)" />
+  }
+</div>

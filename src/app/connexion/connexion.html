@@ -1,0 +1,179 @@
+<div class="login-container">
+  <!-- Colonne gauche: Image futuriste -->
+  <div class="login-visual">
+    <div class="future-medical">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Médecine numérique futuriste">
+        <!-- Circulaire de base -->
+        <circle cx="100" cy="100" r="90" class="circle-bg" />
+        
+        <!-- Éléments futuristes -->
+        <g class="medical-elements">
+          <!-- Cœur numérique -->
+          <path
+            d="M 100 85 L 110 75 Q 120 70 125 80 Q 130 90 100 115 Q 70 90 75 80 Q 80 70 90 75 Z"
+            class="heart-icon"
+          />
+          
+          <!-- Cercles orbitaux -->
+          <circle cx="100" cy="100" r="50" class="orbit-1" />
+          <circle cx="100" cy="100" r="70" class="orbit-2" />
+          
+          <!-- Points de données -->
+          <circle cx="150" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="50" r="4" class="data-point" />
+          <circle cx="50" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="150" r="4" class="data-point" />
+          
+          <!-- Lignes de connexion -->
+          <line x1="150" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="50" x2="100" y2="100" class="connection-line" />
+          <line x1="50" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="150" x2="100" y2="100" class="connection-line" />
+        </g>
+      </svg>
+      <h2 class="medical-title">Médecine Numérique</h2>
+      <p class="medical-subtitle">Plateforme de santé digitale</p>
+    </div>
+  </div>
+
+  <!-- Colonne droite: Formulaire -->
+  <div class="login-form">
+    <div class="form-content">
+      <h1 class="form-title">Connexion</h1>
+      <p class="form-description">Accédez à votre espace de santé</p>
+
+      <!-- Sélection du type d'utilisateur -->
+      <div class="user-type-selector">
+        <!-- <p class="selector-label">Je suis:</p> -->
+        <div class="button-group">
+          <!-- <button
+            type="button"
+            class="user-type-btn"
+            [class.active]="userType() === 'doctor'"
+            (click)="selectUserType('doctor')"
+            aria-label="Se connecter en tant que docteur"
+            aria-pressed="{{userType() === 'doctor'}}"
+          >
+            <svg class="btn-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
+              />
+            </svg>
+            <span>Docteur</span>
+          </button> -->
+
+          <button
+            type="button"
+            class="user-type-btn"
+            [class.active]="userType() === 'patient'"
+            (click)="selectUserType('patient')"
+            aria-label="Se connecter en tant que patient"
+            aria-pressed="{{userType() === 'patient'}}"
+          >
+            <svg class="btn-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+              />
+            </svg>
+            <span>Patient</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Méthode de connexion -->
+      <div class="login-mode" role="group" aria-label="Méthode de connexion">
+        <button type="button" [attr.aria-pressed]="mode() === 'password'" (click)="mode.set('password')">Mot de passe</button>
+        <button type="button" [attr.aria-pressed]="mode() === 'email'" (click)="mode.set('email')">Code par e-mail</button>
+      </div>
+
+      @if (mode() === 'email') {
+        <app-email-code-login (loggedIn)="onLoggedIn()" />
+      } @else {
+      <!-- Formulaire -->
+      <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">
+        <!-- Username -->
+        <div class="form-group">
+          <label for="username" class="form-label">Nom d'utilisateur</label>
+          <input
+            id="username"
+            type="text"
+            class="form-input"
+            [formField]="form.username"
+            placeholder="Entrez votre nom d'utilisateur"
+            aria-label="Nom d'utilisateur"
+          />
+          @if (form.username().touched() && form.username().invalid()) {
+            <span class="form-error">{{ form.username().errors()[0]?.message }}</span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password" class="form-label">Mot de passe</label>
+          <input
+            id="password"
+            type="password"
+            class="form-input"
+            [formField]="form.password"
+            placeholder="Entrez votre mot de passe"
+            aria-label="Mot de passe"
+          />
+          @if (form.password().touched() && form.password().invalid()) {
+            <span class="form-error">{{ form.password().errors()[0]?.message }}</span>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="submit-btn"
+          [disabled]="form().invalid() || !userType()"
+          aria-label="Se connecter"
+        >
+          Se connecter
+        </button>
+
+        @if (errorMessage()) {
+          <div class="error-message" role="alert" aria-live="assertive">
+            <span class="error-icon" aria-hidden="true">⚠️</span>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <div class="forgot-password-row">
+          <a routerLink="/matricule" class="forgot-password-link" aria-label="Mot de passe oublié">
+            Mot de passe oublié?
+          </a>
+        </div>
+      </form>
+      }
+
+      <!-- Register Link -->
+      <div class="register-section">
+        <p class="register-text">
+          Vous n'avez pas de compte?
+          <button
+            type="button"
+            class="register-link"
+            routerLink="/register"
+            aria-label="Aller à la page d'enregistrement"
+          >
+            S'enregistrer ici
+          </button>
+        </p>
+      </div>
+
+      <!-- Back to Intro Link -->
+      <div class="back-to-intro-section">
+        <button
+          type="button"
+          class="back-to-intro-link"
+          routerLink="/"
+          aria-label="Revenir à la page d'accueil"
+        >
+          ← Retour à l'accueil
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

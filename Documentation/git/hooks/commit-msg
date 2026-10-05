@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# =============================================================================
+#  Hook Git « commit-msg » : impose la convention Conventional Commits.
+#  Installé par : Documentation/scripts/installer-outils-git.sh
+#  Format : <type>(<portée optionnelle>)!: <description>
+#  Exemples valides :
+#    feat(docteur): ajouter le relevé des commissions
+#    fix(patients): corriger le bouton retour des notifications
+#    feat!: nouvelle authentification (changement incompatible)
+# =============================================================================
+
+fichier_message="$1"
+premiere_ligne="$(head -n 1 "$fichier_message")"
+
+# Commits générés automatiquement par Git : acceptés tels quels.
+if [[ "$premiere_ligne" =~ ^(Merge|Revert|fixup!|squash!) ]]; then
+  exit 0
+fi
+
+types='feat|fix|perf|refactor|style|docs|test|build|ci|chore|revert'
+motif="^(${types})(\([a-z0-9._/-]+\))?(!)?: .{3,}$"
+
+if [[ ! "$premiere_ligne" =~ $motif ]]; then
+  cat >&2 <<EOF
+
+✖ Message de commit refusé : « ${premiere_ligne} »
+
+  Format attendu : <type>(<portée>): <description>
+  Types autorisés : ${types//|/, }
+
+  Exemples :
+    feat(docteur): ajouter le relevé des commissions
+    fix(patients): corriger le bouton retour des notifications
+    docs: compléter la procédure de déploiement
+
+  Détails : Documentation/01_VERSIONNAGE_GIT.txt, section 5.
+EOF
+  exit 1
+fi
+
+if (( ${#premiere_ligne} > 100 )); then
+  echo "✖ Première ligne trop longue (${#premiere_ligne} caractères, maximum 100)." >&2
+  exit 1
+fi
+
+exit 0

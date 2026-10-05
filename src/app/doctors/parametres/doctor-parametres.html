@@ -1,0 +1,154 @@
+<div class="page">
+  <app-page-header title="Paramètres" subtitle="Gérez vos informations personnelles et vos coordonnées." />
+
+  @if (!isConfirmed()) {
+    <div class="banner banner-info" role="status">
+      <svg [pIcon]="'exclamation-triangle'" [size]="18" aria-hidden="true"></svg>
+      <div>
+        <strong>Confirmez votre profil pour accéder à votre espace.</strong>
+        <span class="block">
+          Certaines coordonnées ont été générées automatiquement lors de la création de votre compte. Vérifiez-les,
+          corrigez-les si besoin puis enregistrez : vos commissions et résultats seront immédiatement accessibles.
+        </span>
+      </div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="banner banner-success" role="status">
+      <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ successMessage() }}</span>
+      @if (justConfirmed()) {
+        <a class="btn btn-primary" routerLink="/doctors">Aller au tableau de bord</a>
+      }
+    </div>
+  }
+
+  @if (loading() && !profile()) {
+    <app-eden-loader label="Chargement de vos informations" />
+  } @else {
+    <div class="layout">
+      <section class="card" aria-labelledby="form-title">
+        <h2 id="form-title" class="card-title">
+          <svg [pIcon]="'user-edit'" [size]="18" aria-hidden="true"></svg>
+          Informations personnelles
+        </h2>
+
+        <form [formRoot]="profileForm" (submit)="submit()" novalidate>
+          <div class="grid">
+            <div class="form-row">
+              <label for="DoctorLastname">Nom <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorLastname" class="field" type="text" autocomplete="family-name" [formField]="profileForm.DoctorLastname"
+                [attr.aria-invalid]="!!errorOf('DoctorLastname')" aria-describedby="err-DoctorLastname" />
+              <span id="err-DoctorLastname" class="field-error">{{ errorOf('DoctorLastname') }}</span>
+            </div>
+
+            <div class="form-row">
+              <label for="DoctorName">Prénom <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorName" class="field" type="text" autocomplete="given-name" [formField]="profileForm.DoctorName"
+                [attr.aria-invalid]="!!errorOf('DoctorName')" aria-describedby="err-DoctorName" />
+              <span id="err-DoctorName" class="field-error">{{ errorOf('DoctorName') }}</span>
+            </div>
+
+            <div class="form-row">
+              <label for="DoctorDOB">Date de naissance <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorDOB" class="field" type="date" autocomplete="bday" [formField]="profileForm.DoctorDOB"
+                [attr.aria-invalid]="!!errorOf('DoctorDOB')" aria-describedby="err-DoctorDOB" />
+              <span id="err-DoctorDOB" class="field-error">{{ errorOf('DoctorDOB') }}</span>
+            </div>
+
+            <div class="form-row">
+              <label for="DoctorPOB">Lieu de naissance <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorPOB" class="field" type="text" [formField]="profileForm.DoctorPOB"
+                [attr.aria-invalid]="!!errorOf('DoctorPOB')" aria-describedby="err-DoctorPOB" />
+              <span id="err-DoctorPOB" class="field-error">{{ errorOf('DoctorPOB') }}</span>
+            </div>
+
+            <div class="form-row">
+              <label for="DoctorCNI">Numéro CNI <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorCNI" class="field" type="text" [formField]="profileForm.DoctorCNI"
+                [attr.aria-invalid]="!!errorOf('DoctorCNI')" aria-describedby="err-DoctorCNI" />
+              <span id="err-DoctorCNI" class="field-error">{{ errorOf('DoctorCNI') }}</span>
+            </div>
+
+            <div class="form-row">
+              <label for="DoctorEmail">Email <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorEmail" class="field" type="email" autocomplete="email" [formField]="profileForm.DoctorEmail"
+                [attr.aria-invalid]="!!errorOf('DoctorEmail')" aria-describedby="err-DoctorEmail" />
+              <span id="err-DoctorEmail" class="field-error">{{ errorOf('DoctorEmail') }}</span>
+            </div>
+
+            <div class="form-row">
+              <label for="DoctorPhone">Téléphone <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorPhone" class="field" type="tel" autocomplete="tel" placeholder="Ex : 675478110" [formField]="profileForm.DoctorPhone"
+                [attr.aria-invalid]="!!errorOf('DoctorPhone')" aria-describedby="err-DoctorPhone" />
+              <span id="err-DoctorPhone" class="field-error">{{ errorOf('DoctorPhone') }}</span>
+            </div>
+
+            <div class="form-row">
+              <label for="DoctorPhone2">Téléphone secondaire</label>
+              <input id="DoctorPhone2" class="field" type="tel" placeholder="Optionnel" [formField]="profileForm.DoctorPhone2"
+                [attr.aria-invalid]="!!errorOf('DoctorPhone2')" aria-describedby="err-DoctorPhone2" />
+              <span id="err-DoctorPhone2" class="field-error">{{ errorOf('DoctorPhone2') }}</span>
+            </div>
+          </div>
+
+          <p class="muted legend"><span aria-hidden="true">*</span> Champs obligatoires</p>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="spinner" aria-hidden="true"></span>
+              } @else {
+                <svg [pIcon]="'save'" [size]="16" aria-hidden="true"></svg>
+              }
+              <span>{{ submitting() ? 'Enregistrement…' : isConfirmed() ? 'Enregistrer les modifications' : 'Enregistrer et confirmer mon profil' }}</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="side">
+        <section class="card" aria-labelledby="pro-title">
+          <h2 id="pro-title" class="card-title">
+            <svg [pIcon]="'id-card'" [size]="18" aria-hidden="true"></svg>
+            Identité professionnelle
+          </h2>
+          <dl class="info">
+            @for (item of readOnlyInfo(); track item.label) {
+              <div>
+                <dt>{{ item.label }}</dt>
+                <dd>{{ item.value }}</dd>
+              </div>
+            }
+          </dl>
+          <p class="muted hint">Ces informations proviennent du dossier de l'établissement. Pour les corriger, envoyez une requête à l'administration.</p>
+          <a class="link" routerLink="/doctors/requests">
+            Envoyer une requête <svg [pIcon]="'arrow-right'" [size]="12" aria-hidden="true"></svg>
+          </a>
+        </section>
+
+        <section class="card" aria-labelledby="sig-title">
+          <h2 id="sig-title" class="card-title">
+            <svg [pIcon]="'signature'" [size]="18" aria-hidden="true"></svg>
+            Signature
+          </h2>
+          @if (signatureUrl(); as src) {
+            <img class="signature" [src]="src" alt="Votre signature enregistrée" />
+          } @else if (signatureState() === 'loading') {
+            <span class="skeleton sig-skeleton" aria-hidden="true"></span>
+          } @else {
+            <p class="muted hint">Aucune signature enregistrée pour votre compte.</p>
+          }
+        </section>
+      </aside>
+    </div>
+  }
+</div>

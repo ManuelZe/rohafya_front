@@ -1,0 +1,107 @@
+<div class="page">
+  <app-page-header title="Intégration" subtitle="Comment votre logiciel envoie les résultats et factures à EDEN." />
+
+  @if (isGnuHealth()) {
+    <div class="banner banner-info" role="status">
+      <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>Cet établissement est relié directement à GNU Health : EDEN lit les données en direct, aucune intégration n'est nécessaire.</span>
+    </div>
+  } @else {
+    <section class="card" aria-labelledby="access-title">
+      <h2 class="card-title" id="access-title">
+        <svg [pIcon]="'key'" [size]="18" aria-hidden="true"></svg>
+        Accès à l'API
+      </h2>
+      <dl class="facts">
+        <div><dt>Méthode prévue</dt><dd>{{ sourceLabel() }}</dd></div>
+        <div><dt>Adresse de l'API</dt><dd class="mono">{{ apiBase }}</dd></div>
+        <div>
+          <dt>Clé d'API</dt>
+          <dd class="mono">{{ context.tenant()?.api_key_hint ? '••••••' + context.tenant()?.api_key_hint : 'Aucune' }}</dd>
+        </div>
+        <div><dt>En-tête HTTP</dt><dd class="mono">X-EDEN-API-Key</dd></div>
+      </dl>
+
+      @if (newKey(); as key) {
+        <div class="banner banner-success notice" role="status">
+          <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>Nouvelle clé générée. Copiez-la maintenant : elle ne sera plus jamais affichée. L'ancienne clé ne fonctionne plus.</span>
+        </div>
+        <div class="secret notice">
+          <code>{{ key }}</code>
+          <button type="button" class="btn btn-ghost btn-sm" (click)="copyKey()">
+            <svg [pIcon]="'copy'" [size]="14" aria-hidden="true"></svg>
+            <span>{{ copied() ? 'Copiée' : 'Copier' }}</span>
+          </button>
+        </div>
+      }
+      @if (error()) {
+        <div class="banner banner-error notice" role="alert">
+          <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ error() }}</span>
+        </div>
+      }
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" (click)="confirmRotate.set(true)">
+          <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+          <span>Générer une nouvelle clé</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="examples-title">
+      <h2 class="card-title" id="examples-title">
+        <svg [pIcon]="'server'" [size]="18" aria-hidden="true"></svg>
+        Envoyer les données
+      </h2>
+      <div class="segmented" role="group" aria-label="Méthode d'envoi">
+        <button type="button" [attr.aria-pressed]="method() === 'api'" (click)="method.set('api')">API EDEN</button>
+        <button type="button" [attr.aria-pressed]="method() === 'fhir'" (click)="method.set('fhir')">HL7 FHIR R4</button>
+        <button type="button" [attr.aria-pressed]="method() === 'pdf'" [disabled]="!pdfEnabled" (click)="method.set('pdf')">
+          Scan / PDF@if (!pdfEnabled) { <span class="soon-tag">prochainement</span> }
+        </button>
+      </div>
+      @if (method() === 'pdf') {
+        @if (!pdfEnabled) {
+          <p class="small-note soon-note">
+            <svg [pIcon]="'clock'" [size]="14" aria-hidden="true"></svg>
+            Import des résultats par PDF : fonctionnalité disponible prochainement.
+          </p>
+        }
+        <div [class.feature-off-inline]="!pdfEnabled" [attr.inert]="pdfEnabled ? null : ''">
+        <p class="muted example-intro">
+          Comptes rendus PDF (fichier ou scan) : déposez-les dans la page <a class="link" routerLink="/admin/imports-pdf">Imports PDF</a>,
+          ou envoyez-les depuis votre logiciel. EDEN en extrait les valeurs ; rien n'est publié avant votre relecture.
+          Le nombre de fichiers est limité par période (voir Paramètres).
+        </p>
+        <pre class="code" tabindex="0" aria-label="Exemple d'envoi d'un compte rendu PDF">{{ pdfExample }}</pre>
+        </div>
+      } @else if (method() === 'api') {
+        <p class="muted example-intro">
+          Format EDEN : les mêmes champs que les écrans patients (identiques aux données de la démo). Chaque envoi est une liste
+          (500 éléments au maximum) ; renvoyer un élément avec le même code le met à jour.
+        </p>
+        <pre class="code" tabindex="0" aria-label="Exemples d'appels à l'API EDEN">{{ edenExample }}</pre>
+      } @else {
+        <p class="muted example-intro">
+          Standard HL7 FHIR R4 : un Bundle contenant les ressources Patient, DiagnosticReport (avec ses Observation) et Invoice.
+          Le dossier du patient est lu dans <code>Patient.identifier[0].value</code>.
+        </p>
+        <pre class="code" tabindex="0" aria-label="Exemple d'envoi FHIR">{{ fhirExample }}</pre>
+      }
+    </section>
+  }
+
+  @if (confirmRotate()) {
+    <div class="overlay" (click)="confirmRotate.set(false)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="rotate-title" (click)="$event.stopPropagation()">
+        <h2 id="rotate-title">Générer une nouvelle clé ?</h2>
+        <p class="muted">La clé actuelle cessera immédiatement de fonctionner : votre logiciel devra utiliser la nouvelle.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="confirmRotate.set(false)">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="rotate()" [disabled]="rotating()">{{ rotating() ? 'Génération…' : 'Générer' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

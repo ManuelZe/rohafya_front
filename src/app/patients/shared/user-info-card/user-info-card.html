@@ -1,0 +1,26 @@
+@if (visible()) {
+  <section class="user-info-card">
+    <div class="user-info-main">
+      <div class="user-info-avatar">{{ initials() }}</div>
+
+      <div class="user-info-identity">
+        <div class="user-info-name-row">
+          <h2 class="user-info-name">{{ prenom() }} {{ nom() }}</h2>
+          <app-status-tag kind="account" [status]="isConfirmed() ? 'true' : 'false'" />
+        </div>
+        <p class="user-info-email">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16v16H4z" opacity="0"></path>
+            <path d="M22 6l-10 7L2 6"></path>
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          </svg>
+          <span>{{ email() }}</span>
+        </p>
+      </div>
+
+      <div class="user-info-bell-wrapper">
+        <app-notification-bell />
+      </div>
+    </div>
+  </section>
+}

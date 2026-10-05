@@ -1,0 +1,124 @@
+================================================================================
+                 CONNEXION — ADMINISTRATEUR D'ÉTABLISSEMENT
+================================================================================
+
+L'administrateur d'établissement gère UN établissement (ou plusieurs s'il en a
+reçu plusieurs) : ses patients, leurs rattachements à EDEN, les QR codes, les
+médecins, les données reçues et les réglages. Il ne voit jamais les données des
+autres établissements.
+
+Espace : https://eden.pdmdsante.com/admin
+
+
+1. RECEVOIR SON ACCÈS
+---------------------
+C'est le super-administrateur qui ajoute l'administrateur (fiche de
+l'établissement > « Administrateurs de l'établissement » > e-mail, prénom, nom).
+L'administrateur reçoit alors un e-mail « Vous administrez <établissement> sur
+EDEN » contenant un bouton « Ouvrir EDEN ».
+
+Aucun mot de passe n'est envoyé : la connexion se fait par code.
+
+
+2. SE CONNECTER
+---------------
+  1. Ouvrir https://eden.pdmdsante.com/connexion (ou le bouton de l'e-mail).
+  2. Onglet « Code par e-mail ».
+  3. Saisir l'adresse e-mail indiquée au super-administrateur,
+     cliquer sur « Recevoir un code ».
+  4. Saisir le code à 6 chiffres reçu (valable 10 minutes), « Se connecter ».
+  5. EDEN ouvre /admin sur le tableau de bord de l'établissement.
+
+Plusieurs établissements : la liste déroulante « Établissement », en haut de la
+barre latérale, permet de passer de l'un à l'autre. Le choix est mémorisé sur ce
+navigateur.
+
+Sur téléphone : le bouton ☰ en haut à gauche de chaque page ouvre le menu.
+
+
+3. LES PAGES DE L'ESPACE
+------------------------
+  Tableau de bord   patients connus, rattachés, en attente, QR codes actifs,
+                    données reçues, activité récente, actions rapides
+  Patients          recherche par nom, e-mail ou numéro de dossier ; « Voir » le
+                    dossier ; « QR code » pour un patient non rattaché ;
+                    « Ajouter un dossier » (établissements sans logiciel relié)
+  Rattachements     demandes « En attente » à « Valider » ou « Refuser » ;
+                    rattachements actifs à « Retirer »
+  QR codes          générer un QR code pour un numéro de dossier, historique,
+                    « Annuler » un QR code remis par erreur
+  Médecins          rattacher un médecin EDEN (matricule ou e-mail), le retirer
+  Données reçues    résultats et factures envoyés par le logiciel
+  Imports PDF       DISPONIBLE PROCHAINEMENT (entrée grisée « Bientôt ») :
+                    déposer un compte rendu PDF (fichier ou scan), relire les
+                    valeurs extraites à côté du PDF, puis publier (voir 4 bis)
+  Intégration       adresse de l'API, clé d'API (renouvellement), exemples d'envoi
+                    (API EDEN, HL7 FHIR R4, Scan / PDF)
+  Paramètres        nom affiché, contacts, durée d'accès aux résultats, validité
+                    des QR codes, masquage des résultats si facture impayée ;
+                    en lecture seule (« Fixé par EDEN ») : quota d'imports PDF,
+                    consommation, lecture IA
+  Journal           qui a fait quoi, et quand
+
+
+4. LE GESTE QUOTIDIEN À L'ACCUEIL : REMETTRE UN QR CODE
+-------------------------------------------------------
+Normalement, le logiciel de l'établissement imprime le QR code sur la facture.
+Sinon, depuis EDEN :
+  1. Patients > rechercher le patient > « QR code »
+     (ou QR codes > numéro de dossier + e-mail du patient > « Générer »).
+  2. Dans la fenêtre : « Télécharger » l'image pour l'imprimer, ou « Copier le
+     lien » pour l'envoyer. Le code court (ex. H5C-XJVW) peut être dicté.
+  3. Le patient scanne le QR code et se connecte avec SON e-mail.
+
+  - Si l'e-mail du compte du patient est celui du dossier : rattachement immédiat.
+  - Sinon : la demande apparaît dans « Rattachements > En attente ». Vérifier
+    l'identité du patient (pièce d'identité) avant de cliquer sur « Valider ».
+  - Un nouveau QR code pour le même dossier annule le précédent.
+  - Un QR code ne sert qu'une fois et expire (30 jours par défaut, réglable).
+
+
+
+4 bis. IMPORTER UN COMPTE RENDU PDF
+-----------------------------------
+(Fonctionnalité disponible prochainement : la page est visible en aperçu,
+grisée et inactive, jusqu'à son ouverture par EDEN.)
+  1. Imports PDF > « Fichier PDF » (10 Mo au maximum). Numéro de dossier, code
+     et intitulé sont facultatifs (le dossier et la date sont lus dans le PDF).
+     « Déposer et analyser ».
+  2. EDEN ouvre la relecture : le PDF d'origine à gauche (bouton « Ouvrir » sur
+     téléphone), les valeurs extraites à droite. Corriger si besoin une valeur,
+     une unité, une norme ; « Ajouter une valeur » pour une ligne non reconnue.
+  3. « Publier ». Si des points restent à vérifier (ligne non reconnue,
+     valeur douteuse), EDEN les liste : les contrôler dans le PDF avant de
+     confirmer. Le résultat apparaît alors chez le patient rattaché.
+  « Rejeter » garde le PDF sans jamais le publier ; « Supprimer » l'efface.
+
+Quota : votre établissement peut importer un nombre limité de fichiers par
+période (par défaut 10 par jour), fixé par le super-administrateur. Le compteur
+« x / y utilisés » est affiché sur la page ; une fois la limite atteinte, le
+dépôt est bloqué jusqu'à la date indiquée. Les envois de votre logiciel comptent
+aussi, et supprimer un compte rendu ne rend pas de crédit.
+
+
+5. DÉPANNAGE
+------------
+  Situation                                     Que faire
+  ────────────────────────────────────────────  ──────────────────────────────
+  Arrivée sur /patients ou /intro au lieu de    Le compte n'est rattaché à
+  /admin                                        aucun établissement : demander
+                                                au super-administrateur.
+  « Plusieurs comptes utilisent cette adresse » Demander au super-administrateur
+                                                une adresse unique.
+  Pas de bouton « QR code » sur un patient      Il est déjà rattaché, ou sa
+                                                demande est en attente.
+  « Ce dossier est déjà rattaché à un compte »  Le dossier appartient déjà à un
+  (signalé par le patient)                      compte : ouvrir le dossier, vérifier
+                                                le compte, « Retirer » si erreur,
+                                                puis générer un nouveau QR code.
+  Les codes e-mail n'arrivent pas               Courriers indésirables, puis
+                                                équipe technique (SMTP).
+  « Limite atteinte : 10 fichier(s) par jour »  Quota d'imports PDF épuisé :
+                                                attendre la date indiquée, ou
+                                                demander au super-administrateur
+                                                de le relever.

@@ -1,0 +1,140 @@
+:host {
+  display: block;
+}
+
+.user-info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-primary);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.user-info-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.user-info-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-info-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.user-info-name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-info-email {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+}
+
+.user-info-email svg {
+  flex-shrink: 0;
+}
+
+.user-info-email span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-info-bell-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  margin-left: auto;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.user-info-bell-wrapper:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 768px) {
+  .user-info-card {
+    padding: 1.1rem 1.25rem;
+  }
+
+  .user-info-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .user-info-name {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .user-info-main {
+    flex-wrap: wrap;
+  }
+
+  .user-info-identity {
+    order: 1;
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .user-info-bell-wrapper {
+    order: 2;
+    margin-left: 68px;
+  }
+}
+
+/* Sur petit écran (mobile), la carte utilisateur est masquée. */
+@media (max-width: 640px) {
+  .user-info-card {
+    display: none;
+  }
+}

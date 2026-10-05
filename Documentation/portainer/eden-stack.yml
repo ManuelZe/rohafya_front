@@ -1,0 +1,81 @@
+# =============================================================================
+#  EDEN — stack Portainer CE
+#  Portainer : Stacks > + Add stack > Web editor > coller ce fichier.
+#
+#  Toutes les valeurs variables se règlent dans la section « Environment variables »
+#  de la stack (modèle : eden-stack.env.example).
+#  Changer EDEN_VERSION puis « Update the stack » + « Re-pull image and redeploy »
+#  = déployer une nouvelle version OU revenir à une ancienne (rollback).
+#  Le script Documentation/scripts/deployer-portainer.sh fait exactement cela via l'API.
+# =============================================================================
+
+services:
+  eden-app:
+    # Version TOUJOURS explicite (ex. 1.4.2) : jamais « latest » en production,
+    # sinon impossible de savoir ce qui tourne ni de revenir en arrière.
+    image: ${EDEN_IMAGE:-ghcr.io/pdmdsante/eden-app}:${EDEN_VERSION:?Définir EDEN_VERSION (ex. 1.0.0)}
+    container_name: eden-app-${EDEN_ENV:-production}
+    restart: unless-stopped
+
+    environment:
+      # URL de l'API Flask appelée par le navigateur (HTTPS obligatoire si EDEN est servi en HTTPS).
+      API_URL: ${API_URL:?Définir API_URL (ex. https://site.pdmdsante.com/)}
+      # Noms de domaine autorisés à atteindre le rendu serveur (protection SSRF), séparés par des virgules.
+      NG_ALLOWED_HOSTS: ${EDEN_DOMAINS:?Définir EDEN_DOMAINS (ex. eden.pdmdsante.com)}
+      # En-têtes transmis par le reverse proxy (Nginx Proxy Manager).
+      NG_TRUST_PROXY_HEADERS: x-forwarded-host,x-forwarded-proto,x-forwarded-for
+      PORT: "4000"
+      TZ: ${TZ:-Africa/Douala}
+
+    # Publié UNIQUEMENT sur l'interface locale du serveur : utile pour les vérifications
+    # (curl http://127.0.0.1:4000/healthz depuis le serveur). Le trafic public passe par
+    # Nginx Proxy Manager via le réseau Docker « proxy ».
+    # ATTENTION : Docker contourne le pare-feu UFW pour les ports publiés sur 0.0.0.0.
+    ports:
+      - "127.0.0.1:${EDEN_HTTP_PORT:-4000}:4000"
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4000/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+    # Garde-fous : un incident applicatif ne doit pas faire tomber le serveur.
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 128M
+
+    # Durcissement : système de fichiers en lecture seule, aucun privilège.
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+    # Journaux bornés : sans cela, les logs Docker peuvent remplir le disque.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+    labels:
+      com.pdmdsante.app: "eden"
+      com.pdmdsante.env: "${EDEN_ENV:-production}"
+      com.pdmdsante.version: "${EDEN_VERSION}"
+
+    networks:
+      - proxy
+
+networks:
+  # Réseau partagé avec Nginx Proxy Manager, créé une seule fois sur le serveur :
+  #   docker network create proxy
+  proxy:
+    external: true

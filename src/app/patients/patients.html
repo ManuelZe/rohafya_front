@@ -1,0 +1,256 @@
+<div class="dashboard-wrapper">
+  <!-- SIDEBAR MOBILE -->
+  <p-drawer
+    [visible]="sidebarService.visible()"
+    (visibleChange)="sidebarService.set($event)"
+    [modal]="true"
+    [closable]="true"
+    class="sidebar-mobile"
+    styleClass="sidebar-container"
+  >
+    <div class="sidebar-header">
+      <div class="profile-card">
+        <p-avatar
+          image="https://api.dicebear.com/7.x/avataaars/svg?seed=Noah"
+          shape="circle"
+          size="large"
+        ></p-avatar>
+        <div class="profile-info">
+          <div class="profile-name">{{ userName() }}</div>
+          <div class="profile-status" [class.status-inactive]="sidebarStatusInactive()">
+            <span class="status-dot"></span>
+            <span>{{ sidebarStatusLabel() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" [class.sidebar-nav-locked]="sidebarLocked()">
+      @for (item of menuItems; track item.label) {
+        @if (item.items) {
+          <div class="menu-item-group">
+            <button
+              type="button"
+              class="menu-item menu-item-parent"
+              [class.menu-item-locked]="isMenuItemLocked()"
+              [disabled]="isMenuItemLocked()"
+              (click)="toggleMenu(item.label)"
+              [class.active]="isExpanded(item.label)"
+            >
+              <span class="menu-item-icon">
+                <svg [pIcon]="item.icon" [size]="20"></svg>
+              </span>
+              <span>{{ item.label }}</span>
+              <i
+                class="pi pi-chevron-down submenu-icon"
+                [style.transform]="isExpanded(item.label) ? 'rotate(180deg)' : 'rotate(0deg)'"
+              ></i>
+            </button>
+            @if (isExpanded(item.label)) {
+              <div class="submenu">
+                @for (subitem of item.items; track subitem.label) {
+                  <a
+                    [routerLink]="isMenuItemLocked(subitem.link) ? null : subitem.link"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="menu-item menu-item-child"
+                    [class.menu-item-locked]="isMenuItemLocked(subitem.link)"
+                    [attr.aria-disabled]="isMenuItemLocked(subitem.link)"
+                    (click)="closeMobileSidebar(subitem.link)"
+                  >
+                    <span class="menu-item-icon">
+                      <svg [pIcon]="subitem.icon" [size]="18"></svg>
+                    </span>
+                    <span>{{ subitem.label }}</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <a
+            [routerLink]="isMenuItemLocked(item.link) ? null : item.link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="menu-item"
+            [class.menu-item-locked]="isMenuItemLocked(item.link)"
+            [attr.aria-disabled]="isMenuItemLocked(item.link)"
+            (click)="closeMobileSidebar(item.link)"
+          >
+            <span class="menu-item-icon">
+              <svg [pIcon]="item.icon" [size]="20"></svg>
+            </span>
+            <span>{{ item.label }}</span>
+            @if (sidebarLocked() && item.link === '/patients/parametres') {
+              <span class="menu-item-alert" title="Action requise">!</span>
+            }
+          </a>
+        }
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-date">
+        <svg [pIcon]="'calendar'" [size]="16"></svg>
+        <span>{{ currentDate }}</span>
+      </div>
+      <div class="footer-actions">
+        <button type="button" class="footer-btn" (click)="openSuggestion()">
+          <svg [pIcon]="'lightbulb'" [size]="16"></svg>
+          <span>Suggestion</span>
+        </button>
+        <button type="button" class="footer-btn" (click)="openHelp()">
+          <svg [pIcon]="'question-circle'" [size]="16"></svg>
+          <span>Aide</span>
+        </button>
+      </div>
+      <button type="button" class="logout-btn" (click)="logout()">
+        <svg [pIcon]="'sign-out'" [size]="16"></svg>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+
+  </p-drawer>
+
+  <!-- SIDEBAR DESKTOP -->
+  <aside class="sidebar-desktop">
+    <div class="sidebar-header">
+      <div class="profile-card">
+        <p-avatar
+          image="https://api.dicebear.com/7.x/avataaars/svg?seed=Noah"
+          shape="circle"
+          size="large"
+        ></p-avatar>
+        <div class="profile-info">
+          <div class="profile-name">{{ userName() }}</div>
+          <div class="profile-status" [class.status-inactive]="sidebarStatusInactive()">
+            <span class="status-dot"></span>
+            <span>{{ sidebarStatusLabel() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" [class.sidebar-nav-locked]="sidebarLocked()">
+      @for (item of menuItems; track item.label) {
+        @if (item.items) {
+          <div class="menu-item-group">
+            <button
+              type="button"
+              class="menu-item menu-item-parent"
+              [class.menu-item-locked]="isMenuItemLocked()"
+              [disabled]="isMenuItemLocked()"
+              (click)="toggleMenu(item.label)"
+              [class.active]="isExpanded(item.label)"
+            >
+              <span class="menu-item-icon">
+                <svg [pIcon]="item.icon" [size]="20"></svg>
+              </span>
+              <span>{{ item.label }}</span>
+              <i
+                class="pi pi-chevron-down submenu-icon"
+                [style.transform]="isExpanded(item.label) ? 'rotate(180deg)' : 'rotate(0deg)'"
+              ></i>
+            </button>
+            @if (isExpanded(item.label)) {
+              <div class="submenu">
+                @for (subitem of item.items; track subitem.label) {
+                  <a
+                    [routerLink]="isMenuItemLocked(subitem.link) ? null : subitem.link"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="menu-item menu-item-child"
+                    [class.menu-item-locked]="isMenuItemLocked(subitem.link)"
+                    [attr.aria-disabled]="isMenuItemLocked(subitem.link)"
+                  >
+                    <span class="menu-item-icon">
+                      <svg [pIcon]="subitem.icon" [size]="18"></svg>
+                    </span>
+                    <span>{{ subitem.label }}</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <a
+            [routerLink]="isMenuItemLocked(item.link) ? null : item.link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="menu-item"
+            [class.menu-item-locked]="isMenuItemLocked(item.link)"
+            [attr.aria-disabled]="isMenuItemLocked(item.link)"
+          >
+            <span class="menu-item-icon">
+              <svg [pIcon]="item.icon" [size]="20"></svg>
+            </span>
+            <span>{{ item.label }}</span>
+            @if (sidebarLocked() && item.link === '/patients/parametres') {
+              <span class="menu-item-alert" title="Action requise">!</span>
+            }
+          </a>
+        }
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-date">
+        <svg [pIcon]="'calendar'" [size]="16"></svg>
+        <span>{{ currentDate }}</span>
+      </div>
+      <div class="footer-actions">
+        <button type="button" class="footer-btn" (click)="openSuggestion()">
+          <svg [pIcon]="'lightbulb'" [size]="16"></svg>
+          <span>Suggestion</span>
+        </button>
+        <button type="button" class="footer-btn" (click)="openHelp()">
+          <svg [pIcon]="'question-circle'" [size]="16"></svg>
+          <span>Aide</span>
+        </button>
+      </div>
+      <button type="button" class="logout-btn" (click)="logout()">
+        <svg [pIcon]="'sign-out'" [size]="16"></svg>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENU DYNAMIQUE -->
+  <main class="main-content">
+    <app-user-info-card />
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- BOITE DE DIALOGUE AIDE -->
+  @if (helpDialogOpen()) {
+    <div class="footer-dialog-overlay" (click)="closeHelp()">
+      <div class="footer-dialog-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="help-dialog-title">
+        <button type="button" class="footer-dialog-close" (click)="closeHelp()" aria-label="Fermer">&times;</button>
+
+        <div class="footer-dialog-header">
+          <svg [pIcon]="'question-circle'" [size]="24"></svg>
+          <h2 id="help-dialog-title">Service d'aide</h2>
+        </div>
+
+        <div class="footer-dialog-body">
+          @for (contact of helpContacts; track contact.label) {
+            <div class="help-contact-card">
+              <h3>{{ contact.label }}</h3>
+              <p class="help-contact-phone">{{ contact.phone }}</p>
+              <a [href]="contact.whatsapp" target="_blank" rel="noopener" class="help-whatsapp-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.05-.52-.099-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.059 3.163 5.031 4.31 2.97 1.146 2.97.763 3.507.714.537-.05 1.758-.72 2.006-1.413.248-.694.248-1.29.173-1.413-.074-.124-.272-.198-.57-.347z"></path>
+                  <path d="M12 0C5.373 0 0 5.373 0 12c0 2.21.586 4.283 1.606 6.07L0 24l6.13-1.604A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.895c-1.97 0-3.87-.527-5.516-1.522l-.395-.234-4.108 1.075 1.098-4.005-.257-.412A9.87 9.87 0 0 1 2.105 12C2.105 6.531 6.531 2.105 12 2.105S21.895 6.531 21.895 12 17.469 21.895 12 21.895z"></path>
+                </svg>
+                <span>WhatsApp</span>
+              </a>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- BOITE À SUGGESTIONS -->
+  <app-suggestion-dialog [open]="suggestionDialogOpen()" (closed)="closeSuggestion()" />
+</div>

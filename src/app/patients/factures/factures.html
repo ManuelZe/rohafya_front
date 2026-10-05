@@ -1,0 +1,102 @@
+<div class="layout-wrapper">
+  <div class="factures-column">
+    <app-page-header title="Factures" subtitle="Consultez et suivez le règlement de vos factures." />
+
+    <div class="kpi-container">
+      <div class="kpi-card posted">
+        <span class="kpi-label">Partiellement Payées</span>
+        <span class="kpi-value">{{ partiallyPaidCount() }}</span>
+      </div>
+      <div class="kpi-card paid">
+        <span class="kpi-label">Payées</span>
+        <span class="kpi-value">{{ paidCount() }}</span>
+      </div>
+      <div class="kpi-card unpaid">
+        <span class="kpi-label">Non Payées</span>
+        <span class="kpi-value">{{ unpaidCount() }}</span>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="pi pi-search search-icon"></i>
+          <input type="text" pInputText [formField]="searchForm.query" placeholder="Search" (input)="dt.filterGlobal($event.target.value, 'contains')" />
+        </div>
+        <div class="actions">
+          <button pButton type="button" icon="pi pi-filter" label="Filter" [outlined]="true" severity="secondary">
+            <svg [pIcon]="'filter'" [size]="18" severity="secondary"></svg>
+          </button>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="factures()"
+        selectionMode="single"
+        [selection]="selectedFacture()"
+        (onRowSelect)="onFactureSelect($event)"
+        dataKey="reference"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [paginator]="true"
+        [rows]="facturesRows"
+        (onPage)="onFacturesPageChange($event)"
+        [scrollable]="true"
+        scrollHeight="flex"
+      >
+        <ng-template #header>
+          <tr>
+            <th pSortableColumn="date">
+              <div class="flex items-center gap-2">
+                  Date
+                  <p-sort-icon field="date" />
+              </div>
+            </th>
+            <th pSortableColumn="reference">
+              <div class="flex items-center gap-2">
+                  Référence
+                  <p-sort-icon field="reference" />
+              </div>
+            </th>
+            <th pSortableColumn="total_amount">
+              <div class="flex items-center gap-2">
+                  Montant Total
+                  <p-sort-icon field="total_amount" />
+              </div>
+            </th>
+            <th pSortableColumn="state_facture">
+              <div class="flex items-center gap-2">
+                  Statut de la Facture
+                  <p-sort-icon field="state_facture" />
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-item>
+          <tr [pSelectableRow]="item">
+            <td>{{ item.date | date:'dd/MM/yyyy' }}</td>
+            <td>
+              {{ item.reference }}
+              @if (item.establishment) {
+                <span class="facture-establishment">{{ item.establishment }}</span>
+              }
+            </td>
+            <td>{{ item.total_amount2 | number:'1.0-0' }} FCFA</td>
+            <td>
+              <app-status-tag kind="facture" [status]="item.state" />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="details-column">
+    <app-details
+      [selectedFacture]="selectedFacture()"
+      [details]="detailsFacture()"
+      [loading]="isLoadingDetails()"
+      [error]="errorDetails()"
+    ></app-details>
+  </div>
+</div>

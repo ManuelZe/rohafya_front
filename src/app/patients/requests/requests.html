@@ -1,0 +1,310 @@
+<div class="requests-page">
+  <p-toast />
+  <p-confirmdialog />
+
+  <app-page-header title="Gestion des Requêtes" subtitle="Suivez vos demandes et enregistrez-en de nouvelles.">
+    <p-selectbutton
+      actions
+      class="tab-switch"
+      [options]="tabOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="activeTab()"
+      (onChange)="setTab($event.value)"
+      [allowEmpty]="false"
+      aria-label="Basculer entre la liste et le formulaire de requête"
+    >
+      <ng-template let-item pTemplate="item">
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </ng-template>
+    </p-selectbutton>
+  </app-page-header>
+
+  <main>
+    <!-- ===================== LISTE DES REQUÊTES ===================== -->
+    @if (activeTab() === 'list') {
+      <section class="list-section" aria-label="Liste des requêtes">
+        <div class="list-toolbar">
+          <p-iconfield class="search-box">
+            <p-inputicon class="pi pi-search" />
+            <input
+              type="text"
+              pInputText
+              placeholder="Rechercher par nom, email ou message..."
+              [value]="searchTerm()"
+              (input)="filterMobile($event.target.value)"
+            />
+          </p-iconfield>
+          <span class="results-count">{{ filteredRequests().length }} requête(s)</span>
+        </div>
+
+        <!-- ===== Vue tableau (desktop / tablette large) ===== -->
+        <div class="table-wrapper table-desktop">
+          <p-table
+            #dt
+            [value]="filteredRequests()"
+            [loading]="isLoading()"
+            dataKey="id"
+            [paginator]="filteredRequests().length > 10"
+            [rows]="10"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [scrollable]="true"
+            scrollHeight="flex"
+            styleClass="requests-table"
+          >
+            <ng-template #header>
+              <tr>
+                <th pSortableColumn="id" style="width: 80px">
+                  <div class="th-content">ID <p-sort-icon field="id" /></div>
+                </th>
+                <th pSortableColumn="last_name">
+                  <div class="th-content">Nom / Prénom <p-sort-icon field="last_name" /></div>
+                </th>
+                <th pSortableColumn="email">
+                  <div class="th-content">Email <p-sort-icon field="email" /></div>
+                </th>
+                <th pSortableColumn="CreatedAt">
+                  <div class="th-content">Date <p-sort-icon field="CreatedAt" /></div>
+                </th>
+                <th>Statut / Types</th>
+                <th>Message</th>
+                <th style="width: 70px">Actions</th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-req>
+              <tr>
+                <td><span class="id-cell">#{{ req.id }}</span></td>
+                <td><span class="cell-primary">{{ req.first_name }} {{ req.last_name }}</span></td>
+                <td><a class="email-link" href="mailto:{{ req.email }}">{{ req.email }}</a></td>
+                <td>{{ req.CreatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <div class="badge-group">
+                    @if (req.valide) { <p-tag severity="success" value="Validé" /> }
+                    @if (req.administration) { <p-tag severity="info" value="Admin" /> }
+                    @if (req.connection) { <p-tag severity="info" value="Connexion" /> }
+                    @if (req.error) { <p-tag severity="danger" value="Erreur" /> }
+                    @if (req.suggestion) { <p-tag severity="warn" value="Suggestion" /> }
+                    @if (!req.valide && !req.administration && !req.connection && !req.error && !req.suggestion) {
+                      <p-tag severity="secondary" value="Non classé" />
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="message-cell" [pTooltip]="req.message" tooltipPosition="top" [tooltipDisabled]="!req.message">
+                    {{ req.message || '—' }}
+                  </span>
+                </td>
+                <td>
+                  <button 
+                    pButton 
+                    iconOnly 
+                    [severity]="'danger'"
+                    [text]="true"
+                    [rounded]="true"
+                    [disabled]="deletingId() !== null"
+                    pTooltip="Supprimer cette requête"
+                    tooltipPosition="top"
+                    (click)="confirmDelete(req)">
+                    @if (deletingId() === req.id) {
+                      <svg data-p-icon="spinner" class="animate-spin"></svg>
+                    } @else {
+                      <svg data-p-icon="trash"></svg>
+                    }
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="7">
+                  <div class="empty-state">
+                    <i class="pi pi-inbox empty-icon"></i>
+                    <p class="empty-title">Aucune requête pour le moment.</p>
+                    <p class="empty-text">Vos nouvelles requêtes apparaîtront automatiquement ici.</p>
+                    <button pButton icon="pi pi-plus" [outlined]="true" (click)="setTab('add')">Créer une requête</button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- ===== Vue cartes expansibles (mobile) : pas un simple rétrécissement du tableau ===== -->
+        <div class="request-cards-mobile">
+          @if (isLoading()) {
+            @for (i of [1, 2, 3]; track i) {
+              <p-skeleton height="84px" styleClass="card-skeleton" />
+            }
+          } @else if (filteredRequests().length === 0) {
+            <div class="empty-state">
+              <i class="pi pi-inbox empty-icon"></i>
+              <p class="empty-title">Aucune requête pour le moment.</p>
+              <p class="empty-text">Vos nouvelles requêtes apparaîtront automatiquement ici.</p>
+              <button pButton icon="pi pi-plus" [outlined]="true" (click)="setTab('add')">Créer une requête</button>
+            </div>
+          } @else {
+            @for (req of filteredRequests(); track req.id) {
+              <p-card styleClass="request-card" [class.expanded]="expandedCardId() === req.id">
+                <div
+                  class="request-card-header"
+                  role="button"
+                  tabindex="0"
+                  [attr.aria-expanded]="expandedCardId() === req.id"
+                  (click)="toggleCard(req.id)"
+                  (keydown.enter)="toggleCard(req.id)"
+                  (keydown.space)="toggleCard(req.id)"
+                >
+                  <div class="request-card-identity">
+                    <span class="id-cell">#{{ req.id }}</span>
+                    <span class="cell-primary">{{ req.first_name }} {{ req.last_name }}</span>
+                  </div>
+                  <div class="request-card-summary">
+                    <span class="request-card-date">{{ req.CreatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    <app-status-tag kind="requete" [status]="req.valide ? 'true' : 'false'" />
+                    
+                    <button 
+                      pButton 
+                      iconOnly 
+                      [severity]="'danger'"
+                      [text]="true"
+                      [rounded]="true"
+                      [disabled]="deletingId() !== null"
+                      pTooltip="Supprimer cette requête"
+                      tooltipPosition="top"
+                      (click)="confirmDelete(req)">
+                      @if (deletingId() === req.id) {
+                        <svg data-p-icon="spinner" class="animate-spin"></svg>
+                      } @else {
+                        <svg data-p-icon="trash" size="20"></svg>
+                      }
+                    </button>
+                    <i class="pi pi-chevron-down expand-icon" [class.rotated]="expandedCardId() === req.id"></i>
+                  </div>
+                </div>
+
+                @if (expandedCardId() === req.id) {
+                  <div class="request-card-details">
+                    <div class="detail-row">
+                      <span class="detail-label">Email</span>
+                      <a class="email-link" href="mailto:{{ req.email }}">{{ req.email }}</a>
+                    </div>
+
+                    <div class="detail-row">
+                      <span class="detail-label">Types</span>
+                      <div class="badge-group">
+                        @if (req.administration) { <p-tag severity="info" value="Admin" /> }
+                        @if (req.connection) { <p-tag severity="info" value="Connexion" /> }
+                        @if (req.error) { <p-tag severity="danger" value="Erreur" /> }
+                        @if (req.suggestion) { <p-tag severity="warn" value="Suggestion" /> }
+                        @if (!req.administration && !req.connection && !req.error && !req.suggestion) {
+                          <p-tag severity="secondary" value="Non classé" />
+                        }
+                      </div>
+                    </div>
+
+                    <div class="detail-row">
+                      <span class="detail-label">Message</span>
+                      <p class="detail-message">{{ req.message || 'Aucun message.' }}</p>
+                    </div>
+
+                    <div class="detail-row detail-actions">
+                      <button 
+                        pButton 
+                        iconOnly 
+                        [severity]="'danger'"
+                        [text]="true"
+                        [rounded]="true"
+                        [disabled]="deletingId() !== null"
+                        pTooltip="Supprimer cette requête"
+                        tooltipPosition="top"
+                        (click)="confirmDelete(req)">
+                        @if (deletingId() === req.id) {
+                          <svg data-p-icon="spinner" class="animate-spin"></svg>
+                        } @else {
+                          <svg data-p-icon="trash" size="20"></svg>
+                        }
+                      </button>
+                    </div>
+                  </div>
+                }
+              </p-card>
+            }
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ===================== NOUVELLE REQUÊTE ===================== -->
+    @if (activeTab() === 'add') {
+      <section class="form-section" aria-label="Nouvelle requête">
+        <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+          <p-card styleClass="form-card">
+            <ng-template pTemplate="header">
+              <h2 class="form-card-title">Informations du demandeur</h2>
+            </ng-template>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="first_name">Prénom</label>
+                <input id="first_name" type="text" pInputText formControlName="first_name" />
+                @if (requestForm.get('first_name')?.invalid && requestForm.get('first_name')?.touched) {
+                  <small class="field-error">Le prénom est requis.</small>
+                }
+              </div>
+
+              <div class="field">
+                <label for="last_name">Nom</label>
+                <input id="last_name" type="text" pInputText formControlName="last_name" />
+                @if (requestForm.get('last_name')?.invalid && requestForm.get('last_name')?.touched) {
+                  <small class="field-error">Le nom est requis.</small>
+                }
+              </div>
+
+              <div class="field full-width">
+                <label for="email">Email</label>
+                <input id="email" type="email" pInputText formControlName="email" />
+                @if (requestForm.get('email')?.invalid && requestForm.get('email')?.touched) {
+                  <small class="field-error">Veuillez saisir une adresse email valide.</small>
+                }
+              </div>
+
+              <div class="field full-width">
+                <label for="message">Message</label>
+                <textarea id="message" pTextarea rows="4" formControlName="message"></textarea>
+                @if (requestForm.get('message')?.invalid && requestForm.get('message')?.touched) {
+                  <small class="field-error">Le message doit contenir au moins 10 caractères.</small>
+                }
+              </div>
+            </div>
+          </p-card>
+
+          <p-panel header="Catégories et options" [toggleable]="true" styleClass="categories-panel">
+            <p class="form-card-hint">Cochez toutes les catégories concernées par cette requête.</p>
+
+            <div class="checkbox-grid">
+              @for (opt of categoryOptions(); track opt.control) {
+                <label class="checkbox-field">
+                  <p-checkbox [formControlName]="opt.control" [binary]="true" />
+                  <span>{{ opt.label }}</span>
+                </label>
+              }
+            </div>
+          </p-panel>
+
+          <div class="form-actions">
+            <button
+              pButton
+              type="submit"
+              [disabled]="requestForm.invalid || isLoading()">
+              <i [class]="isLoading() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"></i>
+              <span>{{ isLoading() ? 'Envoi en cours...' : 'Enregistrer la requête' }}</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+  </main>
+</div>

@@ -1,0 +1,124 @@
+================================================================================
+                 DONNÉES DE TEST — IMPORT EDEN ET IMPORT FHIR
+================================================================================
+
+Deux jeux de données fictifs (noms, e-mails en @example.com) pour vérifier
+qu'un établissement peut envoyer ses données à EDEN, et que les règles
+d'affichage fonctionnent. À utiliser en PRÉPRODUCTION, sur un établissement de
+test : les données s'ajoutent à celles de l'établissement dont la clé est utilisée.
+
+  import-eden/      format EDEN (mêmes champs que les écrans patients et que les
+                    données de la démo), envoyé sur /ingest/v1/...
+  import-fhir/      standard HL7 FHIR R4, envoyé sur /fhir/r4
+  importer-eden.sh  envoie le jeu EDEN avec curl
+  importer-fhir.sh  envoie le jeu FHIR avec curl
+
+Les deux jeux sont indépendants (dossiers CLB-… et FHR-…) : on peut les
+envoyer au même établissement ou à deux établissements différents.
+
+
+1. PRÉPARER
+-----------
+  1. Super-administrateur : créer un établissement « Clinique de test »
+     (méthode API EDEN ou FHIR, peu importe : la clé sert aux deux) et copier
+     sa clé d'API.
+  2. Sur le poste qui lance les scripts (bash + curl) :
+       export EDEN_API_URL=https://<adresse-de-l-api-de-préproduction>
+       export EDEN_API_KEY=eden_xxxxxxxxxxxxxxxx
+       cd Documentation_SaaS/donnees-test
+
+
+2. LANCER
+---------
+       ./importer-eden.sh
+       ./importer-fhir.sh
+
+Chaque appel affiche la réponse de l'API puis « -> HTTP 200 ». Réponses
+attendues :
+
+  Envoi                          Réponse
+  ─────────────────────────────  ───────────────────────────────────────────
+  ping                           {"establishment": "Clinique de test", ...}
+  patients                       {"created": 4, "updated": 0, "total": 4}
+  laboratoire                    {"created": 4, ...}
+  imagerie                       {"created": 2, ...}
+  exploration                    {"created": 1, ...}
+  factures                       {"created": 3, ...}
+  link-tokens (CLB-0001)         {"url": ".../l/<jeton>", "short_code": "XXX-XXXX", ...}
+  Bundle FHIR                    summary : 2 patients, 1 laboratoire, 1 imagerie,
+                                 1 exploration, 2 facture, 4 ignored
+                                 (« ignored » = les 4 Observation, lues à travers
+                                 leur DiagnosticReport : c'est normal)
+  Patient FHIR seul              summary : 1 patients
+
+Relancer les scripts ne crée pas de doublons : « created » passe à 0 et
+« updated » au nombre d'éléments (même code = mise à jour).
+
+Envoi manuel d'un seul fichier, par exemple :
+  curl -X POST "$EDEN_API_URL/ingest/v1/laboratoire" \
+       -H "X-EDEN-API-Key: $EDEN_API_KEY" -H "Content-Type: application/json" \
+       --data-binary @import-eden/02_laboratoire.json
+
+
+3. VÉRIFIER DANS EDEN
+---------------------
+Espace /admin de « Clinique de test » :
+  - Patients : 7 dossiers (CLB-0001 à CLB-0004, FHR-0001 à FHR-0003),
+    tous « Non rattaché » ;
+  - Données reçues : 5 laboratoire, 3 imagerie, 2 exploration, 5 factures ;
+  - Journal : « Données reçues (API EDEN) » et « Données reçues (FHIR) ».
+
+Pour voir côté patient : Patients > « QR code » sur un dossier, ouvrir le lien
+du QR code, se connecter avec l'e-mail du dossier (ou un autre e-mail, puis
+valider la demande dans « Rattachements »).
+
+
+4. CE QUE CHAQUE DOSSIER PERMET DE TESTER
+-----------------------------------------
+Avec les réglages par défaut (accès aux détails 90 jours, masquage si facture
+impayée) :
+
+  Dossier   Données                               Comportement attendu
+  ────────  ────────────────────────────────────  ────────────────────────────
+  CLB-0001  NFS (2 valeurs hors norme),           Détails MASQUÉS : facture
+            glycémie/HbA1c, facture « posted »    FAC-CLB-5001 entièrement
+            non réglée                            due (« factures impayées »).
+  CLB-0002  bilan rénal (créatinine élevée),      Tout visible : facture payée.
+            échographie, facture « paid »
+  CLB-0003  goutte épaisse validée le 12/05/2026  Résultat « Expiré » : détail
+                                                  refusé (période d'accès
+                                                  écoulée). À partir du
+                                                  10/08/2026.
+  CLB-0004  radio thorax, ECG, facture            Tout visible : reste à payer
+            « partial » (2 000 / 30 000)          inférieur à 10 % du montant.
+  FHR-0001  bilan lipidique (2 valeurs « H »),    Détails MASQUÉS : facture
+            facture FHIR « issued » 18 000 dus    « issued » = à régler.
+  FHR-0002  scanner cérébral (imagerie, sans      Tout visible : facture
+            valeurs), ECG (tachycardie « H »),    « balanced » = payée.
+            facture « balanced »
+  FHR-0003  patient seul, sans données            Apparaît dans Patients.
+
+Pour lever le masquage de CLB-0001 : renvoyer FAC-CLB-5001 avec
+"state": "paid" et "amount_to_pay_today": 0, ou décocher « Masquer le détail
+des résultats en cas de facture impayée » dans Paramètres.
+
+Les résultats sont horodatés fin septembre 2026 : ils restent « Disponibles »
+90 jours après leur validation. Pour réutiliser ce jeu plus tard, avancer les
+dates « validation_date » (EDEN) et « issued » (FHIR).
+
+
+5. CORRESPONDANCE FHIR -> EDEN UTILISÉE PAR CE JEU
+--------------------------------------------------
+  Patient.identifier[0].value          -> numéro de dossier (local_ref)
+  DiagnosticReport.category  LAB       -> laboratoire
+                             RAD / IMG -> imagerie
+                             autre (EC)-> exploration fonctionnelle
+  DiagnosticReport.identifier[0].value -> code de l'examen (LAB-FHR-7001…)
+  DiagnosticReport.issued              -> date de validation
+  DiagnosticReport.conclusion          -> diagnostic / conclusion
+  Observation (via result[])           -> valeurs : nom, valeur, unité, normes,
+                                          interpretation H/L/A… = hors norme
+  Invoice.status  issued / balanced    -> à régler / payée
+  Invoice extension …/amount-due       -> reste à payer (sinon : total si
+                                          « issued », 0 si « balanced »)
+  Références « urn:uuid:… »            -> résolues entre entrées du même Bundle

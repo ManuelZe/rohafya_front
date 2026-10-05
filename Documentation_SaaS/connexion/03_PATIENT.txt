@@ -1,0 +1,103 @@
+================================================================================
+                 CONNEXION — PATIENT
+================================================================================
+
+Le patient consulte dans un seul compte les résultats (laboratoire, imagerie,
+exploration fonctionnelle) et les factures de tous les établissements où son
+dossier est rattaché. Chaque résultat indique son établissement.
+
+Espace : https://eden.pdmdsante.com/patients
+
+
+1. QUELLE SITUATION EST LA VÔTRE ?
+----------------------------------
+  A. Vous avez reçu un QR code (ou un code court) sur une facture
+     -> section 2 : c'est le chemin le plus simple, il crée le compte au besoin.
+  B. Vous êtes déjà patient de PDMD Santé avec un identifiant et un mot de passe
+     -> section 3.
+  C. Vous voulez simplement vous connecter avec votre e-mail
+     -> section 4.
+
+
+2. PREMIÈRE CONNEXION PAR LE QR CODE DE LA FACTURE
+--------------------------------------------------
+  1. Scanner le QR code avec l'appareil photo du téléphone. La page
+     « Rattacher mon dossier » s'ouvre et affiche le nom de l'établissement.
+  2. Saisir son adresse e-mail, « Recevoir un code ».
+  3. Saisir le code à 6 chiffres reçu par e-mail (valable 10 minutes),
+     « Se connecter ».
+  4. Si aucun compte n'existe pour cette adresse : saisir prénom et nom,
+     « Créer mon compte ».
+  5. Cliquer sur « Rattacher ce dossier à mon compte ».
+       « C'est fait ! »       le dossier est rattaché, les résultats arrivent.
+       « Demande envoyée »    l'établissement doit confirmer (l'e-mail saisi
+                              n'est pas celui qu'il connaît) ; les résultats
+                              apparaîtront après sa validation.
+  6. « Voir mes établissements ».
+
+  Lors de la toute première connexion, EDEN ouvre d'abord la page « Paramètres » :
+  compléter et enregistrer ses informations (nom, prénom, date de naissance,
+  genre, lieu de naissance, nationalité, CNI, téléphones, e-mail). Les autres
+  pages se débloquent ensuite.
+
+  Le QR code ne sert qu'une fois. Pour un deuxième établissement, scanner
+  simplement le QR code de sa facture : il s'ajoute au MÊME compte.
+
+
+3. PATIENT HISTORIQUE (IDENTIFIANT ET MOT DE PASSE)
+---------------------------------------------------
+Les patients de PDMD Santé gardent leur accès habituel :
+  1. https://eden.pdmdsante.com/connexion, onglet « Mot de passe ».
+  2. Cliquer sur « Patient », saisir identifiant et mot de passe,
+     « Se connecter ».
+  Identifiant oublié : « Mot de passe oublié? », saisir son matricule ; un
+  nouvel identifiant et un nouveau mot de passe sont envoyés par e-mail.
+
+Leurs résultats PDMD Santé restent visibles sans aucun QR code. Ils peuvent
+aussi utiliser la connexion par code (section 4) si l'e-mail de leur profil
+n'est utilisé par aucun autre compte.
+
+
+4. SE CONNECTER AVEC SON E-MAIL (SANS MOT DE PASSE)
+---------------------------------------------------
+  1. https://eden.pdmdsante.com/connexion, onglet « Code par e-mail ».
+  2. Adresse e-mail > « Recevoir un code » > code à 6 chiffres > « Se connecter ».
+  3. Sans compte existant : prénom, nom > « Créer mon compte ». Le compte est
+     vide tant qu'aucun établissement n'y est rattaché (voir section 5).
+
+
+5. GÉRER SES ÉTABLISSEMENTS
+---------------------------
+Menu « Mes établissements » :
+  - liste des établissements rattachés (état « Rattaché » ou « En attente ») ;
+  - « Ajouter un établissement » : saisir le code court imprimé sous le QR code
+    (ex. K7P-4QX, tirets et espaces facultatifs), « Rattacher » ;
+  - « Retirer » : les résultats et factures de cet établissement disparaissent
+    du compte (rien n'est supprimé chez l'établissement ; un nouveau QR code
+    permet de le rattacher à nouveau).
+
+
+6. DÉPANNAGE
+------------
+  Message                                         Que faire
+  ──────────────────────────────────────────────  ──────────────────────────────
+  « Ce QR code a déjà été utilisé »               Le dossier est peut-être déjà
+                                                  dans votre compte : connectez-
+                                                  vous et vérifiez « Mes
+                                                  établissements ».
+  « Ce QR code a expiré » / « a été annulé »      Demander un nouveau QR code à
+                                                  l'accueil.
+  « Ce dossier est déjà rattaché à un autre       Contacter l'établissement
+  compte »                                        (vérification d'identité).
+  « Code invalide »                               Vérifier le code court ;
+                                                  10 essais ratés par heure
+                                                  maximum.
+  Résultat visible mais détail masqué             Facture impayée dans cet
+                                                  établissement, ou période
+                                                  d'accès écoulée.
+  Code de connexion non reçu                      Courriers indésirables, ou
+                                                  « Renvoyer le code » (5 par
+                                                  heure maximum).
+  « Plusieurs comptes utilisent cette adresse »   Se connecter par identifiant et
+                                                  mot de passe, ou contacter le
+                                                  support.

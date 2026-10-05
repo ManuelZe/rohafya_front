@@ -1,0 +1,54 @@
+[
+  {
+    "local_ref": "CLB-0001",
+    "reference": "FAC-CLB-5001",
+    "invoice_number": "FAC/2026/5001",
+    "date": "2026-09-27",
+    "state": "posted",
+    "total_amount2": 26000,
+    "untaxed_amount": 26000,
+    "amount_to_pay": "26000",
+    "amount_to_pay_today": 26000,
+    "montant_assurance": "0",
+    "montant_patient": 26000,
+    "products": [
+      { "product_name": "Numération Formule Sanguine (NFS)", "quantity": "1" },
+      { "product_name": "Glycémie à jeun", "quantity": "1" },
+      { "product_name": "Hémoglobine glyquée (HbA1c)", "quantity": "1" }
+    ]
+  },
+  {
+    "local_ref": "CLB-0002",
+    "reference": "FAC-CLB-5002",
+    "invoice_number": "FAC/2026/5002",
+    "date": "2026-09-24",
+    "state": "paid",
+    "total_amount2": 48000,
+    "untaxed_amount": 48000,
+    "amount_to_pay": "0",
+    "amount_to_pay_today": 0,
+    "montant_assurance": "33600",
+    "montant_patient": 14400,
+    "products": [
+      { "product_name": "Bilan rénal", "quantity": "1" },
+      { "product_name": "Échographie abdominale", "quantity": "1" }
+    ]
+  },
+  {
+    "local_ref": "CLB-0004",
+    "reference": "FAC-CLB-5003",
+    "invoice_number": "FAC/2026/5003",
+    "date": "2026-09-29",
+    "state": "partial",
+    "total_amount2": 30000,
+    "untaxed_amount": 30000,
+    "amount_to_pay": "2000",
+    "amount_to_pay_today": 2000,
+    "montant_assurance": "0",
+    "montant_patient": 30000,
+    "products": [
+      { "product_name": "Électrocardiogramme (ECG) de repos", "quantity": "1" },
+      { "product_name": "Radiographie du thorax (face)", "quantity": "1" }
+    ]
+  }
+]

@@ -1,0 +1,49 @@
+================================================================================
+                 EDEN SaaS — DOSSIER DE DOCUMENTATION FONCTIONNELLE
+================================================================================
+
+EDEN accueille plusieurs établissements de santé. Chaque personne a UN compte,
+identifié par son adresse e-mail, et retrouve dans ce compte les données de tous
+les établissements auxquels son dossier est rattaché.
+
+Ce dossier complète « Documentation/ » (versionnage et déploiement). La mise en
+service technique du mode SaaS côté API est décrite dans le dépôt de l'API :
+DoctorAPI/saas/README.md.
+
+
+CONTENU
+-------
+  connexion/                      Comment se connecter : un fichier par rôle
+    01_SUPER_ADMINISTRATEUR.txt     contrôle toute la plateforme
+    02_ADMINISTRATEUR_ETABLISSEMENT.txt  gère un établissement et ses patients
+    03_PATIENT.txt                  consulte ses résultats et factures
+    04_MEDECIN.txt                  reçoit les résultats partagés par ses patients
+    05_LOGICIEL_ETABLISSEMENT.txt   le logiciel qui envoie les données (clé d'API)
+
+  donnees-test/                   Jeux de données pour essayer les imports
+    LISEZMOI.txt                    mode d'emploi et résultats attendus
+    import-eden/                    import au format EDEN (API /ingest/v1)
+    import-fhir/                    import au standard HL7 FHIR R4 (API /fhir/r4)
+    importer-eden.sh                envoie le jeu EDEN avec curl
+    importer-fhir.sh                envoie le jeu FHIR avec curl
+
+  extraction-pdf/
+    EXTRACTION_RESULTATS_PDF.txt    extraire les résultats d'un PDF de laboratoire,
+                                    y compris quand la mise en page change
+
+
+LES CINQ RÔLES EN UN COUP D'ŒIL
+-------------------------------
+  Rôle                          Adresse              Se connecte avec
+  ────────────────────────────  ───────────────────  ──────────────────────────
+  Super-administrateur          /super-admin         code reçu par e-mail
+  Administrateur d'établissement /admin              code reçu par e-mail
+  Patient                       /patients            code e-mail, ou identifiant
+                                                     + mot de passe (historique)
+  Médecin                       /doctors             code e-mail, ou identifiant
+                                                     + mot de passe (historique)
+  Logiciel de l'établissement   /ingest, /fhir       clé d'API (en-tête HTTP)
+
+Après connexion, EDEN ouvre automatiquement l'espace correspondant au rôle.
+Adresse de production utilisée dans ces documents : https://eden.pdmdsante.com
+(remplacez-la par l'adresse de préproduction pour vos essais).

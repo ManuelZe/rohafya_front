@@ -1,0 +1,145 @@
+================================================================================
+                 CONNEXION — SUPER-ADMINISTRATEUR
+================================================================================
+
+Le super-administrateur contrôle toute la plateforme : il crée les
+établissements, leur donne une clé d'API, nomme leurs administrateurs, peut
+désactiver n'importe quel compte et consulte le journal de toutes les opérations.
+
+Espace : https://eden.pdmdsante.com/super-admin
+
+
+1. AVOIR UN COMPTE SUPER-ADMINISTRATEUR
+---------------------------------------
+Un super-administrateur est créé de l'une de ces trois façons :
+
+  a) Par l'équipe technique, sur le serveur de l'API (intervention manuelle) :
+       flask --app DoctorAPI saas create-superadmin prenom.nom@exemple.com \
+             --first-name Prénom --last-name Nom
+     Si un compte existe déjà avec cet e-mail, il reçoit simplement le rôle.
+
+  b) Par un autre super-administrateur : menu « Comptes » > bouton
+     « Nommer super-admin » sur la ligne de la personne.
+
+  c) Les comptes qui avaient déjà le rôle historique « Admin » sont
+     automatiquement super-administrateurs.
+
+Important : l'adresse e-mail doit être UNIQUE (un seul compte EDEN avec cette
+adresse), sinon la connexion par code est refusée (voir « Dépannage »).
+
+
+2. SE CONNECTER (CODE PAR E-MAIL — RECOMMANDÉ)
+----------------------------------------------
+  1. Ouvrir https://eden.pdmdsante.com/connexion
+  2. Cliquer sur l'onglet « Code par e-mail ».
+     (Le bouton « Patient » au-dessus n'a pas besoin d'être sélectionné.)
+  3. Saisir son adresse e-mail, cliquer sur « Recevoir un code ».
+  4. Ouvrir l'e-mail « Votre code de connexion EDEN » : il contient un code de
+     6 chiffres, valable 10 minutes et utilisable une seule fois.
+  5. Saisir le code, cliquer sur « Se connecter ».
+  6. EDEN ouvre directement la console /super-admin.
+
+Liens utiles sous le champ du code : « Renvoyer le code » et « Changer d'adresse ».
+
+
+3. SE CONNECTER AVEC UN IDENTIFIANT ET UN MOT DE PASSE (COMPTES HISTORIQUES)
+----------------------------------------------------------------------------
+Les anciens comptes « Admin » qui possèdent un identifiant et un mot de passe
+peuvent toujours les utiliser :
+  1. Onglet « Mot de passe », cliquer sur le bouton « Patient » (obligatoire
+     pour activer le bouton de connexion, sans effet sur l'espace d'arrivée),
+  2. Saisir l'identifiant et le mot de passe, « Se connecter ».
+EDEN ouvre /super-admin, sauf si le compte est aussi patient : il ouvre alors
+l'espace patient. Dans ce cas, préférez la connexion par code.
+
+
+4. CE QUE L'ON TROUVE DANS LA CONSOLE
+-------------------------------------
+  Vue d'ensemble    chiffres de la plateforme et activité récente
+  Établissements    liste, création, fiche d'un établissement :
+                      - informations (nom, identifiant, méthode d'envoi, actif)
+                      - quota d'imports PDF : nombre de fichiers par période
+                        de N jours (par défaut 10 fichiers par jour)
+                      - lecture des PDF par IA (désactivée par défaut)
+                      - clé d'API (génération / renouvellement)
+                      - administrateurs (ajout par e-mail, retrait)
+                      - zone sensible : suppression de l'établissement
+                      - bouton « Administrer » : ouvre l'espace /admin de
+                        l'établissement
+  Comptes           recherche, désactivation / réactivation, nomination de
+                    super-administrateurs
+  Journal           toutes les opérations sensibles, filtrables par établissement
+
+Le bouton « Espace établissement » en bas de la barre latérale ouvre /admin :
+le super-administrateur peut administrer n'importe quel établissement (liste
+déroulante « Établissement » en haut de la barre latérale).
+
+
+5. PREMIÈRES ACTIONS POUR UN NOUVEL ÉTABLISSEMENT
+-------------------------------------------------
+  1. Établissements > « Nouvel établissement » : nom, méthode d'envoi
+     (API EDEN, HL7 FHIR R4 ou Scan / PDF de résultats) > « Créer ».
+     « Scan / PDF » : l'établissement dépose ses comptes rendus PDF dans sa
+     page Imports PDF ; EDEN en extrait les valeurs, un administrateur les
+     relit puis les publie.
+  2. COPIER LA CLÉ D'API affichée : elle ne sera plus jamais montrée.
+     La transmettre à l'équipe informatique de l'établissement par un canal sûr
+     (voir connexion/05_LOGICIEL_ETABLISSEMENT.txt).
+  3. « Ajouter ses administrateurs » : e-mail, prénom, nom > « Ajouter ».
+     La personne reçoit un e-mail d'invitation et se connecte par code.
+
+  4. Si besoin, ajuster le quota d'imports PDF dans la fiche (section
+     « Quota d'imports PDF ») > « Enregistrer ». L'administrateur de
+     l'établissement le voit dans ses Paramètres, sans pouvoir le modifier.
+
+
+5 bis. QUOTA D'IMPORTS PDF
+--------------------------
+Chaque établissement peut importer un nombre limité de fichiers PDF par
+période : par défaut 10 fichiers par jour. Les dépôts manuels et les envois du
+logiciel comptent ensemble ; supprimer un compte rendu ne rend pas de crédit.
+Une fois la limite atteinte, le dépôt est bloqué jusqu'à minuit (heure du
+serveur) suivant la sortie du plus ancien fichier de la période.
+  Exemple : 30 fichiers tous les 7 jours = « Fichiers » 30, « Par période de
+  (jours) » 7. Valeurs autorisées : 1 à 10 000 fichiers, 1 à 365 jours.
+
+
+5 ter. SUPPRIMER UN ÉTABLISSEMENT
+---------------------------------
+Fiche de l'établissement > « Zone sensible » > « Supprimer l'établissement »,
+puis saisir son identifiant (ex. labo-horizon) pour confirmer.
+Sont effacés définitivement : données reçues, imports PDF, rattachements,
+QR codes, administrateurs (ils perdent ce rôle s'ils n'administrent aucun autre
+établissement). Les comptes EDEN des patients et des médecins sont conservés ;
+le journal garde la trace de la suppression.
+L'établissement GNU Health ne peut pas être supprimé (seulement suspendu).
+Pour une interruption temporaire, décochez plutôt « Établissement actif ».
+
+
+6. DÉPANNAGE
+------------
+  Message affiché                                 Cause / solution
+  ──────────────────────────────────────────────  ──────────────────────────────
+  « Plusieurs comptes utilisent cette adresse »   Deux comptes ont le même e-mail.
+                                                  Se connecter par mot de passe,
+                                                  ou corriger l'e-mail en double.
+  « Trop de codes demandés »                      Plus de 5 codes en une heure :
+                                                  attendre une heure.
+  « Code expiré ou inexistant »                   Plus de 10 minutes, ou code
+                                                  déjà utilisé : en redemander un.
+  « Trop d'essais »                               5 mauvais codes : en redemander un.
+  Aucun e-mail reçu                               Vérifier les courriers
+                                                  indésirables ; sinon l'envoi
+                                                  SMTP de l'API est en cause
+                                                  (équipe technique).
+  Arrivée sur un autre espace que /super-admin    Le compte n'a pas le rôle
+                                                  SuperAdmin (voir section 1).
+
+
+7. BONNES PRATIQUES
+-------------------
+  - Toujours cliquer sur « Déconnexion » sur un poste partagé.
+  - Garder au moins deux super-administrateurs (on ne peut pas retirer ses
+    propres droits ni désactiver son propre compte).
+  - Ne jamais envoyer une clé d'API par WhatsApp ou e-mail en clair ; en cas de
+    doute, la renouveler (l'ancienne cesse aussitôt de fonctionner).

@@ -1,0 +1,95 @@
+================================================================================
+                 EDEN — DOSSIER DE DOCUMENTATION ET DE DÉPLOIEMENT
+================================================================================
+
+Application : EDEN — espaces patient et docteur (Angular 22, rendu serveur SSR)
+Hébergement : conteneur Docker sur serveur Hetzner, administré avec Portainer CE
+Versions    : Git (tags vX.Y.Z) -> images Docker eden-app:X.Y.Z (GitHub Container Registry)
+
+
+ORDRE DE LECTURE
+----------------
+  1. 01_VERSIONNAGE_GIT.txt
+       Gérer les versions avec Git et les utiliser pour déployer :
+       mise en place du dépôt, conventions, branches, création d'une version.
+
+  2. 02_DEPLOIEMENT_HETZNER_PORTAINER.txt
+       Chaque étape du déploiement, de la préparation du serveur à la mise en
+       production, puis la procédure courante, le rollback et la préproduction.
+
+  3. 03_EXPLOITATION_ET_DEPANNAGE.txt
+       Surveillance, journaux, sauvegardes, mises à jour, pannes courantes,
+       points à régler avant l'ouverture au public.
+
+
+LE CIRCUIT EN UN COUP D'ŒIL
+---------------------------
+  Développeur                 GitHub (automatique)              Serveur Hetzner
+  ───────────                 ────────────────────              ───────────────
+  release.sh minor  ─tag v1.5.0─►  tests + build
+                                   image eden-app:1.5.0 ──────►  (registre ghcr.io)
+  deployer-portainer.sh 1.5.0 ──── API Portainer (tunnel SSH) ──►  stack eden-production
+                                                                  EDEN_VERSION=1.5.0
+  verifier-deploiement.sh ◄─────── https://eden.pdmdsante.com/healthz → "version":"1.5.0"
+  rollback.sh (si problème) ─────► retour à 1.4.x en ~1 minute
+
+
+CONTENU DU DOSSIER
+------------------
+  00_LISEZMOI.txt                          ce fichier
+  01_VERSIONNAGE_GIT.txt                   gestion des versions avec Git
+  02_DEPLOIEMENT_HETZNER_PORTAINER.txt     déploiement pas à pas
+  03_EXPLOITATION_ET_DEPANNAGE.txt         exploitation et dépannage
+
+  docker/                 Dockerfile + exclusions : construction de l'image
+  portainer/              stacks à coller dans Portainer (EDEN, Nginx Proxy Manager)
+                          et modèle des variables d'environnement
+  serveur/                script de préparation/sécurisation du serveur Hetzner
+  scripts/                automatisation (tous commentés, option --help ou en-tête) :
+                            release.sh               créer une version
+                            deployer-portainer.sh    déployer une version
+                            rollback.sh              revenir en arrière
+                            verifier-deploiement.sh  contrôles de bout en bout
+                            build-push.sh            construire/publier sans CI
+                            installer-outils-git.sh  hooks Git (chaque poste)
+                            installer-ci.sh          activer GitHub Actions
+                            deploiement.conf.example modèle de configuration (secrets)
+  git/                    contrôle des messages de commit + modèle de message
+  ci/github-actions/      workflows GitHub Actions (copiés dans .github/workflows
+                          par installer-ci.sh : GitHub ne lit que cet emplacement)
+
+
+DÉMARRAGE RAPIDE (résumé — le détail est dans les documents 01 et 02)
+----------------------------------------------------------------------
+  Une seule fois :
+    bash Documentation/scripts/installer-outils-git.sh      # 01 §3.4
+    (commits du travail en cours, dépôt GitHub, push)       # 01 §4
+    bash Documentation/scripts/installer-ci.sh              # 01 §4.7
+    Préparation du serveur, registre, DNS, HTTPS, API       # 02 §2 à §7
+    Première mise en production v1.0.0                      # 02 §8
+
+  À chaque nouvelle version :
+    bash Documentation/scripts/release.sh minor             # ou patch / major
+    ssh -N -L 9443:127.0.0.1:9443 deploy@<IP_SERVEUR>       # autre terminal
+    bash Documentation/scripts/deployer-portainer.sh X.Y.Z
+    bash Documentation/scripts/verifier-deploiement.sh "" X.Y.Z
+
+  En cas de problème :
+    bash Documentation/scripts/rollback.sh
+
+
+VALIDATION DE CE DOSSIER
+------------------------
+  Éléments testés lors de sa rédaction :
+    - image Docker construite et exécutée : « healthy », 178 Mo, ~36 Mo de RAM,
+      fonctionnement en lecture seule sans privilèges, arrêt propre ;
+    - configuration à l'exécution (/env.js) et protection des domaines (SSRF) ;
+    - release.sh, hook de commit, installer-outils-git.sh : dans un dépôt de test
+      (tags, CHANGELOG.md, notes de version, push) ;
+    - deployer-portainer.sh et rollback.sh : contre une simulation de l'API
+      Portainer CE (modification de EDEN_VERSION seule, attente de la version,
+      historique) ;
+    - verifier-deploiement.sh : contre le conteneur réel et l'API de développement.
+  Non testés ici (nécessitent le serveur et les comptes réels) : le script de
+  préparation du serveur, les workflows GitHub Actions, Nginx Proxy Manager.
+  Les exécuter d'abord avec prudence (snapshot Hetzner préalable, 02 §3.1).

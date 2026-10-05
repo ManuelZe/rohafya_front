@@ -1,0 +1,170 @@
+<div class="shell">
+  <!-- Contenu de la barre latérale, partagé entre le tiroir mobile et la colonne desktop -->
+  <ng-template #sidebarContent let-mobile="mobile">
+    <div class="sidebar-header">
+      <div class="profile-card">
+        <div class="profile-avatar" aria-hidden="true">
+          <svg [pIcon]="'user'" [size]="20"></svg>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">{{ userName() }}</div>
+          <div class="profile-status" [class.status-inactive]="!isConfirmed()">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>{{ isConfirmed() ? 'Compte confirmé' : 'Compte non confirmé' }}</span>
+          </div>
+        </div>
+      </div>
+      @if (cycleBalance(); as balance) {
+        <a class="balance-pill" routerLink="/doctors" (click)="onNavigate('/doctors')">
+          <span class="balance-label">Solde du cycle</span>
+          <strong class="balance-value">{{ balance.total | points }}</strong>
+        </a>
+      }
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Espace docteur">
+      @for (entry of visibleMenu(); track entry.label) {
+        @if (isGroup(entry)) {
+          <div class="menu-group">
+            <button
+              type="button"
+              class="menu-item"
+              [class.menu-item-locked]="isLocked()"
+              [disabled]="isLocked()"
+              [attr.aria-expanded]="isExpanded(entry.label)"
+              [attr.aria-controls]="groupId(entry.label) + (mobile ? '-m' : '')"
+              (click)="toggleGroup(entry.label)"
+            >
+              <svg [pIcon]="entry.icon" [size]="20" aria-hidden="true"></svg>
+              <span>{{ entry.label }}</span>
+              <svg
+                class="chevron"
+                [class.chevron-open]="isExpanded(entry.label)"
+                [pIcon]="'chevron-down'"
+                [size]="14"
+                aria-hidden="true"
+              ></svg>
+            </button>
+            @if (isExpanded(entry.label)) {
+              <div class="submenu" [id]="groupId(entry.label) + (mobile ? '-m' : '')">
+                @for (item of entry.items; track item.link) {
+                  <a
+                    class="menu-item menu-item-child"
+                    [routerLink]="isLocked(item.link) ? null : item.link"
+                    routerLinkActive="active"
+                    ariaCurrentWhenActive="page"
+                    [routerLinkActiveOptions]="{ exact: !!item.exact }"
+                    [class.menu-item-locked]="isLocked(item.link)"
+                    [attr.aria-disabled]="isLocked(item.link) || null"
+                    (click)="onNavigate(item.link)"
+                  >
+                    <svg [pIcon]="item.icon" [size]="18" aria-hidden="true"></svg>
+                    <span>{{ item.label }}</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <a
+            class="menu-item"
+            [routerLink]="isLocked(entry.link) ? null : entry.link"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            [routerLinkActiveOptions]="{ exact: !!entry.exact }"
+            [class.menu-item-locked]="isLocked(entry.link)"
+            [attr.aria-disabled]="isLocked(entry.link) || null"
+            (click)="onNavigate(entry.link)"
+          >
+            <svg [pIcon]="entry.icon" [size]="20" aria-hidden="true"></svg>
+            <span>{{ entry.label }}</span>
+            @if (sidebarLocked() && !isLocked(entry.link)) {
+              <span class="menu-item-alert" title="Action requise">!</span>
+              <span class="sr-only">Action requise</span>
+            }
+          </a>
+        }
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-date">
+        <svg [pIcon]="'calendar'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ currentDate }}</span>
+      </div>
+      <div class="footer-actions">
+        <button type="button" class="footer-btn" (click)="openSuggestion()">
+          <svg [pIcon]="'lightbulb'" [size]="16" aria-hidden="true"></svg>
+          <span>Suggestion</span>
+        </button>
+        <button type="button" class="footer-btn" (click)="openHelp()">
+          <svg [pIcon]="'question-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>Aide</span>
+        </button>
+      </div>
+      @if (canSwitchToPatient()) {
+        <button type="button" class="footer-btn switch-btn" (click)="switchToPatient()">
+          <svg [pIcon]="'arrow-right-arrow-left'" [size]="16" aria-hidden="true"></svg>
+          <span>Mon espace patient</span>
+        </button>
+      }
+      <button type="button" class="logout-btn" (click)="logout()">
+        <svg [pIcon]="'sign-out'" [size]="16" aria-hidden="true"></svg>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- Tiroir mobile -->
+  <p-drawer
+    [visible]="sidebarService.visible()"
+    (visibleChange)="sidebarService.set($event)"
+    [modal]="true"
+    [closable]="true"
+    class="sidebar-mobile"
+    styleClass="doctor-drawer"
+    ariaCloseLabel="Fermer le menu"
+  >
+    <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: true }" />
+  </p-drawer>
+
+  <!-- Colonne desktop -->
+  <aside class="sidebar-desktop">
+    <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: false }" />
+  </aside>
+
+  <main class="main-content" id="contenu">
+    <app-doctor-info-card />
+    <router-outlet />
+  </main>
+
+  @if (helpDialogOpen()) {
+    <div class="dialog-overlay" (click)="closeHelp()">
+      <div class="dialog-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <button type="button" class="dialog-close" (click)="closeHelp()" aria-label="Fermer">
+          <svg [pIcon]="'times'" [size]="16" aria-hidden="true"></svg>
+        </button>
+        <div class="dialog-header">
+          <svg [pIcon]="'question-circle'" [size]="22" aria-hidden="true"></svg>
+          <h2 id="help-title">Service d'aide</h2>
+        </div>
+        <p class="dialog-intro">Une question sur vos commissions ou votre compte ? Nos équipes vous répondent.</p>
+        @for (contact of helpContacts; track contact.label) {
+          <div class="help-card">
+            <h3>{{ contact.label }}</h3>
+            <a class="help-phone" [href]="'tel:' + contact.phone.replaceAll(' ', '')">
+              <svg [pIcon]="'phone'" [size]="14" aria-hidden="true"></svg>
+              {{ contact.phone }}
+            </a>
+            <a [href]="contact.whatsapp" target="_blank" rel="noopener" class="help-whatsapp">
+              WhatsApp<span class="sr-only"> (nouvel onglet)</span>
+              <svg [pIcon]="'external-link'" [size]="12" aria-hidden="true"></svg>
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <app-suggestion-dialog [open]="suggestionDialogOpen()" (closed)="closeSuggestion()" />
+</div>

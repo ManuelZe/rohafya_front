@@ -1,0 +1,330 @@
+<div class="page">
+  <app-page-header [title]="tenant()?.display_name ?? 'Établissement'" [subtitle]="tenant() ? sourceLabels[tenant()!.source_type] : ''">
+    <div actions class="header-actions">
+      <a class="btn btn-ghost" routerLink="/super-admin/etablissements">
+        <svg [pIcon]="'arrow-left'" [size]="16" aria-hidden="true"></svg>
+        <span>Tous les établissements</span>
+      </a>
+      <button type="button" class="btn btn-primary" (click)="administer()" [disabled]="!tenant()">
+        <svg [pIcon]="'sign-in'" [size]="16" aria-hidden="true"></svg>
+        <span>Administrer</span>
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (loading() && !tenant()) {
+    <section class="card">
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    </section>
+  } @else if (tenant(); as t) {
+    <section class="card" aria-labelledby="stats-title">
+      <h2 class="card-title" id="stats-title">
+        <svg [pIcon]="'chart-line'" [size]="18" aria-hidden="true"></svg>
+        Activité
+      </h2>
+      <dl class="facts">
+        <div><dt>Patients connus</dt><dd>{{ t.stats.patients_known }}</dd></div>
+        <div><dt>Rattachés</dt><dd>{{ t.stats.links_active }}</dd></div>
+        <div><dt>En attente</dt><dd>{{ t.stats.links_pending }}</dd></div>
+        <div><dt>Données reçues</dt><dd>{{ t.stats.records_total }}</dd></div>
+        <div><dt>Médecins</dt><dd>{{ t.stats.doctors }}</dd></div>
+        <div><dt>Créé le</dt><dd>{{ t.created_at ? (t.created_at | date: 'dd/MM/yyyy') : '—' }}</dd></div>
+      </dl>
+    </section>
+
+    <div class="two-cols">
+      <section class="card" aria-labelledby="info-title">
+        <h2 class="card-title" id="info-title">
+          <svg [pIcon]="'building'" [size]="18" aria-hidden="true"></svg>
+          Informations
+        </h2>
+        <form [formRoot]="tenantForm" (submit)="save()">
+          <div class="form-grid">
+            <div class="form-row full">
+              <label for="d-name">Nom *</label>
+              <input id="d-name" class="field" type="text" [formField]="tenantForm.name" />
+              @if (tenantForm.name().touched() && tenantForm.name().invalid()) {
+                <span class="form-error">{{ tenantForm.name().errors()[0]?.message }}</span>
+              }
+            </div>
+            <div class="form-row full">
+              <label for="d-slug">Identifiant *</label>
+              <input id="d-slug" class="field mono" type="text" [formField]="tenantForm.slug" />
+              @if (tenantForm.slug().touched() && tenantForm.slug().invalid()) {
+                <span class="form-error">{{ tenantForm.slug().errors()[0]?.message }}</span>
+              }
+            </div>
+            <div class="form-row full">
+              <label for="d-source">Méthode d'envoi des données</label>
+              <select id="d-source" class="field" [formField]="tenantForm.source_type">
+                @for (source of sources(); track source) {
+                  <option [value]="source">{{ sourceLabels[source] }}</option>
+                }
+              </select>
+            </div>
+            <label class="check-row full" for="d-active">
+              <input id="d-active" type="checkbox" [formField]="tenantForm.is_active" />
+              <span>
+                <strong>Établissement actif</strong><br />
+                <span class="muted">Suspendu : ses patients ne voient plus ses données et sa clé d'API est refusée.</span>
+              </span>
+            </label>
+            @if (isGnuHealth()) {
+              <label class="check-row full" for="d-commissions">
+                <input id="d-commissions" type="checkbox" [formField]="tenantForm.commissions_enabled" />
+                <span>
+                  <strong>Module commissions des médecins</strong><br />
+                  <span class="muted">Affiche les pages Commissions de l'espace médecin (établissement GNU Health uniquement).</span>
+                </span>
+              </label>
+            }
+            @if (!isGnuHealth()) {
+              <fieldset class="quota full">
+                <legend>Quota d'imports PDF</legend>
+                <div class="form-row">
+                  <label for="d-quota-files">Fichiers *</label>
+                  <input id="d-quota-files" class="field" type="number" inputmode="numeric" [formField]="tenantForm.pdf_quota_files" />
+                  @if (tenantForm.pdf_quota_files().invalid()) {
+                    <span class="form-error">{{ tenantForm.pdf_quota_files().errors()[0]?.message }}</span>
+                  }
+                </div>
+                <div class="form-row">
+                  <label for="d-quota-days">Par période de (jours) *</label>
+                  <input id="d-quota-days" class="field" type="number" inputmode="numeric" [formField]="tenantForm.pdf_quota_days" />
+                  @if (tenantForm.pdf_quota_days().invalid()) {
+                    <span class="form-error">{{ tenantForm.pdf_quota_days().errors()[0]?.message }}</span>
+                  }
+                </div>
+                <p class="form-hint full">
+                  {{ quotaPreview() ? quotaPreview() + ' (dépôts manuels et envois du logiciel).' : '' }}
+                  Une fois la limite atteinte, l'établissement patiente jusqu'à la période suivante (minuit). Visible, non modifiable, par l'administrateur de l'établissement.
+                </p>
+              </fieldset>
+            }
+            <label class="check-row full" for="d-pdf-ai">
+              <input id="d-pdf-ai" type="checkbox" [formField]="tenantForm.pdf_ai_enabled" />
+              <span>
+                <strong>Lecture des PDF par IA</strong><br />
+                <span class="muted">Les comptes rendus non reconnus par les règles sont envoyés à Claude (Anthropic). À n'activer qu'après accord de l'établissement sur ce transfert de données de santé.</span>
+              </span>
+            </label>
+          </div>
+          @if (saveError()) {
+            <div class="banner banner-error notice" role="alert">
+              <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+              <span>{{ saveError() }}</span>
+            </div>
+          }
+          @if (saved()) {
+            <div class="banner banner-success notice" role="status">
+              <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+              <span>Modifications enregistrées.</span>
+            </div>
+          }
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="tenantForm().invalid() || saving()">
+              {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="key-title">
+        <h2 class="card-title" id="key-title">
+          <svg [pIcon]="'key'" [size]="18" aria-hidden="true"></svg>
+          Clé d'API
+        </h2>
+        @if (isGnuHealth()) {
+          <p class="muted small-note first">Relié directement à GNU Health : aucune clé n'est nécessaire.</p>
+        } @else {
+          <dl class="facts">
+            <div><dt>Clé actuelle</dt><dd class="mono">{{ t.api_key_hint ? '••••••' + t.api_key_hint : 'Aucune' }}</dd></div>
+            <div><dt>En-tête HTTP</dt><dd class="mono">X-EDEN-API-Key</dd></div>
+          </dl>
+          @if (newKey(); as key) {
+            <div class="secret notice">
+              <code>{{ key }}</code>
+              <button type="button" class="btn btn-ghost btn-sm" (click)="copy(key)">
+                <svg [pIcon]="'copy'" [size]="14" aria-hidden="true"></svg>
+                <span>Copier</span>
+              </button>
+            </div>
+            <p class="muted small-note">Copiez-la maintenant : elle ne sera plus jamais affichée.</p>
+          }
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" (click)="confirmRotate.set(true)">
+              <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+              <span>Générer une nouvelle clé</span>
+            </button>
+          </div>
+        }
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="admins-title">
+      <h2 class="card-title" id="admins-title">
+        <svg [pIcon]="'shield'" [size]="18" aria-hidden="true"></svg>
+        Administrateurs de l'établissement
+        <span class="card-title-aside">{{ admins()?.length ?? 0 }}</span>
+      </h2>
+
+      @if ((admins() ?? []).length > 0) {
+        <div class="table-wrap">
+          <table class="rtable">
+            <caption class="sr-only">Administrateurs de l'établissement</caption>
+            <thead>
+              <tr>
+                <th scope="col">Nom</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Depuis</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (admin of admins(); track admin.user_id) {
+                <tr>
+                  <td data-label="Nom" class="strong">{{ admin.first_name }} {{ admin.last_name }}</td>
+                  <td data-label="E-mail">{{ admin.email }}</td>
+                  <td data-label="Depuis">{{ admin.created_at | date: 'dd/MM/yyyy' }}</td>
+                  <td class="actions-cell">
+                    <button type="button" class="btn btn-danger-ghost btn-sm" (click)="removeAdminTarget.set(admin)">
+                      Retirer<span class="sr-only"> {{ admin.email }}</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="muted small-note first">Aucun administrateur : ajoutez la personne qui gérera l'établissement.</p>
+      }
+
+      <form class="admin-form" [formRoot]="adminForm" (submit)="addAdmin()">
+        <h3>Ajouter un administrateur</h3>
+        <div class="form-grid">
+          <div class="form-row full">
+            <label for="a-email">E-mail *</label>
+            <input id="a-email" class="field" type="email" autocomplete="off" [formField]="adminForm.email" />
+            <span class="form-hint">Un compte existant est promu ; sinon, un compte est créé (nom et prénom requis).</span>
+            @if (adminForm.email().touched() && adminForm.email().invalid()) {
+              <span class="form-error">{{ adminForm.email().errors()[0]?.message }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="a-first">Prénom</label>
+            <input id="a-first" class="field" type="text" autocomplete="off" [formField]="adminForm.first_name" />
+          </div>
+          <div class="form-row">
+            <label for="a-last">Nom</label>
+            <input id="a-last" class="field" type="text" autocomplete="off" [formField]="adminForm.last_name" />
+          </div>
+        </div>
+        @if (adminError()) {
+          <div class="banner banner-error notice" role="alert">
+            <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+            <span>{{ adminError() }}</span>
+          </div>
+        }
+        @if (adminNotice()) {
+          <div class="banner banner-success notice" role="status">
+            <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+            <span>{{ adminNotice() }}</span>
+          </div>
+        }
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="adminForm().invalid() || addingAdmin()">
+            <svg [pIcon]="'user-plus'" [size]="16" aria-hidden="true"></svg>
+            <span>{{ addingAdmin() ? 'Ajout…' : 'Ajouter' }}</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    @if (!isGnuHealth()) {
+      <section class="card danger-zone" aria-labelledby="danger-title">
+        <h2 class="card-title" id="danger-title">
+          <svg [pIcon]="'exclamation-triangle'" [size]="18" aria-hidden="true"></svg>
+          Zone sensible
+        </h2>
+        <p class="muted small-note first">
+          La suppression efface définitivement les données reçues de l'établissement, ses rattachements, ses QR codes, ses imports PDF
+          et ses administrateurs. Les comptes EDEN des patients et des médecins sont conservés. Pour une interruption temporaire,
+          décochez plutôt « Établissement actif ».
+        </p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-danger" (click)="openDelete()">
+            <svg [pIcon]="'trash'" [size]="16" aria-hidden="true"></svg>
+            <span>Supprimer l'établissement</span>
+          </button>
+        </div>
+      </section>
+    }
+  }
+
+  @if (confirmDelete() && tenant(); as t) {
+    <div class="overlay" (click)="confirmDelete.set(false)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-tenant-title" aria-describedby="delete-tenant-desc" (click)="$event.stopPropagation()">
+        <h2 id="delete-tenant-title">Supprimer {{ t.display_name }} ?</h2>
+        <p class="muted" id="delete-tenant-desc">
+          {{ t.stats.records_total }} donnée(s) reçue(s) et {{ t.stats.links_active + t.stats.links_pending }} rattachement(s) seront effacés.
+          Cette action est irréversible.
+        </p>
+        <form [formRoot]="deleteForm" (submit)="deleteTenant()">
+          <div class="form-row">
+            <label for="del-slug">Pour confirmer, saisissez <strong class="mono">{{ t.slug }}</strong></label>
+            <input id="del-slug" class="field mono" type="text" autocomplete="off" spellcheck="false" [formField]="deleteForm.confirm_slug" />
+          </div>
+          @if (deleteError()) {
+            <div class="banner banner-error notice" role="alert">
+              <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+              <span>{{ deleteError() }}</span>
+            </div>
+          }
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" (click)="confirmDelete.set(false)">Annuler</button>
+            <button type="submit" class="btn btn-danger" [disabled]="!slugMatches() || deleting()">
+              {{ deleting() ? 'Suppression…' : 'Supprimer définitivement' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (confirmRotate()) {
+    <div class="overlay" (click)="confirmRotate.set(false)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="rotate-title" (click)="$event.stopPropagation()">
+        <h2 id="rotate-title">Générer une nouvelle clé ?</h2>
+        <p class="muted">La clé actuelle cessera immédiatement de fonctionner : le logiciel de l'établissement devra utiliser la nouvelle.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="confirmRotate.set(false)">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="rotate()" [disabled]="rotating()">{{ rotating() ? 'Génération…' : 'Générer' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (removeAdminTarget(); as admin) {
+    <div class="overlay" (click)="removeAdminTarget.set(null)">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="remove-admin-title" (click)="$event.stopPropagation()">
+        <h2 id="remove-admin-title">Retirer {{ admin.email }} ?</h2>
+        <p class="muted">Cette personne n'aura plus accès à l'administration de l'établissement. Son compte EDEN est conservé.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="removeAdminTarget.set(null)">Annuler</button>
+          <button type="button" class="btn btn-danger" (click)="removeAdmin()">Retirer</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

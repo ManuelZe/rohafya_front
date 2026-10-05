@@ -1,0 +1,229 @@
+<div class="page">
+  <app-page-header title="Résultats reçus" subtitle="Les résultats d'examens que vos patients ont choisi de partager avec vous.">
+    <button actions type="button" class="btn btn-ghost" (click)="refresh()" [disabled]="received.loading()">
+      @if (received.loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span>Actualiser</span>
+    </button>
+  </app-page-header>
+
+  <div class="toolbar">
+    <div class="segmented" role="group" aria-label="Type d'examen">
+      <button type="button" [attr.aria-pressed]="typeFilter() === 'all'" (click)="setType('all')">
+        Tous <span class="count">{{ typeCount('all') }}</span>
+      </button>
+      @for (type of examTypes; track type) {
+        <button type="button" [attr.aria-pressed]="typeFilter() === type" (click)="setType(type)">
+          {{ type }} <span class="count">{{ typeCount(type) }}</span>
+        </button>
+      }
+    </div>
+    <div class="search">
+      <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
+      <label class="sr-only" for="results-search">Rechercher un résultat</label>
+      <input id="results-search" type="search" placeholder="Code d'examen, matricule patient…" [value]="search()" (input)="onSearch($event)" />
+    </div>
+  </div>
+
+  @if (received.loading() && !received.data()) {
+    <div class="cards">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <span class="skeleton card-skeleton" aria-hidden="true"></span>
+      }
+    </div>
+  } @else if (received.error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ received.error() }}</span>
+      <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+    </div>
+  } @else if (sorted().length === 0) {
+    <section class="card">
+      <div class="state">
+        <svg [pIcon]="'inbox'" [size]="36" aria-hidden="true"></svg>
+        <strong>Aucun résultat reçu pour l'instant</strong>
+        <span>Communiquez votre matricule à vos patients : ils pourront vous partager leurs résultats depuis leur espace.</span>
+      </div>
+    </section>
+  } @else if (filtered().length === 0) {
+    <section class="card">
+      <div class="state">
+        <svg [pIcon]="'filter-slash'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucun résultat ne correspond à votre recherche</strong>
+      </div>
+    </section>
+  } @else {
+    <ul class="cards" [class.is-refreshing]="received.refreshing()">
+      @for (r of filtered(); track r.id) {
+        <li>
+          <button type="button" class="result-card" (click)="openViewer(r, $event)">
+            <span class="result-top">
+              <app-status-tag kind="examType" [status]="r.exam_type" />
+              @if (r.envoi_email) {
+                <span class="mail" title="Également envoyé par email">
+                  <svg [pIcon]="'envelope'" [size]="14" aria-hidden="true"></svg>
+                  <span class="sr-only">Également envoyé par email</span>
+                </span>
+              }
+            </span>
+            <span class="result-code">{{ r.exam_code }}</span>
+            <span class="result-meta">
+              <svg [pIcon]="'id-card'" [size]="13" aria-hidden="true"></svg>
+              Patient {{ r.patient_federation_id }}
+            </span>
+            <span class="result-foot">
+              <time>Reçu le {{ r.sended_at | date: 'dd/MM/yyyy à HH:mm' }}</time>
+              <span class="open">Consulter <svg [pIcon]="'arrow-right'" [size]="12" aria-hidden="true"></svg></span>
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- ===== Visionneuse ===== -->
+  @if (selected(); as result) {
+    <div class="overlay" (click)="closeViewer()">
+      <div class="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title" (click)="$event.stopPropagation()">
+        <header class="viewer-head">
+          <div class="viewer-title-block">
+            <app-status-tag kind="examType" [status]="result.exam_type" />
+            <h2 id="viewer-title">{{ result.exam_code }}</h2>
+            <p class="viewer-meta">
+              @if (selectedPatient()) {
+                <strong>{{ selectedPatient() }}</strong> ·
+              }
+              Matricule {{ result.patient_federation_id }} · Reçu le {{ result.sended_at | date: 'dd/MM/yyyy' }}
+            </p>
+          </div>
+          <button #closeButton type="button" class="close" (click)="closeViewer()" aria-label="Fermer le résultat">
+            <svg [pIcon]="'times'" [size]="18" aria-hidden="true"></svg>
+          </button>
+        </header>
+
+        <div class="segmented tabs" role="group" aria-label="Section du résultat">
+          <button type="button" [attr.aria-pressed]="tab() === 'summary'" (click)="setTab('summary')">Compte rendu</button>
+          <button type="button" [attr.aria-pressed]="tab() === 'details'" (click)="setTab('details')">
+            {{ result.exam_type === 'Imagerie' ? 'Études & images' : 'Paramètres analysés' }}
+          </button>
+        </div>
+
+        <div class="viewer-body" aria-live="polite">
+          @if (tab() === 'summary') {
+            @if (summaryLoading()) {
+              <app-eden-loader label="Chargement du résultat" />
+            } @else if (fields().length === 0) {
+              <div class="banner banner-info">
+                <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+                <span>{{ summary()?.message ?? 'Aucune donnée disponible pour ce résultat.' }}</span>
+              </div>
+            } @else {
+              <dl class="facts">
+                @for (f of shortFields(); track f.label) {
+                  <div>
+                    <dt>{{ f.label }}</dt>
+                    <dd>{{ f.value }}</dd>
+                  </div>
+                }
+              </dl>
+              @for (f of longFields(); track f.label) {
+                <section class="report">
+                  <h3>{{ f.label }}</h3>
+                  <p>{{ f.value }}</p>
+                </section>
+              }
+            }
+          } @else {
+            @if (detailsLoading()) {
+              <app-eden-loader label="Chargement des détails" />
+            } @else if (result.exam_type === 'Imagerie') {
+              @if (studies().length === 0) {
+                <div class="banner banner-info">
+                  <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+                  <span>{{ details()?.message ?? 'Aucune étude associée à cet examen.' }}</span>
+                </div>
+              } @else {
+                <ul class="studies">
+                  @for (s of studies(); track $index) {
+                    <li>
+                      <div>
+                        <strong>{{ s.description }}</strong>
+                        <span class="muted">
+                          {{ s.date ? (s.date | date: 'dd/MM/yyyy') : '' }}
+                          {{ s.institution ? '· ' + s.institution : '' }}
+                          {{ s.physician ? '· ' + s.physician : '' }}
+                        </span>
+                      </div>
+                      @if (s.link) {
+                        <a class="btn btn-primary" [href]="s.link" target="_blank" rel="noopener">
+                          <svg [pIcon]="'images'" [size]="16" aria-hidden="true"></svg>
+                          Voir les images<span class="sr-only"> (nouvel onglet)</span>
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            } @else {
+              @if (criteria().length === 0) {
+                <div class="banner banner-info">
+                  <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+                  <span>{{ details()?.message ?? 'Aucun paramètre détaillé pour cet examen.' }}</span>
+                </div>
+              } @else {
+                @if (criteriaFromReport()) {
+                  <div class="banner banner-info">
+                    <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+                    <span>Valeurs issues du compte rendu validé. Les valeurs de référence ne sont pas communiquées pour ce résultat.</span>
+                  </div>
+                }
+                @if (outOfRange() > 0) {
+                  <div class="banner banner-error">
+                    <svg [pIcon]="'exclamation-triangle'" [size]="16" aria-hidden="true"></svg>
+                    <span>{{ outOfRange() }} valeur(s) hors des normes de référence.</span>
+                  </div>
+                }
+                <div class="table-wrap">
+                  <table class="criteria">
+                    <thead>
+                      <tr>
+                        <th scope="col">Paramètre</th>
+                        <th scope="col">Résultat</th>
+                        <th scope="col">Unité</th>
+                        <th scope="col">Valeurs de référence</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (c of criteria(); track $index) {
+                        <tr [class.warn]="c.warning">
+                          <th scope="row">
+                            {{ c.name }}
+                            @if (c.remarks) {
+                              <span class="remarks">{{ c.remarks }}</span>
+                            }
+                          </th>
+                          <td class="result-value">
+                            @if (c.warning) {
+                              <svg [pIcon]="'exclamation-triangle'" [size]="14" aria-hidden="true"></svg>
+                              <span class="sr-only">Hors normes : </span>
+                            }
+                            {{ c.result }}
+                          </td>
+                          <td>{{ c.units || '—' }}</td>
+                          <td>{{ c.range || '—' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

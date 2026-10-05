@@ -1,0 +1,638 @@
+/* Styles communs aux pages d'administration (en complément de doctors/shared/doctor-ui.css). */
+
+/* ===== Indicateurs ===== */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.two-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .two-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ===== Tableaux (cartes sur mobile) ===== */
+/* position: relative garde les libellés .sr-only (position absolue) dans le cadre défilant. */
+.table-wrap {
+  position: relative;
+  overflow-x: auto;
+}
+
+.rtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.rtable th {
+  padding: 0.7rem 0.75rem;
+  text-align: left;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--doc-muted);
+  border-bottom: 1px solid var(--doc-border);
+  white-space: nowrap;
+}
+
+.rtable td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--doc-border);
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.rtable tbody tr:hover {
+  background: #f8fafc;
+}
+
+.rtable .actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cell-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 720px) {
+  .rtable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .rtable,
+  .rtable tbody,
+  .rtable tr,
+  .rtable td {
+    display: block;
+    width: 100%;
+  }
+
+  .rtable tr {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--doc-border);
+    border-radius: 10px;
+  }
+
+  .rtable td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed #edf0f5;
+    text-align: right;
+  }
+
+  .rtable td:last-child {
+    border-bottom: 0;
+  }
+
+  .rtable td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--doc-muted);
+    text-align: left;
+  }
+
+  .rtable .actions-cell {
+    justify-content: flex-end;
+  }
+
+  .rtable .actions-cell::before {
+    content: none;
+  }
+}
+
+/* ===== Pastilles d'état ===== */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--doc-soft);
+  color: var(--doc-text);
+}
+
+.pill-active,
+.pill-used {
+  background: #ecf8f0;
+  color: var(--doc-success);
+}
+
+.pill-pending {
+  background: #fff6e5;
+  color: #8a5a00;
+}
+
+.pill-revoked,
+.pill-expired,
+.pill-none {
+  background: #f1f3f7;
+  color: #545d6b;
+}
+
+.pill-danger {
+  background: #fdf0f0;
+  color: var(--doc-danger);
+}
+
+/* ===== Boutons complémentaires ===== */
+.btn-sm {
+  min-height: 34px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.btn-danger {
+  background: var(--doc-danger);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #991b1b;
+}
+
+.btn-danger-ghost {
+  background: var(--doc-surface);
+  border-color: #f3c2c2;
+  color: var(--doc-danger);
+}
+
+.btn-danger-ghost:hover:not(:disabled) {
+  background: #fdf0f0;
+}
+
+/* ===== Formulaires ===== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.form-row label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--doc-text);
+}
+
+.form-hint {
+  font-size: 0.78rem;
+  color: var(--doc-muted);
+}
+
+.form-error {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--doc-danger);
+}
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.875rem;
+}
+
+.check-row input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--doc-primary);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* ===== Liste de définitions ===== */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 0.9rem 1.5rem;
+  margin: 0;
+}
+
+.facts div {
+  min-width: 0;
+}
+
+.facts dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--doc-muted);
+}
+
+.facts dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* ===== Fenêtres ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  border-radius: 14px;
+  background: var(--doc-surface);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+}
+
+.dialog h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.dialog p {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ===== Secret affiché une seule fois (clé d'API) ===== */
+.secret {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px dashed #c7d6f5;
+  background: var(--doc-primary-soft);
+}
+
+.secret code {
+  flex: 1 1 240px;
+  min-width: 0;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+  color: #173a8a;
+}
+
+/* ===== Activité récente ===== */
+.activity {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--doc-border);
+  font-size: 0.86rem;
+}
+
+.activity li:last-child {
+  border-bottom: 0;
+}
+
+.activity .who {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--doc-muted);
+  overflow-wrap: anywhere;
+}
+
+.activity time {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: var(--doc-muted);
+}
+
+pre.code {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.small-note {
+  margin: 1rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .quick-actions .btn {
+    flex: 1 1 100%;
+  }
+}
+
+.form-intro {
+  margin: -0.25rem 0 1rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.toolbar .total {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+}
+
+.notice {
+  margin-top: 1rem;
+}
+
+.toolbar + .table-wrap,
+.toolbar + .state {
+  margin-top: 1rem;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.inline-form .grow {
+  flex: 1 1 260px;
+}
+
+@media (max-width: 480px) {
+  .inline-form .btn {
+    flex: 1 1 100%;
+  }
+}
+
+.example-intro {
+  margin: 1rem 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.example-intro code {
+  font-size: 0.8rem;
+  color: var(--doc-text);
+}
+
+pre.code:focus-visible {
+  outline: 3px solid #93b4f0;
+  outline-offset: 2px;
+}
+
+.spaced {
+  margin-top: 1.5rem;
+}
+
+.color-field {
+  height: 40px;
+  padding: 0.2rem;
+  max-width: 120px;
+}
+
+.block {
+  display: block;
+}
+
+select.field {
+  appearance: auto;
+}
+
+.small-note.first {
+  margin-top: 0;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .header-actions .btn {
+    flex: 1 1 100%;
+  }
+}
+
+.admin-form {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--doc-border);
+}
+
+.admin-form h3 {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.roles {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+
+/* États des comptes rendus PDF */
+.pill-pdf-pret {
+  background: var(--doc-primary-soft);
+  color: #173a8a;
+}
+
+.pill-pdf-a_relire {
+  background: #fff6e5;
+  color: #8a5a00;
+}
+
+.pill-pdf-publie {
+  background: #ecf8f0;
+  color: var(--doc-success);
+}
+
+.pill-pdf-rejete {
+  background: #f1f3f7;
+  color: #545d6b;
+}
+
+.pill-pdf-erreur {
+  background: #fdf0f0;
+  color: var(--doc-danger);
+}
+
+.danger-zone {
+  border-color: rgba(185, 28, 28, 0.35);
+}
+
+.danger-zone .card-title {
+  color: var(--doc-danger);
+}
+
+/* Groupe de champs (ex. quota d'imports PDF) aligné sur la grille du formulaire. */
+fieldset.quota {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid var(--doc-border);
+  border-radius: 10px;
+  min-width: 0;
+}
+
+fieldset.quota legend {
+  padding: 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+fieldset.quota .full {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  fieldset.quota {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.small-note + .facts {
+  margin-top: 0.75rem;
+}
+
+/* Fonctionnalité pas encore ouverte : contenu visible mais grisé et inactif (attribut inert). */
+.feature-off {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+  opacity: 0.55;
+  filter: grayscale(1);
+  user-select: none;
+}
+
+.feature-off-inline {
+  opacity: 0.55;
+  filter: grayscale(1);
+}
+
+.soon-note {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.75rem 0 0;
+  color: var(--doc-primary, #1a54c9);
+  font-weight: 600;
+}
+
+.soon-tag {
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.segmented button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

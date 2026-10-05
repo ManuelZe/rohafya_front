@@ -1,0 +1,11 @@
+{
+  "resourceType": "Patient",
+  "identifier": [{ "system": "urn:etablissement:dossiers", "value": "FHR-0003" }],
+  "name": [{ "family": "Kouam", "given": ["Rose", "Marie"] }],
+  "telecom": [
+    { "system": "email", "value": "rose.kouam@example.com" },
+    { "system": "phone", "value": "+237 600 000 303" }
+  ],
+  "gender": "female",
+  "birthDate": "1995-02-17"
+}

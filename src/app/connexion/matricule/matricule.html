@@ -1,0 +1,91 @@
+<div class="login-container">
+  <div class="login-visual">
+    <div class="future-medical">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Médecine numérique futuriste">
+        <circle cx="100" cy="100" r="90" class="circle-bg" />
+        <g class="medical-elements">
+          <path
+            d="M 100 85 L 110 75 Q 120 70 125 80 Q 130 90 100 115 Q 70 90 75 80 Q 80 70 90 75 Z"
+            class="heart-icon"
+          />
+          <circle cx="100" cy="100" r="50" class="orbit-1" />
+          <circle cx="100" cy="100" r="70" class="orbit-2" />
+          <circle cx="150" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="50" r="4" class="data-point" />
+          <circle cx="50" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="150" r="4" class="data-point" />
+          <line x1="150" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="50" x2="100" y2="100" class="connection-line" />
+          <line x1="50" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="150" x2="100" y2="100" class="connection-line" />
+        </g>
+      </svg>
+      <h2 class="medical-title">Médecine Numérique</h2>
+      <p class="medical-subtitle">Plateforme de santé digitale</p>
+    </div>
+  </div>
+
+  <div class="login-form">
+    <div class="form-content">
+      <h1 class="form-title">Réinitialisation</h1>
+      <p class="form-description">Entrez votre matricule pour recevoir votre identifiant</p>
+
+      <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">
+        <div class="form-group">
+          <label for="matricule" class="form-label">Matricule</label>
+          <input
+            id="matricule"
+            type="text"
+            class="form-input"
+            [formField]="form.federation_id"
+            placeholder="Entrez votre matricule"
+            aria-label="Matricule"
+          />
+          @if (form.federation_id().touched() && form.federation_id().invalid()) {
+            <span class="form-error">{{ form.federation_id().errors()[0]?.message }}</span>
+          }
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="form().invalid()" aria-label="Envoyez">
+          Envoyez
+        </button>
+      </form>
+
+      @if (errorMessage()) {
+        <div class="error-container">
+          <div class="error-alert">
+            <svg class="error-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <span class="error-text">{{ errorMessage() }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="register-section">
+        <p class="register-text">
+          Identifiant reçu ?
+          <button
+            type="button"
+            class="register-link"
+            (click)="navigateToConnexion()"
+            aria-label="Revenir à la page de connexion"
+          >
+            Veuillez vous connecter
+          </button>
+        </p>
+        <p class="register-text register-note">
+          Pas encore de compte ?
+          <button
+            type="button"
+            class="register-link"
+            routerLink="/register"
+            aria-label="Aller à la page d'enregistrement"
+          >
+            Demande d'enregistrement
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

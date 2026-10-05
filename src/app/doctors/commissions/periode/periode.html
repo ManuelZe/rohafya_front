@@ -1,0 +1,116 @@
+<div class="page">
+  <app-page-header title="Commissions par période" subtitle="Analysez vos commissions sur la période de votre choix." />
+
+  <section class="card filters" aria-label="Choix de la période">
+    <div class="presets" role="group" aria-label="Périodes prédéfinies">
+      @for (p of presets; track p.id) {
+        <button type="button" class="preset" [attr.aria-pressed]="activePreset() === p.id" (click)="applyPreset(p)">
+          @if (activePreset() === p.id) {
+            <svg [pIcon]="'check'" [size]="14" aria-hidden="true"></svg>
+          }
+          {{ p.label }}
+        </button>
+      }
+    </div>
+
+    <form class="custom" (submit)="submitCustom($event)" novalidate>
+      <div class="date-field">
+        <label for="start-date">Du</label>
+        <input id="start-date" type="date" class="field" [min]="minDate" [max]="maxDate" [value]="startInput()" (input)="onStartInput($event)" />
+      </div>
+      <div class="date-field">
+        <label for="end-date">Au</label>
+        <input id="end-date" type="date" class="field" [min]="minDate" [max]="maxDate" [value]="endInput()" (input)="onEndInput($event)" />
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="period.loading()">
+        @if (period.loading()) {
+          <span class="spinner" aria-hidden="true"></span>
+        } @else {
+          <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
+        }
+        <span>Rechercher</span>
+      </button>
+    </form>
+
+    @if (formError()) {
+      <p class="form-error" role="alert">{{ formError() }}</p>
+    }
+  </section>
+
+  @if (appliedRange(); as range) {
+    <p class="applied" aria-live="polite">
+      Résultats du <strong>{{ range.start | date: 'dd/MM/yyyy' }}</strong> au <strong>{{ range.end | date: 'dd/MM/yyyy' }}</strong>
+    </p>
+  }
+
+  @if (period.error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ period.error() }}</span>
+    </div>
+  } @else {
+    <section class="kpis" aria-label="Synthèse de la période" [class.is-refreshing]="period.refreshing()">
+      <app-kpi-tile label="Total" icon="wallet" accent="#1a54c9" [value]="totalValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile label="Commissions" icon="list" accent="#0d9488" [value]="countValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile label="Patients" icon="users" accent="#b45309" [value]="patientsValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile label="Moyenne / commission" icon="calculator" accent="#6d28d9" [value]="averageValue()" [loading]="period.loading() && !period.data()" />
+    </section>
+
+    @if (period.data()) {
+      @if (lines().length === 0) {
+        <section class="card">
+          <div class="state">
+            <svg [pIcon]="'calendar-times'" [size]="32" aria-hidden="true"></svg>
+            <strong>Aucune commission sur cette période</strong>
+            <span>Essayez une période plus large, par exemple le cycle en cours.</span>
+          </div>
+        </section>
+      } @else {
+        <div class="grid" [class.is-refreshing]="period.refreshing()">
+          <section class="card" aria-labelledby="period-lines">
+            <h2 id="period-lines" class="card-title">
+              <svg [pIcon]="'list'" [size]="18" aria-hidden="true"></svg>
+              Commissions
+              <span class="card-title-aside">{{ lines().length }} ligne(s)</span>
+            </h2>
+            <ul class="lines">
+              @for (line of lines(); track $index) {
+                <li>
+                  <div class="line-main">
+                    <span class="line-title">{{ line.examen }}</span>
+                    <span class="line-sub">
+                      {{ line.patient }}
+                      @if (line.date) {
+                        · {{ line.date | date: 'dd/MM/yyyy HH:mm' }}
+                      }
+                    </span>
+                  </div>
+                  <strong class="line-value">{{ line.points | points }}</strong>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <section class="card" aria-labelledby="period-patients">
+            <h2 id="period-patients" class="card-title">
+              <svg [pIcon]="'users'" [size]="18" aria-hidden="true"></svg>
+              Par patient
+            </h2>
+            <ul class="patients">
+              @for (p of byPatient(); track p.patient) {
+                <li>
+                  <div class="patient-head">
+                    <span class="patient-name">{{ p.patient }}</span>
+                    <strong>{{ p.points | points }}</strong>
+                  </div>
+                  <span class="bar" aria-hidden="true"><span [style.width.%]="p.pct"></span></span>
+                  <span class="line-sub">{{ p.count }} commission(s)</span>
+                </li>
+              }
+            </ul>
+          </section>
+        </div>
+      }
+    }
+  }
+</div>

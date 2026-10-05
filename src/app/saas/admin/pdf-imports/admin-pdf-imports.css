@@ -1,0 +1,35 @@
+.file-field {
+  padding: 0.45rem;
+}
+
+.segmented .count {
+  display: inline-block;
+  min-width: 1.4rem;
+  margin-left: 0.3rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.small {
+  font-size: 0.78rem;
+}
+
+.toolbar + .table-wrap,
+.toolbar + .state {
+  margin-top: 1rem;
+}
+
+.quota-badge {
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  font-size: 0.75rem;
+}
+
+.quota-badge.is-full {
+  background: #fdecec;
+  color: var(--doc-danger);
+}

@@ -1,0 +1,142 @@
+<div class="page">
+  <app-page-header title="Établissements" subtitle="Les établissements clients de la plateforme.">
+    <button actions type="button" class="btn btn-primary" (click)="openCreate()">
+      <svg [pIcon]="'plus'" [size]="16" aria-hidden="true"></svg>
+      <span>Nouvel établissement</span>
+    </button>
+  </app-page-header>
+
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+    </div>
+  }
+
+  <section class="card">
+    @if (loading() && !tenants()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    } @else if ((tenants() ?? []).length === 0) {
+      <div class="state">
+        <svg [pIcon]="'building'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucun établissement</strong>
+        <span>Créez le premier établissement client.</span>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="loading()">
+        <table class="rtable">
+          <caption class="sr-only">Établissements</caption>
+          <thead>
+            <tr>
+              <th scope="col">Établissement</th>
+              <th scope="col">Source des données</th>
+              <th scope="col" class="num">Patients</th>
+              <th scope="col" class="num">Rattachés</th>
+              <th scope="col" class="num">Données</th>
+              <th scope="col" class="num">Admins</th>
+              <th scope="col">État</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tenant of tenants(); track tenant.id) {
+              <tr>
+                <td data-label="Établissement">
+                  <div>
+                    <span class="strong block">{{ tenant.display_name }}</span>
+                    <span class="muted mono block">{{ tenant.slug }}</span>
+                  </div>
+                </td>
+                <td data-label="Source">{{ sourceLabels[tenant.source_type] }}</td>
+                <td data-label="Patients" class="num">{{ tenant.stats.patients_known }}</td>
+                <td data-label="Rattachés" class="num">{{ tenant.stats.links_active }}</td>
+                <td data-label="Données" class="num">{{ tenant.stats.records_total }}</td>
+                <td data-label="Admins" class="num">{{ tenant.stats.admins }}</td>
+                <td data-label="État">
+                  <span [class]="'pill ' + (tenant.is_active ? 'pill-active' : 'pill-revoked')">{{ tenant.is_active ? 'Actif' : 'Suspendu' }}</span>
+                </td>
+                <td class="actions-cell">
+                  <a class="btn btn-ghost btn-sm" [routerLink]="['/super-admin/etablissements', tenant.id]">
+                    Gérer<span class="sr-only"> {{ tenant.display_name }}</span>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @if (showCreate()) {
+    <div class="overlay" (click)="showCreate.set(false)">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="create-title" (click)="$event.stopPropagation()">
+        <h2 id="create-title">Nouvel établissement</h2>
+        <form [formRoot]="createForm" (submit)="create()">
+          <div class="form-grid">
+            <div class="form-row full">
+              <label for="t-name">Nom *</label>
+              <input id="t-name" class="field" type="text" [formField]="createForm.name" />
+              @if (createForm.name().touched() && createForm.name().invalid()) {
+                <span class="form-error">{{ createForm.name().errors()[0]?.message }}</span>
+              }
+            </div>
+            <div class="form-row full">
+              <label for="t-slug">Identifiant</label>
+              <input id="t-slug" class="field mono" type="text" placeholder="calculé à partir du nom" [formField]="createForm.slug" />
+              @if (createForm.slug().touched() && createForm.slug().invalid()) {
+                <span class="form-error">{{ createForm.slug().errors()[0]?.message }}</span>
+              }
+            </div>
+            <div class="form-row full">
+              <label for="t-source">Méthode d'envoi des données</label>
+              <select id="t-source" class="field" [formField]="createForm.source_type">
+                @for (source of sources; track source) {
+                  <option [value]="source">{{ sourceLabels[source] }}</option>
+                }
+              </select>
+              <span class="form-hint">Une clé d'API est générée pour l'envoi par logiciel. « Scan / PDF » : les comptes rendus sont déposés dans la page Imports PDF, puis relus avant publication.</span>
+            </div>
+          </div>
+          @if (createError()) {
+            <div class="banner banner-error notice" role="alert">
+              <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+              <span>{{ createError() }}</span>
+            </div>
+          }
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" (click)="showCreate.set(false)">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="createForm().invalid() || creating()">
+              {{ creating() ? 'Création…' : 'Créer' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (created(); as tenant) {
+    <div class="overlay">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="created-title">
+        <h2 id="created-title">{{ tenant.display_name }} est créé</h2>
+        @if (tenant.api_key) {
+          <p class="muted">Voici sa clé d'API. Copiez-la et transmettez-la à l'équipe informatique de l'établissement : elle ne sera plus jamais affichée.</p>
+          <div class="secret">
+            <code>{{ tenant.api_key }}</code>
+            <button type="button" class="btn btn-ghost btn-sm" (click)="copy(tenant.api_key)">
+              <svg [pIcon]="'copy'" [size]="14" aria-hidden="true"></svg>
+              <span>Copier</span>
+            </button>
+          </div>
+        }
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" (click)="openCreated()">Ajouter ses administrateurs</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

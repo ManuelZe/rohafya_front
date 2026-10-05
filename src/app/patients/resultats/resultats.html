@@ -1,0 +1,392 @@
+<div class="resultats-container">
+  <app-page-header title="Résultats Partagés" subtitle="Partagez vos résultats d'examens avec vos médecins et consultez-les">
+    <button pButton type="button" actions (click)="toggleAddForm()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>{{ showAddForm() ? 'Fermer le formulaire' : 'Partager un résultat' }}</span>
+    </button>
+  </app-page-header>
+
+  @if (accessDenied()) {
+    <div class="access-denied-message">
+      {{ accessDeniedMessage }}
+    </div>
+  } @else {
+    @if (errorMessage()) {
+      <div class="error-banner" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Formulaire de partage -->
+    @if (showAddForm()) {
+      <section class="add-form-wrapper">
+        <div class="form-header">
+          <h2>Partager un résultat</h2>
+          <p>Indiquez le médecin destinataire ainsi que le type et le code de l'examen concerné.</p>
+        </div>
+
+        <form class="add-form" [formRoot]="sendForm" (submit)="submitSend()">
+          <div class="form-grid">
+            <div class="form-row form-row-full">
+              <label for="add_matricule">Matricule du médecin <span class="required">*</span></label>
+              <div class="doctor-search-row">
+                <input
+                  id="add_matricule"
+                  type="text"
+                  [value]="addDoctorSearch.matricule()"
+                  (input)="onAddMatriculeInput($event)"
+                  placeholder="Ex: DOC-2024-0012"
+                />
+                <button type="button" class="btn btn-secondary" [disabled]="addDoctorSearch.searching() || !addDoctorSearch.matricule().trim()" (click)="addDoctorSearch.search()">
+                  @if (addDoctorSearch.searching()) {
+                    <span class="spinner"></span>
+                  } @else {
+                    <span>Rechercher</span>
+                  }
+                </button>
+              </div>
+
+              @if (addDoctorSearch.doctor(); as doctor) {
+                <div class="doctor-found">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                  <span>Dr {{ doctor.DoctorName }} {{ doctor.DoctorLastname }}{{ doctor.Speciality ? ' — ' + doctor.Speciality : '' }}</span>
+                </div>
+              }
+              @if (addDoctorSearch.error()) {
+                <div class="doctor-not-found">{{ addDoctorSearch.error() }}</div>
+              }
+            </div>
+
+            <div class="form-row">
+              <label for="exam_type">Type d'examen <span class="required">*</span></label>
+              <select id="exam_type" [formField]="sendForm.exam_type" (change)="onAddExamTypeChange()">
+                @for (type of examTypes; track type) {
+                  <option [value]="type">{{ type }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label for="exam_code">Résultat à partager <span class="required">*</span></label>
+              <select id="exam_code" [formField]="sendForm.exam_code">
+                <option value="">{{ examOptions.loading() ? 'Chargement...' : (addExamOptions().length === 0 ? 'Aucun résultat disponible' : 'Sélectionner...') }}</option>
+                @for (option of addExamOptions(); track option.code) {
+                  <option [value]="option.code">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-row form-row-full form-row-checkbox">
+              <label class="checkbox-label">
+                <input type="checkbox" [formField]="sendForm.envoi_email" />
+                <span>Envoyer également une copie par email</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-tertiary" (click)="toggleAddForm()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="spinner"></span>
+              }
+              <span>{{ submitting() ? 'Envoi en cours...' : 'Partager' }}</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
+    <!-- État Chargement -->
+    @if (loading()) {
+      <div class="state-container loading-state">
+        <app-eden-loader label="Chargement des résultats partagés" />
+      </div>
+    }
+
+    <!-- État Liste vide -->
+    @if (!loading() && results().length === 0) {
+      <div class="state-container empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16v16H4z" opacity="0"></path>
+            <path d="M9 12l2 2 4-4"></path>
+            <circle cx="12" cy="12" r="9"></circle>
+          </svg>
+        </div>
+        <h3>Aucun résultat partagé</h3>
+        <p>Vous n'avez encore partagé aucun résultat d'examen avec un médecin.</p>
+        <button class="btn btn-secondary" (click)="toggleAddForm()">Partager un résultat</button>
+      </div>
+    }
+
+    <!-- Grille des résultats -->
+    @if (!loading() && results().length > 0) {
+      <div class="results-grid">
+        @for (r of results(); track r.id) {
+          <article class="result-card">
+            <div class="result-card-header">
+              <app-status-tag kind="examType" [status]="r.exam_type" />
+              <span class="email-indicator" [class.sent]="r.envoi_email" [title]="r.envoi_email ? 'Copie envoyée par email' : 'Non envoyé par email'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16v16H4z" opacity="0"></path>
+                  <path d="M22 6l-10 7L2 6"></path>
+                  <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                </svg>
+              </span>
+            </div>
+
+            <div class="card-body">
+              <h2 class="result-code" [title]="r.exam_code">{{ r.exam_code }}</h2>
+              <p class="result-meta">Matricule patient : {{ r.patient_federation_id }}</p>
+              <p class="result-meta">Médecin destinataire : #{{ r.doctor_id }}</p>
+
+              <div class="card-footer-meta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <time>{{ r.sended_at | date: 'dd/MM/yyyy à HH:mm' }}</time>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="openViewer(r)" title="Voir le résultat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Voir
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" (click)="openEdit(r)" title="Modifier le partage">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Modifier
+              </button>
+              <button type="button" class="btn btn-danger-outline btn-sm" (click)="confirmDelete(r)" title="Supprimer le partage">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Supprimer
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    <!-- Modal Visualiseur de résultat -->
+    @if (selectedResult(); as result) {
+      <div class="viewer-modal-overlay" (click)="closeViewer()">
+        <div class="viewer-modal-wrapper" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+          <button type="button" class="viewer-modal-close" (click)="closeViewer()" aria-label="Fermer la vue du résultat">&times;</button>
+
+          <div class="viewer-modal-header">
+            <h3>{{ result.exam_code }}</h3>
+            <p>
+              <app-status-tag kind="examType" [status]="result.exam_type" />
+              <span>&middot; Matricule {{ result.patient_federation_id }}</span>
+            </p>
+          </div>
+
+          <div class="tab-switch">
+            <button type="button" class="tab-btn" [class.active]="activeTab() === 'summary'" (click)="setActiveTab('summary')">
+              Résultat
+            </button>
+            <button type="button" class="tab-btn" [class.active]="activeTab() === 'more'" (click)="setActiveTab('more')">
+              Plus d'informations
+            </button>
+          </div>
+
+          <div class="viewer-modal-body">
+            @if (activeTab() === 'summary') {
+              @if (examDetailsLoading()) {
+                <div class="state-container">
+                  <app-eden-loader label="Chargement du résultat" />
+                </div>
+              } @else if (examDetailsError()) {
+                <div class="error-banner">
+                  <span>{{ examDetailsError() }}</span>
+                </div>
+              } @else if (!examDetails() || examDetails()!.length === 0) {
+                <div class="state-container">
+                  <p>Aucune donnée disponible pour ce résultat.</p>
+                </div>
+              } @else {
+                @for (entry of examDetails(); track $index) {
+                  <div class="detail-section">
+                    <dl class="detail-list">
+                      @for (item of detailEntries(entry); track item.label) {
+                        <div class="detail-item">
+                          <dt>{{ item.label }}</dt>
+                          <dd>{{ item.value }}</dd>
+                        </div>
+                      }
+                    </dl>
+                  </div>
+                }
+              }
+            } @else {
+              @if (moreInfoLoading()) {
+                <div class="state-container">
+                  <app-eden-loader label="Chargement des informations complémentaires" />
+                </div>
+              } @else if (moreInfoError()) {
+                <div class="error-banner">
+                  <span>{{ moreInfoError() }}</span>
+                </div>
+              } @else if (!moreInfo() || moreInfo()!.length === 0) {
+                <div class="state-container">
+                  <p>Aucune information complémentaire disponible.</p>
+                </div>
+              } @else {
+                @for (entry of moreInfo(); track $index) {
+                  <div class="detail-section">
+                    <dl class="detail-list">
+                      @for (item of detailEntries(entry); track item.label) {
+                        <div class="detail-item">
+                          <dt>{{ item.label }}</dt>
+                          <dd>{{ item.value }}</dd>
+                        </div>
+                      }
+                    </dl>
+                  </div>
+                }
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Modal Modification -->
+    @if (resultToEdit(); as toEdit) {
+      <div class="edit-modal-overlay" (click)="cancelEdit()">
+        <div class="edit-modal-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+          <div class="form-header">
+            <h2>Modifier le partage</h2>
+            <p>Mettez à jour le médecin destinataire ou les informations de l'examen.</p>
+          </div>
+
+          <form class="add-form" [formRoot]="editForm" (submit)="submitEdit()">
+            <div class="form-grid">
+              <div class="form-row form-row-full">
+                <label for="edit_matricule">Matricule du médecin <span class="required">*</span></label>
+                <div class="doctor-search-row">
+                  <input
+                    id="edit_matricule"
+                    type="text"
+                    [value]="editDoctorSearch.matricule()"
+                    (input)="onEditMatriculeInput($event)"
+                    placeholder="Ex: DOC-2024-0012"
+                  />
+                  <button type="button" class="btn btn-secondary" [disabled]="editDoctorSearch.searching() || !editDoctorSearch.matricule().trim()" (click)="editDoctorSearch.search()">
+                    @if (editDoctorSearch.searching()) {
+                      <span class="spinner"></span>
+                    } @else {
+                      <span>Rechercher</span>
+                    }
+                  </button>
+                </div>
+
+                @if (editDoctorSearch.doctor(); as doctor) {
+                  <div class="doctor-found">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                    <span>Dr {{ doctor.DoctorName }} {{ doctor.DoctorLastname }}{{ doctor.Speciality ? ' — ' + doctor.Speciality : '' }}</span>
+                  </div>
+                }
+                @if (editDoctorSearch.error()) {
+                  <div class="doctor-not-found">{{ editDoctorSearch.error() }}</div>
+                }
+              </div>
+
+              <div class="form-row">
+                <label for="edit_exam_type">Type d'examen <span class="required">*</span></label>
+                <select id="edit_exam_type" [formField]="editForm.exam_type" (change)="onEditExamTypeChange()">
+                  @for (type of examTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-row">
+                <label for="edit_exam_code">Résultat à partager <span class="required">*</span></label>
+                <select id="edit_exam_code" [formField]="editForm.exam_code">
+                  <option value="">{{ examOptions.loading() ? 'Chargement...' : (editExamOptions().length === 0 ? 'Aucun résultat disponible' : 'Sélectionner...') }}</option>
+                  @for (option of editExamOptions(); track option.code) {
+                    <option [value]="option.code">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-tertiary" (click)="cancelEdit()">Annuler</button>
+              <button type="submit" class="btn btn-primary" [disabled]="savingEdit()">
+                @if (savingEdit()) {
+                  <span class="spinner"></span>
+                }
+                <span>{{ savingEdit() ? 'Enregistrement...' : 'Enregistrer' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+
+    <!-- Modal Confirmation Suppression -->
+    @if (resultToDelete(); as toDelete) {
+      <div class="delete-modal-overlay" (click)="cancelDelete()">
+        <div class="delete-modal-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+          <div class="delete-modal-header">
+            <div class="delete-modal-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </div>
+            <div>
+              <h2 id="delete-title">Supprimer le partage</h2>
+              <p class="delete-modal-subtitle">Cette action est irréversible</p>
+            </div>
+          </div>
+
+          <div class="delete-modal-body">
+            <p>Êtes-vous sûr de vouloir supprimer le partage du résultat <strong>{{ toDelete.exam_code }}</strong> ?</p>
+          </div>
+
+          <div class="delete-modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="deleting()">
+              Annuler
+            </button>
+            <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="deleting()">
+              @if (deleting()) {
+                <span class="spinner"></span>
+              }
+              <span>{{ deleting() ? 'Suppression...' : 'Supprimer définitivement' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

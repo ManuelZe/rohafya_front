@@ -1,0 +1,149 @@
+<div class="page">
+  <app-page-header title="Relevé de commissions" subtitle="Toutes vos commissions depuis l'ouverture, en points.">
+    <button actions type="button" class="btn btn-ghost" (click)="refresh()" [disabled]="statement.loading()">
+      @if (statement.loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span>Actualiser</span>
+    </button>
+  </app-page-header>
+
+  <section class="kpis" aria-label="Synthèse du relevé">
+    <app-kpi-tile label="Total" icon="wallet" accent="#1a54c9" [value]="totalValue()" hint="Prescriptions + réalisations" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+    <app-kpi-tile label="Prescriptions" icon="file-edit" accent="#2a78d6" [value]="prescriptionValue()" hint="Commissions CP V01" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+    <app-kpi-tile label="Réalisations" icon="check-circle" accent="#c2410c" [value]="realisationValue()" hint="Commissions CP V02" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+    <app-kpi-tile
+      label="En attente"
+      icon="clock"
+      accent="#b45309"
+      [value]="waitingValue()"
+      [hint]="waitingCount() + ' commission(s) non facturée(s)'"
+      [loading]="statement.loading() && !statement.data()"
+      [error]="!!statement.error()"
+    />
+  </section>
+
+  <section class="card" aria-labelledby="list-title">
+    <h2 id="list-title" class="sr-only">Détail des commissions</h2>
+
+    <div class="toolbar">
+      <div class="segmented" role="group" aria-label="Type de commission">
+        @for (opt of kindOptions; track opt.value) {
+          <button type="button" [attr.aria-pressed]="kindFilter() === opt.value" (click)="setKind(opt.value)">{{ opt.label }}</button>
+        }
+      </div>
+
+      <label class="sr-only" for="state-filter">Statut</label>
+      <select id="state-filter" class="field state-select" [value]="stateFilter()" (change)="onStateChange($event)">
+        @for (opt of stateOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+
+      <div class="search">
+        <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
+        <label class="sr-only" for="releve-search">Rechercher</label>
+        <input id="releve-search" type="search" placeholder="Patient, examen…" [value]="search()" (input)="onSearch($event)" />
+      </div>
+
+      <button type="button" class="btn btn-ghost" (click)="exportCsv()" [disabled]="filtered().length === 0">
+        <svg [pIcon]="'download'" [size]="16" aria-hidden="true"></svg>
+        <span>Exporter</span>
+      </button>
+    </div>
+
+    <div class="selection-bar" aria-live="polite">
+      <span>
+        <strong>{{ filtered().length }}</strong> commission(s)
+        @if (hasActiveFilters()) {
+          sur {{ rows().length }}
+        }
+        · <strong>{{ filteredTotal() | points }}</strong>
+      </span>
+      @if (hasActiveFilters()) {
+        <button type="button" class="link reset" (click)="resetFilters()">
+          <svg [pIcon]="'filter-slash'" [size]="14" aria-hidden="true"></svg>
+          Réinitialiser les filtres
+        </button>
+      }
+    </div>
+
+    @if (statement.loading() && !statement.data()) {
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <span class="skeleton row-skeleton" aria-hidden="true"></span>
+      }
+    } @else if (statement.error()) {
+      <div class="banner banner-error" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ statement.error() }}</span>
+        <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+      </div>
+    } @else if (rows().length === 0) {
+      <div class="state">
+        <svg [pIcon]="'wallet'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucune commission pour le moment</strong>
+        <span>Vos commissions apparaîtront ici dès qu'un de vos patients réalisera un examen.</span>
+      </div>
+    } @else if (filtered().length === 0) {
+      <div class="state">
+        <svg [pIcon]="'filter-slash'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucun résultat</strong>
+        <span>Aucune commission ne correspond à ces filtres.</span>
+        <button type="button" class="btn btn-ghost" (click)="resetFilters()">Réinitialiser les filtres</button>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="statement.refreshing()">
+        <table class="rtable">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Patient</th>
+              <th scope="col">Examen</th>
+              <th scope="col">Type</th>
+              <th scope="col">Statut</th>
+              <th scope="col" class="num">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of visibleRows(); track row.id) {
+              <tr>
+                <td data-label="Date">{{ row.date ? (row.date | date: 'dd/MM/yyyy') : '—' }}</td>
+                <td data-label="Patient" class="strong">{{ row.patient }}</td>
+                <td data-label="Examen">{{ row.examen }}</td>
+                <td data-label="Type"><app-status-tag kind="commissionKind" [status]="row.kind" /></td>
+                <td data-label="Statut">
+                  <span class="status-cell">
+                    <app-status-tag kind="commission" [status]="row.state" />
+                    @if (row.validated) {
+                      <span class="validated" title="Commission validée">
+                        <svg [pIcon]="'check-circle'" [size]="14" aria-hidden="true"></svg>
+                        <span class="sr-only">Validée</span>
+                      </span>
+                    }
+                  </span>
+                </td>
+                <td data-label="Points" class="num strong">{{ row.points | points }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (remaining() > 0) {
+        <div class="more">
+          <button type="button" class="btn btn-ghost" (click)="showMore()">
+            Afficher {{ remaining() > 20 ? 20 : remaining() }} de plus
+            <span class="muted">({{ remaining() }} restantes)</span>
+          </button>
+        </div>
+      }
+    }
+
+    <p class="footnote muted">
+      <svg [pIcon]="'info-circle'" [size]="14" aria-hidden="true"></svg>
+      Montants nets, après la retenue de 11 % appliquée sur chaque commission.
+    </p>
+  </section>
+</div>

@@ -1,0 +1,31 @@
+# Fichiers exclus du contexte de build Docker (lu automatiquement par BuildKit
+# car il porte le nom du Dockerfile : « Dockerfile.dockerignore »).
+
+# Dépendances et builds locaux : reconstruits dans l'image
+node_modules
+dist
+.angular
+out-tsc
+coverage
+
+# Git et outils d'édition
+.git
+.github
+.vscode
+.idea
+.cursor
+.claude
+.gemini
+.junie
+.windsurf
+*.md
+
+# Documentation et scripts de déploiement : inutiles dans l'image
+Documentation
+
+# Secrets éventuels : ne jamais les envoyer dans l'image
+.env
+.env.*
+*.pem
+*.key
+*.env

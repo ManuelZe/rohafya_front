@@ -1,0 +1,66 @@
+.tenant-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tenant-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #d5ddf0;
+}
+
+.tenant-select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.tenant-select option {
+  color: #1f2937;
+}
+
+.tenant-select:focus-visible {
+  outline: 3px solid #f5a414;
+  outline-offset: 1px;
+}
+
+.tenant-single {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.tenant-single svg {
+  color: #f5a414;
+  flex-shrink: 0;
+}
+
+.switch-btn {
+  text-decoration: none;
+}
+
+.menu-hint {
+  margin-left: auto;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}

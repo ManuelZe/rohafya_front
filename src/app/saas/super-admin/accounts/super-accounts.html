@@ -1,0 +1,95 @@
+<div class="page">
+  <app-page-header title="Comptes" subtitle="Tous les comptes EDEN : patients, médecins et administrateurs." />
+
+  <section class="card">
+    <div class="toolbar">
+      <div class="segmented" role="group" aria-label="Filtrer par rôle">
+        @for (filter of roleFilters; track filter.value) {
+          <button type="button" [attr.aria-pressed]="role() === filter.value" (click)="setRole(filter.value)">{{ filter.label }}</button>
+        }
+      </div>
+      <div class="search">
+        <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
+        <label class="sr-only" for="account-search">Rechercher un compte</label>
+        <input id="account-search" type="search" placeholder="Nom, e-mail ou identifiant" [value]="query()" (input)="onSearch($event)" />
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="banner banner-error notice" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ error() }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+      </div>
+    }
+
+    @if (loading() && !loaded()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>Chargement…</span>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="state">
+        <svg [pIcon]="'users'" [size]="32" aria-hidden="true"></svg>
+        <strong>Aucun compte</strong>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="loading()">
+        <table class="rtable">
+          <caption class="sr-only">Comptes EDEN</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nom</th>
+              <th scope="col">E-mail</th>
+              <th scope="col">Rôles</th>
+              <th scope="col">Administre</th>
+              <th scope="col">État</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (account of items(); track account.id) {
+              <tr>
+                <td data-label="Nom" class="strong">{{ account.first_name }} {{ account.last_name }}</td>
+                <td data-label="E-mail">{{ account.email || '—' }}</td>
+                <td data-label="Rôles">
+                  <span class="roles">
+                    @for (role of account.roles; track role) {
+                      <span class="pill">{{ roleLabel(role) }}</span>
+                    } @empty {
+                      —
+                    }
+                  </span>
+                </td>
+                <td data-label="Administre">{{ account.admin_of.length ? account.admin_of.join(', ') : '—' }}</td>
+                <td data-label="État">
+                  <span [class]="'pill ' + (account.active ? 'pill-active' : 'pill-danger')">{{ account.active ? 'Actif' : 'Désactivé' }}</span>
+                </td>
+                <td class="actions-cell">
+                  @if (account.id !== currentUserId()) {
+                    <span class="cell-actions">
+                      @if (!account.roles.includes('Admin')) {
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="toggleSuperAdmin(account)" [disabled]="busyId() === account.id">
+                          {{ account.roles.includes('SuperAdmin') ? 'Retirer super-admin' : 'Nommer super-admin' }}<span class="sr-only"> : {{ account.email }}</span>
+                        </button>
+                      }
+                      <button
+                        type="button"
+                        [class]="'btn btn-sm ' + (account.active ? 'btn-danger-ghost' : 'btn-primary')"
+                        (click)="toggleActive(account)"
+                        [disabled]="busyId() === account.id"
+                      >
+                        {{ account.active ? 'Désactiver' : 'Réactiver' }}<span class="sr-only"> {{ account.email }}</span>
+                      </button>
+                    </span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />
+    }
+  </section>
+</div>

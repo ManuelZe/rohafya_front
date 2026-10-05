@@ -1,0 +1,27 @@
+[
+  {
+    "local_ref": "CLB-0004",
+    "name": "EXP-CLB-3001",
+    "rec_name": "EXP-CLB-3001",
+    "test": "Électrocardiogramme (ECG) de repos",
+    "date_requested": "2026-09-29T08:00:00",
+    "date_analysis": "2026-09-29T08:40:00",
+    "done_date": "2026-09-29T08:40:00",
+    "validation_date": "2026-09-29T12:00:00",
+    "requestor": "Dr Paul Ekané",
+    "realisateur": "Nadège Fouda",
+    "pathologist": "Dr Hervé Tchoua",
+    "validated_by": "Dr Hervé Tchoua",
+    "indication": "Palpitations à l'effort.",
+    "technique": "ECG 12 dérivations au repos.",
+    "resultat": "Rythme sinusal régulier à 78 bpm. PR 170 ms, QRS fins, QTc 420 ms. Pas de trouble de la repolarisation.",
+    "diagnosis": "ECG normal.",
+    "commentaire": "Holter ECG à discuter si les palpitations persistent.",
+    "state": "validated",
+    "details": [
+      { "name": "Fréquence cardiaque", "result": 78, "units": "bpm", "normal_range": "60 – 100", "remarks": "", "warning": false },
+      { "name": "Intervalle PR", "result": 170, "units": "ms", "normal_range": "120 – 200", "remarks": "", "warning": false },
+      { "name": "QTc", "result": 420, "units": "ms", "normal_range": "< 450", "remarks": "", "warning": false }
+    ]
+  }
+]

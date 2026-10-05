@@ -1,0 +1,43 @@
+# =============================================================================
+#  Nginx Proxy Manager — reverse proxy HTTPS (certificats Let's Encrypt automatiques)
+#  À déployer UNE SEULE FOIS sur le serveur, avant la stack EDEN.
+#  Portainer : Stacks > + Add stack > nom « reverse-proxy » > Web editor > coller ce fichier.
+#
+#  Prérequis : réseau partagé créé une fois :  docker network create proxy
+#  Voir Documentation/02_DEPLOIEMENT_HETZNER_PORTAINER.txt, étape 6.
+# =============================================================================
+
+services:
+  npm:
+    # Épingler une version précise après installation (onglet « Tags » sur Docker Hub),
+    # puis la mettre à jour volontairement, jamais automatiquement.
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "80:80"      # HTTP public (redirigé vers HTTPS + validation Let's Encrypt)
+      - "443:443"    # HTTPS public
+      # Interface d'administration : UNIQUEMENT en local, accès par tunnel SSH
+      #   ssh -L 8181:127.0.0.1:81 deploy@IP_DU_SERVEUR   puis  http://localhost:8181
+      - "127.0.0.1:81:81"
+    environment:
+      TZ: Africa/Douala
+      DISABLE_IPV6: "true"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - proxy
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+
+networks:
+  proxy:
+    external: true

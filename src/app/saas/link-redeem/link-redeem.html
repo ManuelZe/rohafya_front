@@ -1,0 +1,96 @@
+<div class="login-container">
+  <div class="login-visual" aria-hidden="true">
+    <div class="future-medical">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Circulaire de base -->
+        <circle cx="100" cy="100" r="90" class="circle-bg" />
+        
+        <!-- Éléments futuristes -->
+        <g class="medical-elements">
+          <!-- Cœur numérique -->
+          <path
+            d="M 100 85 L 110 75 Q 120 70 125 80 Q 130 90 100 115 Q 70 90 75 80 Q 80 70 90 75 Z"
+            class="heart-icon"
+          />
+          
+          <!-- Cercles orbitaux -->
+          <circle cx="100" cy="100" r="50" class="orbit-1" />
+          <circle cx="100" cy="100" r="70" class="orbit-2" />
+          
+          <!-- Points de données -->
+          <circle cx="150" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="50" r="4" class="data-point" />
+          <circle cx="50" cy="100" r="4" class="data-point" />
+          <circle cx="100" cy="150" r="4" class="data-point" />
+          
+          <!-- Lignes de connexion -->
+          <line x1="150" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="50" x2="100" y2="100" class="connection-line" />
+          <line x1="50" y1="100" x2="100" y2="100" class="connection-line" />
+          <line x1="100" y1="150" x2="100" y2="100" class="connection-line" />
+        </g>
+      </svg>
+      <h2 class="medical-title">Vos résultats, au même endroit</h2>
+      <p class="medical-subtitle">Un seul compte EDEN pour tous vos établissements</p>
+    </div>
+  </div>
+
+  <main class="login-form">
+    <div class="form-content">
+      <h1 class="form-title">Rattacher mon dossier</h1>
+
+      @if (loadError()) {
+        <div class="error-message" role="alert">
+          <span class="error-icon" aria-hidden="true">⚠️</span>
+          <span>{{ loadError() }}</span>
+        </div>
+      } @else if (!info()) {
+        <p class="form-description" role="status">Vérification du QR code…</p>
+      } @else if (statusMessage()) {
+        <p class="form-description">{{ info()!.establishment }}</p>
+        <div class="error-message" role="alert">
+          <span class="error-icon" aria-hidden="true">⚠️</span>
+          <span>{{ statusMessage() }}</span>
+        </div>
+      } @else if (result(); as done) {
+        <div class="redeem-success" role="status">
+          <strong>{{ done.link.status === 'active' ? 'C’est fait !' : 'Demande envoyée' }}</strong>
+          <p>{{ done.message }}</p>
+        </div>
+        <button type="button" class="submit-btn" (click)="goToResults()">Voir mes établissements</button>
+      } @else {
+        <p class="form-description">
+          Votre dossier de <strong>{{ info()!.establishment }}</strong> sera ajouté à votre compte EDEN.
+          Ce QR code ne sert qu’une fois.
+        </p>
+
+        @if (isLoggedIn()) {
+          <div class="redeem-account">
+            <span>Compte connecté</span>
+            <strong>{{ userEmail() }}</strong>
+          </div>
+          <button type="button" class="submit-btn" (click)="redeem()" [disabled]="busy()">
+            {{ busy() ? 'Rattachement…' : 'Rattacher ce dossier à mon compte' }}
+          </button>
+          @if (errorMessage()) {
+            <div class="error-message" role="alert" aria-live="assertive">
+              <span class="error-icon" aria-hidden="true">⚠️</span>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+        } @else {
+          <p class="redeem-step">Connectez-vous ou créez votre compte avec votre adresse e-mail :</p>
+          <app-email-code-login />
+          <p class="redeem-alt">
+            Vous avez un identifiant et un mot de passe ?
+            <a routerLink="/connexion" [queryParams]="passwordLoginParams()">Se connecter autrement</a>
+          </p>
+        }
+      }
+
+      <div class="back-to-intro-section">
+        <a class="back-to-intro-link" routerLink="/">← Retour à l'accueil</a>
+      </div>
+    </div>
+  </main>
+</div>

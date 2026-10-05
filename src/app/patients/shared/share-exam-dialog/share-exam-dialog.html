@@ -1,0 +1,87 @@
+@if (open()) {
+  <div class="share-dialog-overlay" (click)="close()">
+    <div class="share-dialog-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
+      <button type="button" class="share-dialog-close" (click)="close()" aria-label="Fermer">&times;</button>
+
+      <div class="share-dialog-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        <div>
+          <h2 id="share-dialog-title">Partager ce résultat</h2>
+          @if (examLabel()) {
+            <p class="share-dialog-subtitle">{{ examLabel() }}</p>
+          }
+        </div>
+      </div>
+
+      @if (success()) {
+        <div class="success-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <p>Résultat partagé avec succès{{ doctor() ? ' avec Dr ' + doctor()!.DoctorName + ' ' + doctor()!.DoctorLastname : '' }}.</p>
+          <button type="button" class="btn btn-primary" (click)="close()">Fermer</button>
+        </div>
+      } @else {
+        <div class="form-row">
+          <label for="share-matricule">Matricule du médecin destinataire</label>
+          <div class="doctor-search-row">
+            <input
+              id="share-matricule"
+              type="text"
+              placeholder="Ex : DOC-00123"
+              [value]="matricule()"
+              (input)="onMatriculeInput($event)"
+              (keydown.enter)="$event.preventDefault(); search()"
+            />
+            <button type="button" class="btn btn-secondary" (click)="search()" [disabled]="searching() || !matricule().trim()">
+              @if (searching()) {
+                <span class="spinner"></span>
+              } @else {
+                Rechercher
+              }
+            </button>
+          </div>
+
+          @if (doctor(); as d) {
+            <div class="doctor-found">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>Dr {{ d.DoctorName }} {{ d.DoctorLastname }} @if (d.Speciality) {<span>· {{ d.Speciality }}</span>}</span>
+            </div>
+          }
+          @if (searchError()) {
+            <div class="doctor-not-found">{{ searchError() }}</div>
+          }
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" [checked]="envoiEmail()" (change)="toggleEnvoiEmail()" />
+          <span>Envoyer également une copie par email au médecin</span>
+        </label>
+
+        @if (submitError()) {
+          <div class="error-banner" role="alert">{{ submitError() }}</div>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-tertiary" (click)="close()">Annuler</button>
+          <button type="button" class="btn btn-primary" [disabled]="submitting() || !doctor()" (click)="submit()">
+            @if (submitting()) {
+              <span class="spinner"></span>
+            }
+            <span>{{ submitting() ? 'Partage en cours...' : 'Partager' }}</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
