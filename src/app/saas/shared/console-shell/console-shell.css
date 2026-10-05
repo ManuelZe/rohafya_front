@@ -7,7 +7,7 @@
 .tenant-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #d5ddf0;
+  color: #d6e6ee;
 }
 
 .tenant-select {
@@ -28,7 +28,7 @@
 }
 
 .tenant-select:focus-visible {
-  outline: 3px solid #f5a414;
+  outline: 3px solid #34d399;
   outline-offset: 1px;
 }
 
@@ -47,7 +47,7 @@
 }
 
 .tenant-single svg {
-  color: #f5a414;
+  color: #34d399;
   flex-shrink: 0;
 }
 

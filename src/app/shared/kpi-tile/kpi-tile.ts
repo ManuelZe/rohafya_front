@@ -34,7 +34,7 @@ import { PIcon } from '@primeicons/angular/p-icon';
       height: 100%;
       background: #fff;
       border-radius: 12px;
-      border-left: 4px solid var(--kpi-accent, #1a54c9);
+      border-left: 4px solid var(--kpi-accent, #0c4562);
       padding: 1.1rem 1.25rem;
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
       display: flex;
@@ -54,8 +54,8 @@ import { PIcon } from '@primeicons/angular/p-icon';
       height: 32px;
       border-radius: 8px;
       flex-shrink: 0;
-      color: var(--kpi-accent, #1a54c9);
-      background: color-mix(in srgb, var(--kpi-accent, #1a54c9) 13%, white);
+      color: var(--kpi-accent, #0c4562);
+      background: color-mix(in srgb, var(--kpi-accent, #0c4562) 13%, white);
     }
     .kpi-label {
       margin: 0;
@@ -124,7 +124,7 @@ export class KpiTile {
   readonly value = input<string>('');
   readonly hint = input<string>();
   readonly icon = input.required<string>();
-  readonly accent = input<string>('#1a54c9');
+  readonly accent = input<string>('#0c4562');
   readonly loading = input(false);
   readonly error = input(false);
 }

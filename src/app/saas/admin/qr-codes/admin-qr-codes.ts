@@ -97,7 +97,7 @@ export class AdminQrCodes {
       next: (token) => {
         this.issuing.set(false);
         if (token.already_linked) {
-          this.notice.set(`Le dossier ${token.local_ref} est déjà rattaché à un compte EDEN : aucun QR code n'est nécessaire.`);
+          this.notice.set(`Le dossier ${token.local_ref} est déjà rattaché à un compte ROHAFYA : aucun QR code n'est nécessaire.`);
           return;
         }
         this.ticket.set(token);

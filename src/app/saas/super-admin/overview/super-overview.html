@@ -1,5 +1,5 @@
 <div class="page">
-  <app-page-header title="Vue d'ensemble" subtitle="L'activité de toute la plateforme EDEN.">
+  <app-page-header title="Vue d'ensemble" subtitle="L'activité de toute la plateforme ROHAFYA.">
     <button actions type="button" class="btn btn-ghost" (click)="load()" [disabled]="loading()">
       @if (loading()) {
         <span class="spinner" aria-hidden="true"></span>
@@ -19,10 +19,10 @@
   }
 
   <div class="kpis">
-    <app-kpi-tile label="Établissements" icon="building" accent="#1a54c9" [value]="count(stats()?.tenants)" [hint]="count(stats()?.tenants_active) + ' actif(s)'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
+    <app-kpi-tile label="Établissements" icon="building" accent="#0c4562" [value]="count(stats()?.tenants)" [hint]="count(stats()?.tenants_active) + ' actif(s)'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
     <app-kpi-tile label="Comptes" icon="users" accent="#137a36" [value]="count(stats()?.users)" [hint]="count(stats()?.patients) + ' patients · ' + count(stats()?.doctors) + ' médecins'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
-    <app-kpi-tile label="Rattachements" icon="link" accent="#6d28d9" [value]="count(stats()?.links_active)" [hint]="count(stats()?.links_pending) + ' en attente'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
-    <app-kpi-tile label="Données reçues" icon="database" accent="#b45309" [value]="count(stats()?.records_total)" hint="Par l'API EDEN et FHIR" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
+    <app-kpi-tile label="Rattachements" icon="link" accent="#1f6a8f" [value]="count(stats()?.links_active)" [hint]="count(stats()?.links_pending) + ' en attente'" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
+    <app-kpi-tile label="Données reçues" icon="database" accent="#b45309" [value]="count(stats()?.records_total)" hint="Par l'API ROHAFYA et FHIR" [loading]="loading() && !stats()" [error]="!!error() && !stats()" />
   </div>
 
   <div class="two-cols">

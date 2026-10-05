@@ -71,14 +71,14 @@
 }
 
 ::ng-deep .requests-table .p-datatable-thead > tr > th {
-  background: #e5ecfa !important;
+  background: #ecfdf5 !important;
   color: var(--color-primary) !important;
-  border-color: #c9d8f2 !important;
+  border-color: #a7f3d0 !important;
   font-weight: 700;
 }
 
 ::ng-deep .requests-table .p-datatable-tbody > tr:hover {
-  background: #eef3fc !important;
+  background: #f3fbf7 !important;
 }
 
 ::ng-deep .requests-table .p-datatable-tbody > tr > td {
@@ -334,7 +334,7 @@
 }
 
 ::ng-deep .categories-panel .p-panel-header {
-  background: #e5ecfa;
+  background: #ecfdf5;
   color: var(--color-primary);
   font-weight: 700;
 }

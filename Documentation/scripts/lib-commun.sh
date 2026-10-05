@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Fonctions communes aux scripts EDEN (à « sourcer », ne pas exécuter seul).
+#  Fonctions communes aux scripts ROHAFYA (à « sourcer », ne pas exécuter seul).
 # =============================================================================
 
 # Racine du dépôt Git, quel que soit le dossier d'où le script est lancé.
-EDEN_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EDEN_DOC_DIR="$(cd "${EDEN_SCRIPTS_DIR}/.." && pwd)"
-EDEN_ROOT="$(cd "${EDEN_DOC_DIR}/.." && pwd)"
+ROHAFYA_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROHAFYA_DOC_DIR="$(cd "${ROHAFYA_SCRIPTS_DIR}/.." && pwd)"
+ROHAFYA_ROOT="$(cd "${ROHAFYA_DOC_DIR}/.." && pwd)"
 
 if [[ -t 1 ]]; then
   C_RESET=$'\e[0m'; C_BLEU=$'\e[34m'; C_VERT=$'\e[32m'; C_JAUNE=$'\e[33m'; C_ROUGE=$'\e[31m'; C_GRAS=$'\e[1m'
@@ -30,7 +30,7 @@ exiger_commandes() {
 
 # Charge Documentation/scripts/deploiement.conf (non versionné, contient les secrets).
 charger_configuration() {
-  local conf="${EDEN_SCRIPTS_DIR}/deploiement.conf"
+  local conf="${ROHAFYA_SCRIPTS_DIR}/deploiement.conf"
   if [[ -f "$conf" ]]; then
     # shellcheck source=/dev/null
     source "$conf"

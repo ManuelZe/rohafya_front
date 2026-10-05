@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Vérifie qu'EDEN fonctionne réellement en production (tests de fumée).
+#  Vérifie que ROHAFYA fonctionne réellement en production (tests de fumée).
 #
 #  Usage :
 #    bash Documentation/scripts/verifier-deploiement.sh                 # URL de deploiement.conf
-#    bash Documentation/scripts/verifier-deploiement.sh https://eden.pdmdsante.com 1.4.2
+#    bash Documentation/scripts/verifier-deploiement.sh https://rohafya.com 1.4.2
 #      (2e argument facultatif : version attendue)
 #
 #  Contrôles : certificat HTTPS, redirection HTTP->HTTPS, /healthz et version,
@@ -17,10 +17,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib-commun.sh"
 charger_configuration
 exiger_commandes curl jq
 
-URL="${1:-${EDEN_PUBLIC_URL:-}}"
+URL="${1:-${ROHAFYA_PUBLIC_URL:-}}"
 URL="${URL%/}"
 VERSION_ATTENDUE="${2:-}"
-[[ -n "$URL" ]] || erreur "Précisez l'URL publique (argument ou EDEN_PUBLIC_URL dans deploiement.conf)."
+[[ -n "$URL" ]] || erreur "Précisez l'URL publique (argument ou ROHAFYA_PUBLIC_URL dans deploiement.conf)."
 
 echecs=0
 echec() { printf '%s    ✖ %s%s\n' "${C_ROUGE}" "$*" "${C_RESET}" >&2; echecs=$((echecs + 1)); }
@@ -53,7 +53,7 @@ api_url="$(sed -n 's/.*"apiUrl":"\([^"]*\)".*/\1/p' <<<"$envjs")"
 if [[ -n "$api_url" ]]; then
   ok "API configurée : ${api_url}"
   if [[ "$URL" == https://* && "$api_url" != https://* ]]; then
-    echec "CONTENU MIXTE : EDEN est en HTTPS mais l'API est en HTTP (${api_url}) — le navigateur bloquera tous les appels."
+    echec "CONTENU MIXTE : ROHAFYA est en HTTPS mais l'API est en HTTP (${api_url}) — le navigateur bloquera tous les appels."
   fi
 else
   echec "/env.js ne contient pas d'apiUrl (variable API_URL absente de la stack ?) : ${envjs:-vide}"
@@ -86,7 +86,7 @@ if [[ -n "$api_url" ]]; then
   if [[ "$origine" == "$URL" || "$origine" == "*" ]]; then
     ok "CORS : l'API accepte l'origine ${URL}"
   else
-    echec "CORS : l'API n'autorise pas ${URL} (reçu : « ${origine:-aucun} »). Ajouter ce domaine dans CORS(origins=[...]) de DoctorAPI/__init__.py"
+    echec "CORS : l'API n'autorise pas ${URL} (reçu : « ${origine:-aucun} »). Ajouter ce domaine à ROHAFYA_FRONT_ORIGINS (API Rohafya, voir saas/constants.py) puis redémarrer l'API"
   fi
 fi
 

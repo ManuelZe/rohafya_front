@@ -39,10 +39,10 @@
   border-radius: 16px;
   overflow: hidden;
   background:
-    radial-gradient(420px 220px at 100% 0%, rgba(13, 148, 136, 0.12), transparent 70%),
+    radial-gradient(420px 220px at 100% 0%, rgba(16, 185, 129, 0.12), transparent 70%),
     linear-gradient(120deg, #ffffff 0%, #f3f7ff 100%);
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07);
-  border: 1px solid rgba(26, 84, 201, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.1);
 }
 
 .hero-ecg {
@@ -55,7 +55,7 @@
 
 .ecg-line {
   fill: none;
-  stroke: rgba(26, 84, 201, 0.12);
+  stroke: rgba(16, 185, 129, 0.12);
   stroke-width: 2.5;
   stroke-linejoin: round;
   stroke-linecap: round;
@@ -89,7 +89,7 @@
   margin: 0.15rem 0 0.35rem;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #15359e;
+  color: #0c4562;
 }
 
 .hero-summary {
@@ -128,8 +128,8 @@
 }
 
 .alert-info {
-  border-color: #c7d6f5;
-  background: #eef3fd;
+  border-color: #a7f3d0;
+  background: #f3fbf7;
 }
 
 .alert-icon {
@@ -144,8 +144,8 @@
 }
 
 .alert-info .alert-icon {
-  background: #dbe6fb;
-  color: #173a8a;
+  background: #ecfdf5;
+  color: #0c4562;
 }
 
 .alert-text {
@@ -190,7 +190,7 @@
 .tile-link:focus-visible,
 .card-link:focus-visible,
 .timeline-item:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 
@@ -228,13 +228,13 @@
 }
 
 .card-head h2 svg {
-  color: #1a54c9;
+  color: #047857;
 }
 
 .card-link {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #1a54c9;
+  color: #047857;
   text-decoration: none;
 }
 
@@ -301,7 +301,7 @@
 }
 
 .timeline-item:hover {
-  background: #f4f7fc;
+  background: #f3fbf7;
 }
 
 .kind {
@@ -314,18 +314,18 @@
 }
 
 .kind-Laboratoire {
-  background: #fdecec;
-  color: #b91c1c;
+  background: var(--rohafya-green-50);
+  color: var(--rohafya-green-700);
 }
 
 .kind-Imagerie {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: var(--rohafya-navy-100);
+  color: var(--rohafya-navy);
 }
 
 .kind-Exploration {
-  background: #e0f5f2;
-  color: #0f766e;
+  background: #e4eff4;
+  color: #1f6a8f;
 }
 
 .timeline-body {

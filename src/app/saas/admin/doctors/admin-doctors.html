@@ -1,5 +1,5 @@
 <div class="page">
-  <app-page-header title="Médecins" subtitle="Les médecins EDEN rattachés à votre établissement (prescripteurs, correspondants)." />
+  <app-page-header title="Médecins" subtitle="Les médecins ROHAFYA rattachés à votre établissement (prescripteurs, correspondants)." />
 
   <section class="card" aria-labelledby="add-doctor-title">
     <h2 class="card-title" id="add-doctor-title">
@@ -88,7 +88,7 @@
     <div class="overlay" (click)="confirm.set(null)">
       <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="remove-doctor-title" (click)="$event.stopPropagation()">
         <h2 id="remove-doctor-title">Retirer {{ doctor.name }} ?</h2>
-        <p class="muted">Le médecin garde son compte EDEN ; il n'apparaîtra simplement plus parmi les médecins de l'établissement.</p>
+        <p class="muted">Le médecin garde son compte ROHAFYA ; il n'apparaîtra simplement plus parmi les médecins de l'établissement.</p>
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" (click)="confirm.set(null)">Annuler</button>
           <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="removing()">{{ removing() ? 'Retrait…' : 'Retirer' }}</button>

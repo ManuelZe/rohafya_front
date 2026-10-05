@@ -9,7 +9,7 @@ import unicodedata
 import pdfplumber
 
 # Dictionnaire des analyses : synonymes rencontrés dans les comptes rendus et unités acceptées,
-# avec le facteur de conversion vers l'unité de référence d'EDEN.
+# avec le facteur de conversion vers l'unité de référence de ROHAFYA.
 ANALYSES = {
     "HB": {"libelle": "Hémoglobine", "synonymes": ["hemoglobine", "hb", "hgb"],
            "unite": "g/dl", "unites": {"g/dl": 1.0, "g/l": 0.1}},

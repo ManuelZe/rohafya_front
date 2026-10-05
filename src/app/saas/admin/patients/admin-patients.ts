@@ -105,7 +105,7 @@ export class AdminPatients {
       next: (token) => {
         this.issuing.set(null);
         if (token.already_linked) {
-          this.notice.set(`Le dossier ${row.local_ref} est déjà rattaché à un compte EDEN : aucun QR code n'est nécessaire.`);
+          this.notice.set(`Le dossier ${row.local_ref} est déjà rattaché à un compte ROHAFYA : aucun QR code n'est nécessaire.`);
         } else {
           this.ticket.set(token);
         }

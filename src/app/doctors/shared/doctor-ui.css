@@ -5,11 +5,11 @@
   --doc-border: #e2e8f0;
   --doc-surface: #ffffff;
   --doc-soft: #f4f6fa;
-  --doc-primary: #1a54c9;
-  --doc-primary-soft: #eaf0fc;
+  --doc-primary: #047857;
+  --doc-primary-soft: #ecfdf5;
   --doc-success: #137a36;
   --doc-danger: #b91c1c;
-  --series-prescription: #2a78d6;
+  --series-prescription: #0c4562;
   --series-realisation: #eb6834;
   display: block;
   color: var(--doc-text);
@@ -91,7 +91,7 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #15359e;
+  background: #065f46;
 }
 
 .btn-ghost {
@@ -108,7 +108,7 @@
 .segmented button:focus-visible,
 .chip:focus-visible,
 .link:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 
@@ -276,8 +276,8 @@
 
 .banner-info {
   background: var(--doc-primary-soft);
-  border-color: #c7d6f5;
-  color: #173a8a;
+  border-color: #a7f3d0;
+  color: #0c4562;
 }
 
 .banner-success {

@@ -1,10 +1,10 @@
 <div class="page">
-  <app-page-header title="Intégration" subtitle="Comment votre logiciel envoie les résultats et factures à EDEN." />
+  <app-page-header title="Intégration" subtitle="Comment votre logiciel envoie les résultats et factures à ROHAFYA." />
 
   @if (isGnuHealth()) {
     <div class="banner banner-info" role="status">
       <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>Cet établissement est relié directement à GNU Health : EDEN lit les données en direct, aucune intégration n'est nécessaire.</span>
+      <span>Cet établissement est relié directement à GNU Health : ROHAFYA lit les données en direct, aucune intégration n'est nécessaire.</span>
     </div>
   } @else {
     <section class="card" aria-labelledby="access-title">
@@ -19,7 +19,7 @@
           <dt>Clé d'API</dt>
           <dd class="mono">{{ context.tenant()?.api_key_hint ? '••••••' + context.tenant()?.api_key_hint : 'Aucune' }}</dd>
         </div>
-        <div><dt>En-tête HTTP</dt><dd class="mono">X-EDEN-API-Key</dd></div>
+        <div><dt>En-tête HTTP</dt><dd class="mono">X-ROHAFYA-API-Key</dd></div>
       </dl>
 
       @if (newKey(); as key) {
@@ -55,7 +55,7 @@
         Envoyer les données
       </h2>
       <div class="segmented" role="group" aria-label="Méthode d'envoi">
-        <button type="button" [attr.aria-pressed]="method() === 'api'" (click)="method.set('api')">API EDEN</button>
+        <button type="button" [attr.aria-pressed]="method() === 'api'" (click)="method.set('api')">API ROHAFYA</button>
         <button type="button" [attr.aria-pressed]="method() === 'fhir'" (click)="method.set('fhir')">HL7 FHIR R4</button>
         <button type="button" [attr.aria-pressed]="method() === 'pdf'" [disabled]="!pdfEnabled" (click)="method.set('pdf')">
           Scan / PDF@if (!pdfEnabled) { <span class="soon-tag">prochainement</span> }
@@ -71,17 +71,17 @@
         <div [class.feature-off-inline]="!pdfEnabled" [attr.inert]="pdfEnabled ? null : ''">
         <p class="muted example-intro">
           Comptes rendus PDF (fichier ou scan) : déposez-les dans la page <a class="link" routerLink="/admin/imports-pdf">Imports PDF</a>,
-          ou envoyez-les depuis votre logiciel. EDEN en extrait les valeurs ; rien n'est publié avant votre relecture.
+          ou envoyez-les depuis votre logiciel. ROHAFYA en extrait les valeurs ; rien n'est publié avant votre relecture.
           Le nombre de fichiers est limité par période (voir Paramètres).
         </p>
         <pre class="code" tabindex="0" aria-label="Exemple d'envoi d'un compte rendu PDF">{{ pdfExample }}</pre>
         </div>
       } @else if (method() === 'api') {
         <p class="muted example-intro">
-          Format EDEN : les mêmes champs que les écrans patients (identiques aux données de la démo). Chaque envoi est une liste
+          Format ROHAFYA : les mêmes champs que les écrans patients (identiques aux données de la démo). Chaque envoi est une liste
           (500 éléments au maximum) ; renvoyer un élément avec le même code le met à jour.
         </p>
-        <pre class="code" tabindex="0" aria-label="Exemples d'appels à l'API EDEN">{{ edenExample }}</pre>
+        <pre class="code" tabindex="0" aria-label="Exemples d'appels à l'API ROHAFYA">{{ rohafyaExample }}</pre>
       } @else {
         <p class="muted example-intro">
           Standard HL7 FHIR R4 : un Bundle contenant les ressources Patient, DiagnosticReport (avec ses Observation) et Invoice.

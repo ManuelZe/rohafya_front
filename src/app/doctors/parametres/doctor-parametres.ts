@@ -8,7 +8,7 @@ import { PageHeader } from '../../patients/shared/page-header/page-header';
 import { DoctorProfileService } from '../doctor-profile.service';
 import { DoctorUpdatePayload } from '../doctor.models';
 import { extractErrorMessage } from '../shared/api-resource';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 type ProfileFormModel = DoctorUpdatePayload;
 type FieldName = keyof ProfileFormModel;
@@ -51,7 +51,7 @@ const PHONE_PATTERN = /^\+?[0-9 ]{8,15}$/;
 
 @Component({
   selector: 'app-doctor-parametres',
-  imports: [EdenLoader, RouterLink, FormField, FormRoot, PIcon, PageHeader],
+  imports: [RohafyaLoader, RouterLink, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './doctor-parametres.html',
   styleUrls: ['../shared/doctor-ui.css', './doctor-parametres.css'],
 })

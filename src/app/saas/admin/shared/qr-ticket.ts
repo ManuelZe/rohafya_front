@@ -63,7 +63,7 @@ import { IssuedLinkToken } from '../../saas.models';
       font-size: 1.6rem !important;
       font-weight: 800;
       letter-spacing: 0.2em;
-      color: #15359e;
+      color: #0c4562;
     }
     .expires {
       font-size: 0.82rem !important;

@@ -13,15 +13,15 @@ import { TenantContext } from '../tenant-context.service';
 type Method = 'api' | 'fhir' | 'pdf';
 
 /** Exemples d'envoi : même format que les données de la démo (src/app/demo/data/patient.json). */
-const EDEN_EXAMPLES = (base: string) => `# 1. Le patient (dossier local de l'établissement)
+const ROHAFYA_EXAMPLES = (base: string) => `# 1. Le patient (dossier local de l'établissement)
 curl -X POST ${base}ingest/v1/patients \\
-  -H "X-EDEN-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
   -d '[{"local_ref": "P-88-17", "first_name": "Aïcha", "last_name": "Ngono",
         "email": "aicha@exemple.com", "birth_date": "1988-04-12", "gender": "F"}]'
 
 # 2. Un résultat de laboratoire (champs identiques à la démo) et ses valeurs
 curl -X POST ${base}ingest/v1/laboratoire \\
-  -H "X-EDEN-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
   -d '[{"local_ref": "P-88-17", "name": "LAB-0412", "test": "Numération Formule Sanguine",
         "validation_date": "2026-09-27T09:00:00", "requestor": "Dr Paul Ekané",
         "validated_by": "Dr Martin Owona", "diagnosis": "Anémie légère",
@@ -30,7 +30,7 @@ curl -X POST ${base}ingest/v1/laboratoire \\
 
 # 3. Une facture et ses lignes
 curl -X POST ${base}ingest/v1/factures \\
-  -H "X-EDEN-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
   -d '[{"local_ref": "P-88-17", "reference": "FAC-2026-0105", "date": "2026-09-27",
         "state": "posted", "total_amount2": 42500, "untaxed_amount": 42500,
         "amount_to_pay_today": 12750, "montant_patient": 12750, "montant_assurance": "29750",
@@ -38,18 +38,18 @@ curl -X POST ${base}ingest/v1/factures \\
 
 # 4. Le QR code à imprimer sur la facture (url + code court ; ?qr=1 ajoute l'image PNG)
 curl -X POST "${base}ingest/v1/link-tokens?qr=1" \\
-  -H "X-EDEN-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
   -d '{"local_ref": "P-88-17"}'
 
 # Autres types : imagerie (clé « number »), exploration (clé « name »).
 # Retirer un envoi erroné : DELETE ${base}ingest/v1/laboratoire/LAB-0412`;
 
 const PDF_EXAMPLE = (base: string) => `curl -X POST ${base}ingest/v1/pdf \\
-  -H "X-EDEN-API-Key: VOTRE_CLE" \\
+  -H "X-ROHAFYA-API-Key: VOTRE_CLE" \\
   -F "file=@compte-rendu.pdf" -F "local_ref=P-88-17"`;
 
 const FHIR_EXAMPLE = (base: string) => `curl -X POST ${base}fhir/r4 \\
-  -H "X-EDEN-API-Key: VOTRE_CLE" -H "Content-Type: application/fhir+json" \\
+  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/fhir+json" \\
   -d '{
   "resourceType": "Bundle", "type": "transaction",
   "entry": [
@@ -93,7 +93,7 @@ export class AdminIntegration {
     const source = this.context.tenant()?.source_type;
     return source === 'fhir' || source === 'pdf' ? source : 'api';
   });
-  readonly edenExample = EDEN_EXAMPLES(environment.apiUrl);
+  readonly rohafyaExample = ROHAFYA_EXAMPLES(environment.apiUrl);
   readonly fhirExample = FHIR_EXAMPLE(environment.apiUrl);
   readonly pdfExample = PDF_EXAMPLE(environment.apiUrl);
 

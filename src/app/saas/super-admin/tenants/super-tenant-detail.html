@@ -149,7 +149,7 @@
         } @else {
           <dl class="facts">
             <div><dt>Clé actuelle</dt><dd class="mono">{{ t.api_key_hint ? '••••••' + t.api_key_hint : 'Aucune' }}</dd></div>
-            <div><dt>En-tête HTTP</dt><dd class="mono">X-EDEN-API-Key</dd></div>
+            <div><dt>En-tête HTTP</dt><dd class="mono">X-ROHAFYA-API-Key</dd></div>
           </dl>
           @if (newKey(); as key) {
             <div class="secret notice">
@@ -259,7 +259,7 @@
         </h2>
         <p class="muted small-note first">
           La suppression efface définitivement les données reçues de l'établissement, ses rattachements, ses QR codes, ses imports PDF
-          et ses administrateurs. Les comptes EDEN des patients et des médecins sont conservés. Pour une interruption temporaire,
+          et ses administrateurs. Les comptes ROHAFYA des patients et des médecins sont conservés. Pour une interruption temporaire,
           décochez plutôt « Établissement actif ».
         </p>
         <div class="form-actions">
@@ -319,7 +319,7 @@
     <div class="overlay" (click)="removeAdminTarget.set(null)">
       <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="remove-admin-title" (click)="$event.stopPropagation()">
         <h2 id="remove-admin-title">Retirer {{ admin.email }} ?</h2>
-        <p class="muted">Cette personne n'aura plus accès à l'administration de l'établissement. Son compte EDEN est conservé.</p>
+        <p class="muted">Cette personne n'aura plus accès à l'administration de l'établissement. Son compte ROHAFYA est conservé.</p>
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" (click)="removeAdminTarget.set(null)">Annuler</button>
           <button type="button" class="btn btn-danger" (click)="removeAdmin()">Retirer</button>

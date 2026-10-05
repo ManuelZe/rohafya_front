@@ -133,7 +133,7 @@
         "totalNet": { "value": 18000, "currency": "XAF" },
         "totalGross": { "value": 18000, "currency": "XAF" },
         "extension": [
-          { "url": "https://eden.pdmdsante.com/fhir/StructureDefinition/amount-due", "valueMoney": { "value": 18000, "currency": "XAF" } }
+          { "url": "https://rohafya.com/fhir/StructureDefinition/amount-due", "valueMoney": { "value": 18000, "currency": "XAF" } }
         ],
         "lineItem": [{ "chargeItemCodeableConcept": { "text": "Bilan lipidique" } }]
       }

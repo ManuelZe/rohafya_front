@@ -6,7 +6,7 @@ Le médecin reçoit les résultats que ses patients lui partagent, quel que soit
 l'établissement qui les a produits. Pour l'établissement GNU Health (PDMD Santé),
 il suit aussi ses commissions si ce module est activé.
 
-Espace : https://eden.pdmdsante.com/doctors
+Espace : https://rohafya.com/doctors
 
 
 1. AVOIR UN COMPTE MÉDECIN
@@ -18,19 +18,19 @@ espace (page « Médecins » de l'administration) avec son matricule ou son e-ma
 
 2. SE CONNECTER AVEC SON E-MAIL (RECOMMANDÉ)
 --------------------------------------------
-  1. https://eden.pdmdsante.com/connexion, onglet « Code par e-mail ».
+  1. https://rohafya.com/connexion, onglet « Code par e-mail ».
   2. Adresse e-mail du profil médecin > « Recevoir un code ».
   3. Code à 6 chiffres reçu (valable 10 minutes) > « Se connecter ».
-  4. EDEN ouvre directement l'espace /doctors.
+  4. ROHAFYA ouvre directement l'espace /doctors.
 
-Condition : l'e-mail ne doit être utilisé que par un seul compte EDEN.
+Condition : l'e-mail ne doit être utilisé que par un seul compte ROHAFYA.
 
 
 3. SE CONNECTER AVEC SON IDENTIFIANT ET SON MOT DE PASSE
 --------------------------------------------------------
   1. Onglet « Mot de passe », cliquer sur « Patient » (seul bouton affiché ; il
      active la connexion), saisir identifiant et mot de passe, « Se connecter ».
-  2. EDEN ouvre /doctors. Si le compte est aussi patient, il ouvre l'espace
+  2. ROHAFYA ouvre /doctors. Si le compte est aussi patient, il ouvre l'espace
      patient : utilisez alors la connexion par code (section 2), qui donne la
      priorité à l'espace médecin.
   Identifiants oubliés : « Mot de passe oublié? », saisir son matricule ; de
@@ -57,7 +57,7 @@ CNI, téléphones, e-mail) et les enregistrer : tout l'espace se débloque.
 
 Un médecin qui est aussi patient ouvre son espace patient avec le bouton
 « Mon espace patient » en bas de la barre latérale ; pour revenir, aller à
-l'adresse https://eden.pdmdsante.com/doctors.
+l'adresse https://rohafya.com/doctors.
 
 
 6. DÉPANNAGE

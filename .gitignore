@@ -43,7 +43,7 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Déploiement EDEN : secrets et journaux locaux (voir Documentation/)
+# Déploiement ROHAFYA : secrets et journaux locaux (voir Documentation/)
 Documentation/scripts/deploiement.conf
 Documentation/scripts/historique-deploiements.log
 *.env

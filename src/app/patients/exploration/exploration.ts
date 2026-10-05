@@ -8,13 +8,13 @@ import { StatusTag } from '../shared/status-tag/status-tag';
 import { ShareExamDialog } from '../shared/share-exam-dialog/share-exam-dialog';
 import { ExplorationLab } from '../patients.models';
 import { ExpirationFilter, isWithinDateRange, matchesExpirationFilter } from '../shared/exam-filters';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES DONNÉES.';
 
 @Component({
   selector: 'app-exploration',
-  imports: [EdenLoader, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
+  imports: [RohafyaLoader, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
   templateUrl: './exploration.html',
   styleUrl: './exploration.css',
   host: {

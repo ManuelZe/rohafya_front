@@ -1,7 +1,7 @@
 import { Service, computed, inject, signal } from '@angular/core';
 import { SaasAccountService } from '../saas-account.service';
 
-const STORAGE_KEY = 'edenAdminTenant';
+const STORAGE_KEY = 'rohafyaAdminTenant';
 
 function readStored(): number | null {
   try {

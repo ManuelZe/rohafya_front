@@ -4,7 +4,7 @@
 
 Objectif : lire un compte rendu d'analyses au format PDF (envoyé par un
 laboratoire qui n'a ni API ni FHIR), en tirer des valeurs fiables (analyse,
-valeur, unité, normes, hors norme) et les publier dans EDEN au format attendu
+valeur, unité, normes, hors norme) et les publier dans ROHAFYA au format attendu
 par /ingest/v1/laboratoire.
 
 La règle d'or : UNE VALEUR FAUSSE EST PIRE QU'UNE VALEUR ABSENTE. Tout ce qui
@@ -76,7 +76,7 @@ changement de logiciel chez un laboratoire casse silencieusement l'extraction.
     ├─ 5. Tout est vert ?  ── non ──► fichier « à relire » pour un humain,
     │                                 rien n'est publié
     │
-    └─ 6. Envoi à EDEN : POST /ingest/v1/laboratoire (clé d'API), en gardant
+    └─ 6. Envoi à ROHAFYA : POST /ingest/v1/laboratoire (clé d'API), en gardant
           le PDF d'origine et la trace de l'extraction
 
 
@@ -94,7 +94,7 @@ Fichier : exemples/extraire_regles.py
       « hemoglobine 10.9 * g/dl 12.0 - 16.0 »
 
 4.3 Reconnaître l'analyse grâce à un DICTIONNAIRE (le cœur du dispositif)
-    Pour chaque analyse : ses synonymes, l'unité de référence d'EDEN et les
+    Pour chaque analyse : ses synonymes, l'unité de référence de ROHAFYA et les
     unités acceptées avec leur facteur de conversion :
       HB  : « hemoglobine », « hb », « hgb »    -> g/dl   (g/l x 0,1)
       GLY : « glycemie », « glucose »           -> g/l    (mmol/l x 0,18)
@@ -226,7 +226,7 @@ Pour détecter les régressions avant les patients :
   exemples/pont_ia.py          sortie « recopiée » de l'IA -> analyseur B
   exemples/extraire_ia.py      appel à Claude (NON exécuté ici : nécessite une
                                clé Anthropic et l'accord du §6.3)
-  exemples/pipeline.py         chaîne complète, envoi à EDEN ou fichier
+  exemples/pipeline.py         chaîne complète, envoi à ROHAFYA ou fichier
                                « .a_relire.json »
 
 Installation (dans un environnement Python dédié) :
@@ -239,14 +239,14 @@ Essais :
   python extraire_regles.py labo_alpha.pdf labo_beta.pdf
   python valider.py
   python pont_ia.py
-  export EDEN_API_URL=... EDEN_API_KEY=...
+  export ROHAFYA_API_URL=... ROHAFYA_API_KEY=...
   python pipeline.py labo_alpha.pdf LAB-CLB-1201 "NFS et glycémie"
 
 Résultats constatés lors des essais :
   - les deux PDF donnent les MÊMES 5 valeurs (hémoglobine et VGM hors norme),
     la glycémie de BETA étant convertie de 5,2 mmol/L en 0,936 g/L ;
   - dossier CLB-0001 et date 2026-09-28 lus dans les deux en-têtes ;
-  - pipeline.py publie ALPHA et BETA dans EDEN (HTTP 200) ; un compte rendu
+  - pipeline.py publie ALPHA et BETA dans ROHAFYA (HTTP 200) ; un compte rendu
     contenant une ferritine (absente du dictionnaire) part en relecture ;
   - valider.py rejette deux valeurs inventées (215 et 640 plaquettes et
     leucocytes) et corrige un « hors norme » oublié.
@@ -256,14 +256,14 @@ Pour un usage réel, il doit être établi et validé par un biologiste (libell�
 unités, facteurs de conversion, bornes plausibles).
 
 
-9. INTÉGRATION DANS EDEN
+9. INTÉGRATION DANS ROHAFYA
 ------------------------
-Cette chaîne est maintenant INTÉGRÉE à EDEN (méthode « Scan / PDF de
+Cette chaîne est maintenant INTÉGRÉE à ROHAFYA (méthode « Scan / PDF de
 résultats ») :
   - dépôt : page /admin/imports-pdf, ou POST /ingest/v1/pdf avec la clé d'API
     (voir connexion/05_LOGICIEL_ETABLISSEMENT.txt, 3 bis) ;
-  - extraction côté serveur : DoctorAPI/saas/pdf_extraction.py (règles et
-    contrôles de cette fiche), dictionnaire DoctorAPI/saas/analyses_pdf.json ;
+  - extraction côté serveur : Rohafya/saas/pdf_extraction.py (règles et
+    contrôles de cette fiche), dictionnaire Rohafya/saas/analyses_pdf.json ;
   - IA en repli : seulement si ANTHROPIC_API_KEY est configurée ET que le
     super-administrateur l'a autorisée pour l'établissement ;
   - relecture humaine obligatoire : PDF d'origine à côté des valeurs, points à
@@ -271,6 +271,6 @@ résultats ») :
   - quota : nombre de fichiers par période, réglé par le super-administrateur
     (par défaut 10 par jour).
 La solution a) reste possible : un service chez l'établissement lit les PDF et
-appelle l'API EDEN (c'est ce que fait pipeline.py).
+appelle l'API ROHAFYA (c'est ce que fait pipeline.py).
 Interventions : « pip install pdfplumber » sur le serveur de l'API, et faire
 valider analyses_pdf.json par un biologiste avant usage réel.

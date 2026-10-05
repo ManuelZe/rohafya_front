@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 100vh;
-  background: var(--eden-auth-bg);
+  background: var(--rohafya-auth-bg);
   overflow: hidden;
 }
 
@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: #002D9C;
+  background: #0c4562;
 }
 
 .future-medical {
@@ -47,19 +47,19 @@
 }
 
 .heart-icon {
-  fill: #ff6b9d;
-  filter: drop-shadow(0 0 10px rgba(255, 107, 157, 0.5));
+  fill: #10b981;
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
   animation: pulse 2s ease-in-out infinite;
 }
 
 .data-point {
-  fill: #00d4ff;
-  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
+  fill: #34d399;
+  filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));
   animation: float 3s ease-in-out infinite;
 }
 
 .connection-line {
-  stroke: rgba(0, 212, 255, 0.6);
+  stroke: rgba(52, 211, 153, 0.6);
   stroke-width: 1.5;
   animation: glow 2s ease-in-out infinite;
 }
@@ -145,10 +145,10 @@
 }
 
 .user-type-btn.active {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #047857;
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
   color: var(--color-surface);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .btn-icon {
@@ -187,7 +187,7 @@
 }
 
 .login-mode button:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 
@@ -221,9 +221,9 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #047857;
   background: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .form-input::placeholder {
@@ -272,12 +272,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(26, 84, 201, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
 .submit-btn:disabled {
@@ -392,15 +392,15 @@
 @keyframes pulse {
   0% {
     transform: scale(1);
-    filter: drop-shadow(0 0 10px rgba(255, 107, 157, 0.5));
+    filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
   }
   50% {
     transform: scale(1.1);
-    filter: drop-shadow(0 0 15px rgba(255, 107, 157, 0.8));
+    filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8));
   }
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 10px rgba(255, 107, 157, 0.5));
+    filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
   }
 }
 

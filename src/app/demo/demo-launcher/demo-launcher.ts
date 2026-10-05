@@ -31,7 +31,7 @@ const CHOICES: DemoChoice[] = [
 
     <dialog #dialog class="demo-dialog" aria-labelledby="demo-dialog-title" aria-describedby="demo-dialog-desc" (close)="error.set(null)">
       <div class="demo-dialog__header">
-        <h2 id="demo-dialog-title">Découvrir EDEN en démo</h2>
+        <h2 id="demo-dialog-title">Découvrir ROHAFYA en démo</h2>
         <button type="button" class="demo-dialog__close" aria-label="Fermer" (click)="close()">&times;</button>
       </div>
 

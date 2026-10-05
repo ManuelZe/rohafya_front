@@ -61,11 +61,11 @@
       <app-kpi-tile
         [label]="type() === 'invoiced' ? 'Total facturé' : 'Total non facturé'"
         icon="wallet"
-        accent="#1a54c9"
+        accent="#0c4562"
         [value]="totalValue()"
         [loading]="month.loading() && !month.data()"
       />
-      <app-kpi-tile label="Commissions" icon="list" accent="#0d9488" [value]="commissionsValue()" [loading]="month.loading() && !month.data()" />
+      <app-kpi-tile label="Commissions" icon="list" accent="#047857" [value]="commissionsValue()" [loading]="month.loading() && !month.data()" />
       <app-kpi-tile label="Patients" icon="users" accent="#b45309" [value]="patientsValue()" [loading]="month.loading() && !month.data()" />
     </section>
 

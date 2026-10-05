@@ -34,8 +34,8 @@
 }
 
 .ref-badge {
-  background-color: #eef2ff;
-  color: #4f46e5;
+  background-color: #ecfdf5;
+  color: #047857;
   padding: 0.25rem 0.6rem;
   border-radius: 4px;
   font-size: 0.85rem;
@@ -211,7 +211,7 @@
 }
 
 .products-table tbody tr:hover td {
-  background: #eef2ff;
+  background: #ecfdf5;
 }
 
 .no-products {

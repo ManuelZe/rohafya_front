@@ -50,10 +50,10 @@
     </div>
   } @else {
     <section class="kpis" aria-label="Synthèse de la période" [class.is-refreshing]="period.refreshing()">
-      <app-kpi-tile label="Total" icon="wallet" accent="#1a54c9" [value]="totalValue()" [loading]="period.loading() && !period.data()" />
-      <app-kpi-tile label="Commissions" icon="list" accent="#0d9488" [value]="countValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile label="Total" icon="wallet" accent="#0c4562" [value]="totalValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile label="Commissions" icon="list" accent="#047857" [value]="countValue()" [loading]="period.loading() && !period.data()" />
       <app-kpi-tile label="Patients" icon="users" accent="#b45309" [value]="patientsValue()" [loading]="period.loading() && !period.data()" />
-      <app-kpi-tile label="Moyenne / commission" icon="calculator" accent="#6d28d9" [value]="averageValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile label="Moyenne / commission" icon="calculator" accent="#1f6a8f" [value]="averageValue()" [loading]="period.loading() && !period.data()" />
     </section>
 
     @if (period.data()) {

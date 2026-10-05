@@ -1,7 +1,7 @@
 <div class="page">
   <app-page-header
     title="Rattachements"
-    subtitle="Les comptes EDEN reliés à vos dossiers. Un rattachement est en attente quand l'e-mail du compte diffère de celui du dossier."
+    subtitle="Les comptes ROHAFYA reliés à vos dossiers. Un rattachement est en attente quand l'e-mail du compte diffère de celui du dossier."
   />
 
   <section class="card">
@@ -40,7 +40,7 @@
           <thead>
             <tr>
               <th scope="col">Patient</th>
-              <th scope="col">Compte EDEN</th>
+              <th scope="col">Compte ROHAFYA</th>
               <th scope="col">Dossier</th>
               <th scope="col">Méthode</th>
               <th scope="col">Date</th>
@@ -52,7 +52,7 @@
             @for (link of items(); track link.id) {
               <tr>
                 <td data-label="Patient" class="strong">{{ link.patient_name || '—' }}</td>
-                <td data-label="Compte EDEN">{{ link.patient_email || '—' }}</td>
+                <td data-label="Compte ROHAFYA">{{ link.patient_email || '—' }}</td>
                 <td data-label="Dossier" class="mono">
                   <a class="link" [routerLink]="['/admin/patients', link.local_ref]">{{ link.local_ref }}</a>
                 </td>

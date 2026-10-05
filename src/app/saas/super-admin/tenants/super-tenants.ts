@@ -21,7 +21,7 @@ export class SuperTenants {
   private readonly router = inject(Router);
 
   readonly sourceLabels = SOURCE_LABELS;
-  /** GNU Health est réservé à l'établissement historique : on ne propose que l'API EDEN et FHIR. */
+  /** GNU Health est réservé à l'établissement historique : on ne propose que l'API ROHAFYA et FHIR. */
   readonly sources: SourceType[] = ['api', 'fhir', 'pdf'];
 
   readonly tenants = signal<TenantWithStats[] | null>(null);

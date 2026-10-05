@@ -2,24 +2,24 @@ import { Component, DestroyRef, PLATFORM_ID, inject, signal } from '@angular/cor
 import { isPlatformBrowser } from '@angular/common';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { EdenMark } from '../eden-mark/eden-mark';
+import { RohafyaMark } from '../rohafya-mark/rohafya-mark';
 
 /** En dessous de ce délai, la navigation est jugée instantanée : aucun indicateur (évite le clignotement). */
 const SHOW_DELAY_MS = 200;
 
 /**
  * Indicateur de navigation global : barre de progression PrimeNG en haut de l'écran
- * et pastille EDEN animée pendant le chargement d'une page (modules différés, guards, profils…).
+ * et pastille ROHAFYA animée pendant le chargement d'une page (modules différés, guards, profils…).
  */
 @Component({
   selector: 'app-route-loader',
-  imports: [ProgressBarModule, EdenMark],
+  imports: [ProgressBarModule, RohafyaMark],
   template: `
     @if (visible()) {
       <div class="route-loader" role="status" aria-live="polite">
         <p-progressbar mode="indeterminate" styleClass="route-bar" [style]="{ height: '3px' }" />
         <div class="pill">
-          <app-eden-mark [size]="22" />
+          <app-rohafya-mark [size]="22" />
           <span>Chargement de la page…</span>
         </div>
       </div>
@@ -34,7 +34,7 @@ const SHOW_DELAY_MS = 200;
     }
     :host ::ng-deep .route-bar {
       border-radius: 0;
-      background: rgba(26, 84, 201, 0.12);
+      background: rgba(16, 185, 129, 0.12);
     }
     .pill {
       position: fixed;

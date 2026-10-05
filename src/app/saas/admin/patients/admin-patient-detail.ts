@@ -84,7 +84,7 @@ export class AdminPatientDetail {
       next: (token) => {
         this.busy.set(false);
         if (token.already_linked) {
-          this.notice.set('Ce dossier est déjà rattaché à un compte EDEN.');
+          this.notice.set('Ce dossier est déjà rattaché à un compte ROHAFYA.');
         } else {
           this.ticket.set(token);
           this.load();

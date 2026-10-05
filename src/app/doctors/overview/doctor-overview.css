@@ -233,12 +233,12 @@
 }
 
 .result:hover {
-  border-color: #b8c7e8;
+  border-color: #a7f3d0;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
 
 .result:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 

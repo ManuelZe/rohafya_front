@@ -10,7 +10,7 @@ import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
 const PAGE_SIZE = 25;
-const SOURCE_LABELS: Record<string, string> = { api: 'API EDEN', fhir: 'FHIR', admin: 'Saisie', pdf: 'PDF' };
+const SOURCE_LABELS: Record<string, string> = { api: 'API ROHAFYA', fhir: 'FHIR', admin: 'Saisie', pdf: 'PDF' };
 
 @Component({
   selector: 'app-admin-records',

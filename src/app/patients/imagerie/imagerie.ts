@@ -8,13 +8,13 @@ import { StatusTag } from '../shared/status-tag/status-tag';
 import { ShareExamDialog } from '../shared/share-exam-dialog/share-exam-dialog';
 import { ExamenImagerie } from '../patients.models';
 import { ExpirationFilter, isWithinDateRange, matchesExpirationFilter } from '../shared/exam-filters';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES DONNÉES.';
 
 @Component({
   selector: 'app-imagerie',
-  imports: [EdenLoader, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
+  imports: [RohafyaLoader, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
   templateUrl: './imagerie.html',
   styleUrl: './imagerie.css',
   host: {

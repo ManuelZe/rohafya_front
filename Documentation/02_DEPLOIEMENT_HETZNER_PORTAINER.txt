@@ -1,14 +1,14 @@
 ================================================================================
-          EDEN — DÉPLOIEMENT SUR SERVEUR HETZNER AVEC DOCKER ET PORTAINER CE
+          ROHAFYA — DÉPLOIEMENT SUR SERVEUR HETZNER AVEC DOCKER ET PORTAINER CE
 ================================================================================
 
 Document  : 02_DEPLOIEMENT_HETZNER_PORTAINER.txt
 Public    : responsable du déploiement / administrateur système
 Prérequis : avoir lu 01_VERSIONNAGE_GIT.txt (le déploiement repose sur les tags Git)
-Contexte  : EDEN est une application Angular 22 avec rendu serveur (SSR). Elle
+Contexte  : ROHAFYA est une application Angular 22 avec rendu serveur (SSR). Elle
             s'exécute dans un conteneur Docker (serveur Node.js) sur un serveur
             Hetzner, administré avec Portainer CE. Elle appelle l'API Flask
-            (DoctorAPI) depuis le navigateur des utilisateurs.
+            Rohafya (dépôt « Rohafya ») depuis le navigateur des utilisateurs.
 
 Convention : les valeurs à remplacer sont notées en MAJUSCULES entre < >.
              Exemple : <IP_SERVEUR> = adresse IPv4 du serveur Hetzner.
@@ -22,7 +22,7 @@ SOMMAIRE
   1.  Informations et accès à réunir avant de commencer
   2.  Accès sécurisé au serveur (SSH, tunnel vers Portainer)
   3.  Préparation et sécurisation du serveur Hetzner
-  4.  L'image Docker d'EDEN : ce qu'elle contient, la tester en local
+  4.  L'image Docker de ROHAFYA : ce qu'elle contient, la tester en local
   5.  Registre d'images (GitHub Container Registry) et accès depuis Portainer
   6.  Nom de domaine, HTTPS et reverse proxy (Nginx Proxy Manager)
   7.  Prérequis côté API Flask (HTTPS, CORS)
@@ -32,6 +32,7 @@ SOMMAIRE
   11. Revenir à la version précédente (rollback)
   12. Environnement de préproduction (recommandé)
   13. Listes de contrôle (avant / après chaque mise en production)
+  14. Passage d'EDEN à ROHAFYA sur une installation existante
   Annexe A. Contenu du dossier Documentation
   Annexe B. Variables de configuration du conteneur
 
@@ -42,29 +43,29 @@ SOMMAIRE
 
   POSTE DÉVELOPPEUR                GITHUB                         SERVEUR HETZNER
   ──────────────────               ──────                         ───────────────
-  release.sh ──(tag vX.Y.Z)──►  dépôt eden-app
+  release.sh ──(tag vX.Y.Z)──►  dépôt rohafya
                                     │ GitHub Actions
                                     ▼
                                tests + build
                                     │
                                     ▼
-                          ghcr.io/…/eden-app:X.Y.Z ──(pull)──►  Portainer CE
-                                                                  │ stack « eden-production »
+                          ghcr.io/…/rohafya:X.Y.Z ──(pull)──►   Portainer CE
+                                                                  │ stack « rohafya-production »
   deployer-portainer.sh ──(API Portainer, via tunnel SSH)──►       ▼
-                                                              conteneur eden-app (Node, port 4000)
+                                                              conteneur rohafya (Node, port 4000)
                                                                   ▲  réseau Docker « proxy »
   NAVIGATEUR ──HTTPS 443──► Nginx Proxy Manager (certificat Let's Encrypt) ──┘
       │
-      └──HTTPS──► API Flask DoctorAPI (appels directs du navigateur : CORS)
+      └──HTTPS──► API Flask Rohafya (appels directs du navigateur : CORS)
 
 Principes :
-  - Une version = une image immuable eden-app:X.Y.Z. On ne modifie JAMAIS un conteneur
+  - Une version = une image immuable rohafya:X.Y.Z. On ne modifie JAMAIS un conteneur
     à la main : on déploie une autre image.
   - La configuration (URL de l'API, domaines) est fournie AU DÉMARRAGE du conteneur
     par des variables d'environnement : la même image sert en préproduction et en
     production, et changer l'URL de l'API ne nécessite pas de reconstruire.
   - Seuls les ports 80/443 (proxy) et 22 (SSH) sont ouverts sur Internet.
-    Portainer et le conteneur EDEN ne sont joignables que depuis le serveur lui-même.
+    Portainer et le conteneur ROHAFYA ne sont joignables que depuis le serveur lui-même.
   - Le conteneur exécute l'application en utilisateur non-root, système de fichiers en
     lecture seule, mémoire limitée à 512 Mo, journaux limités.
 
@@ -90,7 +91,7 @@ Cocher chaque ligne avant de passer à la suite :
                         serveur$ cat /etc/os-release
   [ ] Ressources minimales : 2 vCPU, 4 Go de RAM, 40 Go de disque (type CX22 ou mieux)
   [ ] Accès administrateur à Portainer CE (déjà installé) et son URL/port (souvent 9443)
-  [ ] <DOMAINE_EDEN>    nom de domaine public d'EDEN, ex. eden.pdmdsante.com
+  [ ] <DOMAINE_ROHAFYA>  nom de domaine public de ROHAFYA, ex. rohafya.com
   [ ] Accès à la zone DNS du domaine (registrar ou Hetzner DNS) pour créer un enregistrement
   [ ] <URL_API>         URL HTTPS de l'API Flask, ex. https://site.pdmdsante.com/
                         (voir étape 7 : l'API DOIT être en HTTPS)
@@ -119,14 +120,14 @@ Outils sur VOTRE poste :
     poste$ ssh-copy-id root@<IP_SERVEUR>
 
 2.3 Raccourci de connexion (confort) : ajouter dans ~/.ssh/config sur votre poste
-        Host eden
+        Host rohafya
             HostName <IP_SERVEUR>
             User deploy
             IdentityFile ~/.ssh/id_ed25519
             # tunnels vers Portainer et Nginx Proxy Manager (étapes 5, 6, 10)
             LocalForward 9443 127.0.0.1:9443
             LocalForward 8181 127.0.0.1:81
-    Ensuite :  poste$ ssh eden   (l'utilisateur « deploy » est créé à l'étape 3)
+    Ensuite :  poste$ ssh rohafya  (l'utilisateur « deploy » est créé à l'étape 3)
 
 2.4 Tunnel SSH vers Portainer (méthode d'accès recommandée)
     Portainer ne doit PAS être ouvert sur Internet : on y accède à travers SSH.
@@ -146,7 +147,7 @@ Outils sur VOTRE poste :
 
 3.1 Instantané de sécurité AVANT toute modification
     Hetzner Cloud Console > Servers > <votre serveur> > Snapshots > Take snapshot
-    (nom : avant-preparation-eden). Permet de tout annuler en cas de problème.
+    (nom : avant-preparation-rohafya). Permet de tout annuler en cas de problème.
     Serveur dédié (Hetzner Robot) : sauvegarder /etc et la liste des conteneurs.
 
 3.2 Exécuter le script de préparation (idempotent : ré-exécutable sans risque)
@@ -161,7 +162,7 @@ Outils sur VOTRE poste :
       5. active le pare-feu UFW : SSH, 80, 443 seulement ;
       6. active fail2ban (bannit les IP qui attaquent SSH) et les mises à jour de sécurité ;
       7. désactive la connexion SSH par mot de passe (seulement si une clé est en place) ;
-      8. crée le réseau Docker « proxy » partagé par le reverse proxy et EDEN ;
+      8. crée le réseau Docker « proxy » partagé par le reverse proxy et ROHAFYA ;
       9. laisse Portainer tel quel s'il existe (sinon l'installe, en local uniquement).
 
     À la fin, AVANT de fermer la session root, dans un AUTRE terminal :
@@ -174,30 +175,30 @@ Outils sur VOTRE poste :
     Docker insère ses propres règles réseau et CONTOURNE UFW pour les ports publiés.
     Le pare-feu Hetzner, lui, filtre AVANT que le trafic n'atteigne le serveur.
 
-    Hetzner Cloud Console > Firewalls > Create Firewall > nom « eden-web »
+    Hetzner Cloud Console > Firewalls > Create Firewall > nom « rohafya-web »
       Règles entrantes (Inbound) :
         ICMP         Any IPv4 / Any IPv6       (ping, diagnostic)
         TCP 22       <VOTRE_IP_FIXE>/32 si possible, sinon Any   (SSH)
         TCP 80       Any IPv4 / Any IPv6       (HTTP -> redirection HTTPS, Let's Encrypt)
         TCP 443      Any IPv4 / Any IPv6       (HTTPS)
-      AUCUNE règle pour 9443 (Portainer), 81 (admin proxy), 4000 (EDEN).
+      AUCUNE règle pour 9443 (Portainer), 81 (admin proxy), 4000 (ROHAFYA).
       Apply to > Servers > <votre serveur> > Create Firewall.
     Serveur dédié (Robot) : robot.hetzner.com > Server > Firewall, mêmes règles.
 
     Vérification depuis votre poste (doivent échouer / expirer) :
     poste$ curl -k --max-time 5 https://<IP_SERVEUR>:9443      # Portainer : fermé
-    poste$ curl --max-time 5 http://<IP_SERVEUR>:4000           # EDEN direct : fermé
+    poste$ curl --max-time 5 http://<IP_SERVEUR>:4000           # ROHAFYA direct : fermé
 
 3.4 Sauvegardes automatiques du serveur
     Hetzner Cloud Console > Servers > <serveur> > Backups > Enable backups
     (7 sauvegardes quotidiennes glissantes, +20 % du prix du serveur).
-    EDEN lui-même ne stocke aucune donnée (tout est dans l'API) ; ce qui doit être
+    ROHAFYA lui-même ne stocke aucune donnée (tout est dans l'API) ; ce qui doit être
     sauvegardé est la configuration : Portainer, Nginx Proxy Manager (certificats) —
     voir 03_EXPLOITATION_ET_DEPANNAGE.txt, section 3.
 
 
 ================================================================================
-4. L'IMAGE DOCKER D'EDEN : CE QU'ELLE CONTIENT, LA TESTER EN LOCAL
+4. L'IMAGE DOCKER DE ROHAFYA : CE QU'ELLE CONTIENT, LA TESTER EN LOCAL
 ================================================================================
 
 4.1 Fichiers
@@ -208,25 +209,25 @@ Outils sur VOTRE poste :
     1. deps    : npm ci — dépendances exactes de package-lock.json (mise en cache) ;
     2. build   : ng build --configuration production (navigateur + serveur SSR + pages
                  pré-rendues) ;
-    3. runtime : image finale node:24-alpine contenant UNIQUEMENT dist/eden_app
+    3. runtime : image finale node:24-alpine contenant UNIQUEMENT dist/rohafya
                  (~180 Mo), utilisateur « node » (non-root), tini (arrêt propre),
                  fuseau Africa/Douala, contrôle de santé /healthz toutes les 30 s.
     Étiquettes intégrées : version, commit Git, date de construction.
 
 4.3 Tester l'image sur votre poste (facultatif mais recommandé avant la 1re mise en ligne)
-    poste$ cd <dossier>/eden_app
+    poste$ cd <dossier>/rohafya_front
     poste$ docker build -f Documentation/docker/Dockerfile \
-             --build-arg APP_VERSION=0.0.0-local -t eden-app:local .
+             --build-arg APP_VERSION=0.0.0-local -t rohafya:local .
            (5 à 10 minutes la première fois)
-    poste$ docker run -d --name eden-local -p 127.0.0.1:4000:4000 \
+    poste$ docker run -d --name rohafya-local -p 127.0.0.1:4000:4000 \
              -e API_URL=https://site.pdmdsante.com/ \
-             -e NG_ALLOWED_HOSTS=localhost eden-app:local
+             -e NG_ALLOWED_HOSTS=localhost rohafya:local
     poste$ curl http://localhost:4000/healthz
            -> {"status":"ok","version":"0.0.0-local",...}
     poste$ curl http://localhost:4000/env.js
-           -> window.__EDEN_ENV__ = {"apiUrl":"https://site.pdmdsante.com/","version":"0.0.0-local"};
+           -> window.__ROHAFYA_ENV__ = {"apiUrl":"https://site.pdmdsante.com/","version":"0.0.0-local"};
     Navigateur : http://localhost:4000/intro
-    Nettoyage : poste$ docker rm -f eden-local
+    Nettoyage : poste$ docker rm -f rohafya-local
 
     Résultats obtenus lors de la validation de cette documentation :
       image 178 Mo, conteneur « healthy », ~36 Mo de RAM au repos, démarrage < 5 s,
@@ -238,7 +239,7 @@ Outils sur VOTRE poste :
 5. REGISTRE D'IMAGES (GITHUB CONTAINER REGISTRY) ET ACCÈS DEPUIS PORTAINER
 ================================================================================
 
-Les images sont publiées par GitHub Actions sur : ghcr.io/<organisation>/eden-app
+Les images sont publiées par GitHub Actions sur : ghcr.io/<organisation>/rohafya
 (privé). Le serveur doit pouvoir les TÉLÉCHARGER : on donne à Portainer un jeton
 en lecture seule.
 
@@ -263,15 +264,15 @@ en lecture seule.
     Portainer utilisera automatiquement ces identifiants pour toute image ghcr.io/…
 
 5.3 Vérifier (après la première release, document 01 section 9)
-    serveur$ docker pull ghcr.io/<organisation>/eden-app:1.0.0
+    serveur$ docker pull ghcr.io/<organisation>/rohafya:1.0.0
     Si « unauthorized » depuis la ligne de commande, c'est normal : seul Portainer
     connaît le jeton. Test équivalent :
     serveur$ echo <JETON> | docker login ghcr.io -u <COMPTE> --password-stdin
-    serveur$ docker pull ghcr.io/<organisation>/eden-app:1.0.0 && docker logout ghcr.io
+    serveur$ docker pull ghcr.io/<organisation>/rohafya:1.0.0 && docker logout ghcr.io
 
 Alternative sans GitHub : Docker Hub (compte + dépôt privé) ou registre auto-hébergé.
-Remplacer alors ghcr.io/<organisation>/eden-app par l'adresse du registre dans
-EDEN_IMAGE (stack) et dans Documentation/scripts/deploiement.conf.
+Remplacer alors ghcr.io/<organisation>/rohafya par l'adresse du registre dans
+ROHAFYA_IMAGE (stack) et dans Documentation/scripts/deploiement.conf.
 
 
 ================================================================================
@@ -280,20 +281,25 @@ EDEN_IMAGE (stack) et dans Documentation/scripts/deploiement.conf.
 
 Pourquoi un reverse proxy : il reçoit tout le trafic 80/443, gère le certificat HTTPS
 (Let's Encrypt, renouvelé automatiquement), redirige HTTP vers HTTPS et transmet les
-requêtes au conteneur EDEN. Nginx Proxy Manager (NPM) s'administre avec une interface
+requêtes au conteneur ROHAFYA. Nginx Proxy Manager (NPM) s'administre avec une interface
 web, comme Portainer.
 
 SI UN REVERSE PROXY EXISTE DÉJÀ SUR LE SERVEUR (Traefik, Nginx, Caddy…) : ne pas
 installer NPM (conflit sur les ports 80/443). Relier ce proxy au réseau Docker « proxy »
-et créer une règle <DOMAINE_EDEN> -> http://eden-app-production:4000, avec transmission
+et créer une règle <DOMAINE_ROHAFYA> -> http://rohafya-production:4000, avec transmission
 des en-têtes Host et X-Forwarded-*. Passer ensuite à l'étape 7.
     Vérifier : serveur$ sudo ss -ltnp | grep -E ':80 |:443 '
 
 6.1 Enregistrement DNS (à faire en premier : la propagation peut prendre du temps)
-    Chez le gestionnaire du domaine :
-      Type A     Nom : eden     Valeur : <IP_SERVEUR>     TTL : 300
+    rohafya.com est un domaine racine (et non plus un sous-domaine comme l'ancien
+    eden.pdmdsante.com). Chez le gestionnaire du domaine rohafya.com :
+      Type A     Nom : @ (racine)  Valeur : <IP_SERVEUR>     TTL : 300
+      Type A     Nom : preprod     Valeur : <IP_SERVEUR>     TTL : 300   (si préproduction)
       (Type AAAA vers l'IPv6 du serveur si elle est utilisée)
-    Vérifier : poste$ dig +short <DOMAINE_EDEN>      -> doit afficher <IP_SERVEUR>
+    Pour servir aussi www.rohafya.com : ajouter « Type CNAME  Nom : www  Valeur :
+    rohafya.com », puis le déclarer dans ROHAFYA_DOMAINS, dans le Proxy Host NPM
+    (8.6) et dans ROHAFYA_FRONT_ORIGINS côté API (7.2).
+    Vérifier : poste$ dig +short <DOMAINE_ROHAFYA>      -> doit afficher <IP_SERVEUR>
 
 6.2 Déployer Nginx Proxy Manager dans Portainer
     Portainer > Stacks > + Add stack
@@ -310,14 +316,14 @@ des en-têtes Host et X-Forwarded-*. Passer ensuite à l'étape 7.
     assistant de création du compte. Définir immédiatement un e-mail et un mot de
     passe robuste (stockés dans le gestionnaire de mots de passe de l'équipe).
 
-    La règle de proxy pour EDEN se crée APRÈS le premier démarrage d'EDEN (étape 8.6).
+    La règle de proxy pour ROHAFYA se crée APRÈS le premier démarrage de ROHAFYA (étape 8.6).
 
 
 ================================================================================
 7. PRÉREQUIS CÔTÉ API FLASK (HTTPS, CORS)
 ================================================================================
 
-EDEN (dans le navigateur) appelle l'API Flask directement. Deux conditions, sans
+ROHAFYA (dans le navigateur) appelle l'API Flask directement. Deux conditions, sans
 lesquelles la page s'affiche mais AUCUNE donnée ne se charge :
 
 7.1 L'API doit être servie en HTTPS
@@ -329,14 +335,42 @@ lesquelles la page s'affiche mais AUCUNE donnée ne se charge :
     http://<IP_API>:1236, certificat Let's Encrypt, Force SSL), puis utiliser
     https://api.pdmdsante.com/ comme <URL_API>.
 
-7.2 L'API doit autoriser le domaine d'EDEN (CORS)
-    Fichier DoctorAPI/DoctorAPI/__init__.py, appel CORS(...) :
-        origins=["http://localhost:4200", "http://localhost:8081", "https://eden.pdmdsante.com"]
-    Le domaine exact <DOMAINE_EDEN>, avec https:// et sans « / » final, doit y figurer.
-    Si vous utilisez un autre domaine (ou la préproduction), l'ajouter et redémarrer l'API.
+7.2 L'API doit autoriser le domaine de ROHAFYA (CORS)
+    La liste des fronts autorisés est définie à UN seul endroit de l'API Rohafya :
+    Rohafya/saas/constants.py, DEFAULT_FRONT_ORIGINS :
+        https://rohafya.com
+        https://preprod.rohafya.com
+        http://localhost:4000      (rendu serveur en local : npm run serve:ssr:rohafya)
+        http://localhost:4200      (ng serve)
+    Elle peut être remplacée sans toucher au code par la variable d'environnement
+    ROHAFYA_FRONT_ORIGINS du conteneur de l'API (liste séparée par des virgules) :
+        ROHAFYA_FRONT_ORIGINS=https://rohafya.com,https://www.rohafya.com,http://localhost:4000
+    Chaque origine s'écrit avec son schéma (https://) et sans « / » final.
+    Rohafya/__init__.py passe cette liste à CORS(...) (et ajoute http://localhost:8081).
+    Après modification : redémarrer l'API.
 
-7.3 Contrôle automatique : le script verifier-deploiement.sh (étape 8.7) teste ces deux
-    points et indique précisément quoi corriger.
+7.3 Liens absolus envoyés par l'API (QR codes, e-mails)
+    Les QR codes de rattachement (<front>/l/<jeton>) et les liens des e-mails pointent
+    vers le front D'OÙ VIENT LA DEMANDE : si l'en-tête Origin de la requête figure dans
+    la liste de 7.2, l'API l'utilise tel quel. Ainsi :
+      - un QR code généré depuis http://localhost:4000 ouvre http://localhost:4000/l/… ;
+      - un QR code généré depuis https://rohafya.com ouvre https://rohafya.com/l/….
+    Une origine absente de la liste n'est jamais reprise (pas de détournement possible).
+    Les envois machine à machine (logiciel de l'établissement : /ingest, /fhir), qui
+    n'ont pas d'en-tête Origin, utilisent ROHAFYA_FRONT_URL (variable du conteneur de
+    l'API, défaut https://rohafya.com ; l'ancien nom EDEN_FRONT_URL est encore lu).
+    Côté front, aucune URL n'est codée en dur : les redirections internes restent
+    toujours sur le domaine courant.
+
+7.4 L'API doit être à jour
+    La console super-admin utilise des routes récentes (ex. suppression d'un
+    établissement : DELETE /saas/super/tenants/<id>). Une API plus ancienne que le
+    front répond « 405 METHOD NOT ALLOWED ». Vérifier les méthodes acceptées :
+      poste$ curl -s -i -X OPTIONS <URL_API>saas/super/tenants/1 | grep -i '^allow'
+             -> doit contenir DELETE
+
+7.5 Contrôle automatique : le script verifier-deploiement.sh (étape 8.7) teste les
+    points 7.1 et 7.2 et indique précisément quoi corriger.
 
 
 ================================================================================
@@ -352,54 +386,54 @@ et 10) ; workflows installés (document 01, 4.7).
     poste$ bash Documentation/scripts/release.sh 1.0.0
 
 8.2 Suivre la construction de l'image
-    GitHub > dépôt eden-app > onglet Actions > workflow « Release » (v1.0.0)
+    GitHub > dépôt rohafya > onglet Actions > workflow « Release » (v1.0.0)
     Attendre les coches vertes : Vérifications, Image Docker 1.0.0, Release GitHub.
-    Contrôle : GitHub > Packages > eden-app > étiquette « 1.0.0 » présente.
+    Contrôle : GitHub > Packages > rohafya > étiquette « 1.0.0 » présente.
     En cas d'échec : cliquer sur l'étape en rouge et lire le message (03, section 5).
 
-8.3 Créer la stack EDEN dans Portainer
+8.3 Créer la stack ROHAFYA dans Portainer
     Tunnel ouvert (2.4) > https://localhost:9443 > environnement « local » (ou le nom
     de votre environnement Docker) > Stacks > + Add stack
-      Name          : eden-production       (ce nom est utilisé par les scripts)
+      Name          : rohafya-production    (ce nom est utilisé par les scripts)
       Build method  : Web editor
-      Web editor    : coller Documentation/portainer/eden-stack.yml
+      Web editor    : coller Documentation/portainer/rohafya-stack.yml
       Environment variables : cliquer « Advanced mode », coller le contenu de
-        Documentation/portainer/eden-stack.env.example en l'adaptant :
-          EDEN_ENV=production
-          EDEN_IMAGE=ghcr.io/<organisation>/eden-app
-          EDEN_VERSION=1.0.0
+        Documentation/portainer/rohafya-stack.env.example en l'adaptant :
+          ROHAFYA_ENV=production
+          ROHAFYA_IMAGE=ghcr.io/<organisation>/rohafya
+          ROHAFYA_VERSION=1.0.0
           API_URL=<URL_API>                (HTTPS, avec « / » final)
-          EDEN_DOMAINS=<DOMAINE_EDEN>
-          EDEN_HTTP_PORT=4000
+          ROHAFYA_DOMAINS=<DOMAINE_ROHAFYA>
+          ROHAFYA_HTTP_PORT=4000
           TZ=Africa/Douala
     > Deploy the stack
     Portainer télécharge l'image (quelques dizaines de secondes).
 
 8.4 Vérifier le conteneur
-    Portainer > Containers > eden-app-production
+    Portainer > Containers > rohafya-production
       État « running », puis « healthy » après ~30 s (colonne Status).
-      Onglet « Logs » : « EDEN 1.0.0 — serveur Node Express à l'écoute sur http://localhost:4000 »
+      Onglet « Logs » : « ROHAFYA 1.0.0 — serveur Node Express à l'écoute sur http://localhost:4000 »
     En ligne de commande :
     serveur$ curl -s http://127.0.0.1:4000/healthz
              -> {"status":"ok","version":"1.0.0",...}
 
     Message « Allowing all hosts via "*" is a security risk » dans les logs = la
-    variable EDEN_DOMAINS n'est pas prise en compte : revoir 8.3.
+    variable ROHAFYA_DOMAINS n'est pas prise en compte : revoir 8.3.
 
-8.5 Vérifier que EDEN et NPM partagent le réseau
+8.5 Vérifier que ROHAFYA et NPM partagent le réseau
     Portainer > Networks > proxy : les conteneurs nginx-proxy-manager ET
-    eden-app-production doivent apparaître.
+    rohafya-production doivent apparaître.
 
-8.6 Publier EDEN sur son domaine (Nginx Proxy Manager, tunnel 6.3 ouvert)
+8.6 Publier ROHAFYA sur son domaine (Nginx Proxy Manager, tunnel 6.3 ouvert)
     http://localhost:8181 > Hosts > Proxy Hosts > Add Proxy Host
       Onglet « Details »
-        Domain Names           : <DOMAINE_EDEN>
+        Domain Names           : <DOMAINE_ROHAFYA>
         Scheme                 : http
-        Forward Hostname / IP  : eden-app-production      (nom du conteneur)
+        Forward Hostname / IP  : rohafya-production       (nom du conteneur)
         Forward Port           : 4000
         [ ] Cache Assets   [x] Block Common Exploits   [ ] Websockets Support
         (« Cache Assets » DOIT rester décoché : il mettrait en cache /env.js, qui est
-         généré dynamiquement ; le serveur EDEN gère déjà le cache des fichiers statiques.)
+         généré dynamiquement ; le serveur ROHAFYA gère déjà le cache des fichiers statiques.)
       Onglet « SSL »
         SSL Certificate        : Request a new SSL Certificate
         [x] Force SSL   [x] HTTP/2 Support   [x] HSTS Enabled
@@ -407,13 +441,13 @@ et 10) ; workflows installés (document 01, 4.7).
         [x] I Agree to the Let's Encrypt Terms of Service
     > Save. Le certificat est obtenu en ~30 s (le DNS de 6.1 doit déjà pointer
       vers le serveur et le port 80 être ouvert, étape 3.3).
-    Navigateur : https://<DOMAINE_EDEN>  -> écran de démarrage EDEN puis accueil.
+    Navigateur : https://<DOMAINE_ROHAFYA>  -> écran de démarrage ROHAFYA puis accueil.
 
 8.7 Contrôles automatiques de bout en bout (sur votre poste)
     poste$ cp Documentation/scripts/deploiement.conf.example Documentation/scripts/deploiement.conf
     poste$ chmod 600 Documentation/scripts/deploiement.conf
-    Éditer deploiement.conf (au minimum EDEN_PUBLIC_URL=https://<DOMAINE_EDEN>), puis :
-    poste$ bash Documentation/scripts/verifier-deploiement.sh https://<DOMAINE_EDEN> 1.0.0
+    Éditer deploiement.conf (au minimum ROHAFYA_PUBLIC_URL=https://<DOMAINE_ROHAFYA>), puis :
+    poste$ bash Documentation/scripts/verifier-deploiement.sh https://<DOMAINE_ROHAFYA> 1.0.0
     Tous les contrôles doivent être « ✔ ». Chaque « ✖ » indique la correction à faire
     (certificat, redirection HTTPS, version, URL de l'API, CORS, en-têtes…).
 
@@ -425,6 +459,10 @@ et 10) ; workflows installés (document 01, 4.7).
     [ ] Notifications : bouton « Retour »
     [ ] Déconnexion
     [ ] Sur téléphone (affichage mobile, menu latéral)
+    [ ] Identité visuelle : logo ROHAFYA sur l'écran de démarrage, logo « croix + RH »
+        dans l'en-tête de l'accueil, favicon dans l'onglet, couleurs vert/marine
+    [ ] Admin d'établissement > QR codes : le lien généré commence par https://<DOMAINE_ROHAFYA>/l/
+    [ ] Super-admin : suppression d'un établissement de test (pas de « 405 », voir 7.4)
     [ ] Console du navigateur (F12) : aucune erreur rouge « CORS » ou « Mixed Content »
 
 8.9 Consigner : date, version 1.0.0, personne, résultat des contrôles
@@ -449,7 +487,7 @@ et 10) ; workflows installés (document 01, 4.7).
 
 9.2 Jeton d'API Portainer (nécessaire aux scripts de déploiement)
     Portainer > menu utilisateur (en haut à droite) > My account > Access tokens >
-    + Add access token > description « deploiement-eden » > copier le jeton ptr_…
+    + Add access token > description « deploiement-rohafya » > copier le jeton ptr_…
     Le reporter dans Documentation/scripts/deploiement.conf (PORTAINER_API_KEY).
     Idéalement : créer dans Portainer un utilisateur « deploiement » dédié, avec les
     droits limités à l'environnement concerné, et générer le jeton sur ce compte.
@@ -471,8 +509,8 @@ et 10) ; workflows installés (document 01, 4.7).
       Secrets (environnement production) :
         PORTAINER_URL        = https://portainer.pdmdsante.com
         PORTAINER_API_KEY    = ptr_…
-        PORTAINER_STACK_NAME = eden-production
-      Variables : DEPLOY_AUTO = true, EDEN_PUBLIC_URL = https://<DOMAINE_EDEN>
+        PORTAINER_STACK_NAME = rohafya-production
+      Variables : DEPLOY_AUTO = true, ROHAFYA_PUBLIC_URL = https://<DOMAINE_ROHAFYA>
       Environnement « production » avec « Required reviewers » : le déploiement attend
       un clic d'approbation dans GitHub.
     Compromis : plus rapide, mais Portainer (qui contrôle tout le serveur) devient
@@ -484,12 +522,12 @@ et 10) ; workflows installés (document 01, 4.7).
 9.4 Webhook Portainer : Portainer CE propose, pour certaines stacks, une URL de
     « webhook » de redéploiement. Elle ne permet PAS de choisir la version (elle
     redéploie la même configuration) : l'API utilisée par deployer-portainer.sh est
-    préférée car elle change EDEN_VERSION de façon traçable.
+    préférée car elle change ROHAFYA_VERSION de façon traçable.
 
 9.5 Ce qui n'est volontairement PAS automatisé
     - La décision de mettre en production (approbation humaine).
     - Les mises à jour automatiques d'image type « Watchtower » : elles
-      déploieraient sans contrôle ni traçabilité. À ne pas installer pour EDEN.
+      déploieraient sans contrôle ni traçabilité. À ne pas installer pour ROHAFYA.
 
 
 ================================================================================
@@ -510,13 +548,13 @@ et 10) ; workflows installés (document 01, 4.7).
        poste$ ssh -N -L 9443:127.0.0.1:9443 deploy@<IP_SERVEUR>          # terminal 1
        poste$ bash Documentation/scripts/deployer-portainer.sh --statut   # version actuelle
        poste$ bash Documentation/scripts/deployer-portainer.sh X.Y.Z      # déploiement
-       Le script : change EDEN_VERSION, redéploie avec téléchargement de l'image,
-       attend que https://<DOMAINE_EDEN>/healthz annonce X.Y.Z, puis consigne
+       Le script : change ROHAFYA_VERSION, redéploie avec téléchargement de l'image,
+       attend que https://<DOMAINE_ROHAFYA>/healthz annonce X.Y.Z, puis consigne
        l'opération dans Documentation/scripts/historique-deploiements.log.
 
     c) Manuellement dans Portainer :
-       Stacks > eden-production > onglet « Editor » > Environment variables :
-       modifier EDEN_VERSION=X.Y.Z > « Update the stack » > activer
+       Stacks > rohafya-production > onglet « Editor » > Environment variables :
+       modifier ROHAFYA_VERSION=X.Y.Z > « Update the stack » > activer
        « Re-pull image and redeploy » > Update.
        NE PAS modifier le fichier de la stack à cette occasion.
 
@@ -555,19 +593,20 @@ Ensuite :
 
 Tester une version sur le vrai serveur, avec la même image, avant la production.
 
-    1. DNS : preprod-eden.pdmdsante.com -> <IP_SERVEUR> (type A)
-    2. Portainer > Stacks > + Add stack « eden-preprod », même fichier eden-stack.yml,
+    1. DNS : preprod.rohafya.com -> <IP_SERVEUR> (type A)
+    2. Portainer > Stacks > + Add stack « rohafya-preprod », même fichier rohafya-stack.yml,
        variables :
-         EDEN_ENV=preprod           EDEN_HTTP_PORT=4001
-         EDEN_VERSION=1.3.0-rc.1    EDEN_DOMAINS=preprod-eden.pdmdsante.com
+         ROHAFYA_ENV=preprod        ROHAFYA_HTTP_PORT=4001
+         ROHAFYA_VERSION=1.3.0-rc.1  ROHAFYA_DOMAINS=preprod.rohafya.com
          API_URL=<URL de l'API de test si elle existe, sinon <URL_API>>
-    3. NPM : Proxy Host preprod-eden.pdmdsante.com -> eden-app-preprod:4000 (+ SSL),
+    3. NPM : Proxy Host preprod.rohafya.com -> rohafya-preprod:4000 (+ SSL),
        idéalement protégé par une « Access List » (mot de passe) dans NPM.
-    4. API Flask : ajouter https://preprod-eden.pdmdsante.com à la liste CORS.
+    4. API Flask : https://preprod.rohafya.com figure déjà dans la liste par défaut (7.2) ;
+       à ajouter seulement si ROHAFYA_FRONT_ORIGINS est définie sur l'API.
     5. Pré-versions depuis develop (document 01, section 8), déploiement avec
-       PORTAINER_STACK_NAME=eden-preprod (variable d'environnement ou second fichier
+       PORTAINER_STACK_NAME=rohafya-preprod (variable d'environnement ou second fichier
        de configuration) :
-         PORTAINER_STACK_NAME=eden-preprod EDEN_PUBLIC_URL=https://preprod-eden.pdmdsante.com \
+         PORTAINER_STACK_NAME=rohafya-preprod ROHAFYA_PUBLIC_URL=https://preprod.rohafya.com \
            bash Documentation/scripts/deployer-portainer.sh 1.3.0-rc.1
     Attention : si la préproduction utilise l'API de PRODUCTION, les actions faites en
     préproduction (requêtes, suggestions…) modifient de vraies données.
@@ -598,8 +637,70 @@ UNE FOIS (MISE EN PLACE)
   [ ] Portainer accessible uniquement par tunnel SSH
   [ ] Registre GHCR déclaré dans Portainer (jeton read:packages, date d'expiration notée)
   [ ] DNS + NPM + certificat HTTPS + Force SSL + HSTS
-  [ ] API en HTTPS et domaine EDEN dans la liste CORS
+  [ ] API en HTTPS, à jour (7.4), domaine ROHAFYA dans ROHAFYA_FRONT_ORIGINS (7.2)
   [ ] Points de vigilance de 03_EXPLOITATION_ET_DEPANNAGE.txt, section 6, traités
+
+
+================================================================================
+14. PASSAGE D'EDEN À ROHAFYA SUR UNE INSTALLATION EXISTANTE
+================================================================================
+
+L'application s'appelait EDEN (eden_app). Tout ce qui portait ce nom a été renommé
+ROHAFYA. Une installation déjà en service sous l'ancien nom continue de fonctionner
+tant qu'on ne la touche pas ; pour passer au nouveau nom, suivre les étapes dans
+l'ordre. Durée : ~30 minutes, coupure de quelques secondes (étape 5).
+
+14.1 Correspondance des noms
+  Ancien                               Nouveau
+  -----------------------------------  ------------------------------------------
+  projet Angular eden_app              rohafya (build : dist/rohafya)
+  image ghcr.io/<org>/eden-app         ghcr.io/<org>/rohafya
+  stack eden-production / eden-preprod rohafya-production / rohafya-preprod
+  conteneur eden-app-<env>             rohafya-<env>
+  variables de stack EDEN_*            ROHAFYA_VERSION, ROHAFYA_IMAGE, ROHAFYA_ENV,
+                                       ROHAFYA_DOMAINS, ROHAFYA_HTTP_PORT
+  variable GitHub EDEN_PUBLIC_URL      ROHAFYA_PUBLIC_URL
+  portainer/eden-stack.yml             portainer/rohafya-stack.yml
+  domaine eden.pdmdsante.com           rohafya.com
+  domaine preprod-eden.pdmdsante.com   preprod.rohafya.com
+  window.__EDEN_ENV__ (/env.js)        window.__ROHAFYA_ENV__
+  en-tête X-EDEN-API-Key               X-ROHAFYA-API-Key (l'ancien reste accepté)
+  variable API EDEN_FRONT_URL          ROHAFYA_FRONT_URL (l'ancienne reste lue)
+
+14.2 Étapes
+  1. GitHub : renommer le dépôt en « rohafya » (Settings > General > Repository
+     name ; GitHub redirige l'ancienne adresse). Settings > Secrets and variables >
+     Actions : créer ROHAFYA_PUBLIC_URL = https://rohafya.com et supprimer
+     EDEN_PUBLIC_URL ; si le secret PORTAINER_STACK_NAME existe, le passer à
+     rohafya-production.
+  2. Publier une version (release.sh, document 01 section 9) : le workflow publie
+     l'image sous le NOUVEAU nom ghcr.io/<org>/rohafya, puis lier ce paquet au dépôt
+     (document 01, 10.5). Les anciennes images eden-app restent sur le registre.
+  3. DNS (6.1) et API (7.2 à 7.4 : origines autorisées, ROHAFYA_FRONT_URL, API à
+     jour). Redéployer l'API si nécessaire.
+  4. Poste de déploiement : refaire deploiement.conf à partir de
+     deploiement.conf.example (variables ROHAFYA_*, PORTAINER_STACK_NAME=
+     rohafya-production) en reprenant les secrets de l'ancien fichier.
+  5. Portainer : arrêter l'ancienne stack (Stacks > eden-production > Stop : les
+     deux stacks ne peuvent pas publier le même port), puis créer
+     « rohafya-production » comme en 8.3, en reprenant les valeurs de l'ancienne
+     stack sous les nouveaux noms (ROHAFYA_DOMAINS=rohafya.com).
+  6. NPM : Proxy Host rohafya.com -> rohafya-production:4000 avec certificat (8.6).
+     L'ancien Proxy Host eden.pdmdsante.com : le remplacer par une redirection
+     permanente (Hosts > Redirection Hosts, code 301) vers https://rohafya.com, pour
+     ne pas casser les liens et QR codes déjà imprimés.
+  7. Contrôler : verifier-deploiement.sh https://rohafya.com X.Y.Z, puis recette 8.8.
+     Retour arrière : arrêter rohafya-production, redémarrer eden-production.
+  8. Après quelques jours sans incident : supprimer la stack eden-production.
+
+14.3 Effets visibles pour les utilisateurs
+  - Le domaine change : prévenir les utilisateurs et garder la redirection (étape 6).
+  - Nouveau logo, nouveau favicon, couleurs vert/marine (README.md, « Charte
+    graphique »).
+  - Les sessions de démonstration ouvertes avant la mise à jour sont fermées (préfixe
+    du jeton de démo renommé) ; les sessions réelles ne sont pas touchées.
+  - Les administrateurs d'établissement doivent choisir à nouveau leur établissement,
+    une seule fois (clé de stockage local renommée).
 
 
 ================================================================================
@@ -614,8 +715,8 @@ ANNEXE A. CONTENU DU DOSSIER Documentation
   docker/Dockerfile                        recette de l'image
   docker/Dockerfile.dockerignore           exclusions du contexte de build
 
-  portainer/eden-stack.yml                 stack EDEN à coller dans Portainer
-  portainer/eden-stack.env.example         variables de la stack (modèle)
+  portainer/rohafya-stack.yml              stack ROHAFYA à coller dans Portainer
+  portainer/rohafya-stack.env.example      variables de la stack (modèle)
   portainer/nginx-proxy-manager-stack.yml  stack du reverse proxy HTTPS
 
   serveur/preparation-serveur-hetzner.sh   préparation/sécurisation du serveur
@@ -643,13 +744,13 @@ ANNEXE B. VARIABLES DE CONFIGURATION DU CONTENEUR
 
   Variable (stack)   Transmise au conteneur        Rôle
   ----------------   ----------------------        ----------------------------------
-  EDEN_VERSION       (étiquette de l'image)        version déployée, ex. 1.4.2
-  EDEN_IMAGE         (nom de l'image)              ghcr.io/<organisation>/eden-app
-  EDEN_ENV           (nom du conteneur)            production | preprod
+  ROHAFYA_VERSION    (étiquette de l'image)        version déployée, ex. 1.4.2
+  ROHAFYA_IMAGE      (nom de l'image)              ghcr.io/<organisation>/rohafya
+  ROHAFYA_ENV        (nom du conteneur)            production | preprod
   API_URL            API_URL                       URL HTTPS de l'API Flask, « / » final
-  EDEN_DOMAINS       NG_ALLOWED_HOSTS              domaine(s) autorisés, séparés par « , »
+  ROHAFYA_DOMAINS    NG_ALLOWED_HOSTS              domaine(s) autorisés, séparés par « , »
   —                  NG_TRUST_PROXY_HEADERS        en-têtes du proxy pris en compte (fixe)
-  EDEN_HTTP_PORT     (port publié sur 127.0.0.1)   4000 (production), 4001 (préprod)
+  ROHAFYA_HTTP_PORT  (port publié sur 127.0.0.1)   4000 (production), 4001 (préprod)
   TZ                 TZ                            Africa/Douala
   —                  APP_VERSION                   intégrée à l'image (renvoyée par /healthz)
 

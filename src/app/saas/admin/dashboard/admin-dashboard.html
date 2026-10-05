@@ -19,10 +19,10 @@
   }
 
   <div class="kpis">
-    <app-kpi-tile label="Patients connus" icon="users" accent="#1a54c9" [value]="(data()?.patients_known ?? 0).toString()" hint="Dossiers reçus de l'établissement" [loading]="loading() && !data()" [error]="!!error() && !data()" />
-    <app-kpi-tile label="Rattachés à EDEN" icon="link" accent="#137a36" [value]="(data()?.links_active ?? 0).toString()" hint="Voient leurs résultats en ligne" [loading]="loading() && !data()" [error]="!!error() && !data()" />
+    <app-kpi-tile label="Patients connus" icon="users" accent="#0c4562" [value]="(data()?.patients_known ?? 0).toString()" hint="Dossiers reçus de l'établissement" [loading]="loading() && !data()" [error]="!!error() && !data()" />
+    <app-kpi-tile label="Rattachés à ROHAFYA" icon="link" accent="#137a36" [value]="(data()?.links_active ?? 0).toString()" hint="Voient leurs résultats en ligne" [loading]="loading() && !data()" [error]="!!error() && !data()" />
     <app-kpi-tile label="En attente" icon="clock" accent="#b45309" [value]="(data()?.links_pending ?? 0).toString()" hint="Rattachements à valider" [loading]="loading() && !data()" [error]="!!error() && !data()" />
-    <app-kpi-tile label="QR codes actifs" icon="qrcode" accent="#6d28d9" [value]="(data()?.tokens_active ?? 0).toString()" hint="Remis, pas encore scannés" [loading]="loading() && !data()" [error]="!!error() && !data()" />
+    <app-kpi-tile label="QR codes actifs" icon="qrcode" accent="#1f6a8f" [value]="(data()?.tokens_active ?? 0).toString()" hint="Remis, pas encore scannés" [loading]="loading() && !data()" [error]="!!error() && !data()" />
   </div>
 
   @if (data(); as d) {

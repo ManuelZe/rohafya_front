@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Construit l'image Docker d'EDEN et la publie sur le registre (sans CI).
+#  Construit l'image Docker de ROHAFYA et la publie sur le registre (sans CI).
 #  À utiliser si GitHub Actions n'est pas disponible. En temps normal, c'est la CI
 #  qui fait ce travail au push d'un tag (voir 02_DEPLOIEMENT_HETZNER_PORTAINER.txt).
 #
@@ -9,7 +9,7 @@
 #    bash Documentation/scripts/build-push.sh --no-push  # construit seulement (test local)
 #
 #  Règle : seule une version taguée (vX.Y.Z) peut être publiée. Cela garantit
-#  que l'image « eden-app:X.Y.Z » correspond EXACTEMENT au code du tag vX.Y.Z.
+#  que l'image « rohafya:X.Y.Z » correspond EXACTEMENT au code du tag vX.Y.Z.
 # =============================================================================
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib-commun.sh"
@@ -17,10 +17,10 @@ charger_configuration
 
 PUSH=1
 [[ "${1:-}" == "--no-push" ]] && PUSH=0
-EDEN_IMAGE="${EDEN_IMAGE:-ghcr.io/pdmdsante/eden-app}"
+ROHAFYA_IMAGE="${ROHAFYA_IMAGE:-ghcr.io/pdmdsante/rohafya}"
 
 exiger_commandes git docker
-cd "$EDEN_ROOT"
+cd "$ROHAFYA_ROOT"
 
 etape "1. Identification de la version"
 [[ -z "$(git status --porcelain)" ]] || erreur "Modifications non commitées : l'image ne correspondrait à aucun commit."
@@ -32,10 +32,10 @@ commit="$(git rev-parse --short HEAD)"
 ok "Version ${version} (commit ${commit})"
 
 # Tags d'image : 1.4.2, 1.4, 1 (+ latest pour une version stable sans suffixe)
-tags=("${EDEN_IMAGE}:${version}")
+tags=("${ROHAFYA_IMAGE}:${version}")
 if [[ "$version" != *-* ]]; then
   IFS='.' read -r MAJ MIN _ <<<"$version"
-  tags+=("${EDEN_IMAGE}:${MAJ}.${MIN}" "${EDEN_IMAGE}:${MAJ}" "${EDEN_IMAGE}:latest")
+  tags+=("${ROHAFYA_IMAGE}:${MAJ}.${MIN}" "${ROHAFYA_IMAGE}:${MAJ}" "${ROHAFYA_IMAGE}:latest")
 fi
 
 etape "2. Construction de l'image"
@@ -50,7 +50,7 @@ DOCKER_BUILDKIT=1 docker build \
 ok "Image construite : ${tags[*]}"
 
 etape "3. Test de fumée du conteneur"
-nom="eden-smoke-$$"
+nom="rohafya-smoke-$$"
 docker run -d --rm --name "$nom" -p 127.0.0.1:4099:4000 -e API_URL=https://exemple.invalid/ "${tags[0]}" >/dev/null
 trap 'docker stop "$nom" >/dev/null 2>&1 || true' EXIT
 for _ in $(seq 1 20); do
@@ -63,7 +63,7 @@ ok "/healthz : $sante"
 
 if (( PUSH )); then
   etape "4. Publication sur le registre"
-  registre="${EDEN_IMAGE%%/*}"
+  registre="${ROHAFYA_IMAGE%%/*}"
   if [[ -n "${REGISTRY_TOKEN:-}" ]]; then
     printf '%s' "$REGISTRY_TOKEN" | docker login "$registre" -u "${REGISTRY_USER:?REGISTRY_USER manquant}" --password-stdin >/dev/null
   fi

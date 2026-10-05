@@ -40,13 +40,13 @@
 }
 
 .result-card:hover {
-  border-color: #b8c7e8;
+  border-color: #a7f3d0;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
   transform: translateY(-1px);
 }
 
 .result-card:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 
@@ -164,7 +164,7 @@
 }
 
 .close:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
 }
 
 .tabs {

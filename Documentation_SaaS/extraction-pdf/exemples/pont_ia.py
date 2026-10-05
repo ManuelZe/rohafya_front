@@ -2,7 +2,7 @@
 from extraire_regles import analyser_ligne, normaliser
 
 
-def ia_vers_eden(sortie_ia):
+def ia_vers_rohafya(sortie_ia):
     details, inconnues = [], []
     for ligne in sortie_ia["analyses"]:
         texte = f'{ligne["libelle_imprime"]} {ligne["valeur_imprimee"]} {ligne["unite_imprimee"]} {ligne["normes_imprimees"]}'
@@ -28,7 +28,7 @@ if __name__ == "__main__":
             {"libelle_imprime": "Ferritine", "valeur_imprimee": "8", "unite_imprimee": "ng/ml", "normes_imprimees": "15-150", "marque_anormale": True, "page": 1},
         ],
     }
-    details, inconnues = ia_vers_eden(sortie)
+    details, inconnues = ia_vers_rohafya(sortie)
     with pdfplumber.open("labo_beta.pdf") as pdf:
         texte = pdf.pages[0].extract_text()
     ok, ko = controler(details, texte)

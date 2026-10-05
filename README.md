@@ -1,59 +1,82 @@
-# EdenApp
+# Rohafya
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.4.
+Front-end de **ROHAFYA** (« Votre santé, connectée ») : portail des résultats médicaux pour les patients, les médecins et les établissements de santé. Application Angular 22 avec rendu serveur (SSR), PrimeNG et Tailwind.
 
-## Development server
+L'application s'appelait auparavant EDEN (`eden_app`). Pour mettre à jour une installation existante, voir `Documentation/02_DEPLOIEMENT_HETZNER_PORTAINER.txt`, section 14.
 
-To start a local development server, run:
+## Dépôts
 
-```bash
-ng serve
-```
+| Dépôt | Rôle |
+| --- | --- |
+| `rohafya_front` (ce dépôt) | Application Angular, image Docker `rohafya` |
+| `Rohafya` | API Flask (`flask --app Rohafya …`) : comptes, résultats, mode SaaS (`Rohafya/saas/README.md`) |
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Développement local
 
 ```bash
-ng generate component component-name
+npm ci
+ng serve                      # http://localhost:4200, rechargement automatique
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Rendu serveur, comme en production :
 
 ```bash
 ng build
+npm run serve:ssr:rohafya     # http://localhost:4000
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+L'URL de l'API vient de `src/environments/environment.development.ts` avec `ng serve`. En production, elle vient de la variable `API_URL` du conteneur, transmise au navigateur par `/env.js` (`window.__ROHAFYA_ENV__`).
 
-## Running unit tests
+### Redirections et liens
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- Le front ne code aucune URL de lui-même en dur. Toutes ses redirections restent sur le domaine courant : `localhost:4000` en local, `rohafya.com` en ligne.
+- Les liens absolus produits par l'API (QR codes `/l/<jeton>`, e-mails) pointent vers le front d'où vient la requête, s'il figure dans les origines autorisées de l'API. Ces origines sont définies dans `Rohafya/saas/constants.py` ou par la variable `ROHAFYA_FRONT_ORIGINS`. Par défaut : `https://rohafya.com`, `https://preprod.rohafya.com`, `http://localhost:4000` et `http://localhost:4200`.
+- Sans origine reconnue, l'API utilise `ROHAFYA_FRONT_URL`, qui vaut `https://rohafya.com` par défaut.
+
+## Tests et build
 
 ```bash
-ng test
+ng test --watch=false         # tests unitaires (Vitest)
+ng build                      # sortie : dist/rohafya
 ```
 
-## Running end-to-end tests
+Le message `getBoundingClientRect is not a function` pendant le pré-rendu est connu et ne bloque pas le build (voir `Documentation/03_EXPLOITATION_ET_DEPANNAGE.txt`, section 6).
 
-For end-to-end (e2e) testing, run:
+## Charte graphique
 
-```bash
-ng e2e
-```
+### Logo et icônes (`public/`)
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+| Fichier | Contenu | Utilisé dans |
+| --- | --- | --- |
+| `rohafya-logo.png` | Logo complet ROHAFYA avec la signature « Votre santé, connectée » (fond transparent) | Écran de démarrage (`src/index.html`) |
+| `rohafya-emblem.png` | Croix + « RH » (fond transparent) | En-tête de la page d'accueil (`src/app/intro`) |
+| `favicon.ico` | Croix + « RH », 16 à 64 px | Onglet du navigateur |
+| `icon-192.png`, `apple-touch-icon.png` | Croix + « RH » | Android, iOS (écran d'accueil) |
 
-## Additional Resources
+L'emblème animé des chargements (`src/app/shared/rohafya-mark`) reprend la croix du logo en SVG : une croix verte traversée d'un tracé de pouls blanc.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Couleurs
+
+Les couleurs sont définies une seule fois, dans `src/styles.css`, sous forme de variables CSS. Le preset PrimeNG (`src/app/app.config.ts`) utilise la palette émeraude, qui contient le vert du logo.
+
+| Variable | Valeur | Usage |
+| --- | --- | --- |
+| `--rohafya-green` | `#10b981` | Vert du logo : décor, icônes, halos, barres de progression |
+| `--rohafya-green-700` (`--color-primary`) | `#047857` | Boutons, liens, élément actif (contraste 5,5:1 avec le blanc) |
+| `--rohafya-green-800` | `#065f46` | Survol des actions |
+| `--rohafya-green-600` | `#059669` | Contours de focus (3,8:1) |
+| `--rohafya-green-400` | `#34d399` | Accents sur fond marine (barres latérales) |
+| `--rohafya-navy` (`--color-accent`) | `#0c4562` | Marine du logo : barres latérales, titres, indicateurs principaux |
+| `--rohafya-navy-dark` | `#08304a` | Dégradés marine |
+
+Règles :
+
+- Ne jamais mettre un texte blanc sur `#10b981`, qui ne donne que 2,5:1 de contraste (refusé en WCAG AA). Utiliser `#047857`.
+- Les couleurs d'état ne suivent pas la marque : rouge pour les erreurs, ambre pour les avertissements, vert pour les succès.
+- Une troisième couleur de catégorie, si besoin : bleu pétrole `#1f6a8f`.
+
+## Documentation
+
+- `Documentation/` : versionnage Git, déploiement (Hetzner, Portainer), exploitation et dépannage. Commencer par `00_LISEZMOI.txt`.
+- `Documentation_SaaS/` : connexion par rôle, données de test, extraction des PDF.
+- `CHANGELOG.md` : généré par `Documentation/scripts/release.sh` à partir des messages de commit.

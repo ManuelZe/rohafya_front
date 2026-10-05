@@ -10,7 +10,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib-commun.sh"
 
 exiger_commandes git
-cd "$EDEN_ROOT"
+cd "$ROHAFYA_ROOT"
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || erreur "Ce dossier n'est pas un dépôt Git."
 
 etape "Hooks Git versionnés"

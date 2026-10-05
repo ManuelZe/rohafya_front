@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Crée une nouvelle version (release) d'EDEN.
+#  Crée une nouvelle version (release) de ROHAFYA.
 #
 #  Usage :
 #    bash Documentation/scripts/release.sh patch      # 1.4.2 -> 1.4.3  (corrections)
@@ -35,7 +35,7 @@ done
 [[ -n "$DEMANDE" ]] || erreur "Précisez patch, minor, major ou une version X.Y.Z (voir --help)."
 
 exiger_commandes git node npm
-cd "$EDEN_ROOT"
+cd "$ROHAFYA_ROOT"
 
 # -----------------------------------------------------------------------------
 etape "1. Contrôles préalables"
@@ -148,7 +148,7 @@ fichier_changelog="CHANGELOG.md"
 if [[ -f "$fichier_changelog" ]]; then
   { head -n 2 "$fichier_changelog"; printf '%s\n\n' "$notes"; tail -n +3 "$fichier_changelog"; } > "${fichier_changelog}.tmp"
 else
-  { printf '# Historique des versions EDEN\n\n'; printf '%s\n\n' "$notes"; } > "${fichier_changelog}.tmp"
+  { printf '# Historique des versions ROHAFYA\n\n'; printf '%s\n\n' "$notes"; } > "${fichier_changelog}.tmp"
 fi
 mv "${fichier_changelog}.tmp" "$fichier_changelog"
 ok "package.json -> ${nouvelle}, CHANGELOG.md complété"
@@ -158,7 +158,7 @@ etape "6. Commit et tag annoté"
 # -----------------------------------------------------------------------------
 git add package.json package-lock.json "$fichier_changelog"
 git commit --quiet -m "chore(release): ${tag}"
-git tag -a --cleanup=verbatim "$tag" -m "EDEN ${tag}" -m "$notes"
+git tag -a --cleanup=verbatim "$tag" -m "ROHAFYA ${tag}" -m "$notes"
 ok "Commit « chore(release): ${tag} » et tag ${tag} créés"
 
 # -----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ if (( PUSH )); then
   etape "7. Publication (push)"
   git push origin "$BRANCHE_RELEASE" 
   git push origin "$tag"
-  ok "Poussé : la CI construit et publie l'image eden-app:${nouvelle}"
+  ok "Poussé : la CI construit et publie l'image rohafya:${nouvelle}"
   info "Suivi : onglet « Actions » du dépôt, puis déploiement :"
   info "  bash Documentation/scripts/deployer-portainer.sh ${nouvelle}"
 else

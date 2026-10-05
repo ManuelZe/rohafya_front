@@ -11,8 +11,8 @@
   </app-page-header>
 
   <section class="kpis" aria-label="Synthèse du relevé">
-    <app-kpi-tile label="Total" icon="wallet" accent="#1a54c9" [value]="totalValue()" hint="Prescriptions + réalisations" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
-    <app-kpi-tile label="Prescriptions" icon="file-edit" accent="#2a78d6" [value]="prescriptionValue()" hint="Commissions CP V01" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+    <app-kpi-tile label="Total" icon="wallet" accent="#0c4562" [value]="totalValue()" hint="Prescriptions + réalisations" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+    <app-kpi-tile label="Prescriptions" icon="file-edit" accent="#0c4562" [value]="prescriptionValue()" hint="Commissions CP V01" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
     <app-kpi-tile label="Réalisations" icon="check-circle" accent="#c2410c" [value]="realisationValue()" hint="Commissions CP V02" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
     <app-kpi-tile
       label="En attente"

@@ -1,10 +1,25 @@
 ================================================================================
-                 EDEN — DOSSIER DE DOCUMENTATION ET DE DÉPLOIEMENT
+                 ROHAFYA — DOSSIER DE DOCUMENTATION ET DE DÉPLOIEMENT
 ================================================================================
 
-Application : EDEN — espaces patient et docteur (Angular 22, rendu serveur SSR)
+Application : ROHAFYA — espaces patient et docteur (Angular 22, rendu serveur SSR)
 Hébergement : conteneur Docker sur serveur Hetzner, administré avec Portainer CE
-Versions    : Git (tags vX.Y.Z) -> images Docker eden-app:X.Y.Z (GitHub Container Registry)
+Versions    : Git (tags vX.Y.Z) -> images Docker rohafya:X.Y.Z (GitHub Container Registry)
+
+
+CHANGEMENTS D'OCTOBRE 2026 : EDEN DEVIENT ROHAFYA
+-------------------------------------------------
+  - Nom : tout ce qui s'appelait EDEN / eden_app s'appelle ROHAFYA / rohafya (projet,
+    image Docker, stack Portainer, variables ROHAFYA_*, domaine rohafya.com).
+    Mise à jour d'une installation existante : 02, section 14.
+  - Liens absolus : les QR codes et les e-mails envoyés par l'API pointent vers le
+    front d'où vient la demande (localhost:4000 en local, rohafya.com en ligne) :
+    02, 7.2 et 7.3.
+  - Logo, favicon et couleurs (vert #10b981 / marine #0c4562) : README.md, section
+    « Charte graphique ».
+  - Dépôt Git réinitialisé (ni dépôt distant ni tags pour l'instant) : 01, section 4.
+  - « 405 METHOD NOT ALLOWED » à la suppression d'un établissement : API en service
+    trop ancienne, à redéployer (02, 7.4 ; 03, section 5).
 
 
 ORDRE DE LECTURE
@@ -27,10 +42,10 @@ LE CIRCUIT EN UN COUP D'ŒIL
   Développeur                 GitHub (automatique)              Serveur Hetzner
   ───────────                 ────────────────────              ───────────────
   release.sh minor  ─tag v1.5.0─►  tests + build
-                                   image eden-app:1.5.0 ──────►  (registre ghcr.io)
-  deployer-portainer.sh 1.5.0 ──── API Portainer (tunnel SSH) ──►  stack eden-production
-                                                                  EDEN_VERSION=1.5.0
-  verifier-deploiement.sh ◄─────── https://eden.pdmdsante.com/healthz → "version":"1.5.0"
+                                   image rohafya:1.5.0 ──────►   (registre ghcr.io)
+  deployer-portainer.sh 1.5.0 ──── API Portainer (tunnel SSH) ──►  stack rohafya-production
+                                                                  ROHAFYA_VERSION=1.5.0
+  verifier-deploiement.sh ◄─────── https://rohafya.com/healthz → "version":"1.5.0"
   rollback.sh (si problème) ─────► retour à 1.4.x en ~1 minute
 
 
@@ -42,7 +57,7 @@ CONTENU DU DOSSIER
   03_EXPLOITATION_ET_DEPANNAGE.txt         exploitation et dépannage
 
   docker/                 Dockerfile + exclusions : construction de l'image
-  portainer/              stacks à coller dans Portainer (EDEN, Nginx Proxy Manager)
+  portainer/              stacks à coller dans Portainer (ROHAFYA, Nginx Proxy Manager)
                           et modèle des variables d'environnement
   serveur/                script de préparation/sécurisation du serveur Hetzner
   scripts/                automatisation (tous commentés, option --help ou en-tête) :
@@ -87,7 +102,7 @@ VALIDATION DE CE DOSSIER
     - release.sh, hook de commit, installer-outils-git.sh : dans un dépôt de test
       (tags, CHANGELOG.md, notes de version, push) ;
     - deployer-portainer.sh et rollback.sh : contre une simulation de l'API
-      Portainer CE (modification de EDEN_VERSION seule, attente de la version,
+      Portainer CE (modification de ROHAFYA_VERSION seule, attente de la version,
       historique) ;
     - verifier-deploiement.sh : contre le conteneur réel et l'API de développement.
   Non testés ici (nécessitent le serveur et les comptes réels) : le script de

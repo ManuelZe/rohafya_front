@@ -3,12 +3,29 @@
 @import 'tailwindcss';
 
 :root {
-  --color-primary: #1a54c9;
-  --color-primary-hover: #15359e;
-  --color-primary-light: #eff6ff;
+  /* ===== Couleurs du logo ROHAFYA =====
+     Vert #10b981 : décor (icônes, halos, barres). Pour un texte ou un fond sous texte blanc,
+     on prend #047857 (contraste 5,5:1), sur fond marine #34d399. Marine #0c4562 : structure. */
+  --rohafya-green: #10b981;
+  --rohafya-green-50: #ecfdf5;
+  --rohafya-green-100: #d1fae5;
+  --rohafya-green-200: #a7f3d0;
+  --rohafya-green-400: #34d399;
+  --rohafya-green-600: #059669;
+  --rohafya-green-700: #047857;
+  --rohafya-green-800: #065f46;
+  --rohafya-navy: #0c4562;
+  --rohafya-navy-dark: #08304a;
+  --rohafya-navy-50: #f2f7f9;
+  --rohafya-navy-100: #e5eef3;
+  --rohafya-navy-200: #c5d7e2;
+
+  --color-primary: var(--rohafya-green-700);
+  --color-primary-hover: var(--rohafya-green-800);
+  --color-primary-light: var(--rohafya-green-50);
   --color-danger: #db1d1d;
   --color-danger-hover: #b91c1c;
-  --color-accent: #ffa600;
+  --color-accent: var(--rohafya-navy);
   --color-text: #2d3748;
   --color-text-muted: #718096;
   --color-border: #e2e8f0;
@@ -23,26 +40,26 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
 
-  /* ===== EDEN — arrière-plans des interfaces =====
-     Motif discret de croix médicales + halos bleu/teal : donne de la profondeur
+  /* ===== ROHAFYA — arrière-plans des interfaces =====
+     Motif discret de croix médicales + halos vert/marine : donne de la profondeur
      sans concurrencer le contenu (les cartes restent blanches et lisibles). */
-  --eden-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M15 13h2v2h2v2h-2v2h-2v-2h-2v-2h2z' fill='%231a54c9' fill-opacity='0.045'/%3E%3C/svg%3E");
-  --eden-surface-bg:
-    radial-gradient(1100px 520px at 100% -8%, rgba(26, 84, 201, 0.11), transparent 62%),
-    radial-gradient(900px 480px at -8% 108%, rgba(13, 148, 136, 0.09), transparent 60%),
-    var(--eden-pattern),
-    linear-gradient(180deg, #f1f4fa 0%, #e9edf5 100%);
-  --eden-auth-bg:
-    radial-gradient(900px 600px at 0% 0%, rgba(26, 84, 201, 0.18), transparent 60%),
-    radial-gradient(800px 560px at 100% 100%, rgba(13, 148, 136, 0.16), transparent 60%),
-    var(--eden-pattern),
-    linear-gradient(135deg, #f5f7fb 0%, #dfe6f3 100%);
+  --rohafya-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M15 13h2v2h2v2h-2v2h-2v-2h-2v-2h2z' fill='%230c4562' fill-opacity='0.045'/%3E%3C/svg%3E");
+  --rohafya-surface-bg:
+    radial-gradient(1100px 520px at 100% -8%, rgba(16, 185, 129, 0.11), transparent 62%),
+    radial-gradient(900px 480px at -8% 108%, rgba(12, 69, 98, 0.08), transparent 60%),
+    var(--rohafya-pattern),
+    linear-gradient(180deg, #f2f6f7 0%, #e9eff1 100%);
+  --rohafya-auth-bg:
+    radial-gradient(900px 600px at 0% 0%, rgba(16, 185, 129, 0.18), transparent 60%),
+    radial-gradient(800px 560px at 100% 100%, rgba(12, 69, 98, 0.14), transparent 60%),
+    var(--rohafya-pattern),
+    linear-gradient(135deg, #f4f8f8 0%, #dde8ec 100%);
 }
 
-/* Respecte le réglage système « réduire les animations » pour tous les SVG animés EDEN. */
+/* Respecte le réglage système « réduire les animations » pour tous les SVG animés ROHAFYA. */
 @media (prefers-reduced-motion: reduce) {
-  .eden-animated,
-  .eden-animated * {
+  .rohafya-animated,
+  .rohafya-animated * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }

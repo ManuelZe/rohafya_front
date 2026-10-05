@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Retour arrière (rollback) d'EDEN vers une version précédente.
+#  Retour arrière (rollback) de ROHAFYA vers une version précédente.
 #
 #  Usage :
 #    bash Documentation/scripts/rollback.sh            # revient à la version précédant celle déployée
@@ -19,11 +19,11 @@ cible="${1:-}"
 
 if [[ -z "$cible" ]]; then
   etape "Recherche de la version précédente"
-  statut="$(OUI=1 bash "${EDEN_SCRIPTS_DIR}/deployer-portainer.sh" --statut)"
+  statut="$(OUI=1 bash "${ROHAFYA_SCRIPTS_DIR}/deployer-portainer.sh" --statut)"
   actuelle="$(sed -n 's/.*Version actuellement configurée : \([^ ]*\).*/\1/p' <<<"$statut" | sed 's/\x1b\[[0-9;]*m//g')"
   est_semver "$actuelle" || erreur "Version actuelle introuvable dans Portainer : précisez la version cible."
-  git -C "$EDEN_ROOT" fetch --quiet --tags origin 2>/dev/null || true
-  cible="$(git -C "$EDEN_ROOT" tag --list 'v[0-9]*' --sort=version:refname \
+  git -C "$ROHAFYA_ROOT" fetch --quiet --tags origin 2>/dev/null || true
+  cible="$(git -C "$ROHAFYA_ROOT" tag --list 'v[0-9]*' --sort=version:refname \
     | sed 's/^v//' | grep -vE -- '-' \
     | awk -v a="$actuelle" '$0 == a { print prev; exit } { prev = $0 }')"
   [[ -n "$cible" ]] || erreur "Aucune version antérieure à ${actuelle} trouvée dans les tags Git."
@@ -34,4 +34,4 @@ cible="${cible#v}"
 est_semver "$cible" || erreur "Version invalide : ${cible}"
 
 alerte "ROLLBACK vers ${cible}. Pensez à ouvrir un ticket expliquant l'incident."
-bash "${EDEN_SCRIPTS_DIR}/deployer-portainer.sh" "$cible"
+bash "${ROHAFYA_SCRIPTS_DIR}/deployer-portainer.sh" "$cible"

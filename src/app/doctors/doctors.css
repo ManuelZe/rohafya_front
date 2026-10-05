@@ -9,7 +9,7 @@
 .sidebar-desktop {
   width: 280px;
   min-width: 280px;
-  background: rgb(10, 31, 89);
+  background: rgb(12, 69, 98);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -44,8 +44,8 @@
   height: 40px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: #eaf0fc;
-  color: #1a54c9;
+  background: #ecfdf5;
+  color: #047857;
 }
 
 .profile-info {
@@ -55,7 +55,7 @@
 .profile-name {
   font-size: 0.92rem;
   font-weight: 700;
-  color: #15359e;
+  color: #0c4562;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -101,7 +101,7 @@
 
 .balance-label {
   font-size: 0.75rem;
-  color: #d5ddf0;
+  color: #d6e6ee;
 }
 
 .balance-value {
@@ -142,18 +142,18 @@
 
 .menu-item:hover,
 .menu-item.active {
-  background: #023cf7;
+  background: #047857;
 }
 
 .menu-item.active {
-  box-shadow: inset -3px 0 0 #f5a414;
+  box-shadow: inset -3px 0 0 #34d399;
 }
 
 .menu-item:focus-visible,
 .footer-btn:focus-visible,
 .logout-btn:focus-visible,
 .balance-pill:focus-visible {
-  outline: 3px solid #f5a414;
+  outline: 3px solid #34d399;
   outline-offset: -3px;
 }
 
@@ -251,7 +251,7 @@
 }
 
 .footer-btn svg {
-  color: #f5a414;
+  color: #34d399;
 }
 
 .logout-btn {
@@ -284,7 +284,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  background: var(--eden-surface-bg);
+  background: var(--rohafya-surface-bg);
 }
 
 /* ===== Boîte d'aide ===== */
@@ -333,7 +333,7 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #15359e;
+  color: #0c4562;
 }
 
 .dialog-header h2 {
@@ -371,7 +371,7 @@
   align-items: center;
   gap: 0.4rem;
   font-weight: 700;
-  color: #15359e;
+  color: #0c4562;
   text-decoration: none;
 }
 
@@ -424,7 +424,7 @@
 :host ::ng-deep .doctor-drawer,
 :host ::ng-deep .doctor-drawer .p-drawer-header,
 :host ::ng-deep .doctor-drawer .p-drawer-content {
-  background: rgb(10, 31, 89);
+  background: rgb(12, 69, 98);
 }
 
 :host ::ng-deep .doctor-drawer .p-drawer-content {
@@ -434,5 +434,5 @@
 }
 
 :host ::ng-deep .doctor-drawer .p-drawer-close-button {
-  color: #f5a414;
+  color: #34d399;
 }

@@ -7,7 +7,7 @@ import { PrescriptionService } from './prescriptions.service';
 import { PrescriptionCreatePayload, PrescriptionDevis, PrescriptionWithImage } from './prescriptions.models';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 interface PrescriptionFormModel {
   NameDoctor: string;
@@ -29,7 +29,7 @@ function emptyFormModel(): PrescriptionFormModel {
 
 @Component({
   selector: 'app-prescriptions',
-  imports: [EdenLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
+  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
   templateUrl: './prescriptions.html',
   styleUrl: './prescriptions.css',
   host: {

@@ -32,7 +32,7 @@
 }
 
 .month:hover:not(:disabled) {
-  border-color: #b8c7e8;
+  border-color: #a7f3d0;
 }
 
 .month:disabled {
@@ -54,11 +54,11 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #f5a414;
+  background: #10b981;
 }
 
 .month:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 

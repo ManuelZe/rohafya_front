@@ -348,7 +348,7 @@
   gap: 0.5rem;
   padding: 0.75rem;
   border-radius: 8px;
-  border: 1px dashed #c7d6f5;
+  border: 1px dashed #a7f3d0;
   background: var(--doc-primary-soft);
 }
 
@@ -357,7 +357,7 @@
   min-width: 0;
   font-size: 0.82rem;
   overflow-wrap: anywhere;
-  color: #173a8a;
+  color: #0c4562;
 }
 
 /* ===== Activité récente ===== */
@@ -474,7 +474,7 @@ pre.code {
 }
 
 pre.code:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 
@@ -534,7 +534,7 @@ select.field {
 /* États des comptes rendus PDF */
 .pill-pdf-pret {
   background: var(--doc-primary-soft);
-  color: #173a8a;
+  color: #0c4562;
 }
 
 .pill-pdf-a_relire {
@@ -619,7 +619,7 @@ fieldset.quota .full {
   align-items: center;
   gap: 0.4rem;
   margin: 0.75rem 0 0;
-  color: var(--doc-primary, #1a54c9);
+  color: var(--doc-primary, #047857);
   font-weight: 600;
 }
 

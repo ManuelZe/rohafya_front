@@ -14,7 +14,7 @@
 
     @if (loading()) {
       <div class="state-container loading-state">
-        <app-eden-loader label="Chargement des résultats d'imagerie" />
+        <app-rohafya-loader label="Chargement des résultats d'imagerie" />
       </div>
     }
 
@@ -156,7 +156,7 @@
           <div class="viewer-modal-body">
             @if (moreInfoLoading()) {
               <div class="state-container">
-                <app-eden-loader label="Chargement des informations complémentaires" />
+                <app-rohafya-loader label="Chargement des informations complémentaires" />
               </div>
             } @else if (moreInfoBlockedMessage()) {
               <div class="blocked-banner">

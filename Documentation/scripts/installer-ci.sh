@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Installe les workflows GitHub Actions d'EDEN.
+#  Installe les workflows GitHub Actions de ROHAFYA.
 #  GitHub n'exécute que les fichiers placés dans .github/workflows/ : ce script y copie
 #  les modèles maintenus dans Documentation/ci/github-actions/ (source de vérité).
 #  Usage : bash Documentation/scripts/installer-ci.sh   puis commit + push.
 # =============================================================================
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib-commun.sh"
-cd "$EDEN_ROOT"
+cd "$ROHAFYA_ROOT"
 
 etape "Copie des workflows"
 mkdir -p .github/workflows

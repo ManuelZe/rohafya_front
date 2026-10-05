@@ -5,7 +5,7 @@ import { AuthService } from '../../connexion/auth-service';
 import { PatientProfileService } from '../patient-profile-service';
 import { PatientUpdatePayload } from '../patient-profile.models';
 import { PageHeader } from '../shared/page-header/page-header';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 interface ParametresFormModel {
   PatientName: string;
@@ -63,7 +63,7 @@ const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES D
 
 @Component({
   selector: 'app-parametres',
-  imports: [EdenLoader, CommonModule, FormField, FormRoot, PageHeader],
+  imports: [RohafyaLoader, CommonModule, FormField, FormRoot, PageHeader],
   templateUrl: './parametres.html',
   styleUrl: './parametres.css',
 })

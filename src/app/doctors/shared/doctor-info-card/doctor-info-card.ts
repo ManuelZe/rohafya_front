@@ -41,7 +41,7 @@ import { stripDoctorTitle } from '../doctor-name';
       gap: 1rem;
       background: #fff;
       border-radius: 10px;
-      border-left: 4px solid #1a54c9;
+      border-left: 4px solid #0c4562;
       padding: 1.1rem 1.5rem;
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
     }
@@ -52,7 +52,7 @@ import { stripDoctorTitle } from '../doctor-name';
       height: 52px;
       border-radius: 50%;
       flex-shrink: 0;
-      background: linear-gradient(135deg, #1a54c9, #15359e);
+      background: linear-gradient(135deg, #0c4562, #08304a);
       color: #fff;
       font-weight: 800;
       letter-spacing: 0.5px;
@@ -98,7 +98,7 @@ import { stripDoctorTitle } from '../doctor-name';
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: #1a54c9;
+      background: #0c4562;
       flex-shrink: 0;
     }
     @media (max-width: 640px) {

@@ -1,6 +1,6 @@
 :host {
   display: block;
-  --c-p: #2a78d6;
+  --c-p: #0c4562;
   --c-r: #eb6834;
   --surface: #ffffff;
 }
@@ -87,12 +87,12 @@
 }
 
 .col:focus-visible {
-  outline: 2px solid #1a54c9;
+  outline: 2px solid #047857;
   outline-offset: -2px;
 }
 
 .col-active {
-  background: rgba(26, 84, 201, 0.05);
+  background: rgba(16, 185, 129, 0.05);
 }
 
 .stack {

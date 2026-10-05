@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1.7
 # =============================================================================
-#  EDEN — image Docker de l'application Angular 22 (SSR, serveur Node/Express)
+#  ROHAFYA — image Docker de l'application Angular 22 (SSR, serveur Node/Express)
 #
 #  Construction (depuis la RACINE du dépôt) :
 #    docker build -f Documentation/docker/Dockerfile \
 #      --build-arg APP_VERSION=1.2.0 \
 #      --build-arg GIT_COMMIT=$(git rev-parse --short HEAD) \
 #      --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
-#      -t ghcr.io/<organisation>/eden-app:1.2.0 .
+#      -t ghcr.io/<organisation>/rohafya:1.2.0 .
 #
 #  Le fichier Dockerfile.dockerignore (même dossier) est pris en compte automatiquement
 #  par BuildKit : node_modules, dist, .git… ne sont pas envoyés au démon Docker.
@@ -43,8 +43,8 @@ ARG APP_VERSION=dev
 ARG GIT_COMMIT=unknown
 ARG BUILD_DATE=unknown
 
-LABEL org.opencontainers.image.title="EDEN" \
-      org.opencontainers.image.description="Application EDEN — espaces patient et docteur (Angular SSR)" \
+LABEL org.opencontainers.image.title="ROHAFYA" \
+      org.opencontainers.image.description="Application ROHAFYA — espaces patient et docteur (Angular SSR)" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.revision="${GIT_COMMIT}" \
       org.opencontainers.image.created="${BUILD_DATE}" \
@@ -60,7 +60,7 @@ ENV NODE_ENV=production \
 RUN apk add --no-cache tzdata tini
 
 WORKDIR /app
-COPY --from=build --chown=node:node /app/dist/eden_app ./dist/eden_app
+COPY --from=build --chown=node:node /app/dist/rohafya ./dist/rohafya
 
 # Jamais root dans le conteneur.
 USER node
@@ -72,4 +72,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD wget -q -O /dev/null "http://127.0.0.1:${PORT}/healthz" || exit 1
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "dist/eden_app/server/server.mjs"]
+CMD ["node", "dist/rohafya/server/server.mjs"]

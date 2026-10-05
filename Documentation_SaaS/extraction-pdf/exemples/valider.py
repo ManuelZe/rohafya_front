@@ -1,4 +1,4 @@
-"""Contrôles automatiques d'une extraction (IA ou règles) avant publication dans EDEN."""
+"""Contrôles automatiques d'une extraction (IA ou règles) avant publication dans ROHAFYA."""
 import re
 
 from extraire_regles import ANALYSES, normaliser

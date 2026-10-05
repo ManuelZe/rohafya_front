@@ -1,12 +1,12 @@
 :host {
-  --color-navy: #14224f;
+  --color-navy: var(--rohafya-navy);
   --color-blue: var(--color-primary);
   --color-blue-dark: var(--color-primary-hover);
-  --color-amber: #f2a71b;
+  --color-amber: var(--rohafya-green);
   --color-text: #1f2937;
   --color-muted: #4b5563;
   --color-bg-soft: #f7f8fb;
-  --color-card-shadow: 0 6px 20px rgba(20, 34, 79, 0.08);
+  --color-card-shadow: 0 6px 20px rgba(12, 69, 98, 0.08);
   display: block;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
@@ -32,9 +32,13 @@
 }
 
 .header__brand {
-  font-size: 1.80rem;
-  font-weight: 700;
-  color: #070ae3;
+  display: inline-flex;
+  border-radius: 6px;
+}
+
+.header__brand img {
+  height: 48px;
+  width: auto;
 }
 
 .header__actions {
@@ -110,7 +114,7 @@
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 10px;
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(16, 185, 129, 0.08);
   color: var(--color-blue);
   font-size: 1.2rem;
   margin-bottom: 0.25rem;
@@ -182,8 +186,8 @@
     justify-content: center;
   }
 
-  .header__brand {
-    display: none;
+  .header__brand img {
+    height: 40px;
   }
 
   .header__actions {

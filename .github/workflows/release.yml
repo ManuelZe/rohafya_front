@@ -1,16 +1,16 @@
 # =============================================================================
-#  EDEN — Release et déploiement
+#  ROHAFYA — Release et déploiement
 #  Déclenchée par le push d'un tag vX.Y.Z (créé par Documentation/scripts/release.sh).
 #
 #   1. verifier   : le tag correspond à package.json, tests + build OK
-#   2. image      : construit et publie ghcr.io/<organisation>/eden-app:X.Y.Z (+ X.Y, X, latest)
+#   2. image      : construit et publie ghcr.io/<organisation>/rohafya:X.Y.Z (+ X.Y, X, latest)
 #   3. publication: crée la « Release » GitHub avec les notes de version
 #   4. deploiement: (facultatif) déploie sur Portainer après APPROBATION MANUELLE
 #                   — activé si la variable de dépôt DEPLOY_AUTO vaut « true »
 #
 #  Pour l'étape 4 (Settings > Secrets and variables > Actions) :
 #    Secrets   : PORTAINER_URL, PORTAINER_API_KEY, PORTAINER_STACK_NAME
-#    Variables : DEPLOY_AUTO (true/false), EDEN_PUBLIC_URL (ex. https://eden.pdmdsante.com)
+#    Variables : DEPLOY_AUTO (true/false), ROHAFYA_PUBLIC_URL (ex. https://rohafya.com)
 #  Installé dans .github/workflows/ par Documentation/scripts/installer-ci.sh
 # =============================================================================
 name: Release
@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Nom de l'image (minuscules obligatoires)
-        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/eden-app" >> "$GITHUB_ENV"
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/rohafya" >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -127,7 +127,7 @@ jobs:
           git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}" > notes.md
           PRERELEASE=""
           case "${GITHUB_REF_NAME}" in *-*) PRERELEASE="--prerelease" ;; esac
-          gh release create "${GITHUB_REF_NAME}" --title "EDEN ${GITHUB_REF_NAME}" --notes-file notes.md ${PRERELEASE}
+          gh release create "${GITHUB_REF_NAME}" --title "ROHAFYA ${GITHUB_REF_NAME}" --notes-file notes.md ${PRERELEASE}
 
   deploiement:
     name: Déploiement production (Portainer)
@@ -138,7 +138,7 @@ jobs:
     # Settings > Environments > production > Required reviewers.
     environment:
       name: production
-      url: ${{ vars.EDEN_PUBLIC_URL }}
+      url: ${{ vars.ROHAFYA_PUBLIC_URL }}
     timeout-minutes: 15
     permissions:
       contents: read
@@ -153,7 +153,7 @@ jobs:
           PORTAINER_API_KEY="${{ secrets.PORTAINER_API_KEY }}"
           PORTAINER_STACK_NAME="${{ secrets.PORTAINER_STACK_NAME }}"
           PORTAINER_INSECURE=0
-          EDEN_PUBLIC_URL="${{ vars.EDEN_PUBLIC_URL }}"
+          ROHAFYA_PUBLIC_URL="${{ vars.ROHAFYA_PUBLIC_URL }}"
           DEPLOY_TIMEOUT=240
           EOF
       - name: Déploiement

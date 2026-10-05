@@ -33,10 +33,10 @@
     </div>
   } @else {
     <section class="kpis" aria-label="Synthèse de l'année" [class.is-refreshing]="yearResource.refreshing()">
-      <app-kpi-tile [label]="'Total ' + selectedYear()" icon="wallet" accent="#1a54c9" [value]="totalValue()" [loading]="yearResource.loading() && !yearResource.data()" />
+      <app-kpi-tile [label]="'Total ' + selectedYear()" icon="wallet" accent="#0c4562" [value]="totalValue()" [loading]="yearResource.loading() && !yearResource.data()" />
       <app-kpi-tile label="Meilleur mois" icon="trophy" accent="#b45309" [value]="bestValue()" [hint]="bestHint()" [loading]="yearResource.loading() && !yearResource.data()" />
-      <app-kpi-tile label="Moyenne mensuelle" icon="chart-line" accent="#0d9488" [value]="averageValue()" [loading]="yearResource.loading() && !yearResource.data()" />
-      <app-kpi-tile label="Commissions" icon="list" accent="#6d28d9" [value]="countValue()" [loading]="yearResource.loading() && !yearResource.data()" />
+      <app-kpi-tile label="Moyenne mensuelle" icon="chart-line" accent="#047857" [value]="averageValue()" [loading]="yearResource.loading() && !yearResource.data()" />
+      <app-kpi-tile label="Commissions" icon="list" accent="#1f6a8f" [value]="countValue()" [loading]="yearResource.loading() && !yearResource.data()" />
     </section>
 
     <section class="card" aria-labelledby="chart-title" [class.is-refreshing]="yearResource.refreshing()">

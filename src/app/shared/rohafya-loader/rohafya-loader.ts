@@ -1,19 +1,19 @@
 import { Component, computed, input } from '@angular/core';
-import { EdenMark } from '../eden-mark/eden-mark';
+import { RohafyaMark } from '../rohafya-mark/rohafya-mark';
 
-/** Indicateur de chargement EDEN : emblème animé, anneau en orbite et message. */
+/** Indicateur de chargement ROHAFYA : emblème animé, anneau en orbite et message. */
 @Component({
-  selector: 'app-eden-loader',
-  imports: [EdenMark],
+  selector: 'app-rohafya-loader',
+  imports: [RohafyaMark],
   template: `
     <div class="loader" [class]="'loader-' + size()" role="status" aria-live="polite">
-      <div class="visual eden-animated">
+      <div class="visual rohafya-animated">
         <svg class="orbit" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
           <circle class="track" cx="50" cy="50" r="44" />
           <circle class="arc" cx="50" cy="50" r="44" />
           <circle class="dot" cx="50" cy="6" r="3.5" />
         </svg>
-        <app-eden-mark [size]="markSize()" />
+        <app-rohafya-mark [size]="markSize()" />
       </div>
       @if (label()) {
         <p class="label">
@@ -61,18 +61,18 @@ import { EdenMark } from '../eden-mark/eden-mark';
     }
     .track {
       fill: none;
-      stroke: rgba(26, 84, 201, 0.12);
+      stroke: rgba(16, 185, 129, 0.16);
       stroke-width: 3;
     }
     .arc {
       fill: none;
-      stroke: #1a54c9;
+      stroke: #10b981;
       stroke-width: 3;
       stroke-linecap: round;
       stroke-dasharray: 70 207;
     }
     .dot {
-      fill: #0d9488;
+      fill: #0c4562;
     }
     .label {
       margin: 0;
@@ -117,7 +117,7 @@ import { EdenMark } from '../eden-mark/eden-mark';
     }
   `,
 })
-export class EdenLoader {
+export class RohafyaLoader {
   readonly size = input<'sm' | 'md' | 'lg'>('md');
   readonly label = input<string>('Chargement');
 

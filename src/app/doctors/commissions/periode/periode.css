@@ -33,11 +33,11 @@
 .preset[aria-pressed='true'] {
   border-color: var(--doc-primary);
   background: var(--doc-primary-soft);
-  color: #173a8a;
+  color: #0c4562;
 }
 
 .preset:focus-visible {
-  outline: 3px solid #93b4f0;
+  outline: 3px solid #059669;
   outline-offset: 2px;
 }
 

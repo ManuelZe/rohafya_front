@@ -9,8 +9,8 @@
 .sidebar-desktop {
   width: 280px;
   min-width: 280px;
-  background: rgb(10, 31, 89);
-  border-right: 1px solid #a3b2dd;
+  background: rgb(12, 69, 98);
+  border-right: 1px solid #c5d7e2;
   overflow-y: auto;
   padding: 0;
   display: flex;
@@ -164,7 +164,7 @@
 }
 
 .footer-btn svg {
-  color: #f5a414;
+  color: #34d399;
   flex-shrink: 0;
 }
 
@@ -325,14 +325,14 @@
 }
 
 .menu-item:hover {
-  background: #023cf7;
+  background: #047857;
   color: var(--color-surface);
 }
 
 .menu-item.active {
-  background: #023cf7;
+  background: #047857;
   color: var(--color-surface);
-  border-right: 3px solid #011f8a;
+  border-right: 3px solid #065f46;
 }
 
 .menu-item i {
@@ -373,7 +373,7 @@
 
 .menu-item-child:hover {
   color: var(--color-surface);
-  background: #023cf7;
+  background: #047857;
 }
 
 /* ===== MAIN CONTENT ===== */
@@ -384,7 +384,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
-  background: var(--eden-surface-bg);
+  background: var(--rohafya-surface-bg);
 }
 
 /* ===== HEADER ===== */
@@ -599,9 +599,9 @@
 
 /* THÈMES COULEURS TABLEAUX */
 .table-card-factures ::ng-deep .p-datatable-thead > tr > th {
-  background: #e5ecfa !important;
+  background: var(--rohafya-green-50) !important;
   color: var(--color-primary) !important;
-  border-color: #c9d8f2 !important;
+  border-color: var(--rohafya-green-200) !important;
 }
 
 .table-card-factures ::ng-deep .p-paginator .p-highlight {
@@ -611,33 +611,33 @@
 }
 
 .table-card-factures ::ng-deep .p-datatable-tbody > tr:hover {
-  background: #eef3fc !important;
+  background: #f3fbf7 !important;
 }
 
 .table-card-labo ::ng-deep .p-datatable-thead > tr > th {
-  background: #fff4e2 !important;
-  color: var(--color-accent) !important;
-  border-color: #ffe4b8 !important;
+  background: var(--rohafya-green-50) !important;
+  color: var(--color-primary) !important;
+  border-color: var(--rohafya-green-200) !important;
 }
 
 .table-card-labo ::ng-deep .p-datatable-tbody > tr:hover {
-  background: #fff8ec !important;
+  background: #f3fbf7 !important;
 }
 
 .table-card-imagerie ::ng-deep .p-datatable-thead > tr > th {
-  background: #e3f2fd !important;
-  color: #1a7edb !important;
-  border-color: #bbdefb !important;
+  background: var(--rohafya-navy-100) !important;
+  color: var(--rohafya-navy) !important;
+  border-color: var(--rohafya-navy-200) !important;
 }
 
 .table-card-imagerie ::ng-deep .p-datatable-tbody > tr:hover {
-  background: #eef7fe !important;
+  background: var(--rohafya-navy-50) !important;
 }
 
 .table-card-prescriptions ::ng-deep .p-datatable-thead > tr > th {
-  background: #fff4e2 !important;
+  background: var(--rohafya-navy-100) !important;
   color: var(--color-accent) !important;
-  border-color: #ffe4b8 !important;
+  border-color: var(--rohafya-navy-200) !important;
 }
 
 .table-card-prescriptions ::ng-deep .p-paginator .p-highlight {
@@ -647,7 +647,7 @@
 }
 
 .table-card-prescriptions ::ng-deep .p-datatable-tbody > tr:hover {
-  background: #fff8ec !important;
+  background: var(--rohafya-navy-50) !important;
 }
 
 .table-card-requetes ::ng-deep .p-datatable-thead > tr > th {
@@ -943,7 +943,7 @@
 ::ng-deep .p-sidebar-content,
 ::ng-deep .p-drawer-content {
   padding: 0 !important;
-  background: rgb(10, 31, 89) !important;
+  background: rgb(12, 69, 98) !important;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -951,18 +951,18 @@
 
 ::ng-deep .p-drawer,
 ::ng-deep .p-sidebar {
-  background: rgb(10, 31, 89) !important;
+  background: rgb(12, 69, 98) !important;
 }
 
 ::ng-deep .p-drawer-header .p-drawer-close-button,
 ::ng-deep .p-drawer-close-icon,
 ::ng-deep .p-sidebar-close,
 ::ng-deep .p-sidebar-icon {
-  color: #f5a414 !important;
+  color: #34d399 !important;
 }
 
 ::ng-deep .p-drawer-header {
-  background: rgb(10, 31, 89) !important;
+  background: rgb(12, 69, 98) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0.75rem 1rem;
 }

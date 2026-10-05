@@ -114,7 +114,7 @@
         <div class="viewer-body" aria-live="polite">
           @if (tab() === 'summary') {
             @if (summaryLoading()) {
-              <app-eden-loader label="Chargement du résultat" />
+              <app-rohafya-loader label="Chargement du résultat" />
             } @else if (fields().length === 0) {
               <div class="banner banner-info">
                 <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
@@ -138,7 +138,7 @@
             }
           } @else {
             @if (detailsLoading()) {
-              <app-eden-loader label="Chargement des détails" />
+              <app-rohafya-loader label="Chargement des détails" />
             } @else if (result.exam_type === 'Imagerie') {
               @if (studies().length === 0) {
                 <div class="banner banner-info">

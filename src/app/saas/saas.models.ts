@@ -165,7 +165,7 @@ export interface DoctorLinkView {
 
 export type PdfImportStatus = 'pret' | 'a_relire' | 'publie' | 'rejete' | 'erreur';
 
-/** Une valeur lue dans un compte rendu PDF (format des « details » d'un résultat EDEN). */
+/** Une valeur lue dans un compte rendu PDF (format des « details » d'un résultat ROHAFYA). */
 export interface PdfValue {
   code: string | null;
   name: string;
@@ -299,7 +299,7 @@ export interface AccountView {
 
 export const SOURCE_LABELS: Record<SourceType, string> = {
   gnuhealth: 'GNU Health (lecture directe)',
-  api: 'API EDEN (format EDEN)',
+  api: 'API ROHAFYA (format ROHAFYA)',
   fhir: 'HL7 FHIR R4',
   pdf: 'Scan / PDF de résultats',
 };
@@ -337,7 +337,7 @@ export const AUDIT_LABELS: Record<string, string> = {
   'patient.saved': 'Dossier patient enregistré',
   'doctor.linked': 'Médecin rattaché',
   'doctor.unlinked': 'Médecin retiré',
-  'ingest.api': 'Données reçues (API EDEN)',
+  'ingest.api': 'Données reçues (API ROHAFYA)',
   'ingest.fhir': 'Données reçues (FHIR)',
   'ingest.deleted': 'Donnée retirée par l’établissement',
   'result.viewed': 'Résultat consulté par un médecin',

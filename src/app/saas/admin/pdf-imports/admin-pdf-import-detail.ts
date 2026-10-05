@@ -289,7 +289,7 @@ export class AdminPdfImportDetail {
         this.revokePdf();
         this.objectUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
         this.pdfRawUrl.set(this.objectUrl);
-        // URL locale (blob:) créée à partir de la réponse authentifiée de l'API EDEN.
+        // URL locale (blob:) créée à partir de la réponse authentifiée de l'API ROHAFYA.
         this.pdfUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.objectUrl));
       },
       error: () => this.pdfUrl.set(null),

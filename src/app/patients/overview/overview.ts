@@ -10,7 +10,7 @@ import { PatientProfileService } from '../patient-profile-service';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 import { KpiTile } from '../../shared/kpi-tile/kpi-tile';
-import { EdenMark } from '../../shared/eden-mark/eden-mark';
+import { RohafyaMark } from '../../shared/rohafya-mark/rohafya-mark';
 
 type ExamKind = 'Laboratoire' | 'Imagerie' | 'Exploration';
 
@@ -52,7 +52,7 @@ export function formatFcfa(value: unknown): string {
 
 @Component({
   selector: 'app-overview',
-  imports: [DatePipe, RouterLink, ButtonModule, SkeletonModule, PIcon, PageHeader, StatusTag, KpiTile, EdenMark],
+  imports: [DatePipe, RouterLink, ButtonModule, SkeletonModule, PIcon, PageHeader, StatusTag, KpiTile, RohafyaMark],
   templateUrl: './overview.html',
   styleUrl: './overview.css',
 })
@@ -186,9 +186,9 @@ export class Overview {
       hint: this.unpaid().length ? `${this.unpaid().length} à régler` : 'Toutes réglées',
       loading: this.facturesLoading() && this.factures().length === 0,
     },
-    this.examTile('Laboratoire', 'filter', '#db1d1d', '/patients/laboratoire', this.lab(), this.labLoading()),
-    this.examTile('Imagerie', 'image', '#1a7edb', '/patients/imagerie', this.imagerie(), this.imagerieLoading()),
-    this.examTile('Exploration', 'wave-pulse', '#0d9488', '/patients/exploration', this.exploration(), this.explorationLoading()),
+    this.examTile('Laboratoire', 'filter', '#047857', '/patients/laboratoire', this.lab(), this.labLoading()),
+    this.examTile('Imagerie', 'image', '#0c4562', '/patients/imagerie', this.imagerie(), this.imagerieLoading()),
+    this.examTile('Exploration', 'wave-pulse', '#1f6a8f', '/patients/exploration', this.exploration(), this.explorationLoading()),
   ]);
 
   constructor() {

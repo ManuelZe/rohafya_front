@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { form, required, FormField, FormRoot } from '@angular/forms/signals';
 import { SuggestionBoxService } from '../suggestion-box.service';
 import { Suggestion } from '../suggestion-box.models';
-import { EdenLoader } from '../../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../../shared/rohafya-loader/rohafya-loader';
 
 interface SuggestionFormModel {
   content: string;
@@ -15,7 +15,7 @@ function emptyFormModel(): SuggestionFormModel {
 
 @Component({
   selector: 'app-suggestion-dialog',
-  imports: [EdenLoader, CommonModule, FormField, FormRoot],
+  imports: [RohafyaLoader, CommonModule, FormField, FormRoot],
   templateUrl: './suggestion-dialog.html',
   styleUrl: './suggestion-dialog.css',
   host: {

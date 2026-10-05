@@ -19,7 +19,7 @@ import { SavePatientCreatePayload, SavePatientWithImage } from './enregistrement
 import { AuthService } from '../../connexion/auth-service';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 interface SavePatientFormModel {
   nom: string;
@@ -35,7 +35,7 @@ const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES D
 
 @Component({
   selector: 'app-enregistrement',
-  imports: [EdenLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
+  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
   templateUrl: './enregistrement.html',
   styleUrl: './enregistrement.css',
   host: {

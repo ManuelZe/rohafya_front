@@ -1,14 +1,14 @@
 ================================================================================
-                 EDEN SaaS — DOSSIER DE DOCUMENTATION FONCTIONNELLE
+                 ROHAFYA SaaS — DOSSIER DE DOCUMENTATION FONCTIONNELLE
 ================================================================================
 
-EDEN accueille plusieurs établissements de santé. Chaque personne a UN compte,
+ROHAFYA accueille plusieurs établissements de santé. Chaque personne a UN compte,
 identifié par son adresse e-mail, et retrouve dans ce compte les données de tous
 les établissements auxquels son dossier est rattaché.
 
 Ce dossier complète « Documentation/ » (versionnage et déploiement). La mise en
-service technique du mode SaaS côté API est décrite dans le dépôt de l'API :
-DoctorAPI/saas/README.md.
+service technique du mode SaaS côté API est décrite dans le dépôt de l'API
+Rohafya : Rohafya/saas/README.md.
 
 
 CONTENU
@@ -22,9 +22,9 @@ CONTENU
 
   donnees-test/                   Jeux de données pour essayer les imports
     LISEZMOI.txt                    mode d'emploi et résultats attendus
-    import-eden/                    import au format EDEN (API /ingest/v1)
+    import-rohafya/                 import au format ROHAFYA (API /ingest/v1)
     import-fhir/                    import au standard HL7 FHIR R4 (API /fhir/r4)
-    importer-eden.sh                envoie le jeu EDEN avec curl
+    importer-rohafya.sh             envoie le jeu ROHAFYA avec curl
     importer-fhir.sh                envoie le jeu FHIR avec curl
 
   extraction-pdf/
@@ -44,6 +44,6 @@ LES CINQ RÔLES EN UN COUP D'ŒIL
                                                      + mot de passe (historique)
   Logiciel de l'établissement   /ingest, /fhir       clé d'API (en-tête HTTP)
 
-Après connexion, EDEN ouvre automatiquement l'espace correspondant au rôle.
-Adresse de production utilisée dans ces documents : https://eden.pdmdsante.com
+Après connexion, ROHAFYA ouvre automatiquement l'espace correspondant au rôle.
+Adresse de production utilisée dans ces documents : https://rohafya.com
 (remplacez-la par l'adresse de préproduction pour vos essais).

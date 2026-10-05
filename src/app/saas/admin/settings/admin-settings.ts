@@ -28,7 +28,7 @@ function emptyModel(): SettingsModel {
     result_access_days: 90,
     link_token_days: 30,
     block_unpaid_results: true,
-    primary_color: '#1a54c9',
+    primary_color: '#047857',
   };
 }
 

@@ -15,7 +15,7 @@
       <div class="devis-card-body">
         @if (priceListsLoading()) {
           <div class="state-container">
-            <app-eden-loader label="Chargement des listes de prix" />
+            <app-rohafya-loader label="Chargement des listes de prix" />
           </div>
         } @else if (priceListsError()) {
           <div class="error-banner">{{ priceListsError() }}</div>

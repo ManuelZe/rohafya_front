@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Préparation / sécurisation du serveur Hetzner qui héberge EDEN.
+#  Préparation / sécurisation du serveur Hetzner qui héberge ROHAFYA.
 #  Cible : Ubuntu 22.04 / 24.04 LTS (ou Debian 12). À exécuter EN ROOT, une seule fois
 #  (ré-exécutable sans danger : chaque étape vérifie l'existant).
 #
@@ -61,7 +61,7 @@ etape "3. Utilisateur d'exploitation « ${UTILISATEUR} »"
 if id "$UTILISATEUR" >/dev/null 2>&1; then
   ok "Utilisateur existant"
 else
-  adduser --disabled-password --gecos "Exploitation EDEN" "$UTILISATEUR" >/dev/null
+  adduser --disabled-password --gecos "Exploitation ROHAFYA" "$UTILISATEUR" >/dev/null
   ok "Utilisateur créé"
 fi
 usermod -aG sudo "$UTILISATEUR"
@@ -119,7 +119,7 @@ alerte "et configurez AUSSI le pare-feu Hetzner Cloud (console Hetzner > Firewal
 
 # -----------------------------------------------------------------------------
 etape "6. fail2ban et mises à jour automatiques"
-cat > /etc/fail2ban/jail.d/eden-sshd.local <<'EOF'
+cat > /etc/fail2ban/jail.d/rohafya-sshd.local <<'EOF'
 [sshd]
 enabled  = true
 maxretry = 5
@@ -136,7 +136,7 @@ ok "Mises à jour de sécurité automatiques activées"
 # -----------------------------------------------------------------------------
 etape "7. Durcissement SSH"
 if [[ "$CLE_OK" == "1" ]]; then
-  cat > /etc/ssh/sshd_config.d/99-eden.conf <<'EOF'
+  cat > /etc/ssh/sshd_config.d/99-rohafya.conf <<'EOF'
 PermitRootLogin prohibit-password
 PasswordAuthentication no
 KbdInteractiveAuthentication no
@@ -148,7 +148,7 @@ EOF
     ok "Connexion par mot de passe désactivée (clés SSH uniquement)"
     alerte "AVANT de fermer cette session, testez dans un autre terminal : ssh ${UTILISATEUR}@IP_DU_SERVEUR"
   else
-    rm -f /etc/ssh/sshd_config.d/99-eden.conf
+    rm -f /etc/ssh/sshd_config.d/99-rohafya.conf
     alerte "Configuration SSH invalide : durcissement annulé."
   fi
 else
@@ -161,7 +161,7 @@ if docker network inspect proxy >/dev/null 2>&1; then
   ok "Réseau « proxy » déjà présent"
 else
   docker network create proxy >/dev/null
-  ok "Réseau « proxy » créé (partagé par Nginx Proxy Manager et EDEN)"
+  ok "Réseau « proxy » créé (partagé par Nginx Proxy Manager et ROHAFYA)"
 fi
 
 # -----------------------------------------------------------------------------

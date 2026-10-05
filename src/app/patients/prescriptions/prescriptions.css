@@ -71,7 +71,7 @@
 
 .btn-primary:hover:not(:disabled) {
   background-color: var(--primary-hover);
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .btn-secondary {
@@ -211,7 +211,7 @@
 .form-row textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 /* File Upload & styles dynamiques */
@@ -789,7 +789,7 @@
   flex-direction: column;
   align-items: center;
   background-color: var(--primary-light);
-  border: 1px solid #bfdbfe;
+  border: 1px solid #a7f3d0;
   border-radius: var(--radius-md);
   padding: 16px;
   margin-bottom: 16px;

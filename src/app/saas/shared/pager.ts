@@ -52,7 +52,7 @@ import { PIcon } from '@primeicons/angular/p-icon';
       cursor: not-allowed;
     }
     .pager-btn:focus-visible {
-      outline: 3px solid #93b4f0;
+      outline: 3px solid #059669;
       outline-offset: 2px;
     }
     .pager-info {

@@ -1,5 +1,5 @@
 # =============================================================================
-#  EDEN — Intégration continue
+#  ROHAFYA — Intégration continue
 #  Déclenchée à chaque push sur main/develop et à chaque Pull Request.
 #  Objectif : aucun code cassé n'arrive sur main.
 #  Installé dans .github/workflows/ par Documentation/scripts/installer-ci.sh

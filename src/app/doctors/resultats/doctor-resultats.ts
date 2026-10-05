@@ -8,14 +8,14 @@ import { EXAM_TYPES, ExamType, SendResult } from '../../patients/resultats/resul
 import { dateValue } from '../commissions/commissions.models';
 import { DoctorResultatsService, ExamDetailsResult } from './doctor-resultats.service';
 import { criteriaFromSerializer, patientName, summaryFields, toCriteria, toStudies } from './result-fields';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 type TypeFilter = 'all' | ExamType;
 type ViewerTab = 'summary' | 'details';
 
 @Component({
   selector: 'app-doctor-resultats',
-  imports: [EdenLoader, DatePipe, PIcon, PageHeader, StatusTag],
+  imports: [RohafyaLoader, DatePipe, PIcon, PageHeader, StatusTag],
   templateUrl: './doctor-resultats.html',
   styleUrls: ['../shared/doctor-ui.css', './doctor-resultats.css'],
   host: {

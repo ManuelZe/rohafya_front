@@ -1,6 +1,6 @@
 # =============================================================================
 #  Nginx Proxy Manager — reverse proxy HTTPS (certificats Let's Encrypt automatiques)
-#  À déployer UNE SEULE FOIS sur le serveur, avant la stack EDEN.
+#  À déployer UNE SEULE FOIS sur le serveur, avant la stack ROHAFYA.
 #  Portainer : Stacks > + Add stack > nom « reverse-proxy » > Web editor > coller ce fichier.
 #
 #  Prérequis : réseau partagé créé une fois :  docker network create proxy

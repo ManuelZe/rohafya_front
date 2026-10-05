@@ -55,7 +55,7 @@ import { PointsPipe } from '../points';
       min-width: 4px;
     }
     .seg-prescription {
-      background: #2a78d6;
+      background: #0c4562;
     }
     .seg-realisation {
       background: #eb6834;
@@ -82,7 +82,7 @@ import { PointsPipe } from '../points';
       box-shadow: 0 0 0 2px var(--meter-ring, #fff);
     }
     .key-prescription {
-      background: #2a78d6;
+      background: #0c4562;
     }
     .key-realisation {
       background: #eb6834;

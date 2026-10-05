@@ -6,7 +6,7 @@ Le patient consulte dans un seul compte les résultats (laboratoire, imagerie,
 exploration fonctionnelle) et les factures de tous les établissements où son
 dossier est rattaché. Chaque résultat indique son établissement.
 
-Espace : https://eden.pdmdsante.com/patients
+Espace : https://rohafya.com/patients
 
 
 1. QUELLE SITUATION EST LA VÔTRE ?
@@ -35,7 +35,7 @@ Espace : https://eden.pdmdsante.com/patients
                               apparaîtront après sa validation.
   6. « Voir mes établissements ».
 
-  Lors de la toute première connexion, EDEN ouvre d'abord la page « Paramètres » :
+  Lors de la toute première connexion, ROHAFYA ouvre d'abord la page « Paramètres » :
   compléter et enregistrer ses informations (nom, prénom, date de naissance,
   genre, lieu de naissance, nationalité, CNI, téléphones, e-mail). Les autres
   pages se débloquent ensuite.
@@ -47,7 +47,7 @@ Espace : https://eden.pdmdsante.com/patients
 3. PATIENT HISTORIQUE (IDENTIFIANT ET MOT DE PASSE)
 ---------------------------------------------------
 Les patients de PDMD Santé gardent leur accès habituel :
-  1. https://eden.pdmdsante.com/connexion, onglet « Mot de passe ».
+  1. https://rohafya.com/connexion, onglet « Mot de passe ».
   2. Cliquer sur « Patient », saisir identifiant et mot de passe,
      « Se connecter ».
   Identifiant oublié : « Mot de passe oublié? », saisir son matricule ; un
@@ -60,7 +60,7 @@ n'est utilisé par aucun autre compte.
 
 4. SE CONNECTER AVEC SON E-MAIL (SANS MOT DE PASSE)
 ---------------------------------------------------
-  1. https://eden.pdmdsante.com/connexion, onglet « Code par e-mail ».
+  1. https://rohafya.com/connexion, onglet « Code par e-mail ».
   2. Adresse e-mail > « Recevoir un code » > code à 6 chiffres > « Se connecter ».
   3. Sans compte existant : prénom, nom > « Créer mon compte ». Le compte est
      vide tant qu'aucun établissement n'y est rattaché (voir section 5).

@@ -30,7 +30,7 @@ app.use((_req, res, next) => {
 });
 
 /**
- * Configuration d'exécution lue par l'application dans le navigateur (window.__EDEN_ENV__).
+ * Configuration d'exécution lue par l'application dans le navigateur (window.__ROHAFYA_ENV__).
  * Permet de changer l'URL de l'API sans reconstruire l'image : variable API_URL du conteneur.
  */
 app.get('/env.js', (_req, res) => {
@@ -40,7 +40,7 @@ app.get('/env.js', (_req, res) => {
   };
   res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
-  res.send(`window.__EDEN_ENV__ = ${JSON.stringify(runtimeEnv)};`);
+  res.send(`window.__ROHAFYA_ENV__ = ${JSON.stringify(runtimeEnv)};`);
 });
 
 /** Sonde de santé utilisée par le HEALTHCHECK Docker, Portainer et les scripts de déploiement. */
@@ -83,12 +83,12 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
       throw error;
     }
 
-    console.log(`EDEN ${APP_VERSION} — serveur Node Express à l'écoute sur http://localhost:${port}`);
+    console.log(`ROHAFYA ${APP_VERSION} — serveur Node Express à l'écoute sur http://localhost:${port}`);
   });
 
   // Arrêt propre (docker stop / redéploiement Portainer) : on termine les requêtes en cours.
   const shutdown = (signal: string) => {
-    console.log(`${signal} reçu : arrêt du serveur EDEN…`);
+    console.log(`${signal} reçu : arrêt du serveur ROHAFYA…`);
     server.close(() => process.exit(0));
     setTimeout(() => process.exit(1), 10_000).unref();
   };

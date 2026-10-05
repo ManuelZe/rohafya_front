@@ -5,7 +5,7 @@ import { filter, take } from 'rxjs';
 import { RouteLoader } from './shared/route-loader/route-loader';
 import { DemoBanner } from './demo/demo-banner/demo-banner';
 
-/** Durée minimale d'affichage de l'écran de démarrage EDEN, pour que l'animation soit perçue sans ralentir l'accès. */
+/** Durée minimale d'affichage de l'écran de démarrage ROHAFYA, pour que l'animation soit perçue sans ralentir l'accès. */
 const SPLASH_MIN_MS = 900;
 const SPLASH_FADE_MS = 450;
 
@@ -16,14 +16,14 @@ const SPLASH_FADE_MS = 450;
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('eden_app');
+  protected readonly title = signal('rohafya');
 
   private readonly document = inject(DOCUMENT);
 
   constructor() {
     if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
 
-    // L'écran de démarrage (#eden-splash, défini dans index.html) disparaît dès que la première page est prête.
+    // L'écran de démarrage (#rohafya-splash, défini dans index.html) disparaît dès que la première page est prête.
     inject(Router)
       .events.pipe(
         filter((e) => e instanceof NavigationEnd || e instanceof NavigationCancel || e instanceof NavigationError),
@@ -33,12 +33,12 @@ export class App {
   }
 
   private hideSplash(): void {
-    const splash = this.document.getElementById('eden-splash');
+    const splash = this.document.getElementById('rohafya-splash');
     if (!splash) return;
 
     const wait = Math.max(0, SPLASH_MIN_MS - performance.now());
     setTimeout(() => {
-      splash.classList.add('eden-splash--hide');
+      splash.classList.add('rohafya-splash--hide');
       setTimeout(() => splash.remove(), SPLASH_FADE_MS);
     }, wait);
   }

@@ -34,7 +34,7 @@ import { DemoSession } from '../demo-session';
     .demo-banner__badge {
       padding: 0.15rem 0.5rem;
       border-radius: 999px;
-      background: var(--color-accent);
+      background: var(--rohafya-green-400);
       color: #1e293b;
       font-weight: 800;
       font-size: 0.75rem;
@@ -57,7 +57,7 @@ import { DemoSession } from '../demo-session';
     }
 
     .demo-banner__quit:focus-visible {
-      outline: 2px solid var(--color-accent);
+      outline: 2px solid var(--rohafya-green-400);
       outline-offset: 2px;
     }
 

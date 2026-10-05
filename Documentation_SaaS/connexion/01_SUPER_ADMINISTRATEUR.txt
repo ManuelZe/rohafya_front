@@ -6,7 +6,7 @@ Le super-administrateur contrôle toute la plateforme : il crée les
 établissements, leur donne une clé d'API, nomme leurs administrateurs, peut
 désactiver n'importe quel compte et consulte le journal de toutes les opérations.
 
-Espace : https://eden.pdmdsante.com/super-admin
+Espace : https://rohafya.com/super-admin
 
 
 1. AVOIR UN COMPTE SUPER-ADMINISTRATEUR
@@ -14,7 +14,7 @@ Espace : https://eden.pdmdsante.com/super-admin
 Un super-administrateur est créé de l'une de ces trois façons :
 
   a) Par l'équipe technique, sur le serveur de l'API (intervention manuelle) :
-       flask --app DoctorAPI saas create-superadmin prenom.nom@exemple.com \
+       flask --app Rohafya saas create-superadmin prenom.nom@exemple.com \
              --first-name Prénom --last-name Nom
      Si un compte existe déjà avec cet e-mail, il reçoit simplement le rôle.
 
@@ -24,20 +24,20 @@ Un super-administrateur est créé de l'une de ces trois façons :
   c) Les comptes qui avaient déjà le rôle historique « Admin » sont
      automatiquement super-administrateurs.
 
-Important : l'adresse e-mail doit être UNIQUE (un seul compte EDEN avec cette
+Important : l'adresse e-mail doit être UNIQUE (un seul compte ROHAFYA avec cette
 adresse), sinon la connexion par code est refusée (voir « Dépannage »).
 
 
 2. SE CONNECTER (CODE PAR E-MAIL — RECOMMANDÉ)
 ----------------------------------------------
-  1. Ouvrir https://eden.pdmdsante.com/connexion
+  1. Ouvrir https://rohafya.com/connexion
   2. Cliquer sur l'onglet « Code par e-mail ».
      (Le bouton « Patient » au-dessus n'a pas besoin d'être sélectionné.)
   3. Saisir son adresse e-mail, cliquer sur « Recevoir un code ».
-  4. Ouvrir l'e-mail « Votre code de connexion EDEN » : il contient un code de
+  4. Ouvrir l'e-mail « Votre code de connexion ROHAFYA » : il contient un code de
      6 chiffres, valable 10 minutes et utilisable une seule fois.
   5. Saisir le code, cliquer sur « Se connecter ».
-  6. EDEN ouvre directement la console /super-admin.
+  6. ROHAFYA ouvre directement la console /super-admin.
 
 Liens utiles sous le champ du code : « Renvoyer le code » et « Changer d'adresse ».
 
@@ -49,7 +49,7 @@ peuvent toujours les utiliser :
   1. Onglet « Mot de passe », cliquer sur le bouton « Patient » (obligatoire
      pour activer le bouton de connexion, sans effet sur l'espace d'arrivée),
   2. Saisir l'identifiant et le mot de passe, « Se connecter ».
-EDEN ouvre /super-admin, sauf si le compte est aussi patient : il ouvre alors
+ROHAFYA ouvre /super-admin, sauf si le compte est aussi patient : il ouvre alors
 l'espace patient. Dans ce cas, préférez la connexion par code.
 
 
@@ -78,9 +78,9 @@ déroulante « Établissement » en haut de la barre latérale).
 5. PREMIÈRES ACTIONS POUR UN NOUVEL ÉTABLISSEMENT
 -------------------------------------------------
   1. Établissements > « Nouvel établissement » : nom, méthode d'envoi
-     (API EDEN, HL7 FHIR R4 ou Scan / PDF de résultats) > « Créer ».
+     (API ROHAFYA, HL7 FHIR R4 ou Scan / PDF de résultats) > « Créer ».
      « Scan / PDF » : l'établissement dépose ses comptes rendus PDF dans sa
-     page Imports PDF ; EDEN en extrait les valeurs, un administrateur les
+     page Imports PDF ; ROHAFYA en extrait les valeurs, un administrateur les
      relit puis les publie.
   2. COPIER LA CLÉ D'API affichée : elle ne sera plus jamais montrée.
      La transmettre à l'équipe informatique de l'établissement par un canal sûr
@@ -110,10 +110,13 @@ Fiche de l'établissement > « Zone sensible » > « Supprimer l'établissement 
 puis saisir son identifiant (ex. labo-horizon) pour confirmer.
 Sont effacés définitivement : données reçues, imports PDF, rattachements,
 QR codes, administrateurs (ils perdent ce rôle s'ils n'administrent aucun autre
-établissement). Les comptes EDEN des patients et des médecins sont conservés ;
+établissement). Les comptes ROHAFYA des patients et des médecins sont conservés ;
 le journal garde la trace de la suppression.
 L'établissement GNU Health ne peut pas être supprimé (seulement suspendu).
 Pour une interruption temporaire, décochez plutôt « Établissement actif ».
+Message « METHOD NOT ALLOWED » (405) à la suppression : l'API en service est plus
+ancienne que l'application et ne connaît pas encore cette opération. Ce n'est pas
+une erreur de manipulation : faire redéployer l'API (Documentation/02, 7.4).
 
 
 6. DÉPANNAGE

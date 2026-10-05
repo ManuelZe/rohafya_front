@@ -4,7 +4,7 @@ import { DevisService } from './devis.service';
 import { AuthService } from '../../connexion/auth-service';
 import { PageHeader } from '../shared/page-header/page-header';
 import { CartItem, DevisResult, PriceList, ProductSearchResult } from './devis.models';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES DONNÉES.';
 const SEARCH_DEBOUNCE_MS = 300;
@@ -12,7 +12,7 @@ const SEARCH_MIN_LENGTH = 2;
 
 @Component({
   selector: 'app-devis',
-  imports: [EdenLoader, CommonModule, PageHeader],
+  imports: [RohafyaLoader, CommonModule, PageHeader],
   templateUrl: './devis.html',
   styleUrl: './devis.css',
   host: {

@@ -1,6 +1,6 @@
-"""Chaîne complète : PDF -> extraction -> contrôles -> envoi à EDEN, ou mise de côté pour relecture.
+"""Chaîne complète : PDF -> extraction -> contrôles -> envoi à ROHAFYA, ou mise de côté pour relecture.
 
-    export EDEN_API_URL=https://...      EDEN_API_KEY=eden_...
+    export ROHAFYA_API_URL=https://...      ROHAFYA_API_KEY=rohafya_...
     python pipeline.py compte_rendu.pdf LAB-CLB-1201 "Numération Formule Sanguine" [--ia]
 
 Sans --ia : extraction par règles uniquement (rien ne quitte le serveur).
@@ -29,10 +29,10 @@ def extraire_avec_repli(chemin, utiliser_ia):
     )
     if insuffisant and utiliser_ia:
         from extraire_ia import lire_pdf
-        from pont_ia import ia_vers_eden
+        from pont_ia import ia_vers_rohafya
 
         sortie = lire_pdf(chemin)
-        details, inconnues = ia_vers_eden(sortie)
+        details, inconnues = ia_vers_rohafya(sortie)
         entete = {"local_ref": sortie["dossier"] or None, "validation_date": sortie["date_validation"] or None}
         return {"methode": "ia", "entete": entete, "details": details, "a_relire": inconnues}
     return {"methode": "regles", "entete": resultat["entete"], "details": resultat["details"],
@@ -63,8 +63,8 @@ def main(chemin, code_examen, intitule, utiliser_ia=False):
         "details": [{k: v for k, v in d.items() if not k.startswith("_")} for d in acceptees],
     }
     reponse = requests.post(
-        os.environ["EDEN_API_URL"].rstrip("/") + "/ingest/v1/laboratoire",
-        headers={"X-EDEN-API-Key": os.environ["EDEN_API_KEY"]},
+        os.environ["ROHAFYA_API_URL"].rstrip("/") + "/ingest/v1/laboratoire",
+        headers={"X-ROHAFYA-API-Key": os.environ["ROHAFYA_API_KEY"]},
         json=[enregistrement],
         timeout=30,
     )

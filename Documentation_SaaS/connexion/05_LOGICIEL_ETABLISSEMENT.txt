@@ -3,12 +3,12 @@
 ================================================================================
 
 Le logiciel d'un établissement (laboratoire, centre d'imagerie, clinique) envoie
-à EDEN ses patients, résultats et factures. Il ne se connecte pas par l'écran de
+à ROHAFYA ses patients, résultats et factures. Il ne se connecte pas par l'écran de
 connexion : il s'authentifie à chaque appel avec la CLÉ D'API de
 l'établissement. Destinataire de ce document : l'équipe informatique.
 
-Adresse de l'API : celle indiquée dans EDEN, page Administration > Intégration
-(en production, l'adresse publique de l'API EDEN).
+Adresse de l'API : celle indiquée dans ROHAFYA, page Administration > Intégration
+(en production, l'adresse publique de l'API ROHAFYA).
 
 
 1. OBTENIR LA CLÉ D'API
@@ -18,24 +18,24 @@ Adresse de l'API : celle indiquée dans EDEN, page Administration > Intégration
   - Ensuite, l'administrateur de l'établissement (Intégration > « Générer une
     nouvelle clé ») ou le super-administrateur peut en générer une nouvelle :
     L'ANCIENNE CESSE IMMÉDIATEMENT DE FONCTIONNER.
-  - La clé commence par « eden_ ». EDEN n'en garde que l'empreinte : une clé
+  - La clé commence par « rohafya_ ». ROHAFYA n'en garde que l'empreinte : une clé
     perdue ne peut pas être réaffichée, seulement remplacée.
 
 Un établissement relié directement à GNU Health (PDMD Santé) n'a pas de clé :
-EDEN lit ses données en direct.
+ROHAFYA lit ses données en direct.
 
 
 2. S'AUTHENTIFIER
 -----------------
 Chaque requête porte l'en-tête :
 
-    X-EDEN-API-Key: eden_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    X-ROHAFYA-API-Key: rohafya_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-(l'en-tête « Authorization: Bearer eden_... » est aussi accepté).
+(l'en-tête « Authorization: Bearer rohafya_... » est aussi accepté).
 
 Tester la clé :
 
-    curl -H "X-EDEN-API-Key: $EDEN_API_KEY" "$EDEN_API_URL/ingest/v1/ping"
+    curl -H "X-ROHAFYA-API-Key: $ROHAFYA_API_KEY" "$ROHAFYA_API_URL/ingest/v1/ping"
 
 Réponse attendue :
     {"establishment": "Clinique Béthanie", "slug": "clinique-bethanie",
@@ -63,8 +63,12 @@ Réponse attendue :
   POST       /fhir/r4/<TypeDeRessource>       ressource FHIR seule
   GET        /fhir/r4/metadata                ressources FHIR prises en charge
 
+Le lien renvoyé par /ingest/v1/link-tokens (« url ») pointe vers l'adresse publique
+de ROHAFYA définie côté API par ROHAFYA_FRONT_URL (https://rohafya.com par défaut) :
+l'imprimer tel quel, sans le reconstruire.
+
 La clé ne donne accès qu'aux données de SON établissement. Elle ne permet ni de
-lire les comptes EDEN, ni d'accéder aux autres établissements.
+lire les comptes ROHAFYA, ni d'accéder aux autres établissements.
 
 Exemples complets et données de test : ../donnees-test/LISEZMOI.txt
 
@@ -72,14 +76,14 @@ Exemples complets et données de test : ../donnees-test/LISEZMOI.txt
 3 bis. ENVOYER UN COMPTE RENDU PDF
 ----------------------------------
 FONCTIONNALITÉ DISPONIBLE PROCHAINEMENT : tant qu'elle n'est pas ouverte par
-EDEN, cette adresse répond
+ROHAFYA, cette adresse répond
     403 {"message": "L'import de résultats médicaux par PDF arrive
          prochainement : cette fonctionnalité n'est pas encore ouverte.",
          "feature": "pdf_import", "available": false}
 Ce qui suit décrit son fonctionnement une fois ouverte.
 
-    curl -X POST "$EDEN_API_URL/ingest/v1/pdf" \
-      -H "X-EDEN-API-Key: $EDEN_API_KEY" \
+    curl -X POST "$ROHAFYA_API_URL/ingest/v1/pdf" \
+      -H "X-ROHAFYA-API-Key: $ROHAFYA_API_KEY" \
       -F "file=@compte-rendu.pdf" -F "local_ref=P-88-17"
 
   Champs (multipart) : file (obligatoire, PDF de 10 Mo au maximum), local_ref,
@@ -105,4 +109,4 @@ Ce qui suit décrit son fonctionnement une fois ouverte.
   - Une seule clé par établissement : si plusieurs logiciels envoient des
     données, ils partagent la clé ; la renouveler au départ d'un prestataire.
   - Les envois sont inscrits au journal de l'établissement (« Données reçues
-    (API EDEN) », « Données reçues (FHIR) »).
+    (API ROHAFYA) », « Données reçues (FHIR) »).

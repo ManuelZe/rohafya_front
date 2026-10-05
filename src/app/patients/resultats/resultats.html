@@ -110,7 +110,7 @@
     <!-- État Chargement -->
     @if (loading()) {
       <div class="state-container loading-state">
-        <app-eden-loader label="Chargement des résultats partagés" />
+        <app-rohafya-loader label="Chargement des résultats partagés" />
       </div>
     }
 
@@ -217,7 +217,7 @@
             @if (activeTab() === 'summary') {
               @if (examDetailsLoading()) {
                 <div class="state-container">
-                  <app-eden-loader label="Chargement du résultat" />
+                  <app-rohafya-loader label="Chargement du résultat" />
                 </div>
               } @else if (examDetailsError()) {
                 <div class="error-banner">
@@ -244,7 +244,7 @@
             } @else {
               @if (moreInfoLoading()) {
                 <div class="state-container">
-                  <app-eden-loader label="Chargement des informations complémentaires" />
+                  <app-rohafya-loader label="Chargement des informations complémentaires" />
                 </div>
               } @else if (moreInfoError()) {
                 <div class="error-banner">

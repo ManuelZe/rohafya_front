@@ -153,7 +153,7 @@ function db(): DemoStore {
       requests: [...patient.requests, ...doctor.requests],
       notifications: [...patient.notifications, ...doctor.notifications],
       uploads: new Map(),
-      links: [demoLink(1, 'Centre de démonstration EDEN', 'PAT-DEMO-0001')],
+      links: [demoLink(1, 'Centre de démonstration ROHAFYA', 'PAT-DEMO-0001')],
       nextId: 1,
     };
   }
@@ -774,9 +774,9 @@ function documentImage(title: string, subtitle: string): Blob {
   return svg(
     `<rect width="600" height="400" fill="#f8fafc"/>
      <rect x="30" y="20" width="540" height="360" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
-     <text x="60" y="80" font-family="sans-serif" font-size="28" font-weight="700" fill="#1a54c9">${escapeXml(title)}</text>
+     <text x="60" y="80" font-family="sans-serif" font-size="28" font-weight="700" fill="#0c4562">${escapeXml(title)}</text>
      <text x="60" y="115" font-family="sans-serif" font-size="16" fill="#475569">${escapeXml(subtitle)}</text>
-     <text x="60" y="140" font-family="sans-serif" font-size="13" fill="#94a3b8">Document fictif — mode démonstration EDEN</text>
+     <text x="60" y="140" font-family="sans-serif" font-size="13" fill="#94a3b8">Document fictif — mode démonstration ROHAFYA</text>
      ${lines}`
   );
 }
@@ -784,14 +784,14 @@ function documentImage(title: string, subtitle: string): Blob {
 function signatureImage(): Blob {
   return svg(
     `<rect width="400" height="160" fill="#ffffff"/>
-     <path d="M30 110 C 70 40, 110 140, 150 80 S 230 50, 260 100 S 330 120, 370 60" fill="none" stroke="#1e3a8a" stroke-width="4" stroke-linecap="round"/>
+     <path d="M30 110 C 70 40, 110 140, 150 80 S 230 50, 260 100 S 330 120, 370 60" fill="none" stroke="#0c4562" stroke-width="4" stroke-linecap="round"/>
      <text x="30" y="148" font-family="sans-serif" font-size="12" fill="#94a3b8">Signature fictive (démo)</text>`,
     400,
     160
   );
 }
 
-const ARTICLE_COLORS = ['#1a54c9', '#0f766e', '#b45309'];
+const ARTICLE_COLORS = ['#0c4562', '#047857', '#b45309'];
 
 function articleImage(id: number): Blob {
   const index = Math.max(0, db().doctor.articles.findIndex((a) => a.id === id));
@@ -802,6 +802,6 @@ function articleImage(id: number): Blob {
      <circle cx="500" cy="80" r="140" fill="#ffffff" opacity="0.12"/>
      <circle cx="80" cy="360" r="110" fill="#ffffff" opacity="0.10"/>
      <text x="40" y="200" font-family="sans-serif" font-size="26" font-weight="700" fill="#ffffff">${escapeXml(title)}</text>
-     <text x="40" y="240" font-family="sans-serif" font-size="16" fill="#ffffff" opacity="0.85">EDEN · Actualité de démonstration</text>`
+     <text x="40" y="240" font-family="sans-serif" font-size="16" fill="#ffffff" opacity="0.85">ROHAFYA · Actualité de démonstration</text>`
   );
 }

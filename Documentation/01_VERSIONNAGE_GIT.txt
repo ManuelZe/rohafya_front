@@ -1,10 +1,10 @@
 ================================================================================
-                    EDEN — GESTION DES VERSIONS AVEC GIT
+                    ROHAFYA — GESTION DES VERSIONS AVEC GIT
              et utilisation de Git pour le déploiement de l'application
 ================================================================================
 
 Document  : 01_VERSIONNAGE_GIT.txt
-Public    : développeurs et responsable du déploiement d'EDEN
+Public    : développeurs et responsable du déploiement de ROHAFYA
 Prérequis : aucun (chaque commande est donnée et expliquée)
 À lire    : AVANT 02_DEPLOIEMENT_HETZNER_PORTAINER.txt
 
@@ -14,7 +14,7 @@ SOMMAIRE
   1.  Pourquoi versionner, et le principe retenu
   2.  Vocabulaire
   3.  Installation et configuration de Git sur un poste
-  4.  Mise en place initiale du dépôt EDEN (À FAIRE UNE SEULE FOIS)
+  4.  Mise en place initiale du dépôt ROHAFYA (À FAIRE UNE SEULE FOIS)
   5.  Convention des messages de commit
   6.  Organisation des branches
   7.  Travail quotidien : de la tâche à la fusion, pas à pas
@@ -38,13 +38,13 @@ questions suivantes :
   - Qu'est-ce qui a changé depuis la dernière mise en ligne ?
   - Comment revenir en arrière en quelques secondes si la nouvelle version casse ?
 
-Le principe retenu pour EDEN tient en une ligne :
+Le principe retenu pour ROHAFYA tient en une ligne :
 
-    UN TAG GIT  vX.Y.Z  =  UNE IMAGE DOCKER  eden-app:X.Y.Z  =  UN DÉPLOIEMENT
+    UN TAG GIT  vX.Y.Z  =  UNE IMAGE DOCKER  rohafya:X.Y.Z   =  UN DÉPLOIEMENT
 
   - Le code est dans Git. Chaque version livrable reçoit un tag (ex. v1.4.2).
   - Le tag déclenche automatiquement la construction de l'image Docker
-    « eden-app:1.4.2 » (GitHub Actions), qui est publiée sur un registre.
+    « rohafya:1.4.2 » (GitHub Actions), qui est publiée sur un registre.
   - Le serveur Hetzner (via Portainer) déploie une image par son numéro exact.
   - La version en cours est visible à tout moment :  https://<domaine>/healthz
   - Revenir en arrière = redéployer l'image du numéro précédent (rien à recompiler).
@@ -97,8 +97,8 @@ Ce qu'on ne fait JAMAIS :
     Tester : ssh -T git@github.com
         -> « Hi <compte>! You've successfully authenticated » = OK.
 
-3.4 Outils de l'équipe (à faire dans CHAQUE clone du dépôt EDEN)
-    cd <dossier du projet>/eden_app
+3.4 Outils de l'équipe (à faire dans CHAQUE clone du dépôt ROHAFYA)
+    cd <dossier du projet>/rohafya_front
     bash Documentation/scripts/installer-outils-git.sh
     Ce script :
       - active le contrôle automatique des messages de commit (section 5) ;
@@ -108,18 +108,23 @@ Ce qu'on ne fait JAMAIS :
 
 
 ================================================================================
-4. MISE EN PLACE INITIALE DU DÉPÔT EDEN (À FAIRE UNE SEULE FOIS)
+4. MISE EN PLACE INITIALE DU DÉPÔT ROHAFYA (À FAIRE UNE SEULE FOIS)
 ================================================================================
 
-État constaté au moment de la rédaction :
-  - le dépôt local contient UN seul commit (« initial commit ») ;
-  - AUCUN dépôt distant n'est configuré (git remote -v ne renvoie rien) ;
-  - tout le travail récent (espace docteur, refonte, déploiement…) N'EST PAS
-    COMMITÉ : il n'existe que sur ce poste. Un disque perdu = travail perdu.
+État constaté le 2026-10-05 (passage d'EDEN à ROHAFYA) :
+  - le dossier .git d'origine (branche eden/saas, tags v0.1.0 à v0.5.0) a disparu
+    du poste ; le dépôt a été RÉINITIALISÉ (git init, branche main) ;
+  - il contient UN commit de référence, 437444b « chore: état de référence avant
+    le renommage EDEN → Rohafya » : le code tel qu'il était, avant toute
+    modification ;
+  - AUCUN dépôt distant n'est configuré, AUCUN tag n'existe en local, et les
+    hooks Git (contrôle des messages de commit) ne sont plus installés ;
+  - le travail qui suit (renommage, logo, thème, documentation) n'est PAS encore
+    commité.
   => Les étapes 4.1 à 4.7 sont PRIORITAIRES.
 
 4.1 Vérifier que rien de sensible ne sera versionné
-    cd /home/iuc/Documents/API_Docteur/eden2/eden_app
+    cd /home/iuc/Documents/API_Docteur/rohafya_front
     git status
     Contrôler qu'aucun fichier ne contient de mot de passe, jeton ou clé.
     Le fichier .gitignore exclut déjà : node_modules, dist, .angular/cache,
@@ -128,45 +133,47 @@ Ce qu'on ne fait JAMAIS :
 
 4.2 Installer les outils Git (section 3.4)
     bash Documentation/scripts/installer-outils-git.sh
+    (à refaire après la réinitialisation : les hooks vivent dans .git/hooks)
 
 4.3 Enregistrer le travail en cours en commits LOGIQUES (un sujet = un commit)
-    Exemple de découpage recommandé :
+    Le renommage, le logo et le thème modifient en partie les mêmes fichiers de
+    src/app : les séparer exigerait « git add -p » fichier par fichier. Découpage
+    recommandé :
 
-    git add src/environments src/server.ts src/index.html public/env.js angular.json
-    git commit -m "feat(deploiement): configuration d'exécution et sonde /healthz"
-
-    git add src/app/shared src/styles.css src/app/app.ts src/app/app.html
-    git commit -m "feat(ui): écran de démarrage EDEN, chargements animés et fonds"
-
-    git add src/app/doctors
-    git commit -m "feat(docteur): espace docteur et suivi des commissions en points"
-
-    git add src/app/patients src/app/notifications
-    git commit -m "feat(patients): refonte du tableau de bord patient"
-
-    git add src/app/connexion src/app/intro src/others src/app/app.routes*.ts \
-            src/app/app.config.ts src/app/app.spec.ts public/femme.jpeg
-    git commit -m "feat(connexion): parcours de connexion et pages d'accueil"
-
-    git add Documentation .gitignore
-    git commit -m "docs(deploiement): documentation et scripts de déploiement"
-
-    git add -A                     # tout ce qui reste (package.json, .vscode…)
+    git add src public angular.json package.json package-lock.json .github .gitignore
     git status                     # relire la liste AVANT de valider
-    git commit -m "chore: mise à jour des dépendances et de la configuration"
+    git commit -m "feat(ui): passage à ROHAFYA (nom, logo, favicon, couleurs)"
+
+    git add -A                     # documentation et ce qui reste
+    git status
+    git commit -m "docs: documentation à jour pour ROHAFYA"
 
     Contrôle final :  git status   -> « nothing to commit, working tree clean »
+
+4.3 bis Récupérer l'ancien historique (si l'ancien dépôt existe sur GitHub)
+    Les commits et tags d'EDEN (v0.1.0 à v0.5.0) sont encore sur GitHub s'ils y ont
+    été poussés. Pour replacer le travail actuel à leur suite plutôt que de repartir
+    de zéro (à faire AVANT tout push) :
+    git remote add origin git@github.com:<organisation>/<ancien-depot>.git
+    git fetch origin --tags
+    git rebase --root --onto origin/eden/saas main
+      (les fichiers identiques ne posent pas de conflit ; en cas de conflit :
+       corriger, git add <fichier>, git rebase --continue)
+    git log --oneline -5           # le travail ROHAFYA suit b356391
+    Puis renommer le dépôt sur GitHub en « rohafya » (document 02, section 14) et
+    passer directement à 4.5 (« git push -u origin main »).
+    Sans ancien dépôt : continuer en 4.4.
 
 4.4 Créer le dépôt distant sur GitHub
     1. github.com > « + » > New repository
     2. Owner : l'organisation (ex. pdmdsante) — de préférence à un compte personnel
-    3. Nom : eden-app          Visibilité : PRIVATE (données de santé)
+    3. Nom : rohafya           Visibilité : PRIVATE (données de santé)
     4. NE PAS cocher « Add a README » / .gitignore / licence (le dépôt existe déjà)
-    5. Create repository, puis copier l'adresse SSH : git@github.com:pdmdsante/eden-app.git
+    5. Create repository, puis copier l'adresse SSH : git@github.com:pdmdsante/rohafya.git
 
 4.5 Relier le dépôt local et pousser
     git branch -M main
-    git remote add origin git@github.com:pdmdsante/eden-app.git
+    git remote add origin git@github.com:pdmdsante/rohafya.git
     git push -u origin main
     Vérifier sur GitHub que les fichiers et tous les commits apparaissent.
 
@@ -185,7 +192,7 @@ Ce qu'on ne fait JAMAIS :
 4.8 Première version officielle
     Quand le dépôt GitHub est configuré (section 10) :
     bash Documentation/scripts/release.sh 1.0.0
-    -> crée le tag v1.0.0 ; GitHub Actions construit l'image eden-app:1.0.0.
+    -> crée le tag v1.0.0 ; GitHub Actions construit l'image rohafya:1.0.0.
     La mise en production elle-même est décrite dans le document 02.
 
 
@@ -221,7 +228,7 @@ Ce qu'on ne fait JAMAIS :
     ajouter « ! » après le type, ou « BREAKING CHANGE: ... » en pied de message
         -> MAJEUR (1.4.2 -> 2.0.0). release.sh vous avertit s'il en détecte.
 
-5.3 Portées usuelles pour EDEN
+5.3 Portées usuelles pour ROHAFYA
     patients, docteur, commissions, resultats, notifications, connexion,
     ui, api, deploiement, deps
 
@@ -328,7 +335,7 @@ puis release depuis main (section 9).
     Quand on incrémente un chiffre, ceux de droite repartent à 0 :
     1.4.2 -> correctif 1.4.3 | mineur 1.5.0 | majeur 2.0.0
 
-Exemples concrets pour EDEN
+Exemples concrets pour ROHAFYA
     - Le bouton retour des notifications ne marchait pas            -> 1.0.1
     - Ajout de l'export CSV des commissions                          -> 1.1.0
     - Refonte du tableau de bord patient (nouvelles sections)        -> 1.2.0
@@ -344,7 +351,7 @@ Pré-versions (préproduction) : 1.3.0-rc.1, 1.3.0-rc.2 … puis 1.3.0
 
 Premier numéro : 1.0.0 (l'application est déjà utilisée par des patients et médecins).
 Le numéro vit à 3 endroits, TOUJOURS identiques (release.sh s'en charge) :
-    tag Git v1.4.2  =  package.json "version": "1.4.2"  =  image eden-app:1.4.2
+    tag Git v1.4.2  =  package.json "version": "1.4.2"  =  image rohafya:1.4.2
 
 
 ================================================================================
@@ -383,14 +390,14 @@ les tags de version à la main.
 9.5 Ce qui se passe ensuite automatiquement (GitHub > onglet Actions > « Release »)
       1. vérification : le tag correspond à package.json, tests + build ;
       2. construction de l'image Docker, test de démarrage, publication sur
-         ghcr.io/<organisation>/eden-app avec les étiquettes 1.5.0, 1.5, 1, sha-xxxxxxx ;
+         ghcr.io/<organisation>/rohafya avec les étiquettes 1.5.0, 1.5, 1, sha-xxxxxxx ;
       3. création de la « Release » GitHub avec les notes de version ;
       4. (si activé) déploiement sur le serveur après approbation manuelle.
     Durée habituelle : 5 à 10 minutes.
 
 9.6 Vérifier
-    - GitHub > Releases : « EDEN v1.5.0 » avec ses notes ;
-    - GitHub > Packages > eden-app : l'étiquette 1.5.0 existe ;
+    - GitHub > Releases : « ROHAFYA v1.5.0 » avec ses notes ;
+    - GitHub > Packages > rohafya : l'étiquette 1.5.0 existe ;
     - puis déploiement : document 02, étape 10.
 
 
@@ -425,33 +432,33 @@ les tags de version à la main.
     Secrets de l'environnement : PORTAINER_URL, PORTAINER_API_KEY, PORTAINER_STACK_NAME
     Variables du dépôt (Settings > Secrets and variables > Actions > Variables) :
       DEPLOY_AUTO      = true   (false ou absente = déploiement manuel uniquement)
-      EDEN_PUBLIC_URL  = https://eden.pdmdsante.com
+      ROHAFYA_PUBLIC_URL  = https://rohafya.com
     Détails et choix de sécurité : document 02, étape 9.
 
 10.5 Visibilité de l'image
-    Après la 1re release : github.com/orgs/<organisation>/packages > eden-app >
-    Package settings : laisser « Private » et lier le paquet au dépôt eden-app.
+    Après la 1re release : github.com/orgs/<organisation>/packages > rohafya >
+    Package settings : laisser « Private » et lier le paquet au dépôt rohafya.
 
 
 ================================================================================
 11. LE LIEN GIT -> IMAGE DOCKER -> SERVEUR (TRAÇABILITÉ)
 ================================================================================
 
-    Commit ──► tag v1.5.0 ──► image ghcr.io/…/eden-app:1.5.0 ──► stack Portainer
-                                   (labels : version, commit)      EDEN_VERSION=1.5.0
+    Commit ──► tag v1.5.0 ──► image ghcr.io/…/rohafya:1.5.0 ──► stack Portainer
+                                   (labels : version, commit)      ROHAFYA_VERSION=1.5.0
                                                                           │
-                                   https://eden.pdmdsante.com/healthz ◄───┘
+                                   https://rohafya.com/healthz ◄───┘
                                    {"status":"ok","version":"1.5.0",…}
 
 Retrouver le code exact qui tourne en production :
-    curl -s https://eden.pdmdsante.com/healthz          -> "version":"1.5.0"
+    curl -s https://rohafya.com/healthz                 -> "version":"1.5.0"
     git show v1.5.0                                      -> commit et notes
     git checkout v1.5.0                                  -> le code tel quel (lecture)
     git switch -                                         -> revenir à sa branche
 
 Commit exact embarqué dans une image (sur le serveur) :
     docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' \
-      ghcr.io/pdmdsante/eden-app:1.5.0
+      ghcr.io/pdmdsante/rohafya:1.5.0
 
 Différences entre deux versions :
     git log v1.4.2..v1.5.0 --oneline
@@ -525,7 +532,7 @@ travaux non prêts.
   Mettre de côté un travail en cours
     git stash push -m "essai"   /   git stash pop
 
-  Versions et déploiement (scripts EDEN)
+  Versions et déploiement (scripts ROHAFYA)
     bash Documentation/scripts/release.sh patch|minor|major|X.Y.Z [--dry-run]
     bash Documentation/scripts/deployer-portainer.sh --statut
     bash Documentation/scripts/deployer-portainer.sh X.Y.Z

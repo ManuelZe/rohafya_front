@@ -13,7 +13,7 @@ import { ImagerieService } from '../imagerie/imagerie.service';
 import { ExplorationService } from '../exploration/exploration.service';
 import { DoctorSearchService } from './doctor-search.service';
 import { DoctorInfo } from './doctor-search.models';
-import { EdenLoader } from '../../shared/eden-loader/eden-loader';
+import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 interface SendResultFormModel {
   exam_type: ExamType;
@@ -166,7 +166,7 @@ type DetailTab = 'summary' | 'more';
 
 @Component({
   selector: 'app-resultats',
-  imports: [EdenLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
+  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
   templateUrl: './resultats.html',
   styleUrl: './resultats.css',
   host: {
