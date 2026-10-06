@@ -87,6 +87,13 @@ déroulante « Établissement » en haut de la barre latérale).
      (voir connexion/05_LOGICIEL_ETABLISSEMENT.txt).
   3. « Ajouter ses administrateurs » : e-mail, prénom, nom > « Ajouter ».
      La personne reçoit un e-mail d'invitation et se connecte par code.
+     Le rôle EstablishmentAdmin lui est donné automatiquement. Ce sont ces
+     administrateurs qui reçoivent et traitent les DEMANDES de l'établissement
+     (prescriptions, pré-enregistrements, requêtes : page « Demandes »).
+     Sans administrateur, les avis de nouvelle demande partent à l'« E-mail de
+     contact » de l'établissement, sinon aux super-administrateurs.
+     PDMD Santé : y ajouter ses administrateurs, qui reçoivent aussi toutes les
+     demandes envoyées avant octobre 2026.
 
   4. Si besoin, ajuster le quota d'imports PDF dans la fiche (section
      « Quota d'imports PDF ») > « Enregistrer ». L'administrateur de
@@ -108,8 +115,9 @@ serveur) suivant la sortie du plus ancien fichier de la période.
 ---------------------------------
 Fiche de l'établissement > « Zone sensible » > « Supprimer l'établissement »,
 puis saisir son identifiant (ex. labo-horizon) pour confirmer.
-Sont effacés définitivement : données reçues, imports PDF, rattachements,
-QR codes, administrateurs (ils perdent ce rôle s'ils n'administrent aucun autre
+Sont effacés définitivement : données reçues, imports PDF, demandes reçues
+(prescriptions, pré-enregistrements, requêtes, avec leurs pièces jointes),
+rattachements, QR codes, administrateurs (ils perdent ce rôle s'ils n'administrent aucun autre
 établissement). Les comptes ROHAFYA des patients et des médecins sont conservés ;
 le journal garde la trace de la suppression.
 L'établissement GNU Health ne peut pas être supprimé (seulement suspendu).

@@ -1,35 +1,42 @@
-import { Component, inject, signal, OnDestroy, OnInit, AfterViewInit, ElementRef } from '@angular/core';
-import { form, required, min, maxLength, FormField, FormRoot } from '@angular/forms/signals';
+import { Component, computed, inject, input, signal, OnDestroy, OnInit, AfterViewInit, ElementRef } from '@angular/core';
+import { form, required, maxLength, FormField, FormRoot } from '@angular/forms/signals';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { PrescriptionService } from './prescriptions.service';
-import { PrescriptionCreatePayload, PrescriptionDevis, PrescriptionWithImage } from './prescriptions.models';
+import { PrescriptionCreatePayload, PrescriptionWithImage } from './prescriptions.models';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { EstablishmentsService } from '../../shared/submission/establishments.service';
+import { SubmissionInfoView } from '../../shared/submission/submission-info';
+import { SubmissionAudience, formatFcfa } from '../../shared/submission/submission.models';
 
 interface PrescriptionFormModel {
+  /** Établissement destinataire (id, sous forme de texte pour la liste déroulante). */
+  tenant_id: string;
   NameDoctor: string;
   OrdreDoctor: string;
+  /** Patient concerné (espace médecin). */
+  patient_name: string;
   Description: string;
-  patient_id: number;
   demande_devis: boolean;
 }
 
 function emptyFormModel(): PrescriptionFormModel {
   return {
+    tenant_id: '',
     NameDoctor: '',
     OrdreDoctor: '',
+    patient_name: '',
     Description: '',
-    patient_id: 0,
     demande_devis: false,
   };
 }
 
 @Component({
   selector: 'app-prescriptions',
-  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
+  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView],
   templateUrl: './prescriptions.html',
   styleUrl: './prescriptions.css',
   host: {
@@ -40,6 +47,16 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
   private readonly prescriptionService = inject(PrescriptionService);
   private readonly elRef = inject(ElementRef);
   private readonly sanitizer = inject(DomSanitizer);
+  readonly establishments = inject(EstablishmentsService);
+
+  /** Espace appelant, fourni par les données de route : un médecin prescrit pour un patient. */
+  readonly audience = input<SubmissionAudience>('patient');
+  readonly isDoctor = computed(() => this.audience() === 'doctor');
+  readonly subtitle = computed(() =>
+    this.isDoctor()
+      ? 'Envoyez vos prescriptions à un établissement et suivez sa réponse'
+      : 'Envoyez vos ordonnances à un établissement et suivez sa réponse'
+  );
 
   prescriptions = signal<PrescriptionWithImage[]>([]);
   loading = signal(false);
@@ -51,19 +68,17 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
 
   readonly formModel = signal<PrescriptionFormModel>(emptyFormModel());
   readonly prescriptionForm = form(this.formModel, (f) => {
-    required(f.NameDoctor, { message: 'Le nom du médecin est requis.' });
+    required(f.tenant_id, { message: "Choisissez l'établissement destinataire." });
     maxLength(f.Description, 500);
+    maxLength(f.patient_name, 200);
   });
 
   selectedFile = signal<File | null>(null);
   selectedFilePreviewUrl = signal<SafeUrl | string | null>(null);
   private selectedFileObjectUrl: string | null = null;
 
-  // État du panneau devis
-  devisPrescriptionId = signal<number | null>(null);
-  devisData = signal<PrescriptionDevis | null>(null);
-  devisLoading = signal(false);
-  devisError = signal<string | null>(null);
+  // Panneau « devis » : réponse de l'établissement à la demande de devis
+  devisPrescription = signal<PrescriptionWithImage | null>(null);
 
   // État du pop-up modal de suppression
   prescriptionToDelete = signal<PrescriptionWithImage | null>(null);
@@ -79,6 +94,7 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
   private observer: IntersectionObserver | null = null;
 
   ngOnInit(): void {
+    this.establishments.load();
     this.loadPrescriptions();
   }
 
@@ -99,7 +115,7 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
       this.closeImagePreview();
     } else if (this.prescriptionToDelete()) {
       this.cancelDelete();
-    } else if (this.devisPrescriptionId() !== null) {
+    } else if (this.devisPrescription()) {
       this.closeDevis();
     }
   }
@@ -142,7 +158,7 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.prescriptionService.getAllPrescriptions().subscribe({
+    this.prescriptionService.getAllPrescriptions(this.audience()).subscribe({
       next: (data) => {
         this.prescriptions.set(
           data.map((p) => ({
@@ -235,18 +251,32 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
   }
 
   submitPrescription(): void {
-    if (this.prescriptionForm().invalid()) {
-      this.errorMessage.set('NameDoctor est obligatoire.');
+    const model = this.formModel();
+    if (this.prescriptionForm().invalid() || !model.tenant_id) {
+      this.errorMessage.set("Choisissez l'établissement destinataire.");
+      return;
+    }
+    if (this.isDoctor() && !model.patient_name.trim()) {
+      this.errorMessage.set('Indiquez le patient concerné par la prescription.');
+      return;
+    }
+    if (!this.isDoctor() && !model.NameDoctor.trim()) {
+      this.errorMessage.set('Le nom du médecin prescripteur est obligatoire.');
       return;
     }
 
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    const model = this.formModel();
     const payload: PrescriptionCreatePayload = {
-      ...model,
+      tenant_id: Number(model.tenant_id),
+      audience: this.audience(),
+      Description: model.Description,
+      demande_devis: model.demande_devis,
       file: this.selectedFile(),
+      ...(this.isDoctor()
+        ? { patient_name: model.patient_name.trim() }
+        : { NameDoctor: model.NameDoctor.trim(), OrdreDoctor: model.OrdreDoctor.trim() }),
     };
 
     this.prescriptionService.addPrescription(payload).subscribe({
@@ -259,7 +289,7 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.errorMessage.set("Échec de l'ajout de la prescription.");
+        this.errorMessage.set(err?.error?.message ?? "Échec de l'envoi de la prescription.");
         console.error(err);
       },
     });
@@ -295,27 +325,16 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
   }
 
   openDevis(prescription: PrescriptionWithImage): void {
-    this.devisPrescriptionId.set(prescription.id);
-    this.devisData.set(null);
-    this.devisError.set(null);
-    this.devisLoading.set(true);
-
-    this.prescriptionService.getDevis(prescription.id).subscribe({
-      next: (data) => {
-        this.devisData.set(data);
-        this.devisLoading.set(false);
-      },
-      error: (err) => {
-        this.devisError.set('Impossible de récupérer le devis.');
-        this.devisLoading.set(false);
-        console.error(err);
-      },
-    });
+    this.devisPrescription.set(prescription);
   }
 
   closeDevis(): void {
-    this.devisPrescriptionId.set(null);
-    this.devisData.set(null);
-    this.devisError.set(null);
+    this.devisPrescription.set(null);
+  }
+
+  /** Montant du devis en FCFA, ou chaîne vide s'il n'est pas encore fixé. */
+  quoteLabel(prescription: PrescriptionWithImage): string {
+    const amount = prescription.submission?.quote_amount;
+    return amount === null || amount === undefined ? '' : formatFcfa(amount);
   }
 }

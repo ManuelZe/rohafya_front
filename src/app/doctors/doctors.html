@@ -148,7 +148,7 @@
           <svg [pIcon]="'question-circle'" [size]="22" aria-hidden="true"></svg>
           <h2 id="help-title">Service d'aide</h2>
         </div>
-        <p class="dialog-intro">Une question sur vos commissions ou votre compte ? Nos équipes vous répondent.</p>
+        <p class="dialog-intro">{{ commissionsEnabled() ? 'Une question sur vos commissions ou votre compte ?' : 'Une question sur votre compte ?' }} Nos équipes vous répondent.</p>
         @for (contact of helpContacts; track contact.label) {
           <div class="help-card">
             <h3>{{ contact.label }}</h3>

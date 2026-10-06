@@ -2,11 +2,11 @@
   <p-toast />
   <p-confirmdialog />
 
-  <app-page-header title="Gestion des Requêtes" subtitle="Suivez vos demandes et enregistrez-en de nouvelles.">
+  <app-page-header title="Requêtes" subtitle="Écrivez à un établissement et suivez sa réponse.">
     <p-selectbutton
       actions
       class="tab-switch"
-      [options]="tabOptions"
+      [options]="tabOptions()"
       optionLabel="label"
       optionValue="value"
       [ngModel]="activeTab()"
@@ -67,7 +67,8 @@
                 <th pSortableColumn="CreatedAt">
                   <div class="th-content">Date <p-sort-icon field="CreatedAt" /></div>
                 </th>
-                <th>Statut / Types</th>
+                <th>Établissement / Réponse</th>
+                <th>Types</th>
                 <th>Message</th>
                 <th style="width: 70px">Actions</th>
               </tr>
@@ -79,14 +80,16 @@
                 <td><span class="cell-primary">{{ req.first_name }} {{ req.last_name }}</span></td>
                 <td><a class="email-link" href="mailto:{{ req.email }}">{{ req.email }}</a></td>
                 <td>{{ req.CreatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="submission-cell">
+                  <app-submission-info [submission]="req.submission" />
+                </td>
                 <td>
                   <div class="badge-group">
-                    @if (req.valide) { <p-tag severity="success" value="Validé" /> }
                     @if (req.administration) { <p-tag severity="info" value="Admin" /> }
                     @if (req.connection) { <p-tag severity="info" value="Connexion" /> }
                     @if (req.error) { <p-tag severity="danger" value="Erreur" /> }
                     @if (req.suggestion) { <p-tag severity="warn" value="Suggestion" /> }
-                    @if (!req.valide && !req.administration && !req.connection && !req.error && !req.suggestion) {
+                    @if (!req.administration && !req.connection && !req.error && !req.suggestion) {
                       <p-tag severity="secondary" value="Non classé" />
                     }
                   </div>
@@ -119,7 +122,7 @@
 
             <ng-template #emptymessage>
               <tr>
-                <td colspan="7">
+                <td colspan="8">
                   <div class="empty-state">
                     <i class="pi pi-inbox empty-icon"></i>
                     <p class="empty-title">Aucune requête pour le moment.</p>
@@ -163,7 +166,11 @@
                   </div>
                   <div class="request-card-summary">
                     <span class="request-card-date">{{ req.CreatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                    <app-status-tag kind="requete" [status]="req.valide ? 'true' : 'false'" />
+                    @if (req.submission) {
+                      <p-tag [severity]="statusSeverity[req.submission.status]" [value]="req.submission.status_label" />
+                    } @else {
+                      <app-status-tag kind="requete" [status]="req.valide ? 'true' : 'false'" />
+                    }
                     
                     <button 
                       pButton 
@@ -187,6 +194,11 @@
 
                 @if (expandedCardId() === req.id) {
                   <div class="request-card-details">
+                    <div class="detail-row">
+                      <span class="detail-label">Établissement</span>
+                      <app-submission-info [submission]="req.submission" />
+                    </div>
+
                     <div class="detail-row">
                       <span class="detail-label">Email</span>
                       <a class="email-link" href="mailto:{{ req.email }}">{{ req.email }}</a>
@@ -247,6 +259,28 @@
             </ng-template>
 
             <div class="form-grid">
+              <div class="field full-width">
+                <label for="tenant_id">Établissement destinataire</label>
+                <p-select
+                  inputId="tenant_id"
+                  formControlName="tenant_id"
+                  [options]="establishments.list()"
+                  optionLabel="name"
+                  optionValue="id"
+                  [loading]="establishments.loading()"
+                  [filter]="establishments.list().length > 8"
+                  filterBy="name"
+                  placeholder="Choisir un établissement"
+                  styleClass="w-full"
+                  ariaLabel="Établissement destinataire"
+                />
+                @if (requestForm.get('tenant_id')?.invalid && requestForm.get('tenant_id')?.touched) {
+                  <small class="field-error">Choisissez l'établissement destinataire.</small>
+                } @else {
+                  <small class="field-hint">{{ establishments.error() ?? "L'établissement choisi reçoit la requête et vous répond." }}</small>
+                }
+              </div>
+
               <div class="field">
                 <label for="first_name">Prénom</label>
                 <input id="first_name" type="text" pInputText formControlName="first_name" />
@@ -300,7 +334,7 @@
               type="submit"
               [disabled]="requestForm.invalid || isLoading()">
               <i [class]="isLoading() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"></i>
-              <span>{{ isLoading() ? 'Envoi en cours...' : 'Enregistrer la requête' }}</span>
+              <span>{{ isLoading() ? 'Envoi en cours...' : 'Envoyer la requête' }}</span>
             </button>
           </div>
         </form>

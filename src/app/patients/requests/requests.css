@@ -440,3 +440,12 @@
     padding: 0 1rem 1rem;
   }
 }
+.submission-cell {
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.field-hint {
+  font-size: 0.8rem;
+  color: #4a5568;
+}

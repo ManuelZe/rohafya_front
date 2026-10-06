@@ -44,6 +44,27 @@ LES CINQ RÔLES EN UN COUP D'ŒIL
                                                      + mot de passe (historique)
   Logiciel de l'établissement   /ingest, /fhir       clé d'API (en-tête HTTP)
 
+Rôles techniques (table « roles » de l'API) et ce qui les donne :
+  SuperAdmin (ou l'historique Admin)   flask saas create-superadmin
+  EstablishmentAdmin                   ajout comme administrateur d'un
+                                       établissement (aucune permission à cocher)
+  Patient                              création du compte ; permissions patients.*
+  Doctor                               import du médecin ; permissions doctors.*
+Les permissions des rôles Patient et Doctor sont attribuées par
+« flask saas init » (à relancer après chaque mise à jour de l'API).
+
 Après connexion, ROHAFYA ouvre automatiquement l'espace correspondant au rôle.
+
+
+PRESCRIPTIONS, PRÉ-ENREGISTREMENTS ET REQUÊTES : QUI ENVOIE, QUI RÉPOND
+----------------------------------------------------------------------
+  Envoient       patients (/patients), médecins (/doctors), visiteurs sans
+                 compte (requêtes seulement, /requests)
+  À qui          UN établissement actif, choisi dans le formulaire
+  Répondent      les administrateurs de cet établissement : /admin/demandes
+                 (statut, message, montant du devis)
+  Suivi          l'auteur voit statut et réponse dans son espace, et reçoit une
+                 notification et un e-mail (le visiteur : e-mail seulement)
+Détails : connexion/02 (section 4 ter), 03 (5 bis) et 04 (5 bis).
 Adresse de production utilisée dans ces documents : https://rohafya.com
 (remplacez-la par l'adresse de préproduction pour vos essais).

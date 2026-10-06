@@ -8,7 +8,7 @@
         <strong>Confirmez votre profil pour accéder à votre espace.</strong>
         <span class="block">
           Certaines coordonnées ont été générées automatiquement lors de la création de votre compte. Vérifiez-les,
-          corrigez-les si besoin puis enregistrez : vos commissions et résultats seront immédiatement accessibles.
+          corrigez-les si besoin puis enregistrez : {{ commissionsEnabled() ? 'vos commissions et résultats seront' : 'vos résultats seront' }} immédiatement accessibles.
         </span>
       </div>
     </div>

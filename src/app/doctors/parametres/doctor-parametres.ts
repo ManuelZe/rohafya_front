@@ -5,6 +5,7 @@ import { form, required, email, pattern, validate, FormField, FormRoot } from '@
 import { PIcon } from '@primeicons/angular/p-icon';
 import { AuthService } from '../../connexion/auth-service';
 import { PageHeader } from '../../patients/shared/page-header/page-header';
+import { SaasAccountService } from '../../saas/saas-account.service';
 import { DoctorProfileService } from '../doctor-profile.service';
 import { DoctorUpdatePayload } from '../doctor.models';
 import { extractErrorMessage } from '../shared/api-resource';
@@ -58,6 +59,7 @@ const PHONE_PATTERN = /^\+?[0-9 ]{8,15}$/;
 export class DoctorParametres {
   private readonly authService = inject(AuthService);
   private readonly profileService = inject(DoctorProfileService);
+  readonly commissionsEnabled = inject(SaasAccountService).commissionsEnabled;
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly profile = this.profileService.profile;

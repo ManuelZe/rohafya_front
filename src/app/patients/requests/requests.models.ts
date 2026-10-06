@@ -1,3 +1,5 @@
+import { SubmissionAudience, SubmissionInfo } from '../../shared/submission/submission.models';
+
 export interface UserRequest {
   id?: number;
   CreatedAt?: string;
@@ -20,4 +22,10 @@ export interface UserRequest {
   revendication_examen?: boolean;
   suggestion?: boolean;
   valide?: boolean;
+  /** Établissement destinataire (envoi). */
+  tenant_id?: number;
+  /** Espace d'où la requête est envoyée (envoi). */
+  audience?: SubmissionAudience;
+  /** Établissement destinataire, statut et réponse (null : requête antérieure). */
+  submission?: SubmissionInfo | null;
 }

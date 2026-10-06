@@ -1,0 +1,211 @@
+{
+  "tenants": [
+    {
+      "id": 1,
+      "slug": "centre-demo",
+      "name": "Centre de démonstration ROHAFYA",
+      "source_type": "api",
+      "is_active": true,
+      "api_key_hint": "a4f9c2",
+      "created_at": "@J-300T09:00",
+      "updated_at": "@J-12T15:30",
+      "settings": {
+        "display_name": "Centre de démonstration ROHAFYA",
+        "result_access_days": 90,
+        "block_unpaid_results": true,
+        "commissions_enabled": false,
+        "link_token_days": 30,
+        "primary_color": "#047857",
+        "contact_email": "accueil@centre-demo.rohafya",
+        "contact_phone": "+237 600 000 100",
+        "pdf_ai_enabled": false,
+        "pdf_quota_files": 10,
+        "pdf_quota_days": 1
+      }
+    },
+    {
+      "id": 2,
+      "slug": "laboratoire-horizon",
+      "name": "Laboratoire Horizon (démo)",
+      "source_type": "fhir",
+      "is_active": true,
+      "api_key_hint": "7be210",
+      "created_at": "@J-280T10:00",
+      "updated_at": "@J-40T11:00",
+      "settings": {
+        "display_name": "Laboratoire Horizon (démo)",
+        "result_access_days": 60,
+        "block_unpaid_results": false,
+        "commissions_enabled": false,
+        "link_token_days": 15,
+        "primary_color": "#0c4562",
+        "contact_email": "contact@horizon-demo.rohafya",
+        "contact_phone": "+237 600 000 200",
+        "pdf_ai_enabled": false,
+        "pdf_quota_files": 10,
+        "pdf_quota_days": 1
+      }
+    },
+    {
+      "id": 3,
+      "slug": "clinique-bethanie",
+      "name": "Clinique Béthanie (démo)",
+      "source_type": "pdf",
+      "is_active": false,
+      "api_key_hint": "c0d93e",
+      "created_at": "@J-120T08:30",
+      "updated_at": "@J-30T17:00",
+      "settings": {
+        "display_name": "Clinique Béthanie (démo)",
+        "result_access_days": 90,
+        "block_unpaid_results": true,
+        "commissions_enabled": false,
+        "link_token_days": 30,
+        "primary_color": "#047857",
+        "contact_email": "direction@bethanie-demo.rohafya",
+        "contact_phone": "+237 600 000 300",
+        "pdf_ai_enabled": false,
+        "pdf_quota_files": 5,
+        "pdf_quota_days": 1
+      }
+    }
+  ],
+  "accounts": [
+    { "id": 990003, "username": "DEMO-A-0001", "email": "joseph.kamga@demo.rohafya", "first_name": "Joseph", "last_name": "KAMGA (Démo)", "active": true, "roles": ["EstablishmentAdmin"], "patient_id": null, "doctor_id": null, "created_at": "@J-290" },
+    { "id": 990004, "username": "DEMO-S-0001", "email": "mireille.abena@demo.rohafya", "first_name": "Mireille", "last_name": "ABENA (Démo)", "active": true, "roles": ["SuperAdmin"], "patient_id": null, "doctor_id": null, "created_at": "@J-320" },
+    { "id": 990005, "username": "DEMO-D-0002", "email": "solange.mbia@demo.rohafya", "first_name": "Solange", "last_name": "MBIA (Démo)", "active": true, "roles": ["Doctor"], "patient_id": null, "doctor_id": 99802, "created_at": "@J-260" },
+    { "id": 990006, "username": "DEMO-D-0003", "email": "herve.tchoua@demo.rohafya", "first_name": "Hervé", "last_name": "TCHOUA (Démo)", "active": true, "roles": ["Doctor"], "patient_id": null, "doctor_id": 99803, "created_at": "@J-230" },
+    { "id": 990011, "username": "DEMO-P-0011", "email": "jeanmarc.onana@demo.rohafya", "first_name": "Jean-Marc", "last_name": "ONANA (Démo)", "active": true, "roles": ["Patient"], "patient_id": 99011, "doctor_id": null, "created_at": "@J-61" },
+    { "id": 990012, "username": "DEMO-P-0012", "email": "ibrahim.moussa@demo.rohafya", "first_name": "Ibrahim", "last_name": "MOUSSA (Démo)", "active": true, "roles": ["Patient"], "patient_id": 99012, "doctor_id": null, "created_at": "@J-45" },
+    { "id": 990013, "username": "DEMO-P-0013", "email": "brigitte.fouda@demo.rohafya", "first_name": "Brigitte", "last_name": "FOUDA (Démo)", "active": true, "roles": ["Patient"], "patient_id": 99013, "doctor_id": null, "created_at": "@J-5" },
+    { "id": 990021, "username": "DEMO-A-0002", "email": "grace.ateba@demo.rohafya", "first_name": "Grace", "last_name": "ATEBA (Démo)", "active": true, "roles": ["EstablishmentAdmin"], "patient_id": null, "doctor_id": null, "created_at": "@J-270" },
+    { "id": 990022, "username": "DEMO-A-0003", "email": "samuel.njike@demo.rohafya", "first_name": "Samuel", "last_name": "NJIKE (Démo)", "active": true, "roles": ["EstablishmentAdmin"], "patient_id": null, "doctor_id": null, "created_at": "@J-118" }
+  ],
+  "members": [
+    { "tenant_id": 1, "user_id": 990003, "created_at": "@J-290" },
+    { "tenant_id": 2, "user_id": 990003, "created_at": "@J-275" },
+    { "tenant_id": 2, "user_id": 990021, "created_at": "@J-270" },
+    { "tenant_id": 3, "user_id": 990022, "created_at": "@J-118" }
+  ],
+  "tenant_patients": [
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0001", "first_name": "Aïcha", "last_name": "NGONO (Démo)", "email": "aicha.ngono@demo.rohafya", "phone": "+237 600 000 001", "birth_date": "1988-04-12", "gender": "F", "source": "api", "created_at": "@J-250" },
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0011", "first_name": "Jean-Marc", "last_name": "ONANA (Démo)", "email": "jeanmarc.onana@demo.rohafya", "phone": "+237 600 000 011", "birth_date": "1975-09-30", "gender": "M", "source": "api", "created_at": "@J-70" },
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0012", "first_name": "Ibrahim", "last_name": "MOUSSA (Démo)", "email": "ibrahim.moussa@demo.rohafya", "phone": "+237 600 000 012", "birth_date": "1992-01-17", "gender": "M", "source": "api", "created_at": "@J-50" },
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0013", "first_name": "Brigitte", "last_name": "FOUDA (Démo)", "email": "b.fouda@demo.rohafya", "phone": "+237 600 000 013", "birth_date": "1983-06-02", "gender": "F", "source": "api", "created_at": "@J-20" },
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0014", "first_name": "Christian", "last_name": "NANA (Démo)", "email": "christian.nana@demo.rohafya", "phone": "+237 600 000 014", "birth_date": "2001-11-08", "gender": "M", "source": "admin", "created_at": "@J-11" },
+    { "tenant_id": 2, "local_ref": "HZ-DEMO-0001", "first_name": "Aïcha", "last_name": "NGONO (Démo)", "email": "aicha.ngono@demo.rohafya", "phone": "+237 600 000 001", "birth_date": "1988-04-12", "gender": "F", "source": "fhir", "created_at": "@J-8" },
+    { "tenant_id": 2, "local_ref": "HZ-DEMO-0002", "first_name": "Rose", "last_name": "EBODE (Démo)", "email": "rose.ebode@demo.rohafya", "phone": "+237 600 000 021", "birth_date": "1969-03-21", "gender": "F", "source": "fhir", "created_at": "@J-33" },
+    { "tenant_id": 2, "local_ref": "HZ-DEMO-0003", "first_name": "Brigitte", "last_name": "FOUDA (Démo)", "email": "brigitte.fouda@demo.rohafya", "phone": "+237 600 000 013", "birth_date": "1983-06-02", "gender": "F", "source": "fhir", "created_at": "@J-26" },
+    { "tenant_id": 3, "local_ref": "CB-DEMO-0001", "first_name": "Patrice", "last_name": "MBARGA (Démo)", "email": "patrice.mbarga@demo.rohafya", "phone": "+237 600 000 031", "birth_date": "1958-12-05", "gender": "M", "source": "pdf", "created_at": "@J-100" }
+  ],
+  "links": [
+    { "id": 1, "patient_id": 99001, "tenant_id": 1, "local_ref": "PAT-DEMO-0001", "status": "active", "method": "qr", "verified_at": "@J-240", "created_at": "@J-240", "updated_at": null },
+    { "id": 2, "patient_id": 99011, "tenant_id": 1, "local_ref": "PAT-DEMO-0011", "status": "active", "method": "qr", "verified_at": "@J-60", "created_at": "@J-60", "updated_at": null },
+    { "id": 3, "patient_id": 99012, "tenant_id": 1, "local_ref": "PAT-DEMO-0012", "status": "active", "method": "code", "verified_at": "@J-44", "created_at": "@J-44", "updated_at": null },
+    { "id": 4, "patient_id": 99013, "tenant_id": 1, "local_ref": "PAT-DEMO-0013", "status": "pending", "method": "code", "verified_at": null, "created_at": "@J-4T16:10", "updated_at": null },
+    { "id": 5, "patient_id": 99013, "tenant_id": 2, "local_ref": "HZ-DEMO-0003", "status": "active", "method": "qr", "verified_at": "@J-25", "created_at": "@J-25", "updated_at": null }
+  ],
+  "link_tokens": [
+    { "id": 1, "tenant_id": 1, "local_ref": "PAT-DEMO-0011", "email_hint": "jeanmarc.onana@demo.rohafya", "token": "demo-token-pat-0011", "short_code": "JMO4K2P", "expires_at": "@J-31", "used_at": "@J-60", "revoked_at": null, "created_at": "@J-61" },
+    { "id": 2, "tenant_id": 1, "local_ref": "PAT-DEMO-0014", "email_hint": "christian.nana@demo.rohafya", "token": "demo-token-pat-0014", "short_code": "CHR7K2P", "expires_at": "@J+19", "used_at": null, "revoked_at": null, "created_at": "@J-11" },
+    { "id": 3, "tenant_id": 2, "local_ref": "HZ-DEMO-0002", "email_hint": "rose.ebode@demo.rohafya", "token": "demo-token-hz-0002", "short_code": "RSE9T3M", "expires_at": "@J-18", "used_at": null, "revoked_at": null, "created_at": "@J-33" }
+  ],
+  "practitioners": [
+    { "id": 1, "doctor_id": 99801, "tenant_id": 1, "local_ref": "MED-0001", "created_at": "@J-200" },
+    { "id": 2, "doctor_id": 99802, "tenant_id": 1, "local_ref": "MED-0002", "created_at": "@J-190" },
+    { "id": 3, "doctor_id": 99803, "tenant_id": 2, "local_ref": null, "created_at": "@J-180" }
+  ],
+  "records": [
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0011", "kind": "laboratoire", "code": "LAB-DEMO-0520", "title": "Créatininémie et ionogramme", "validated_at": "@J-2T10:00", "source": "api", "details_count": 6 },
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0012", "kind": "imagerie", "code": "IMG-DEMO-0102", "title": "Radiographie du thorax (face)", "validated_at": "@J-6T15:00", "source": "api", "details_count": 1 },
+    { "tenant_id": 1, "local_ref": "PAT-DEMO-0012", "kind": "facture", "code": "FAC-DEMO-0131", "title": "FAC/2026/0131", "validated_at": "@J-6", "source": "api", "details_count": 2 },
+    { "tenant_id": 2, "local_ref": "HZ-DEMO-0003", "kind": "laboratoire", "code": "HZ-LAB-0031", "title": "Glycémie à jeun et HbA1c", "validated_at": "@J-24T11:00", "source": "fhir", "details_count": 2 },
+    { "tenant_id": 2, "local_ref": "HZ-DEMO-0002", "kind": "laboratoire", "code": "HZ-LAB-0027", "title": "Bilan thyroïdien (TSH, T4L)", "validated_at": "@J-32T09:30", "source": "fhir", "details_count": 2 },
+    { "tenant_id": 3, "local_ref": "CB-DEMO-0001", "kind": "laboratoire", "code": "CB-LAB-0004", "title": "Numération Formule Sanguine (NFS)", "validated_at": "@J-95T12:00", "source": "pdf", "details_count": 18 }
+  ],
+  "audit": [
+    { "tenant_id": 1, "user_id": 990004, "action": "tenant.created", "target": "centre-demo", "details": null, "created_at": "@J-300T09:00" },
+    { "tenant_id": 1, "user_id": 990004, "action": "tenant.admin_added", "target": "joseph.kamga@demo.rohafya", "details": null, "created_at": "@J-290T09:30" },
+    { "tenant_id": 2, "user_id": 990004, "action": "tenant.created", "target": "laboratoire-horizon", "details": null, "created_at": "@J-280T10:00" },
+    { "tenant_id": 2, "user_id": 990004, "action": "tenant.admin_added", "target": "joseph.kamga@demo.rohafya", "details": null, "created_at": "@J-275T10:20" },
+    { "tenant_id": 2, "user_id": 990004, "action": "tenant.admin_added", "target": "grace.ateba@demo.rohafya", "details": null, "created_at": "@J-270T14:00" },
+    { "tenant_id": 1, "user_id": 990001, "action": "link.active", "target": "PAT-DEMO-0001", "details": null, "created_at": "@J-240T11:15" },
+    { "tenant_id": 1, "user_id": 990003, "action": "doctor.linked", "target": "DEMO-D-0001", "details": null, "created_at": "@J-200T08:40" },
+    { "tenant_id": 1, "user_id": 990003, "action": "doctor.linked", "target": "DEMO-D-0002", "details": null, "created_at": "@J-190T09:10" },
+    { "tenant_id": 2, "user_id": 990021, "action": "doctor.linked", "target": "DEMO-D-0003", "details": null, "created_at": "@J-180T16:00" },
+    { "tenant_id": 3, "user_id": 990004, "action": "tenant.created", "target": "clinique-bethanie", "details": null, "created_at": "@J-120T08:30" },
+    { "tenant_id": 3, "user_id": 990004, "action": "tenant.admin_added", "target": "samuel.njike@demo.rohafya", "details": null, "created_at": "@J-118T09:00" },
+    { "tenant_id": 1, "user_id": 990011, "action": "link.active", "target": "PAT-DEMO-0011", "details": null, "created_at": "@J-60T18:05" },
+    { "tenant_id": 1, "user_id": 990012, "action": "link.active", "target": "PAT-DEMO-0012", "details": null, "created_at": "@J-44T12:30" },
+    { "tenant_id": 2, "user_id": null, "action": "ingest.fhir", "target": "HZ-LAB-0027", "details": { "laboratoire": 1 }, "created_at": "@J-32T09:31" },
+    { "tenant_id": 3, "user_id": 990004, "action": "tenant.updated", "target": "clinique-bethanie", "details": { "is_active": false }, "created_at": "@J-30T17:00" },
+    { "tenant_id": 2, "user_id": 990013, "action": "link.active", "target": "HZ-DEMO-0003", "details": null, "created_at": "@J-25T19:40" },
+    { "tenant_id": 2, "user_id": null, "action": "ingest.fhir", "target": "HZ-LAB-0031", "details": { "laboratoire": 1 }, "created_at": "@J-24T11:01" },
+    { "tenant_id": 1, "user_id": 990003, "action": "tenant.settings_updated", "target": null, "details": { "link_token_days": 30 }, "created_at": "@J-12T15:30" },
+    { "tenant_id": 1, "user_id": 990003, "action": "link_token.issued", "target": "PAT-DEMO-0014", "details": null, "created_at": "@J-11T10:05" },
+    { "tenant_id": 1, "user_id": 990013, "action": "link.pending", "target": "PAT-DEMO-0013", "details": null, "created_at": "@J-4T16:10" },
+    { "tenant_id": 1, "user_id": null, "action": "ingest.api", "target": "LAB-DEMO-0412", "details": { "laboratoire": 2 }, "created_at": "@J-3T09:01" },
+    { "tenant_id": 1, "user_id": null, "action": "ingest.api", "target": "LAB-DEMO-0520", "details": { "laboratoire": 1 }, "created_at": "@J-2T10:01" }
+  ],
+  "submissions": [
+    {
+      "kind": "requete",
+      "tenant_id": 1,
+      "author_id": null,
+      "author_role": "anonyme",
+      "status": "recue",
+      "created_at": "@J-1T07:50",
+      "item": {
+        "id": 99781,
+        "first_name": "Marcel",
+        "last_name": "ETOA",
+        "email": "marcel.etoa@exemple.cm",
+        "message": "Bonjour, faites-vous les prélèvements à domicile le samedi matin ?",
+        "administration": false, "commission": false, "connection": false, "error": false, "etat_patient": false,
+        "patient_request_connexion": false, "patient_request_examen_out": false, "patient_request_other_administration": true,
+        "patient_request_prix_examen": false, "revendication_examen": false, "suggestion": false, "valide": false,
+        "CreatedAt": "@J-1T07:50", "CreatedBy": null, "UpdatedAt": null, "UpdatedBy": null
+      }
+    },
+    {
+      "kind": "prescription",
+      "tenant_id": 1,
+      "author_id": 990011,
+      "author_role": "patient",
+      "status": "recue",
+      "created_at": "@J-1T19:20",
+      "item": {
+        "id": 99491,
+        "NameDoctor": "Dr Solange MBIA",
+        "OrdreDoctor": "ONMC-DEMO-2",
+        "Description": "Bilan rénal de contrôle, à faire avant la prochaine consultation.",
+        "demande_devis": true,
+        "Sequence": "PRES-DEMO-0491",
+        "Create_date": "@J-1T19:20",
+        "patient_id": 99011
+      }
+    },
+    {
+      "kind": "pre_enregistrement",
+      "tenant_id": 2,
+      "author_id": 990006,
+      "author_role": "doctor",
+      "patient_name": "Rose EBODE",
+      "status": "en_cours",
+      "response": "Dossier reçu : nous appelons la patiente pour fixer le rendez-vous.",
+      "created_at": "@J-3T14:00",
+      "responded_at": "@J-2T09:15",
+      "item": {
+        "id": 99891,
+        "nom": "EBODE",
+        "prenom": "Rose",
+        "description": "Contrôle thyroïdien à trois mois, patiente à jeun.",
+        "patient_id": null,
+        "Create_date": "@J-3T14:00",
+        "validated": false,
+        "validated_by": null,
+        "validated_at": null
+      }
+    }
+  ]
+}

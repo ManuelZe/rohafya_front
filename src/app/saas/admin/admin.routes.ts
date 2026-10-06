@@ -15,6 +15,11 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./dashboard/admin-dashboard').then((m) => m.AdminDashboard),
       },
       {
+        path: 'demandes',
+        title: 'Demandes' + TITLE_SUFFIX,
+        loadComponent: () => import('./submissions/admin-submissions').then((m) => m.AdminSubmissions),
+      },
+      {
         path: 'patients',
         title: 'Patients' + TITLE_SUFFIX,
         loadComponent: () => import('./patients/admin-patients').then((m) => m.AdminPatients),

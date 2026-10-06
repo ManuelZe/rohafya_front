@@ -72,6 +72,8 @@ export class Doctors {
     },
     { label: 'Résultats reçus', icon: 'inbox', link: '/doctors/resultats' },
     { label: 'Actualités', icon: 'sparkles', link: '/doctors/actualites' },
+    { label: 'Prescriptions', icon: 'briefcase', link: '/doctors/prescriptions' },
+    { label: 'Pré-enregistrements', icon: 'check-circle', link: '/doctors/enregistrement' },
     { label: 'Requêtes', icon: 'send', link: '/doctors/requests' },
     { label: 'Notifications', icon: 'bell', link: '/doctors/notifications' },
     { label: 'Paramètres', icon: 'cog', link: SETTINGS_LINK },
@@ -82,6 +84,7 @@ export class Doctors {
     this.saasAccount.commissionsEnabled() ? this.menu : this.menu.filter((entry) => !(this.isGroup(entry) && entry.label === 'Commissions'))
   );
 
+  readonly commissionsEnabled = this.saasAccount.commissionsEnabled;
   readonly collapsedGroups = signal<string[]>([]);
   readonly helpDialogOpen = signal(false);
   readonly suggestionDialogOpen = signal(false);

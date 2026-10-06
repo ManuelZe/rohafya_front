@@ -8,6 +8,9 @@ dossier est rattaché. Chaque résultat indique son établissement.
 
 Espace : https://rohafya.com/patients
 
+Rôle : Patient. Il est donné automatiquement à la création du compte, avec ses
+permissions (famille patients.*) ; rien à faire pour le patient.
+
 
 1. QUELLE SITUATION EST LA VÔTRE ?
 ----------------------------------
@@ -77,6 +80,29 @@ Menu « Mes établissements » :
     permet de le rattacher à nouveau).
 
 
+5 bis. ENVOYER UNE PRESCRIPTION, UN PRÉ-ENREGISTREMENT OU UNE REQUÊTE
+--------------------------------------------------------------------
+Ces trois envois sont adressés à UN établissement, choisi dans la liste de tous
+les établissements actifs de ROHAFYA (pas seulement ceux où l'on est rattaché).
+  Prescriptions         « Nouvelle prescription » : établissement, médecin
+                        prescripteur, consignes, photo de l'ordonnance ; cocher
+                        « Soumettre une demande de devis » pour connaître le prix.
+  Pré-enregistrements   « Nouveau pré-enregistrement » : établissement, nom et
+                        prénom (soi-même ou un proche), photo d'un document
+                        (CNI, carte d'assurance…), obligatoire.
+  Requêtes              « Nouvelle requête » : établissement, message,
+                        catégories (prix d'un examen, examen externe, erreur…).
+
+Suivi : chaque envoi affiche son établissement et son statut (Reçue, En cours,
+Traitée, Refusée). Quand l'établissement répond, sa réponse s'affiche sous
+l'envoi (« Réponse de l'établissement ») et le patient reçoit une notification
+et un e-mail. Pour une demande de devis, « Voir le devis » montre le montant en
+FCFA dès que l'établissement l'a fixé.
+
+Sans compte : la page publique https://rohafya.com/requests permet d'écrire à un
+établissement ; l'adresse e-mail est obligatoire, la réponse y est envoyée.
+
+
 6. DÉPANNAGE
 ------------
   Message                                         Que faire
@@ -101,3 +127,10 @@ Menu « Mes établissements » :
   « Plusieurs comptes utilisent cette adresse »   Se connecter par identifiant et
                                                   mot de passe, ou contacter le
                                                   support.
+  « Permission denied » sur toutes les pages      Le rôle Patient n'a pas ses
+                                                  permissions : l'équipe technique
+                                                  lance « flask saas init ».
+  « Choisissez l'établissement destinataire »     Sélectionner un établissement
+                                                  dans la liste du formulaire.
+  « Envoyé avant le choix de l'établissement »    Envoi antérieur à octobre 2026,
+                                                  traité par PDMD Santé.

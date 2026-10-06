@@ -22,10 +22,15 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { PanelModule } from 'primeng/panel';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { SelectModule } from 'primeng/select';
 import { Trash } from '@primeicons/angular/trash';
 import { Spinner } from '@primeicons/angular/spinner';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
+import { EstablishmentsService } from '../../shared/submission/establishments.service';
+import { SaasAccountService } from '../../saas/saas-account.service';
+import { SubmissionInfoView } from '../../shared/submission/submission-info';
+import { SUBMISSION_STATUS_SEVERITY, SubmissionAudience } from '../../shared/submission/submission.models';
 
 @Component({
   selector: 'app-requests',
@@ -54,6 +59,8 @@ import { StatusTag } from '../shared/status-tag/status-tag';
     ConfirmDialogModule,
     PageHeader,
     StatusTag,
+    SelectModule,
+    SubmissionInfoView,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './requests.html',
@@ -67,7 +74,13 @@ export class Requests implements OnInit {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  readonly establishments = inject(EstablishmentsService);
+  private readonly saasAccount = inject(SaasAccountService);
+  readonly statusSeverity = SUBMISSION_STATUS_SEVERITY;
   searchTerm = signal<string>('');
+
+  /** Visiteur non connecté (route publique /requests) : formulaire seul, réponse par e-mail. */
+  readonly isAnonymous = computed(() => !this.authService.isLoggedIn());
 
   requests = signal<UserRequest[]>([]);
   isLoading = signal<boolean>(false);
@@ -88,10 +101,11 @@ export class Requests implements OnInit {
     }
   }
 
-  tabOptions = [
-    { label: 'Liste des requêtes', value: 'list', icon: 'pi pi-list' },
+  private readonly allTabs = [
+    { label: 'Mes requêtes', value: 'list', icon: 'pi pi-list' },
     { label: 'Nouvelle requête', value: 'add', icon: 'pi pi-plus' }
   ];
+  readonly tabOptions = computed(() => (this.isAnonymous() ? this.allTabs.filter((t) => t.value === 'add') : this.allTabs));
 
   filteredRequests = computed(() => {
     const rawData = this.requests();
@@ -104,12 +118,13 @@ export class Requests implements OnInit {
       r.first_name?.toLowerCase().includes(term) ||
       r.last_name?.toLowerCase().includes(term) ||
       r.email?.toLowerCase().includes(term) ||
-      r.message?.toLowerCase().includes(term)
+      r.message?.toLowerCase().includes(term) ||
+      r.submission?.establishment?.toLowerCase().includes(term)
     );
   });
 
   /** Espace appelant, fourni par les données de route : les catégories proposées diffèrent. */
-  readonly audience = input<'patient' | 'doctor'>('patient');
+  readonly audience = input<SubmissionAudience>('patient');
 
   private readonly patientCategories = [
     { control: 'administration', label: 'Administration' },
@@ -135,10 +150,16 @@ export class Requests implements OnInit {
     { control: 'suggestion', label: 'Suggestion' },
   ];
 
-  readonly categoryOptions = computed(() => (this.audience() === 'doctor' ? this.doctorCategories : this.patientCategories));
+  /** La catégorie « Commission » n'est proposée que si le module commissions est activé pour le médecin. */
+  readonly categoryOptions = computed(() =>
+    this.audience() === 'doctor'
+      ? this.doctorCategories.filter((c) => c.control !== 'commission' || this.saasAccount.commissionsEnabled())
+      : this.patientCategories
+  );
 
 
   requestForm: FormGroup = this.fb.group({
+    tenant_id: [null as number | null, Validators.required],
     first_name: ['', Validators.required],
     last_name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
@@ -158,7 +179,12 @@ export class Requests implements OnInit {
   });
 
   ngOnInit(): void {
+    this.establishments.load();
     this.initFormWithUserData();
+    if (this.isAnonymous()) {
+      this.activeTab.set('add');
+      return;
+    }
     this.fetchRequests();
   }
 
@@ -175,13 +201,10 @@ export class Requests implements OnInit {
 
   fetchRequests(): void {
     const user = this.authService.currentUser();
+    if (!user?.id) return;
     this.isLoading.set(true);
 
-    const request$ = (user && user.id) 
-      ? this.requestService.getRequestsByUserId(user.id)
-      : this.requestService.getAllRequests();
-
-    request$.subscribe({
+    this.requestService.getMyRequests(user.id, this.audience()).subscribe({
       next: (data: any) => {
         this.requests.set(Array.isArray(data) ? data : []);
         this.isLoading.set(false);
@@ -205,24 +228,31 @@ export class Requests implements OnInit {
     }
 
     this.isLoading.set(true);
-    this.requestService.createRequest(this.requestForm.value).subscribe({
-      next: () => {
+    const payload: UserRequest = { ...this.requestForm.value, audience: this.audience() };
+    this.requestService.createRequest(payload).subscribe({
+      next: (created) => {
+        const establishment = created.submission?.establishment ?? "l'établissement";
         this.messageService.add({
           severity: 'success',
-          summary: 'Succès',
-          detail: 'Requête enregistrée avec succès.'
+          summary: 'Requête envoyée',
+          detail: this.isAnonymous()
+            ? `Votre requête a été envoyée à ${establishment}. La réponse vous parviendra par e-mail.`
+            : `Votre requête a été envoyée à ${establishment}.`
         });
         this.requestForm.reset();
         this.initFormWithUserData();
-        this.activeTab.set('list');
-        this.fetchRequests();
+        this.isLoading.set(false);
+        if (!this.isAnonymous()) {
+          this.activeTab.set('list');
+          this.fetchRequests();
+        }
       },
-      error: () => {
+      error: (err) => {
         this.isLoading.set(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: "Échec lors de l'enregistrement de la requête."
+          detail: err?.error?.message ?? "Échec de l'envoi de la requête."
         });
       }
     });

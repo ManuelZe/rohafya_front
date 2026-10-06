@@ -1,3 +1,5 @@
+import type { SubmissionAuthorRole, SubmissionInfo, SubmissionKind, SubmissionStatus } from '../shared/submission/submission.models';
+
 /** Modèles des endpoints SaaS de l'API (/saas, /ingest, /fhir). */
 
 export type SourceType = 'gnuhealth' | 'api' | 'fhir' | 'pdf';
@@ -354,6 +356,52 @@ export const AUDIT_LABELS: Record<string, string> = {
   'user.super_admin_revoked': 'Droits super-administrateur retirés',
 };
 
+/** Demandes : « submission.<type>.<created|statut> » (ex. submission.requete.traitee). */
+const SUBMISSION_AUDIT_KINDS: Record<string, { label: string; feminine: boolean }> = {
+  prescription: { label: 'Prescription', feminine: true },
+  pre_enregistrement: { label: 'Pré-enregistrement', feminine: false },
+  requete: { label: 'Requête', feminine: true },
+};
+const SUBMISSION_AUDIT_STATES: Record<string, [string, string]> = {
+  created: ['reçu', 'reçue'],
+  recue: ['remis en attente', 'remise en attente'],
+  en_cours: ['en cours de traitement', 'en cours de traitement'],
+  traitee: ['traité', 'traitée'],
+  refusee: ['refusé', 'refusée'],
+};
+
 export function auditLabel(action: string): string {
+  const submission = /^submission\.(\w+)\.(\w+)$/.exec(action);
+  if (submission) {
+    const kind = SUBMISSION_AUDIT_KINDS[submission[1]];
+    const state = SUBMISSION_AUDIT_STATES[submission[2]];
+    if (kind && state) return `${kind.label} ${state[kind.feminine ? 1 : 0]}`;
+  }
   return AUDIT_LABELS[action] ?? action;
+}
+
+// =====================================================================
+// Demandes reçues (prescriptions, pré-enregistrements, requêtes)
+// =====================================================================
+
+export type { SubmissionAuthorRole, SubmissionInfo, SubmissionKind, SubmissionStatus } from '../shared/submission/submission.models';
+
+/** Demande vue par l'établissement : adressage + auteur + contenu d'origine. */
+export interface SubmissionAdminItem extends SubmissionInfo {
+  author: { id: number | null; name: string; email: string | null; role: SubmissionAuthorRole };
+  /** Prescription, pré-enregistrement ou requête, tels qu'enregistrés. */
+  item: Record<string, unknown> | null;
+  has_image: boolean;
+}
+
+export interface SubmissionList extends Paged<SubmissionAdminItem> {
+  /** Nombre de demandes par type puis par statut, pour tout l'établissement. */
+  counts: Partial<Record<SubmissionKind, Partial<Record<SubmissionStatus, number>>>>;
+}
+
+export interface SubmissionAnswer {
+  status?: SubmissionStatus;
+  response?: string;
+  /** Montant du devis en FCFA ; chaîne vide pour l'effacer. */
+  quote_amount?: number | '';
 }

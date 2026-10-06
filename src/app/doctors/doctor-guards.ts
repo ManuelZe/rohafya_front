@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from '../connexion/auth-service';
+import { SaasAccountService } from '../saas/saas-account.service';
 import { DoctorProfileService } from './doctor-profile.service';
 
 /**
@@ -43,4 +44,14 @@ export const doctorConfirmedGuard: CanActivateChildFn = (childRoute) => {
   return profileService
     .loadProfile(user.doctor_id)
     .pipe(map((profile) => (!profile || profile.doctor_is_confirmed ? true : router.parseUrl('/doctors/parametres'))));
+};
+
+/**
+ * Pages Commissions : seulement si le module est activé pour le médecin (sinon retour au tableau
+ * de bord). Le menu les masque déjà ; ce garde couvre aussi l'accès direct par l'adresse.
+ */
+export const commissionsEnabledGuard: CanActivateFn = () => {
+  const account = inject(SaasAccountService);
+  const router = inject(Router);
+  return account.load().pipe(map(() => (account.commissionsEnabled() ? true : router.parseUrl('/doctors'))));
 };

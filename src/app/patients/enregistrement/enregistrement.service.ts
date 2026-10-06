@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SavePatient, SavePatientCreatePayload } from './enregistrement.models';
+import { SubmissionAudience } from '../../shared/submission/submission.models';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -9,19 +10,16 @@ export class EnregistrementService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  /** GET /save_patient/all_save_patients/ */
-  getAllSavePatients(): Observable<SavePatient[]> {
-    return this.http.get<SavePatient[]>(`${this.baseUrl}save_patient/all_save_patients/`);
+  /** GET /save_patient/all_save_patients/?audience= — pré-enregistrements envoyés depuis cet espace. */
+  getMySaves(audience: SubmissionAudience): Observable<SavePatient[]> {
+    return this.http.get<SavePatient[]>(`${this.baseUrl}save_patient/all_save_patients/`, { params: { audience } });
   }
 
-  /** GET /save_patient/get_patient_saves/{patientId}/ */
-  getPatientSaves(patientId: number): Observable<SavePatient[]> {
-    return this.http.get<SavePatient[]>(`${this.baseUrl}save_patient/get_patient_saves/${patientId}/`);
-  }
-
-  /** POST /save_patient/add/ — multipart/form-data */
+  /** POST /save_patient/add/ — multipart/form-data, envoyé à l'établissement `tenant_id`. */
   addSavePatient(payload: SavePatientCreatePayload): Observable<SavePatient> {
     const formData = new FormData();
+    formData.append('tenant_id', String(payload.tenant_id));
+    formData.append('audience', payload.audience);
     formData.append('nom', payload.nom);
     formData.append('prenom', payload.prenom);
 
@@ -46,7 +44,7 @@ export class EnregistrementService {
   }
 
   /** GET /save_patient/get/{id}/ */
-  getValidatedSavePatient(id: number): Observable<SavePatient> {
+  getSavePatient(id: number): Observable<SavePatient> {
     return this.http.get<SavePatient>(`${this.baseUrl}save_patient/get/${id}/`);
   }
 }

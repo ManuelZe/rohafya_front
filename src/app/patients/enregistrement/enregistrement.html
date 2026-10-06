@@ -1,5 +1,5 @@
 <div class="enregistrement-container">
-  <app-page-header title="Pré-enregistrements" subtitle="Déposez vos documents pour un pré-enregistrement avant validation">
+  <app-page-header title="Pré-enregistrements" [subtitle]="subtitle()">
     <button pButton type="button" actions (click)="toggleAddForm()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -30,12 +30,25 @@
     @if (showAddForm()) {
       <section class="add-form-wrapper">
         <div class="form-header">
-          <h2>Ajouter un pré-enregistrement</h2>
-          <p>Renseignez l'identité du patient et joignez le document à faire valider.</p>
+          <h2>{{ isDoctor() ? 'Pré-enregistrer un patient' : 'Nouveau pré-enregistrement' }}</h2>
+          <p>Choisissez l'établissement, renseignez l'identité de la personne et joignez un document : l'établissement vous répondra ici.</p>
         </div>
 
         <form class="add-form" [formRoot]="saveForm" (submit)="submitSave()">
           <div class="form-grid">
+            <div class="form-row form-row-full">
+              <label for="tenantId">Établissement destinataire <span class="required">*</span></label>
+              <select id="tenantId" [formField]="saveForm.tenant_id" aria-describedby="tenantHint">
+                <option value="" disabled>{{ establishments.loading() ? 'Chargement…' : 'Choisir un établissement' }}</option>
+                @for (e of establishments.list(); track e.id) {
+                  <option [value]="e.id">{{ e.name }}</option>
+                }
+              </select>
+              <p id="tenantHint" class="form-hint">
+                {{ establishments.error() ?? "L'établissement choisi reçoit le pré-enregistrement et vous répond." }}
+              </p>
+            </div>
+
             <div class="form-row">
               <label for="nom">Nom <span class="required">*</span></label>
               <input id="nom" type="text" [formField]="saveForm.nom" placeholder="Nom du patient" />
@@ -57,7 +70,7 @@
             </div>
 
             <div class="form-row form-row-full">
-              <label for="file">Document / Photo</label>
+              <label for="file">Document / Photo <span class="required">*</span></label>
 
               <div class="file-input-wrapper" [class.has-file]="!!selectedFile()">
                 <input id="file" type="file" accept="image/*" (change)="onFileSelected($event)" />
@@ -100,7 +113,7 @@
               @if (submitting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ submitting() ? 'Envoi en cours...' : 'Enregistrer' }}</span>
+              <span>{{ submitting() ? 'Envoi en cours...' : 'Envoyer' }}</span>
             </button>
           </div>
         </form>
@@ -127,8 +140,8 @@
           </svg>
         </div>
         <h3>Aucun pré-enregistrement disponible</h3>
-        <p>Aucun document n'a encore été déposé.</p>
-        <button class="btn btn-secondary" (click)="toggleAddForm()">Créer un pré-enregistrement</button>
+        <p>Aucun pré-enregistrement n'a encore été envoyé à un établissement.</p>
+        <button class="btn btn-secondary" (click)="toggleAddForm()">Nouveau pré-enregistrement</button>
       </div>
     }
 
@@ -174,16 +187,14 @@
                 </div>
               }
 
-              <span class="status-badge-wrapper">
-                <app-status-tag kind="validation" [status]="s.validated ? 'true' : 'false'" />
-              </span>
+              @if (!s.submission) {
+                <span class="status-badge-wrapper">
+                  <app-status-tag kind="validation" [status]="s.validated ? 'true' : 'false'" />
+                </span>
+              }
             </div>
 
             <div class="card-body">
-              <div class="card-header-info">
-                <span class="patient-tag">Patient #{{ s.patient_id }}</span>
-              </div>
-
               <h2 class="save-name" [title]="s.prenom + ' ' + s.nom">
                 {{ s.prenom }} {{ s.nom }}
               </h2>
@@ -201,6 +212,8 @@
                 </svg>
                 <time>{{ s.Create_date | date: 'dd/MM/yyyy à HH:mm' }}</time>
               </div>
+
+              <app-submission-info [submission]="s.submission" />
             </div>
 
             <div class="card-actions">
@@ -230,7 +243,9 @@
 
           <div class="image-modal-header">
             <h3>{{ preview.prenom }} {{ preview.nom }}</h3>
-            <p>Patient #{{ preview.patient_id }}</p>
+            @if (preview.submission?.establishment) {
+              <p>Envoyé à {{ preview.submission?.establishment }}</p>
+            }
           </div>
 
           <div class="image-modal-body">

@@ -17,6 +17,11 @@ import {
   PdfValue,
   RecordKind,
   RecordSummary,
+  SubmissionAdminItem,
+  SubmissionAnswer,
+  SubmissionKind,
+  SubmissionList,
+  SubmissionStatus,
   Tenant,
   TenantDashboard,
   TenantPatientRow,
@@ -40,7 +45,15 @@ export interface PdfCorrection {
   details?: Array<Omit<PdfValue, 'result' | 'lower_limit' | 'upper_limit'> & { result: string; lower_limit: string; upper_limit: string }>;
 }
 
-function toParams(query: PageQuery = {}): HttpParams {
+export interface SubmissionQuery {
+  page?: number;
+  page_size?: number;
+  q?: string;
+  kind?: SubmissionKind | '';
+  status?: SubmissionStatus | '';
+}
+
+function toParams(query: PageQuery | SubmissionQuery = {}): HttpParams {
   let params = new HttpParams();
   for (const [key, value] of Object.entries(query)) {
     if (value !== undefined && value !== null && value !== '') {
@@ -177,5 +190,19 @@ export class TenantAdminService {
 
   audit(tenantId: number, query: PageQuery): Observable<Paged<AuditEntry>> {
     return this.http.get<Paged<AuditEntry>>(this.url(tenantId, '/audit'), { params: toParams(query) });
+  }
+
+  // --- Demandes reçues : prescriptions, pré-enregistrements, requêtes ---
+
+  submissions(tenantId: number, query: SubmissionQuery): Observable<SubmissionList> {
+    return this.http.get<SubmissionList>(this.url(tenantId, '/submissions'), { params: toParams(query) });
+  }
+
+  submissionImage(tenantId: number, submissionId: number): Observable<Blob> {
+    return this.http.get(this.url(tenantId, `/submissions/${submissionId}/image`), { responseType: 'blob' });
+  }
+
+  answerSubmission(tenantId: number, submissionId: number, answer: SubmissionAnswer): Observable<SubmissionAdminItem> {
+    return this.http.put<SubmissionAdminItem>(this.url(tenantId, `/submissions/${submissionId}`), answer);
   }
 }

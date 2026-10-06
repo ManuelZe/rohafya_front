@@ -8,6 +8,11 @@ il suit aussi ses commissions si ce module est activé.
 
 Espace : https://rohafya.com/doctors
 
+Rôle : Doctor, avec ses permissions (famille doctors.*), données à l'import du
+médecin. Après une mise à jour, l'équipe technique lance « flask saas init » pour
+que le rôle reçoive les nouvelles permissions (prescriptions,
+pré-enregistrements).
+
 
 1. AVOIR UN COMPTE MÉDECIN
 --------------------------
@@ -53,11 +58,34 @@ CNI, téléphones, e-mail) et les enregistrer : tout l'espace se débloque.
   Résultats reçus     résultats partagés par les patients, tous établissements ;
                       chaque consultation est inscrite au journal de
                       l'établissement concerné
-  Actualités, Requêtes, Notifications, Paramètres
+  Prescriptions       envoyer une prescription pour un patient à un
+                      établissement (voir 5 bis)
+  Pré-enregistrements pré-enregistrer un patient auprès d'un établissement
+  Requêtes            écrire à un établissement (commission, état d'un patient,
+                      revendication d'examen…)
+  Actualités, Notifications, Paramètres
 
 Un médecin qui est aussi patient ouvre son espace patient avec le bouton
 « Mon espace patient » en bas de la barre latérale ; pour revenir, aller à
 l'adresse https://rohafya.com/doctors.
+
+
+5 bis. PRESCRIPTIONS, PRÉ-ENREGISTREMENTS ET REQUÊTES
+---------------------------------------------------
+Comme pour les patients, chaque envoi est adressé à UN établissement choisi dans
+la liste des établissements actifs ; ses administrateurs le traitent et répondent.
+  Prescriptions         « Nouvelle prescription » : établissement, PATIENT
+                        CONCERNÉ (obligatoire), consignes, photo, demande de
+                        devis. Le nom et le numéro d'ordre du médecin sont repris
+                        automatiquement de son profil.
+  Pré-enregistrements   « Pré-enregistrer un patient » : établissement, nom et
+                        prénom du patient, document joint (obligatoire).
+  Requêtes              « Nouvelle requête » : établissement, message, catégories.
+
+Chaque envoi affiche son établissement, son statut (Reçue, En cours, Traitée,
+Refusée) et la réponse de l'établissement ; le médecin reçoit une notification et
+un e-mail à chaque réponse. Les envois de l'espace médecin restent séparés de
+ceux de l'espace patient d'un médecin qui est aussi patient.
 
 
 6. DÉPANNAGE
@@ -76,3 +104,8 @@ l'adresse https://rohafya.com/doctors.
                                                   directement /doctors.
   « Plusieurs comptes utilisent cette adresse »   Connexion par identifiant et
                                                   mot de passe, ou support.
+  « Permission denied » sur Prescriptions ou      Le rôle Doctor n'a pas encore
+  Pré-enregistrements                             les nouvelles permissions :
+                                                  l'équipe technique lance
+                                                  « flask saas init ».
+  « Indiquez le patient concerné »                Champ « Patient concerné » vide.

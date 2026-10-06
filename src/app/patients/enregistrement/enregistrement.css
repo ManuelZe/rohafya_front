@@ -198,6 +198,7 @@
 }
 
 .form-row input[type='text'],
+.form-row select,
 .form-row textarea {
   width: 100%;
   max-width: 100%;
@@ -216,6 +217,7 @@
 }
 
 .form-row input:focus,
+.form-row select:focus,
 .form-row textarea:focus {
   outline: none;
   border-color: var(--primary-color);
@@ -779,4 +781,10 @@
   .image-modal-wrapper {
     max-width: 95vw;
   }
+}
+
+.form-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #4a5568;
 }

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Doctors } from './doctors';
-import { doctorConfirmedGuard } from './doctor-guards';
+import { commissionsEnabledGuard, doctorConfirmedGuard } from './doctor-guards';
 
 const TITLE_SUFFIX = ' · Espace docteur';
 
@@ -18,21 +18,25 @@ export const DOCTOR_ROUTES: Routes = [
       },
       {
         path: 'commissions',
+        canActivate: [commissionsEnabledGuard],
         title: 'Relevé de commissions' + TITLE_SUFFIX,
         loadComponent: () => import('./commissions/releve/releve').then((m) => m.Releve),
       },
       {
         path: 'commissions/mois',
+        canActivate: [commissionsEnabledGuard],
         title: 'Commissions par mois' + TITLE_SUFFIX,
         loadComponent: () => import('./commissions/mensuel/mensuel').then((m) => m.Mensuel),
       },
       {
         path: 'commissions/annee',
+        canActivate: [commissionsEnabledGuard],
         title: 'Commissions par année' + TITLE_SUFFIX,
         loadComponent: () => import('./commissions/annuel/annuel').then((m) => m.Annuel),
       },
       {
         path: 'commissions/periode',
+        canActivate: [commissionsEnabledGuard],
         title: 'Commissions par période' + TITLE_SUFFIX,
         loadComponent: () => import('./commissions/periode/periode').then((m) => m.Periode),
       },
@@ -45,6 +49,18 @@ export const DOCTOR_ROUTES: Routes = [
         path: 'actualites',
         title: 'Actualités' + TITLE_SUFFIX,
         loadComponent: () => import('./actualites/actualites').then((m) => m.Actualites),
+      },
+      {
+        path: 'prescriptions',
+        title: 'Prescriptions' + TITLE_SUFFIX,
+        data: { audience: 'doctor' },
+        loadComponent: () => import('../patients/prescriptions/prescriptions').then((m) => m.Prescriptions),
+      },
+      {
+        path: 'enregistrement',
+        title: 'Pré-enregistrements' + TITLE_SUFFIX,
+        data: { audience: 'doctor' },
+        loadComponent: () => import('../patients/enregistrement/enregistrement').then((m) => m.Enregistrement),
       },
       {
         path: 'requests',

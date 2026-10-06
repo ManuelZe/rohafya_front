@@ -1,4 +1,5 @@
 import { SafeUrl } from '@angular/platform-browser';
+import { SubmissionAudience, SubmissionInfo } from '../../shared/submission/submission.models';
 
 export interface Prescription {
   id: number;
@@ -8,14 +9,21 @@ export interface Prescription {
   Create_date: string;
   demande_devis: boolean;
   Description: string;
-  patient_id: number;
+  /** Vide pour une prescription envoyée par un médecin. */
+  patient_id: number | null;
+  /** Établissement destinataire, statut et réponse (null : prescription antérieure). */
+  submission: SubmissionInfo | null;
 }
 
 export interface PrescriptionCreatePayload {
-  NameDoctor: string;
-  OrdreDoctor: string;
+  tenant_id: number;
+  audience: SubmissionAudience;
+  /** Médecin prescripteur (espace patient ; repris du profil pour un médecin). */
+  NameDoctor?: string;
+  OrdreDoctor?: string;
+  /** Patient concerné (espace médecin). */
+  patient_name?: string;
   Description?: string;
-  patient_id: number;
   demande_devis?: boolean;
   file?: File | null;
 }

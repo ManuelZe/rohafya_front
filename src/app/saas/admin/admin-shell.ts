@@ -7,6 +7,7 @@ import { TenantContext } from './tenant-context.service';
 
 const MENU: ConsoleMenuLink[] = [
   { label: 'Tableau de bord', icon: 'home', link: '/admin', exact: true },
+  { label: 'Demandes', icon: 'inbox', link: '/admin/demandes' },
   { label: 'Patients', icon: 'users', link: '/admin/patients' },
   { label: 'Rattachements', icon: 'link', link: '/admin/rattachements' },
   { label: 'QR codes', icon: 'qrcode', link: '/admin/qr-codes' },

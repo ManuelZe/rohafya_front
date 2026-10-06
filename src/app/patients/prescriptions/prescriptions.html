@@ -1,5 +1,5 @@
 <div class="prescriptions-container">
-  <app-page-header title="Prescriptions" subtitle="Gérez et consultez le suivi médical des patients">
+  <app-page-header title="Prescriptions" [subtitle]="subtitle()">
     <button pButton type="button" actions (click)="toggleAddForm()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -25,31 +25,51 @@
   @if (showAddForm()) {
     <section class="add-form-wrapper">
       <div class="form-header">
-        <h2>Ajouter une nouvelle prescription</h2>
-        <p>Veuillez renseigner les détails de l'ordonnance ci-dessous.</p>
+        <h2>Envoyer une prescription</h2>
+        <p>Choisissez l'établissement destinataire : ses administrateurs la traiteront et vous répondront ici.</p>
       </div>
 
       <form class="add-form" [formRoot]="prescriptionForm" (submit)="submitPrescription()">
         <div class="form-grid">
-          <div class="form-row">
-            <label for="nameDoctor">Nom du médecin <span class="required">*</span></label>
-            <input
-              id="nameDoctor"
-              type="text"
-              [formField]="prescriptionForm.NameDoctor"
-              placeholder="Dr. Jean Dupont"
-            />
+          <div class="form-row form-row-full">
+            <label for="tenantId">Établissement destinataire <span class="required">*</span></label>
+            <select id="tenantId" [formField]="prescriptionForm.tenant_id" aria-describedby="tenantHint">
+              <option value="" disabled>{{ establishments.loading() ? 'Chargement…' : 'Choisir un établissement' }}</option>
+              @for (e of establishments.list(); track e.id) {
+                <option [value]="e.id">{{ e.name }}</option>
+              }
+            </select>
+            <p id="tenantHint" class="form-hint">
+              {{ establishments.error() ?? "L'établissement choisi reçoit la prescription et vous répond." }}
+            </p>
           </div>
 
-          <div class="form-row">
-            <label for="ordreDoctor">Ordre du médecin</label>
-            <input
-              id="ordreDoctor"
-              type="text"
-              [formField]="prescriptionForm.OrdreDoctor"
-              placeholder="Ex: N° 123456"
-            />
-          </div>
+          @if (isDoctor()) {
+            <div class="form-row form-row-full">
+              <label for="patientName">Patient concerné <span class="required">*</span></label>
+              <input id="patientName" type="text" [formField]="prescriptionForm.patient_name" placeholder="Nom et prénom du patient" />
+            </div>
+          } @else {
+            <div class="form-row">
+              <label for="nameDoctor">Médecin prescripteur <span class="required">*</span></label>
+              <input
+                id="nameDoctor"
+                type="text"
+                [formField]="prescriptionForm.NameDoctor"
+                placeholder="Dr. Jean Dupont"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="ordreDoctor">Numéro d'ordre du médecin</label>
+              <input
+                id="ordreDoctor"
+                type="text"
+                [formField]="prescriptionForm.OrdreDoctor"
+                placeholder="Ex: N° 123456"
+              />
+            </div>
+          }
 
           <div class="form-row form-row-full">
             <label for="description">Description & Consignes</label>
@@ -114,7 +134,7 @@
             @if (submitting()) {
               <span class="spinner"></span>
             }
-            <span>{{ submitting() ? 'Envoi en cours...' : 'Enregistrer la prescription' }}</span>
+            <span>{{ submitting() ? 'Envoi en cours...' : 'Envoyer la prescription' }}</span>
           </button>
         </div>
       </form>
@@ -141,8 +161,8 @@
         </svg>
       </div>
       <h3>Aucune prescription disponible</h3>
-      <p>Aucune ordonnance n'a encore été enregistrée dans le système.</p>
-      <button class="btn btn-secondary" (click)="toggleAddForm()">Créer une prescription</button>
+      <p>Aucune prescription n'a encore été envoyée à un établissement.</p>
+      <button class="btn btn-secondary" (click)="toggleAddForm()">Envoyer une prescription</button>
     </div>
   }
 
@@ -197,7 +217,9 @@
 
           <div class="card-body">
             <div class="card-header-info">
-              <span class="patient-tag">Patient #{{ p.patient_id }}</span>
+              @if (isDoctor()) {
+                <span class="patient-tag">Patient : {{ p.submission?.patient_name || 'non précisé' }}</span>
+              }
               <span class="sequence-tag">SEQ-{{ p.Sequence }}</span>
             </div>
 
@@ -222,6 +244,8 @@
               </svg>
               <time>{{ p.Create_date | date: 'dd/MM/yyyy à HH:mm' }}</time>
             </div>
+
+            <app-submission-info [submission]="p.submission" />
           </div>
 
           <div class="card-actions">
@@ -260,7 +284,7 @@
 
         <div class="image-modal-header">
           <h3>Prescription SEQ-{{ preview.Sequence }}</h3>
-          <p>{{ preview.NameDoctor || 'Médecin non renseigné' }} — Patient #{{ preview.patient_id }}</p>
+          <p>{{ preview.NameDoctor || 'Médecin non renseigné' }}@if (preview.submission?.establishment) { — {{ preview.submission?.establishment }} }</p>
         </div>
 
         <div class="image-modal-body">
@@ -322,57 +346,46 @@
     </div>
   }
 
-  <!-- Modal Devis -->
-  @if (devisPrescriptionId() !== null) {
+  <!-- Modal Devis : réponse de l'établissement à la demande de devis -->
+  @if (devisPrescription(); as devisP) {
     <div class="devis-overlay" (click)="closeDevis()">
-      <div class="devis-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <div class="devis-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="devis-title">
         <header class="devis-header">
           <div>
-            <h2>Devis de la prescription</h2>
-            <span class="devis-subtitle">Prescription #{{ devisPrescriptionId() }}</span>
+            <h2 id="devis-title">Devis de la prescription</h2>
+            <span class="devis-subtitle">SEQ-{{ devisP.Sequence }}@if (devisP.submission?.establishment) { · {{ devisP.submission?.establishment }} }</span>
           </div>
           <button type="button" class="btn-close" (click)="closeDevis()" aria-label="Fermer la fenêtre">&times;</button>
         </header>
 
         <div class="devis-body">
-          @if (devisLoading()) {
-            <div class="state-container loading-state">
-              <div class="spinner"></div>
-              <p>Chargement du devis...</p>
-            </div>
-          }
-
-          @if (devisError()) {
-            <div class="error-banner">
-              <span>{{ devisError() }}</span>
-            </div>
-          }
-
-          @if (devisData(); as devis) {
-            @if (!devisLoading()) {
-              <div class="devis-content">
-                @if (devis.montant !== undefined) {
-                  <div class="devis-price-box">
-                    <span class="price-label">Montant total du devis</span>
-                    <span class="price-value">{{ devis.montant }} €</span>
-                  </div>
-                }
-
-                @if (devis.details) {
-                  <div class="devis-details-box">
-                    <h4>Détails des prestations</h4>
-                    <p>{{ devis.details }}</p>
-                  </div>
-                }
-
-                @if (!devis.montant && !devis.details) {
-                  <div class="devis-json-box">
-                    <pre>{{ devis | json }}</pre>
-                  </div>
-                }
+          <div class="devis-content">
+            @if (quoteLabel(devisP)) {
+              <div class="devis-price-box">
+                <span class="price-label">Montant du devis</span>
+                <span class="price-value">{{ quoteLabel(devisP) }}</span>
               </div>
             }
-          }
+
+            @if (devisP.submission?.response) {
+              <div class="devis-details-box">
+                <h3>Réponse de l'établissement</h3>
+                <p>{{ devisP.submission?.response }}</p>
+              </div>
+            }
+
+            @if (!quoteLabel(devisP) && !devisP.submission?.response) {
+              <div class="devis-details-box">
+                <p>
+                  @if (devisP.submission) {
+                    Votre demande de devis a été envoyée à {{ devisP.submission.establishment }}. Le montant apparaîtra ici dès sa réponse.
+                  } @else {
+                    Cette demande de devis a été envoyée avant le choix de l'établissement.
+                  }
+                </p>
+              </div>
+            }
+          </div>
         </div>
 
         <footer class="devis-footer">

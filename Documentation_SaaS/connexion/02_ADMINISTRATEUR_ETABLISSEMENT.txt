@@ -3,9 +3,14 @@
 ================================================================================
 
 L'administrateur d'établissement gère UN établissement (ou plusieurs s'il en a
-reçu plusieurs) : ses patients, leurs rattachements à ROHAFYA, les QR codes, les
+reçu plusieurs) : les demandes reçues (prescriptions, pré-enregistrements,
+requêtes), ses patients, leurs rattachements à ROHAFYA, les QR codes, les
 médecins, les données reçues et les réglages. Il ne voit jamais les données des
 autres établissements.
+
+Rôle : EstablishmentAdmin, attribué automatiquement par le super-administrateur
+quand il l'ajoute à l'établissement. Aucune permission à cocher : l'accès est
+donné par l'appartenance à l'établissement.
 
 Espace : https://rohafya.com/admin
 
@@ -40,6 +45,9 @@ Sur téléphone : le bouton ☰ en haut à gauche de chaque page ouvre le menu.
 ------------------------
   Tableau de bord   patients connus, rattachés, en attente, QR codes actifs,
                     données reçues, activité récente, actions rapides
+  Demandes          prescriptions, pré-enregistrements et requêtes envoyés à
+                    l'établissement par les patients, les médecins et les
+                    visiteurs ; « Traiter » pour répondre (voir 4 ter)
   Patients          recherche par nom, e-mail ou numéro de dossier ; « Voir » le
                     dossier ; « QR code » pour un patient non rattaché ;
                     « Ajouter un dossier » (établissements sans logiciel relié)
@@ -105,6 +113,37 @@ dépôt est bloqué jusqu'à la date indiquée. Les envois de votre logiciel com
 aussi, et supprimer un compte rendu ne rend pas de crédit.
 
 
+4 ter. TRAITER LES DEMANDES (PRESCRIPTIONS, PRÉ-ENREGISTREMENTS, REQUÊTES)
+--------------------------------------------------------------------------
+Patients, médecins et visiteurs choisissent l'établissement destinataire quand
+ils envoient :
+  - une prescription (ordonnance, avec ou sans demande de devis) ;
+  - un pré-enregistrement (identité + pièce jointe : CNI, carte d'assurance…) ;
+  - une requête (message : prix d'un examen, commission, erreur, suggestion…).
+Chaque nouvel envoi est signalé aux administrateurs de l'établissement par une
+notification et un e-mail « ROHAFYA · Nouvelle … pour <établissement> ».
+
+  1. Demandes > onglet Prescriptions, Pré-enregistrements, Requêtes ou Toutes.
+     Le chiffre vert d'un onglet = demandes à traiter (reçues + en cours).
+     Filtre « Reçues » par défaut ; recherche par auteur, e-mail ou patient.
+  2. « Traiter » ouvre la demande : auteur (patient, médecin ou visiteur) et son
+     e-mail, patient concerné (envoi d'un médecin), contenu, document joint
+     (cliquer pour l'ouvrir en grand).
+  3. Répondre :
+       Statut     Reçue → En cours → Traitée ou Refusée
+       Montant    seulement pour une prescription avec demande de devis, en FCFA
+       Message    texte libre lu par l'auteur
+     « Enregistrer la réponse ».
+  4. L'auteur voit le statut, le message et le devis dans son espace ; il reçoit
+     aussi une notification et un e-mail. Un visiteur sans compte reçoit la
+     réponse par e-mail uniquement.
+
+  - Pré-enregistrement « Traitée » = pré-enregistrement validé.
+  - Pour signaler qu'on s'en occupe sans répondre encore : statut « En cours ».
+  - Les demandes envoyées avant l'arrivée des établissements (avant octobre 2026)
+    ont été attribuées à PDMD Santé.
+
+
 5. DÉPANNAGE
 ------------
   Situation                                     Que faire
@@ -122,6 +161,12 @@ aussi, et supprimer un compte rendu ne rend pas de crédit.
                                                 puis générer un nouveau QR code.
   Les codes e-mail n'arrivent pas               Courriers indésirables, puis
                                                 équipe technique (SMTP).
+  Aucune demande n'arrive                       Vérifier l'établissement choisi
+                                                par l'auteur ; un établissement
+                                                désactivé ne reçoit rien.
+  L'auteur ne reçoit pas l'e-mail de réponse    Courriers indésirables ; un
+                                                patient voit de toute façon la
+                                                réponse dans son espace.
   « Limite atteinte : 10 fichier(s) par jour »  Quota d'imports PDF épuisé :
                                                 attendre la date indiquée, ou
                                                 demander au super-administrateur

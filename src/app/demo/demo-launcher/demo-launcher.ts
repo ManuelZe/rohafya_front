@@ -9,17 +9,28 @@ interface DemoChoice {
   description: string;
 }
 
+/** Du profil le moins élevé au plus élevé : ce qu'envoie un profil arrive chez le suivant. */
 const CHOICES: DemoChoice[] = [
   {
     space: 'patient',
-    title: 'Espace patient',
-    description: 'Résultats de laboratoire, imagerie et exploration, factures, prescriptions, partage avec un médecin, requêtes…',
+    title: 'Patient',
+    description: 'Résultats, factures, prescriptions, pré-enregistrements, requêtes, partage avec un médecin, rattachement d’un établissement…',
   },
-  // {
-  //   space: 'doctor',
-  //   title: 'Espace médecin',
-  //   description: 'Tableau de bord des commissions (mois, année, période), relevé, résultats reçus des patients, actualités…',
-  // },
+  {
+    space: 'doctor',
+    title: 'Médecin',
+    description: 'Résultats partagés par les patients, actualités, prescriptions et pré-enregistrements pour vos patients, requêtes…',
+  },
+  {
+    space: 'admin',
+    title: 'Administrateur d’établissement',
+    description: 'Demandes reçues des patients et médecins (réponses, devis), patients et rattachements, QR codes, médecins, journal…',
+  },
+  {
+    space: 'super-admin',
+    title: 'Super-administrateur',
+    description: 'Tous les établissements et leurs administrateurs, tous les comptes, statistiques et journal de la plateforme.',
+  },
 ];
 
 /** Bouton « Démo » de la page d'introduction : choix de l'espace puis ouverture de la session fictive. */
@@ -38,6 +49,10 @@ const CHOICES: DemoChoice[] = [
       <p id="demo-dialog-desc" class="demo-dialog__intro">
         Explorez toutes les fonctionnalités avec un utilisateur fictif. Les données sont inventées : rien n'est lu ni enregistré sur
         nos serveurs.
+      </p>
+      <p class="demo-dialog__intro">
+        Les quatre profils partagent les mêmes données : une demande envoyée par le patient arrive chez l'établissement, qui y répond,
+        et le super-administrateur en voit la trace. Changez de profil à tout moment depuis le bandeau « Démo ».
       </p>
 
       <div class="demo-dialog__choices" [attr.aria-busy]="starting() !== null">
@@ -77,7 +92,9 @@ const CHOICES: DemoChoice[] = [
     }
 
     .demo-dialog {
-      width: min(34rem, calc(100vw - 2rem));
+      width: min(40rem, calc(100vw - 2rem));
+      max-height: calc(100dvh - 2rem);
+      overflow-y: auto;
       padding: 1.5rem;
       border: none;
       border-radius: 14px;
@@ -121,14 +138,16 @@ const CHOICES: DemoChoice[] = [
     }
 
     .demo-dialog__intro {
-      margin: 0.75rem 0 1.25rem;
+      margin: 0.75rem 0;
       font-size: 0.95rem;
       line-height: 1.5;
       color: #4a5568;
     }
 
     .demo-dialog__choices {
+      margin-top: 1.25rem;
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
       gap: 0.75rem;
     }
 

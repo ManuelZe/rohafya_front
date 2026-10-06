@@ -4,6 +4,8 @@ import {
   signal,
   computed,
   effect,
+  input,
+  untracked,
   OnDestroy,
   AfterViewInit,
   ElementRef,
@@ -20,22 +22,27 @@ import { AuthService } from '../../connexion/auth-service';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { EstablishmentsService } from '../../shared/submission/establishments.service';
+import { SubmissionInfoView } from '../../shared/submission/submission-info';
+import { SubmissionAudience } from '../../shared/submission/submission.models';
 
 interface SavePatientFormModel {
+  /** Établissement destinataire (id, sous forme de texte pour la liste déroulante). */
+  tenant_id: string;
   nom: string;
   prenom: string;
   description: string;
 }
 
 function emptyFormModel(): SavePatientFormModel {
-  return { nom: '', prenom: '', description: '' };
+  return { tenant_id: '', nom: '', prenom: '', description: '' };
 }
 
 const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES DONNÉES.';
 
 @Component({
   selector: 'app-enregistrement',
-  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
+  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView],
   templateUrl: './enregistrement.html',
   styleUrl: './enregistrement.css',
   host: {
@@ -48,19 +55,29 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly elRef = inject(ElementRef);
   private readonly sanitizer = inject(DomSanitizer);
+  readonly establishments = inject(EstablishmentsService);
+
+  /** Espace appelant, fourni par les données de route : un médecin pré-enregistre ses patients. */
+  readonly audience = input<SubmissionAudience>('patient');
+  readonly isDoctor = computed(() => this.audience() === 'doctor');
+  readonly subtitle = computed(() =>
+    this.isDoctor()
+      ? 'Pré-enregistrez vos patients auprès d’un établissement et suivez sa réponse'
+      : 'Pré-enregistrez-vous (ou un proche) auprès d’un établissement et suivez sa réponse'
+  );
 
   readonly accessDeniedMessage = ACCESS_DENIED_MESSAGE;
 
   accessDenied = computed(() => {
     const user = this.authService.currentUser();
 
-    if (!isPlatformBrowser(this.platformId)) {
+    if (!isPlatformBrowser(this.platformId) || !user) {
       return true;
     }
-    if (!user || !this.authService.isPatient() || user.patient_id === null) {
-      return true;
+    if (this.isDoctor()) {
+      return !this.authService.isDoctor() || user.doctor_id === null;
     }
-    return false;
+    return !this.authService.isPatient() || user.patient_id === null;
   });
 
   saves = signal<SavePatientWithImage[]>([]);
@@ -72,6 +89,7 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
 
   readonly formModel = signal<SavePatientFormModel>(emptyFormModel());
   readonly saveForm = form(this.formModel, (f) => {
+    required(f.tenant_id, { message: "Choisissez l'établissement destinataire." });
     required(f.nom, { message: 'Le nom est requis.' });
     required(f.prenom, { message: 'Le prénom est requis.' });
   });
@@ -90,9 +108,11 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
 
   constructor() {
     effect(() => {
-      const user = this.authService.currentUser();
-      if (isPlatformBrowser(this.platformId) && user && this.authService.isPatient() && user.patient_id !== null) {
-        this.loadSaves(user.patient_id);
+      if (!this.accessDenied()) {
+        untracked(() => {
+          this.establishments.load();
+          this.loadSaves();
+        });
       }
     });
   }
@@ -151,11 +171,11 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
     }, 50);
   }
 
-  loadSaves(patientId: number): void {
+  loadSaves(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.enregistrementService.getPatientSaves(patientId).subscribe({
+    this.enregistrementService.getMySaves(this.audience()).subscribe({
       next: (data) => {
         this.saves.set(
           data.map((s) => ({
@@ -247,12 +267,14 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
 
   submitSave(): void {
     if (this.saveForm().invalid()) {
-      this.errorMessage.set('Le nom et le prénom sont obligatoires.');
+      this.errorMessage.set("L'établissement, le nom et le prénom sont obligatoires.");
       return;
     }
-
-    const user = this.authService.currentUser();
-    if (!user || user.patient_id === null) {
+    if (!this.selectedFile()) {
+      this.errorMessage.set("Joignez une image (pièce d'identité, carte d'assurance…).");
+      return;
+    }
+    if (this.accessDenied()) {
       return;
     }
 
@@ -261,7 +283,11 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
 
     const model = this.formModel();
     const payload: SavePatientCreatePayload = {
-      ...model,
+      tenant_id: Number(model.tenant_id),
+      audience: this.audience(),
+      nom: model.nom,
+      prenom: model.prenom,
+      description: model.description,
       file: this.selectedFile(),
     };
 
@@ -271,11 +297,11 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
         this.showAddForm.set(false);
         this.formModel.set(emptyFormModel());
         this.clearSelectedFile();
-        this.loadSaves(user.patient_id!);
+        this.loadSaves();
       },
       error: (err) => {
         this.submitting.set(false);
-        this.errorMessage.set("Échec de l'enregistrement.");
+        this.errorMessage.set(err?.error?.message ?? "Échec de l'envoi du pré-enregistrement.");
         console.error(err);
       },
     });

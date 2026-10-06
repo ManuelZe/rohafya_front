@@ -7,7 +7,12 @@
     "first_name": "Paul",
     "last_name": "EKANÉ (Démo)",
     "username": "DEMO-D-0001",
-    "roles": [{ "id": 2, "name": "Doctor" }]
+    "roles": [
+      {
+        "id": 2,
+        "name": "Doctor"
+      }
+    ]
   },
   "directory": [
     {
@@ -74,41 +79,6 @@
       "DoctorGender": "M"
     }
   ],
-  "registered_patients": 14,
-  "commissions": [
-    { "date": "@J-0T08:40", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
-    { "date": "@J-0T09:15", "kind": "prescription", "produit": "CP V01", "patient": "Jean-Marc ONANA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
-    { "date": "@J-0T11:05", "kind": "realisation", "produit": "CP V02", "patient": "Estelle KAMGA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
-    { "date": "@J-1T10:20", "kind": "prescription", "produit": "CP V01", "patient": "Estelle KAMGA (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
-    { "date": "@J-2T14:00", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Fer sérique", "montant": 850 },
-    { "date": "@J-2T14:05", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Ferritine", "montant": 1200 },
-    { "date": "@J-4T08:10", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
-    { "date": "@J-5T16:30", "kind": "realisation", "produit": "CP V02", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Spirométrie", "montant": 3000 },
-    { "date": "@J-6T09:45", "kind": "prescription", "produit": "CP V01", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Radiographie du thorax (face)", "montant": 1500 },
-    { "date": "@J-9T10:00", "kind": "realisation", "produit": "CP V02", "patient": "Aïcha NGONO (Démo)", "examen": "Spirométrie", "montant": 3000 },
-    { "date": "@J-11T08:25", "kind": "prescription", "produit": "CP V01", "patient": "Jean-Marc ONANA (Démo)", "examen": "Créatininémie", "montant": 400 },
-    { "date": "@J-13T15:10", "kind": "prescription", "produit": "CP V01", "patient": "Grâce NJOYA (Démo)", "examen": "Goutte épaisse (paludisme)", "montant": 350 },
-    { "date": "@J-16T09:00", "kind": "prescription", "produit": "CP V01", "patient": "Grâce NJOYA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
-    { "date": "@J-19T11:30", "kind": "realisation", "produit": "CP V02", "patient": "Estelle KAMGA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
-    { "date": "@J-22T10:15", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Échographie abdomino-pelvienne", "montant": 2500 },
-    { "date": "@J-26T08:50", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
-    { "date": "@J-31T09:30", "kind": "realisation", "produit": "CP V02", "patient": "Jean-Marc ONANA (Démo)", "examen": "Spirométrie", "montant": 3000 },
-    { "date": "@J-35T14:20", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Examen cytobactériologique des urines (ECBU)", "montant": 1000 },
-    { "date": "@J-40T10:40", "kind": "prescription", "produit": "CP V01", "patient": "Chantal ABENA (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
-    { "date": "@J-44T08:05", "kind": "prescription", "produit": "CP V01", "patient": "Chantal ABENA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
-    { "date": "@J-52T11:50", "kind": "realisation", "produit": "CP V02", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
-    { "date": "@J-58T09:25", "kind": "prescription", "produit": "CP V01", "patient": "Grâce NJOYA (Démo)", "examen": "Créatininémie", "montant": 400 },
-    { "date": "@J-64T15:35", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Radiographie du thorax (face)", "montant": 1500 },
-    { "date": "@J-71T10:10", "kind": "prescription", "produit": "CP V01", "patient": "Estelle KAMGA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
-    { "date": "@J-79T08:45", "kind": "realisation", "produit": "CP V02", "patient": "Chantal ABENA (Démo)", "examen": "Spirométrie", "montant": 3000 },
-    { "date": "@J-88T13:15", "kind": "prescription", "produit": "CP V01", "patient": "Jean-Marc ONANA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 },
-    { "date": "@J-97T09:55", "kind": "prescription", "produit": "CP V01", "patient": "Aïcha NGONO (Démo)", "examen": "Goutte épaisse (paludisme)", "montant": 350 },
-    { "date": "@J-108T10:30", "kind": "prescription", "produit": "CP V01", "patient": "Ibrahim MOUSSA (Démo)", "examen": "Échographie abdomino-pelvienne", "montant": 2500 },
-    { "date": "@J-121T11:05", "kind": "realisation", "produit": "CP V02", "patient": "Grâce NJOYA (Démo)", "examen": "Électrocardiogramme (ECG) de repos", "montant": 1800 },
-    { "date": "@J-135T08:20", "kind": "prescription", "produit": "CP V01", "patient": "Samuel ETOA (Démo)", "examen": "Bilan lipidique complet", "montant": 1500 },
-    { "date": "@J-150T09:40", "kind": "prescription", "produit": "CP V01", "patient": "Chantal ABENA (Démo)", "examen": "Glycémie à jeun", "montant": 300 },
-    { "date": "@J-166T14:10", "kind": "prescription", "produit": "CP V01", "patient": "Estelle KAMGA (Démo)", "examen": "Numération Formule Sanguine (NFS)", "montant": 700 }
-  ],
   "other_patient_results": [
     {
       "send_result": {
@@ -139,9 +109,33 @@
         "serializer": "{\"Analyte_line\": \"[['Créatininémie', 9.8, 'mg/l', '', ''], ['Sodium', 139, 'mmol/l', '', ''], ['Potassium', 4.2, 'mmol/l', '', '']]\"}"
       },
       "details": [
-        { "name": "Créatininémie", "result": 9.8, "result_text": "", "units": "mg/l", "normal_range": "6 – 12", "remarks": "", "warning": false },
-        { "name": "Sodium", "result": 139, "result_text": "", "units": "mmol/l", "normal_range": "135 – 145", "remarks": "", "warning": false },
-        { "name": "Potassium", "result": 4.2, "result_text": "", "units": "mmol/l", "normal_range": "3,5 – 5,0", "remarks": "", "warning": false }
+        {
+          "name": "Créatininémie",
+          "result": 9.8,
+          "result_text": "",
+          "units": "mg/l",
+          "normal_range": "6 – 12",
+          "remarks": "",
+          "warning": false
+        },
+        {
+          "name": "Sodium",
+          "result": 139,
+          "result_text": "",
+          "units": "mmol/l",
+          "normal_range": "135 – 145",
+          "remarks": "",
+          "warning": false
+        },
+        {
+          "name": "Potassium",
+          "result": 4.2,
+          "result_text": "",
+          "units": "mmol/l",
+          "normal_range": "3,5 – 5,0",
+          "remarks": "",
+          "warning": false
+        }
       ]
     },
     {
@@ -202,9 +196,9 @@
     },
     {
       "id": 99903,
-      "titre": "Rappel : clôture mensuelle des commissions",
+      "titre": "Résultats partagés : notification par e-mail",
       "date": "@J-28",
-      "description": "Les commissions sont arrêtées le 20 de chaque mois. Les montants du cycle en cours restent visibles en temps réel dans votre tableau de bord.",
+      "description": "Quand un patient vous partage un résultat, vous êtes désormais prévenu par e-mail en plus de la notification dans votre espace.",
       "url": null,
       "is_visible": true
     }
@@ -219,9 +213,9 @@
       "first_name": "Paul",
       "last_name": "EKANÉ (Démo)",
       "email": "paul.ekane@demo.rohafya",
-      "message": "Je ne retrouve pas la commission d'une échographie prescrite le mois dernier.",
+      "message": "Un résultat d'échographie que m'a partagé un patient n'apparaît pas dans mes résultats reçus.",
       "administration": false,
-      "commission": true,
+      "commission": false,
       "connection": false,
       "error": false,
       "etat_patient": false,
@@ -229,7 +223,7 @@
       "patient_request_examen_out": false,
       "patient_request_other_administration": false,
       "patient_request_prix_examen": false,
-      "revendication_examen": false,
+      "revendication_examen": true,
       "suggestion": false,
       "valide": true
     }
@@ -250,8 +244,8 @@
     {
       "id": 99552,
       "user_id": 990002,
-      "title": "Relevé de commissions disponible",
-      "message": "Le relevé du cycle précédent a été facturé. Consultez-le dans la rubrique Commissions.",
+      "title": "Nouvelle actualité",
+      "message": "Un nouvel article est disponible dans la rubrique Actualités.",
       "is_read": false,
       "created_at": "@J-8T08:00",
       "updated_at": null,
