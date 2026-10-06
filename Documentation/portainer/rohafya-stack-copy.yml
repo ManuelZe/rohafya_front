@@ -4,7 +4,7 @@ services:
     container_name: rohafya-${ROHAFYA_ENV:-production}
     restart: unless-stopped
     environment:
-      API_URL: https://site.pdmdsante.com/
+      API_URL: https://api.rohafya.com/
       # Nom de domaine pur sans "https://" (ajoutez localhost/127.0.0.1 pour le healthcheck)
       NG_ALLOWED_HOSTS: "rohafya.com,localhost,127.0.0.1"
       # Ajout de x-forwarded-scheme dans les en-têtes proxy autorisés
@@ -34,9 +34,9 @@ services:
       driver: json-file
       options: { max-size: "10m", max-file: "5" }
     labels:
-      com.pdmdsante.app: "rohafya"
-      com.pdmdsante.env: "${ROHAFYA_ENV:-production}"
-      com.pdmdsante.version: "${ROHAFYA_VERSION}"
+      com.rohafya.app: "rohafya"
+      com.rohafya.env: "${ROHAFYA_ENV:-production}"
+      com.rohafya.version: "${ROHAFYA_VERSION}"
     networks:
       - default
 

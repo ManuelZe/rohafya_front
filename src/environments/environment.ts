@@ -12,7 +12,7 @@ interface RuntimeEnv {
   version?: string;
 }
 
-const DEFAULT_API_URL = 'https://site.pdmdsante.com/';
+const DEFAULT_API_URL = 'https://api.rohafya.com/';
 
 const runtime: RuntimeEnv = (globalThis as { __ROHAFYA_ENV__?: RuntimeEnv }).__ROHAFYA_ENV__ ?? {};
 const serverEnv = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
