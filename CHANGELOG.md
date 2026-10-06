@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.6.1 — 2026-10-06
+
+### Corrections
+
+- **api_url** Modification de l'url de l'api et quelques eléments (db1dfa7)
+
 ## v0.6.0 — 2026-10-06
 
 ### Corrections
