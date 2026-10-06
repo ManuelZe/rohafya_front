@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.7.0 — 2026-10-06
+
+### Nouvelles fonctionnalités
+
+- **demo** Ajout des comptes docteurs administrateurs et super-administrateurs sur ma démo (3f41887)
+
 ## v0.6.1 — 2026-10-06
 
 ### Corrections
