@@ -1,5 +1,16 @@
 # Historique des versions ROHAFYA
 
+## v0.6.0 — 2026-10-06
+
+### Corrections
+
+- **doc** Documentation acceptant le versionning (d834ef7)
+
+### Divers
+
+- AJOUT RESTREINT ET FONCTIONNEMENT DIVERS (6607a56)
+- chore: état de référence avant le renommage EDEN → Rohafya (437444b)
+
 ## v0.5.0 — 2026-09-30
 
 ### Nouvelles fonctionnalités
