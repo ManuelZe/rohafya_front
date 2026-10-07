@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.7.1 — 2026-10-07
+
+### Corrections
+
+- **register** Problèmes :l'enregistrement d'un user, absente de la sélection de l'établissement (d3a14a5)
+
 ## v0.7.0 — 2026-10-06
 
 ### Nouvelles fonctionnalités
