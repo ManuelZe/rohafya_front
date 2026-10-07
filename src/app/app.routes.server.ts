@@ -1,7 +1,8 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
-  { path: '', renderMode: RenderMode.Prerender },
+  // Rendu dans le navigateur : la redirection dépend de la session (localStorage), inconnue du serveur.
+  { path: '', renderMode: RenderMode.Client },
   { path: 'intro', renderMode: RenderMode.Prerender },
   { path: 'connexion', renderMode: RenderMode.Prerender },
   { path: 'matricule', renderMode: RenderMode.Prerender },

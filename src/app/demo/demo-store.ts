@@ -26,9 +26,9 @@ import patientJson from './data/patient.json';
 import platformJson from './data/platform.json';
 
 /**
- * Données de la démonstration, PARTAGÉES par les quatre profils (patient, médecin, administrateur
- * d'établissement, super-administrateur) : ce qu'un profil envoie est vu par le profil supérieur
- * (demande d'un patient -> établissement -> journal du super-administrateur…).
+ * Données de la démonstration, PARTAGÉES par les trois profils (patient, médecin, administrateur
+ * d'établissement) : ce qu'un profil envoie est vu par le profil supérieur (demande d'un patient ou
+ * d'un médecin -> établissement, qui répond ; tout est inscrit au journal de l'établissement).
  *
  * Les données sont conservées dans l'onglet (sessionStorage) pour survivre aux rechargements et aux
  * changements de profil ; rien n'est jamais envoyé au serveur. Les fichiers joints ne sont gardés
@@ -128,7 +128,7 @@ export interface DoctorData {
   notifications: AppNotification[];
 }
 
-/** Compte utilisateur de la plateforme (console super-administrateur). */
+/** Compte utilisateur de la plateforme. */
 export interface Account {
   id: number;
   username: string;
@@ -275,7 +275,6 @@ export const SPACE_ACCOUNTS: Record<DemoSpace, number> = {
   patient: patientJson.user.id,
   doctor: doctorJson.user.id,
   admin: 990003,
-  'super-admin': 990004,
 };
 
 export const PATIENT_USER_ID = SPACE_ACCOUNTS.patient;

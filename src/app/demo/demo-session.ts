@@ -8,12 +8,12 @@ import { DoctorResultatsService } from '../doctors/resultats/doctor-resultats.se
 import { PatientProfileService } from '../patients/patient-profile-service';
 import { PatientsService } from '../patients/patients-service';
 import { SaasAccountService } from '../saas/saas-account.service';
-import { DEMO_HOME, DemoSpace, demoSpaceOf } from './demo-token';
+import { DEMO_HOME, DemoSpace, demoSpaceOf, isDemoToken } from './demo-token';
 
 /**
  * Ouverture, changement de profil et fermeture de la session de démonstration.
- * Les quatre profils partagent les mêmes données fictives : on peut passer de l'un à l'autre
- * pour suivre une demande du patient jusqu'au super-administrateur.
+ * Les trois profils partagent les mêmes données fictives : on peut passer de l'un à l'autre
+ * pour suivre une demande du patient ou du médecin jusqu'à l'établissement.
  */
 @Service()
 export class DemoSession {
@@ -29,6 +29,14 @@ export class DemoSession {
   /** Profil de la session démo en cours, sinon null. */
   readonly space = computed(() => demoSpaceOf(this.authService.token()));
   readonly active = computed(() => this.space() !== null);
+
+  /**
+   * Au démarrage : ferme une session démo d'un profil retiré de la démo (super-administrateur).
+   * Sans cela, la page d'accueil renverrait vers un espace que la démo ne sert plus.
+   */
+  closeObsoleteSession(): void {
+    if (isDemoToken(this.authService.token()) && this.space() === null) this.authService.forgetSession();
+  }
 
   /** Ouvre (ou remplace) la session démo avec le profil choisi. */
   async start(space: DemoSpace): Promise<void> {

@@ -6,7 +6,6 @@ const SPACE_LABELS: Record<DemoSpace, string> = {
   patient: 'Patient',
   doctor: 'Médecin',
   admin: 'Administrateur d’établissement',
-  'super-admin': 'Super-administrateur',
 };
 
 /**

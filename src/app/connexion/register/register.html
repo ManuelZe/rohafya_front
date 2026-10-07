@@ -32,6 +32,23 @@
 
       <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">
         <div class="form-group">
+          <label for="tenant_id" class="form-label">Établissement destinataire</label>
+          <select id="tenant_id" class="form-input" [formField]="form.tenant_id" aria-describedby="tenant_hint tenant_error">
+            <option value="" disabled>{{ establishments.loading() ? 'Chargement…' : 'Choisir un établissement' }}</option>
+            @for (e of establishments.list(); track e.id) {
+              <option [value]="e.id">{{ e.name }}</option>
+            }
+          </select>
+          @if (form.tenant_id().touched() && form.tenant_id().invalid()) {
+            <span id="tenant_error" class="form-error">{{ form.tenant_id().errors()[0]?.message }}</span>
+          } @else {
+            <span id="tenant_hint" class="form-hint">
+              {{ establishments.error() ?? "L'établissement choisi reçoit votre demande et vous répond par e-mail." }}
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
           <label for="first_name" class="form-label">Nom</label>
           <input
             id="first_name"
@@ -87,6 +104,10 @@
             rows="4"
           ></textarea>
         </div>
+
+        @if (errorMessage(); as message) {
+          <p class="form-alert" role="alert">{{ message }}</p>
+        }
 
         <button type="submit" class="submit-btn" [disabled]="form().invalid()" aria-label="S'enregistrer">
           S'enregistrer

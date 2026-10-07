@@ -1,15 +1,14 @@
 /** Profil ouvert par le bouton « Démo » de la page d'introduction. */
-export type DemoSpace = 'patient' | 'doctor' | 'admin' | 'super-admin';
+export type DemoSpace = 'patient' | 'doctor' | 'admin';
 
 /** Du profil le moins élevé au plus élevé : les informations remontent dans cet ordre. */
-export const DEMO_SPACES: readonly DemoSpace[] = ['patient', 'doctor', 'admin', 'super-admin'];
+export const DEMO_SPACES: readonly DemoSpace[] = ['patient', 'doctor', 'admin'];
 
 /** Espace d'arrivée de chaque profil. */
 export const DEMO_HOME: Record<DemoSpace, string> = {
   patient: '/patients',
   doctor: '/doctors',
   admin: '/admin',
-  'super-admin': '/super-admin',
 };
 
 /**

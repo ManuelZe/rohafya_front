@@ -26,11 +26,6 @@ const CHOICES: DemoChoice[] = [
     title: 'Administrateur d’établissement',
     description: 'Demandes reçues des patients et médecins (réponses, devis), patients et rattachements, QR codes, médecins, journal…',
   },
-  {
-    space: 'super-admin',
-    title: 'Super-administrateur',
-    description: 'Tous les établissements et leurs administrateurs, tous les comptes, statistiques et journal de la plateforme.',
-  },
 ];
 
 /** Bouton « Démo » de la page d'introduction : choix de l'espace puis ouverture de la session fictive. */
@@ -51,8 +46,8 @@ const CHOICES: DemoChoice[] = [
         nos serveurs.
       </p>
       <p class="demo-dialog__intro">
-        Les quatre profils partagent les mêmes données : une demande envoyée par le patient arrive chez l'établissement, qui y répond,
-        et le super-administrateur en voit la trace. Changez de profil à tout moment depuis le bandeau « Démo ».
+        Les trois profils partagent les mêmes données : une demande envoyée par le patient ou le médecin arrive chez l'établissement,
+        qui y répond. Changez de profil à tout moment depuis le bandeau « Démo ».
       </p>
 
       <div class="demo-dialog__choices" [attr.aria-busy]="starting() !== null">

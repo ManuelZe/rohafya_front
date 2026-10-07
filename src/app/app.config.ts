@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -9,6 +9,7 @@ import { definePreset } from '@primeuix/themes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './connexion/auth-interceptor';
 import { demoInterceptor } from './demo/demo-interceptor';
+import { DemoSession } from './demo/demo-session';
 
 /** Thème aux couleurs du logo : vert (primary, foncé en 700 pour le contraste AA) et marine. */
 const rohafyaPreset = definePreset(Aura, {
@@ -49,6 +50,7 @@ const rohafyaPreset = definePreset(Aura, {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideAppInitializer(() => inject(DemoSession).closeObsoleteSession()),
     provideHttpClient(withInterceptors([demoInterceptor, authInterceptor])),
     provideRouter(routes, withComponentInputBinding()), provideClientHydration(),
     providePrimeNG({

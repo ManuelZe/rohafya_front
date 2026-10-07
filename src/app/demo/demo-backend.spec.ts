@@ -8,7 +8,6 @@ const api = environment.apiUrl;
 const patient = demoUser('patient');
 const doctor = demoUser('doctor');
 const admin = demoUser('admin');
-const superAdmin = demoUser('super-admin');
 
 function call(method: string, path: string, user = patient, body: unknown = null, params?: HttpParams) {
   const req = new HttpRequest(method, `${api}${path}`, body, { params });
@@ -16,15 +15,14 @@ function call(method: string, path: string, user = patient, body: unknown = null
 }
 
 describe('demoUser', () => {
-  it('ouvre une session pour chacun des quatre profils avec un jeton de démo', () => {
+  it('ouvre une session pour chacun des trois profils avec un jeton de démo', () => {
     expect(isDemoToken(patient.token)).toBe(true);
     expect(patient.roles).toEqual(['Patient']);
     expect(patient.patient_id).not.toBeNull();
     expect(doctor.roles).toEqual(['Doctor']);
     expect(doctor.doctor_id).not.toBeNull();
     expect(admin.roles).toEqual(['EstablishmentAdmin']);
-    expect(superAdmin.roles).toEqual(['SuperAdmin']);
-    expect(new Set([patient, doctor, admin, superAdmin].map((u) => u.token)).size).toBe(4);
+    expect(new Set([patient, doctor, admin].map((u) => u.token)).size).toBe(3);
   });
 });
 
@@ -156,22 +154,18 @@ interface AuditView {
 describe('interconnexions entre les profils de démo', () => {
   beforeEach(() => resetDemoData());
 
-  it('donne à chaque profil son espace et refuse les consoles des profils supérieurs', async () => {
+  it('donne à chaque profil son espace, sans console super-administrateur', async () => {
     const meAdmin = (await call('GET', 'saas/me', admin)) as { is_super_admin: boolean; admin_tenants: { id: number }[] };
     expect(meAdmin.is_super_admin).toBe(false);
     expect(meAdmin.admin_tenants.map((t) => t.id)).toEqual([1, 2]);
-    const meSuper = (await call('GET', 'saas/me', superAdmin)) as { is_super_admin: boolean; admin_tenants: unknown[] };
-    expect(meSuper.is_super_admin).toBe(true);
-    expect(meSuper.admin_tenants.length).toBe(3);
 
-    const denied = (user: typeof patient, path: string) => call('GET', path, user).catch((err: HttpErrorResponse) => err.status);
-    expect(await denied(patient, 'saas/admin/tenants/1/dashboard')).toBe(403);
-    expect(await denied(admin, 'saas/admin/tenants/3/dashboard')).toBe(403);
-    expect(await denied(admin, 'saas/super/stats')).toBe(403);
-    expect(await call('GET', 'saas/admin/tenants/3/dashboard', superAdmin)).toBeTruthy();
+    const status = (user: typeof patient, path: string) => call('GET', path, user).catch((err: HttpErrorResponse) => err.status);
+    expect(await status(patient, 'saas/admin/tenants/1/dashboard')).toBe(403);
+    expect(await status(admin, 'saas/admin/tenants/3/dashboard')).toBe(403);
+    expect(await status(admin, 'saas/super/stats')).toBe(404);
   });
 
-  it('fait remonter une requête du patient à l’établissement, puis la réponse au patient, avec trace pour le super-administrateur', async () => {
+  it('fait remonter une requête du patient à l’établissement, puis la réponse au patient, avec trace au journal', async () => {
     const sent = (await call('POST', 'requete/add', patient, { tenant_id: 1, message: 'Les résultats sont-ils disponibles le samedi ?' })) as {
       id: number;
       submission: { id: number };
@@ -197,7 +191,7 @@ describe('interconnexions entre les profils de démo', () => {
     const notifications = (await call('GET', `notifications/user/${patient.id}/`, patient)) as { title: string }[];
     expect(notifications[0].title).toBe('Réponse de Centre de démonstration ROHAFYA');
 
-    const journal = (await call('GET', 'saas/super/audit', superAdmin, null, new HttpParams().set('tenant_id', 1))) as { items: AuditView[] };
+    const journal = (await call('GET', 'saas/admin/tenants/1/audit', admin)) as { items: AuditView[] };
     const actions = journal.items.filter((a) => a.target === String(sent.submission.id)).map((a) => a.action);
     expect(actions).toEqual(['submission.requete.traitee', 'submission.requete.created']);
   });
@@ -216,7 +210,7 @@ describe('interconnexions entre les profils de démo', () => {
   });
 
   it('rattache un dossier avec le code d’un QR code généré par l’administrateur', async () => {
-    const before = (await call('GET', 'saas/super/stats', superAdmin)) as { links_active: number };
+    const before = (await call('GET', 'saas/admin/tenants/2/dashboard', admin)) as { links_active: number };
     const issued = (await call('POST', 'saas/admin/tenants/2/link-tokens', admin, { local_ref: 'HZ-DEMO-0001' })) as { short_code: string; url: string };
     expect(issued.short_code).toMatch(/^[A-Z0-9]{3}-[A-Z0-9]{4}$/);
     expect(issued.url).toContain('/l/');
@@ -228,7 +222,7 @@ describe('interconnexions entre les profils de démo', () => {
     expect(links.map((l) => l.tenant_id).sort()).toEqual([1, 2]);
     const patients = (await call('GET', 'saas/admin/tenants/2/patients', admin)) as { items: { local_ref: string; link_status: string }[] };
     expect(patients.items.find((p) => p.local_ref === 'HZ-DEMO-0001')?.link_status).toBe('active');
-    const after = (await call('GET', 'saas/super/stats', superAdmin)) as { links_active: number };
+    const after = (await call('GET', 'saas/admin/tenants/2/dashboard', admin)) as { links_active: number };
     expect(after.links_active).toBe(before.links_active + 1);
 
     const reused = await call('POST', 'saas/me/links/redeem', patient, { code: issued.short_code }).catch((err: HttpErrorResponse) => err.status);
@@ -242,10 +236,10 @@ describe('interconnexions entre les profils de démo', () => {
   });
 
   it('conserve les données dans l’onglet et les remet à zéro sur demande', async () => {
-    await call('POST', 'saas/super/tenants', superAdmin, { name: 'Clinique des Palmiers', source_type: 'api' });
-    expect(sessionStorage.getItem('rohafya-demo-data')).toContain('Clinique des Palmiers');
+    await call('POST', 'saas/admin/tenants/1/patients', admin, { local_ref: 'PAT-DEMO-0099', first_name: 'Clarisse', last_name: 'MVONDO' });
+    expect(sessionStorage.getItem('rohafya-demo-data')).toContain('PAT-DEMO-0099');
     resetDemoData();
-    const tenants = (await call('GET', 'saas/super/tenants', superAdmin)) as { name: string }[];
-    expect(tenants.some((t) => t.name === 'Clinique des Palmiers')).toBe(false);
+    const patients = (await call('GET', 'saas/admin/tenants/1/patients', admin)) as { items: { local_ref: string }[] };
+    expect(patients.items.some((p) => p.local_ref === 'PAT-DEMO-0099')).toBe(false);
   });
 });

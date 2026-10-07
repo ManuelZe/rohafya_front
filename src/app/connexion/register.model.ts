@@ -1,4 +1,6 @@
 export interface RegistrationRequest {
+    /** Établissement destinataire de la demande (obligatoire pour l'API). */
+    tenant_id: number;
     administration: boolean;
     commission: boolean;
     connection: boolean;
@@ -17,6 +19,8 @@ export interface RegistrationRequest {
 }
 
 export interface RegistrationFormData {
+    /** Identifiant de l'établissement choisi, '' tant qu'aucun n'est choisi. */
+    tenant_id: string;
     first_name: string;
     last_name: string;
     email: string;

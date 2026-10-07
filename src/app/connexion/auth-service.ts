@@ -143,6 +143,7 @@ export class AuthService {
 
   private buildPayload(formData: RegistrationFormData): RegistrationRequest {
     return {
+      tenant_id: Number(formData.tenant_id),
       first_name: formData.first_name,
       last_name: formData.last_name,
       email: formData.email,
@@ -166,6 +167,11 @@ export class AuthService {
       catchError(() => of(null)),
       finalize(() => this.clearSession())
     );
+  }
+
+  /** Ferme la session sur ce navigateur sans appeler l'API (session locale devenue invalide). */
+  forgetSession(): void {
+    this.clearSession();
   }
 
   private clearSession(): void {

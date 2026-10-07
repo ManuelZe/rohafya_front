@@ -1,3 +1,4 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { Connexion } from './connexion/connexion';
 import { Intro } from './intro/intro';
@@ -9,6 +10,7 @@ import { Overview } from './patients/overview/overview'; // Séparer la section 
 import { Details } from './patients/factures/details/details';
 import { Requests } from './patients/requests/requests';
 import { authGuard } from './connexion/auth-guard'; // Importer le guard d'authentification
+import { AuthService } from './connexion/auth-service';
 import { Prescriptions } from './patients/prescriptions/prescriptions';
 import { Enregistrement } from './patients/enregistrement/enregistrement';
 import { Notifications } from './notifications/notifications';
@@ -23,7 +25,16 @@ import { doctorGuard } from './doctors/doctor-guards';
 import { superAdminGuard, tenantAdminGuard } from './saas/saas-guards';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'intro', pathMatch: 'full' },
+    // La session est partagée par tout le navigateur (localStorage) : un utilisateur déjà connecté
+    // qui tape l'adresse du site arrive dans son espace, les autres sur la page d'accueil.
+    {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: () => {
+            const auth = inject(AuthService);
+            return auth.isLoggedIn() ? auth.homeUrl() : 'intro';
+        },
+    },
     { path: 'connexion', component: Connexion },
     { path: 'intro', component: Intro },
     { path: 'matricule', component: Matricule },

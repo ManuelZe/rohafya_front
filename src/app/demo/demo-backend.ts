@@ -37,9 +37,9 @@ export { demoUser, resetDemoData } from './demo-store';
  * Chargé à la demande (import dynamique) uniquement lorsqu'une session démo est ouverte : il
  * n'alourdit pas l'application pour les vrais comptes.
  *
- * Les quatre profils (patient, médecin, administrateur d'établissement, super-administrateur)
- * partagent les mêmes données (demo-store.ts) : une demande envoyée par le patient arrive chez
- * l'établissement, qui répond ; tout est inscrit au journal lu par le super-administrateur.
+ * Les trois profils (patient, médecin, administrateur d'établissement) partagent les mêmes
+ * données (demo-store.ts) : une demande envoyée par le patient arrive chez l'établissement, qui
+ * répond ; tout est inscrit au journal de l'établissement.
  *
  * Les dates des JSON sont relatives au jour courant (« @J-3 », « @J+87T09:00 ») afin que la
  * démo reste crédible quel que soit le jour de la présentation.

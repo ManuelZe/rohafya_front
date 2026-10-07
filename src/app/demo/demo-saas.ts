@@ -4,7 +4,6 @@ import {
   DoctorLinkView,
   LinkStatus,
   RecordKind,
-  SourceType,
   SubmissionAdminItem,
   SubmissionAnswer,
   TenantSettings,
@@ -13,7 +12,6 @@ import {
 import { SUBMISSION_STATUS_LABELS, SubmissionKind, SubmissionStatus } from '../shared/submission/submission.models';
 import { documentImage } from './demo-images';
 import {
-  Account,
   Handler,
   LinkRow,
   SubmittedItem,
@@ -32,7 +30,6 @@ import {
   formatShortCode,
   fullName,
   inDays,
-  isSuperAdmin,
   linkView,
   matches,
   newId,
@@ -48,12 +45,11 @@ import {
 
 /**
  * Routes SaaS de la démonstration : profil (/saas/me), rattachements du patient, console de
- * l'administrateur d'établissement (/saas/admin) et console du super-administrateur (/saas/super).
+ * l'administrateur d'établissement (/saas/admin). La démo ne propose pas de profil super-administrateur.
  * Mêmes réponses que l'API Flask (Rohafya/saas), calculées sur les données partagées de demo-store.
  */
 
 const RECORD_KINDS: RecordKind[] = ['laboratoire', 'imagerie', 'exploration', 'facture'];
-const SOURCES: SourceType[] = ['gnuhealth', 'api', 'fhir', 'pdf'];
 const LINK_STATUSES: LinkStatus[] = ['pending', 'active', 'revoked'];
 const SUBMISSION_STATUSES: SubmissionStatus[] = ['recue', 'en_cours', 'traitee', 'refusee'];
 const TENANT_EDITABLE: (keyof TenantSettings)[] = [
@@ -65,23 +61,6 @@ const TENANT_EDITABLE: (keyof TenantSettings)[] = [
   'contact_email',
   'contact_phone',
 ];
-const DEFAULT_SETTINGS: TenantSettings = {
-  display_name: '',
-  result_access_days: 90,
-  block_unpaid_results: true,
-  commissions_enabled: false,
-  link_token_days: 30,
-  primary_color: '#047857',
-  contact_email: '',
-  contact_phone: '',
-  pdf_ai_enabled: false,
-  pdf_quota_files: 10,
-  pdf_quota_days: 1,
-};
-const PDF_QUOTA_LIMITS: Partial<Record<keyof TenantSettings, [number, number]>> = {
-  pdf_quota_files: [1, 10000],
-  pdf_quota_days: [1, 365],
-};
 const SHORT_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const PDF_CLOSED = "L'import de résultats par PDF est disponible prochainement.";
 
@@ -108,23 +87,12 @@ function origin(): string {
   return typeof window !== 'undefined' ? window.location.origin : 'https://rohafya.com';
 }
 
-function slugify(value: string): string {
-  return normalize(value)
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80);
-}
-
-/** Établissement administré par l'utilisateur (ou n'importe lequel pour le super-administrateur). */
+/** Établissement administré par l'utilisateur. */
 function adminTenant(user: CurrentUser, id: string): TenantRow {
   const t = tenant(Number(id)) ?? fail(404, 'Établissement introuvable.');
   const member = db().members.some((m) => m.tenant_id === t.id && m.user_id === user.id);
-  if (!member && !isSuperAdmin(user.id)) fail(403, "Vous n'administrez pas cet établissement.");
+  if (!member) fail(403, "Vous n'administrez pas cet établissement.");
   return t;
-}
-
-function requireSuperAdmin(user: CurrentUser): void {
-  if (!isSuperAdmin(user.id)) fail(403, 'Accès réservé au super-administrateur.');
 }
 
 export function tenantStats(t: TenantRow): TenantStats {
@@ -145,10 +113,6 @@ export function tenantStats(t: TenantRow): TenantStats {
     doctors: s.practitioners.filter((p) => p.tenant_id === t.id).length,
     admins: s.members.filter((m) => m.tenant_id === t.id).length,
   };
-}
-
-function tenantRow(t: TenantRow) {
-  return { ...tenantView(t), stats: tenantStats(t) };
 }
 
 function recentAudit(tenantId?: number) {
@@ -283,79 +247,6 @@ function answer(entry: SubmissionEntry, actorId: number, data: Partial<Submissio
   }
 }
 
-// --- Super-administrateur ------------------------------------------------
-
-function applyTenantFields(t: TenantRow, data: Record<string, unknown>, creating = false): void {
-  if ('name' in data || creating) {
-    const name = String(data['name'] ?? '').trim();
-    if (!name) fail(400, "Le nom de l'établissement est obligatoire.");
-    t.name = name.slice(0, 200);
-  }
-  if ('slug' in data || creating) {
-    const slug = slugify(String(data['slug'] || t.name));
-    if (!/^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/.test(slug)) {
-      fail(400, 'Identifiant invalide : lettres minuscules, chiffres et tirets (3 caractères minimum).');
-    }
-    if (db().tenants.some((other) => other.slug === slug && other.id !== t.id)) {
-      fail(409, 'Cet identifiant est déjà utilisé par un autre établissement.');
-    }
-    t.slug = slug;
-  }
-  if ('source_type' in data || creating) {
-    const source = (data['source_type'] || 'api') as SourceType;
-    if (!SOURCES.includes(source)) fail(400, `Source inconnue. Valeurs possibles : ${SOURCES.join(', ')}.`);
-    t.source_type = source;
-  }
-  if ('is_active' in data) t.is_active = !!data['is_active'];
-  const settings = data['settings'];
-  if (settings && typeof settings === 'object') {
-    for (const [key, raw] of Object.entries(settings as Record<string, unknown>)) {
-      if (!(key in DEFAULT_SETTINGS)) continue;
-      const k = key as keyof TenantSettings;
-      let value: unknown = raw;
-      const limits = PDF_QUOTA_LIMITS[k];
-      if (limits) {
-        value = Number(raw);
-        if (!Number.isInteger(value)) fail(400, `${key} doit être un nombre entier.`);
-        if ((value as number) < limits[0] || (value as number) > limits[1]) fail(400, `${key} doit être compris entre ${limits[0]} et ${limits[1]}.`);
-      } else if (typeof DEFAULT_SETTINGS[k] === 'boolean') {
-        value = !!raw;
-      }
-      (t.settings as unknown as Record<string, unknown>)[key] = value;
-    }
-  }
-}
-
-function userView(a: Account) {
-  const s = db();
-  return {
-    id: a.id,
-    username: a.username,
-    email: a.email,
-    first_name: a.first_name,
-    last_name: a.last_name,
-    active: a.active,
-    roles: [...a.roles].sort(),
-    is_super_admin: isSuperAdmin(a.id),
-    admin_of: s.members.filter((m) => m.user_id === a.id).map((m) => tenant(m.tenant_id)?.name ?? '').filter(Boolean),
-    patient_id: a.patient_id,
-    doctor_id: a.doctor_id,
-  };
-}
-
-function memberView(m: { tenant_id: number; user_id: number; created_at: string }) {
-  const a = account(m.user_id);
-  return {
-    user_id: m.user_id,
-    tenant_id: m.tenant_id,
-    email: a?.email ?? null,
-    first_name: a?.first_name ?? null,
-    last_name: a?.last_name ?? null,
-    active: a?.active ?? false,
-    created_at: m.created_at,
-  };
-}
-
 function page(req: HttpRequest<unknown>) {
   return <T>(items: T[]) => paged(req, items);
 }
@@ -371,7 +262,7 @@ export const SAAS_ROUTES: [string, Handler][] = [
   ['GET saas/me', ({ user }) => {
     const profile = db().patient.profile;
     return {
-      is_super_admin: isSuperAdmin(user.id),
+      is_super_admin: false,
       admin_tenants: adminTenants(user.id).map((t) => tenantView(t, false)),
       links: patientLinks(user.patient_id),
       // Démonstration : le module commissions n'est activé pour aucun établissement.
@@ -558,170 +449,6 @@ export const SAAS_ROUTES: [string, Handler][] = [
   [`GET ${T}/pdf-imports`, () => fail(403, PDF_CLOSED)],
   [`POST ${T}/pdf-imports`, () => fail(403, PDF_CLOSED)],
 
-  // --- Super-administrateur --------------------------------------------------
-  ['GET saas/super/stats', ({ user }) => {
-    requireSuperAdmin(user);
-    const s = db();
-    const byKind = Object.fromEntries(RECORD_KINDS.map((k) => [k, s.records.filter((r) => r.kind === k).length])) as Record<RecordKind, number>;
-    return {
-      tenants: s.tenants.length,
-      tenants_active: s.tenants.filter((t) => t.is_active).length,
-      users: s.accounts.length,
-      patients: s.accounts.filter((a) => a.patient_id !== null).length,
-      doctors: s.accounts.filter((a) => a.doctor_id !== null).length,
-      admins: s.members.length,
-      links_active: s.links.filter((l) => l.status === 'active').length,
-      links_pending: s.links.filter((l) => l.status === 'pending').length,
-      records: byKind,
-      records_total: s.records.length,
-      recent_activity: recentAudit().slice(0, 10),
-    };
-  }],
-  ['GET saas/super/tenants', ({ user }) => {
-    requireSuperAdmin(user);
-    return [...db().tenants].sort((a, b) => a.name.localeCompare(b.name)).map(tenantRow);
-  }],
-  ['POST saas/super/tenants', ({ req, user }) => {
-    requireSuperAdmin(user);
-    const t: TenantRow = {
-      id: Math.max(0, ...db().tenants.map((x) => x.id)) + 1,
-      slug: '',
-      name: '',
-      source_type: 'api',
-      is_active: true,
-      api_key_hint: null,
-      created_at: now(),
-      updated_at: null,
-      settings: { ...DEFAULT_SETTINGS },
-    };
-    applyTenantFields(t, body<Record<string, unknown>>(req), true);
-    if (t.source_type === 'gnuhealth') fail(409, 'Un établissement relié directement à GNU Health existe déjà.');
-    const apiKey = newApiKey(t);
-    db().tenants.push(t);
-    audit('tenant.created', { tenant_id: t.id, user_id: user.id, target: t.slug });
-    return { ...tenantRow(t), api_key: apiKey };
-  }],
-  ['GET saas/super/tenants/:id', ({ user, params }) => {
-    requireSuperAdmin(user);
-    return tenantRow(tenant(Number(params[0])) ?? fail(404, 'Établissement introuvable.'));
-  }],
-  ['PUT saas/super/tenants/:id', ({ req, user, params }) => {
-    requireSuperAdmin(user);
-    const t = tenant(Number(params[0])) ?? fail(404, 'Établissement introuvable.');
-    const data = body<Record<string, unknown>>(req);
-    if (data['source_type'] === 'gnuhealth' && t.source_type !== 'gnuhealth') fail(400, "La source GNU Health est réservée à l'établissement historique.");
-    applyTenantFields(t, data);
-    t.updated_at = now();
-    audit('tenant.updated', { tenant_id: t.id, user_id: user.id, target: t.slug });
-    return tenantRow(t);
-  }],
-  ['POST saas/super/tenants/:id/api-key', ({ user, params }) => {
-    requireSuperAdmin(user);
-    return rotateKey(tenant(Number(params[0])) ?? fail(404, 'Établissement introuvable.'), user);
-  }],
-  ['DELETE saas/super/tenants/:id', ({ req, user, params }) => {
-    requireSuperAdmin(user);
-    const s = db();
-    const t = tenant(Number(params[0])) ?? fail(404, 'Établissement introuvable.');
-    if (t.source_type === 'gnuhealth') fail(400, "L'établissement relié à GNU Health ne peut pas être supprimé (il peut être suspendu).");
-    if (String(body<{ confirm_slug: string }>(req).confirm_slug ?? '').trim() !== t.slug) {
-      fail(400, `Confirmation incorrecte : saisissez exactement « ${t.slug} ».`);
-    }
-    const counts = {
-      donnees: s.records.filter((r) => r.tenant_id === t.id).length,
-      dossiers: s.dossiers.filter((d) => d.tenant_id === t.id).length,
-      rattachements: s.links.filter((l) => l.tenant_id === t.id).length,
-      medecins: s.practitioners.filter((p) => p.tenant_id === t.id).length,
-      qr_codes: s.tokens.filter((tok) => tok.tenant_id === t.id).length,
-      administrateurs: s.members.filter((m) => m.tenant_id === t.id).length,
-    };
-    s.records = s.records.filter((r) => r.tenant_id !== t.id);
-    s.dossiers = s.dossiers.filter((d) => d.tenant_id !== t.id);
-    s.links = s.links.filter((l) => l.tenant_id !== t.id);
-    s.practitioners = s.practitioners.filter((p) => p.tenant_id !== t.id);
-    s.tokens = s.tokens.filter((tok) => tok.tenant_id !== t.id);
-    s.members = s.members.filter((m) => m.tenant_id !== t.id);
-    for (const entry of s.audit.filter((a) => a.tenant_id === t.id)) {
-      entry.details = { ...(entry.details ?? {}), etablissement_supprime: t.name };
-      entry.tenant_id = null;
-    }
-    s.tenants = s.tenants.filter((x) => x !== t);
-    audit('tenant.deleted', { user_id: user.id, target: t.slug, details: { name: t.name, ...counts } });
-    return { message: `L'établissement ${t.name} a été supprimé.`, deleted: counts };
-  }],
-  ['GET saas/super/tenants/:id/admins', ({ user, params }) => {
-    requireSuperAdmin(user);
-    const t = tenant(Number(params[0])) ?? fail(404, 'Établissement introuvable.');
-    return db().members.filter((m) => m.tenant_id === t.id).map(memberView);
-  }],
-  ['POST saas/super/tenants/:id/admins', ({ req, user, params }) => {
-    requireSuperAdmin(user);
-    const t = tenant(Number(params[0])) ?? fail(404, 'Établissement introuvable.');
-    const data = body<{ email: string; first_name: string; last_name: string }>(req);
-    const email = normalize(String(data.email ?? '').trim());
-    if (!email.includes('@')) fail(400, 'Adresse e-mail invalide.');
-    let a = db().accounts.find((acc) => normalize(acc.email) === email && acc.active);
-    if (!a) {
-      const first = String(data.first_name ?? '').trim();
-      const last = String(data.last_name ?? '').trim();
-      if (!first || !last) fail(400, "Nom et prénom obligatoires pour créer le compte de l'administrateur.");
-      a = { id: newId(), username: email, email, first_name: first, last_name: last, active: true, roles: [], patient_id: null, doctor_id: null, created_at: now() };
-      db().accounts.push(a);
-      audit('account.created', { user_id: user.id, target: email });
-    }
-    if (!a.roles.includes('EstablishmentAdmin')) a.roles.push('EstablishmentAdmin');
-    let member = db().members.find((m) => m.tenant_id === t.id && m.user_id === a.id);
-    if (!member) {
-      member = { tenant_id: t.id, user_id: a.id, created_at: now() };
-      db().members.push(member);
-    }
-    audit('tenant.admin_added', { tenant_id: t.id, user_id: user.id, target: email });
-    // Démonstration : aucun e-mail n'est envoyé.
-    return { ...memberView(member), email_sent: false };
-  }],
-  ['DELETE saas/super/tenants/:id/admins/:userId', ({ user, params }) => {
-    requireSuperAdmin(user);
-    const tenantId = Number(params[0]);
-    const userId = Number(params[1]);
-    const member = db().members.find((m) => m.tenant_id === tenantId && m.user_id === userId) ?? fail(404, "Cet utilisateur n'administre pas cet établissement.");
-    db().members = db().members.filter((m) => m !== member);
-    const a = account(userId);
-    if (a && !db().members.some((m) => m.user_id === userId)) a.roles = a.roles.filter((r) => r !== 'EstablishmentAdmin');
-    audit('tenant.admin_removed', { tenant_id: tenantId, user_id: user.id, target: a?.email ?? null });
-    return { message: 'Administrateur retiré.' };
-  }],
-  ['GET saas/super/users', ({ req, user }) => {
-    requireSuperAdmin(user);
-    const q = req.params.get('q') ?? '';
-    const role = req.params.get('role');
-    const rows = db()
-      .accounts.filter((a) => matches(q, a.email, a.first_name, a.last_name, a.username) && (!role || a.roles.includes(role)))
-      .sort((a, b) => b.id - a.id)
-      .map(userView);
-    return page(req)(rows);
-  }],
-  ['PUT saas/super/users/:userId/active', ({ req, user, params }) => {
-    requireSuperAdmin(user);
-    const a = account(Number(params[0])) ?? fail(404, 'Utilisateur introuvable.');
-    if (a.id === user.id) fail(400, 'Vous ne pouvez pas désactiver votre propre compte.');
-    a.active = !!body<{ active: boolean }>(req).active;
-    audit(a.active ? 'user.activated' : 'user.deactivated', { user_id: user.id, target: a.email });
-    return userView(a);
-  }],
-  ['PUT saas/super/users/:userId/super-admin', ({ req, user, params }) => {
-    requireSuperAdmin(user);
-    const a = account(Number(params[0])) ?? fail(404, 'Utilisateur introuvable.');
-    const enabled = !!body<{ enabled: boolean }>(req).enabled;
-    if (!enabled && a.id === user.id) fail(400, 'Vous ne pouvez pas retirer vos propres droits de super-administrateur.');
-    a.roles = enabled ? [...new Set([...a.roles, 'SuperAdmin'])] : a.roles.filter((r) => r !== 'SuperAdmin');
-    audit(enabled ? 'user.super_admin_granted' : 'user.super_admin_revoked', { user_id: user.id, target: a.email });
-    return userView(a);
-  }],
-  ['GET saas/super/audit', ({ req, user }) => {
-    requireSuperAdmin(user);
-    const tenantId = Number(req.params.get('tenant_id')) || undefined;
-    return page(req)(recentAudit(tenantId));
-  }],
 ];
 
 // =====================================================================

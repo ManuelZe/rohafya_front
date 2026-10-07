@@ -35,22 +35,23 @@ L'URL de l'API vient de `src/environments/environment.development.ts` avec `ng s
 
 ## Mode démonstration
 
-Le bouton « Démo » de la page d'accueil ouvre l'application avec des données fictives. Rien ne part vers l'API : `src/app/demo/demo-interceptor.ts` répond à sa place. Quatre profils sont proposés, du moins élevé au plus élevé :
+Le bouton « Démo » de la page d'accueil ouvre l'application avec des données fictives. Rien ne part vers l'API : `src/app/demo/demo-interceptor.ts` répond à sa place. Trois profils sont proposés, du moins élevé au plus élevé :
 
 | Profil | Compte fictif | Espace |
 | --- | --- | --- |
 | Patient | Aïcha NGONO | `/patients` |
 | Médecin | Dr Paul EKANÉ | `/doctors` |
 | Administrateur d'établissement | Joseph KAMGA (Centre de démonstration, Laboratoire Horizon) | `/admin` |
-| Super-administrateur | Mireille ABENA | `/super-admin` |
 
-Les quatre profils partagent les mêmes données, et une information circule du profil le moins élevé vers le plus élevé :
+Les trois profils partagent les mêmes données, et une information circule du profil le moins élevé vers le plus élevé :
 
 - **patient → médecin** : un résultat partagé apparaît dans « Résultats reçus », et le médecin reçoit une notification ;
 - **patient ou médecin → établissement** : les prescriptions, pré-enregistrements et requêtes arrivent dans « Demandes ». La réponse de l'établissement revient à l'auteur, avec une notification ;
 - **patient → établissement** : le rattachement avec le code d'un QR code généré par l'administrateur (menu « QR codes ») apparaît dans « Rattachements » ;
 - **médecin → établissement** : la consultation d'un résultat partagé est inscrite au journal ;
-- **établissement → super-administrateur** : toutes ces actions sont inscrites au journal, et les statistiques et la liste des établissements suivent.
+- **dans l'établissement** : toutes ces actions sont inscrites au journal, et le tableau de bord suit.
+
+La console super-administrateur n'a pas de profil de démo.
 
 Le bandeau « Démo » permet de changer de profil sans perdre les données, de les remettre à zéro ou de quitter la démo. Les données sont gardées dans l'onglet (`sessionStorage`) : elles survivent à un rechargement, mais pas à la fermeture de l'onglet. Les fichiers joints restent en mémoire et sont remplacés par une image générée après un rechargement.
 
@@ -61,7 +62,7 @@ Organisation du code (`src/app/demo/`) :
 | `data/patient.json`, `data/doctor.json`, `data/platform.json` | Données d'origine (dates relatives : `@J-3T09:30`) |
 | `demo-store.ts` | Données partagées, persistance, journal, notifications, vues au format de l'API |
 | `demo-backend.ts` | Routes des espaces patient et médecin, routage, point d'entrée de l'intercepteur |
-| `demo-saas.ts` | Routes `saas/me`, console d'établissement (`saas/admin`) et console super-admin (`saas/super`) |
+| `demo-saas.ts` | Routes `saas/me` et console d'établissement (`saas/admin`) |
 | `demo-session.ts`, `demo-banner/`, `demo-launcher/` | Ouverture, changement de profil et sortie |
 
 Si un écran appelle un nouvel endpoint, ajoutez la route correspondante dans `demo-backend.ts` ou `demo-saas.ts`, avec la même réponse que l'API Flask. Sinon, la démo répond « Cette fonctionnalité n'est pas disponible en mode démo ». Les tests sont dans `demo-backend.spec.ts`.
