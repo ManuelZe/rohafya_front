@@ -11,7 +11,7 @@ import { RoleShowcase } from './role-showcase/role-showcase';
 import { Reveal } from './reveal';
 import { SeoService } from '../shared/seo/seo.service';
 import { AuthService } from '../connexion/auth-service';
-import { FAQ, NAV_LINKS, TRUST_POINTS } from './intro.content';
+import { FAQ, NAV_LINKS, SOCIAL_LINKS, TRUST_POINTS } from './intro.content';
 import { INTRO_SEO } from './intro.seo';
 
 /** Hauteur de défilement à partir de laquelle l'en-tête prend son ombre. */
@@ -37,6 +37,7 @@ export class Intro {
   readonly navLinks = NAV_LINKS;
   readonly trustPoints = TRUST_POINTS;
   readonly faq = FAQ;
+  readonly socialLinks = SOCIAL_LINKS;
   readonly audiences = [
     { icon: 'filter', label: 'Laboratoires' },
     { icon: 'image', label: 'Centres d’imagerie' },

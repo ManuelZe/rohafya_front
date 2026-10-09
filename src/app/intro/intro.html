@@ -302,6 +302,16 @@
     <div class="footer__brand">
       <img ngSrc="rohafya-emblem.png" width="244" height="128" alt="ROHAFYA" />
       <p>Plateforme de santé connectée au Cameroun : patients, médecins et établissements de santé, reliés.</p>
+      <ul class="footer__social" aria-label="ROHAFYA sur les réseaux sociaux">
+        @for (social of socialLinks; track social.url) {
+          <li>
+            <a class="social-link" [href]="social.url" target="_blank" rel="noopener noreferrer">
+              <svg [pIcon]="social.icon" [size]="18" aria-hidden="true"></svg>
+              {{ social.label }}<span class="sr-only"> (s’ouvre dans un nouvel onglet)</span>
+            </a>
+          </li>
+        }
+      </ul>
     </div>
 
     <nav class="footer__col" aria-labelledby="footer-discover">

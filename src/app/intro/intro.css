@@ -838,6 +838,38 @@ main:focus,
   color: var(--muted);
 }
 
+.footer__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer .social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--rohafya-navy);
+  background: #fff;
+  border: 1px solid var(--rohafya-navy-100);
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+.footer .social-link:hover {
+  color: var(--color-primary-hover);
+  border-color: var(--rohafya-green-400);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
 .footer__heading {
   margin: 0 0 0.75rem;
   font-size: 0.8rem;
@@ -1151,7 +1183,8 @@ main:focus,
   }
 
   .trust-card:hover,
-  .audiences__list li:hover {
+  .audiences__list li:hover,
+  .footer .social-link:hover {
     transform: none;
   }
 }

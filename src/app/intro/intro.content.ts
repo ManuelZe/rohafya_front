@@ -19,6 +19,18 @@ export const NAV_LINKS: NavLink[] = [
   { id: 'faq', label: 'Questions' },
 ];
 
+export interface SocialLink {
+  label: string;
+  icon: string;
+  url: string;
+}
+
+/** Comptes officiels de ROHAFYA : pied de page et données structurées (sameAs). */
+export const SOCIAL_LINKS: SocialLink[] = [
+  { label: 'LinkedIn', icon: 'linkedin', url: 'https://www.linkedin.com/company/rohafya/' },
+  { label: 'X', icon: 'twitter', url: 'https://x.com/Rohafya_237' },
+];
+
 export interface Highlight {
   icon: string;
   title: string;

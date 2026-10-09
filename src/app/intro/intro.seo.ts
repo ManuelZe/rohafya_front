@@ -1,6 +1,6 @@
 import { PageSeo } from '../shared/seo/seo.service';
 import { SITE_NAME, SITE_URL } from '../shared/seo/site';
-import { FAQ } from './intro.content';
+import { FAQ, SOCIAL_LINKS } from './intro.content';
 
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 
@@ -24,6 +24,7 @@ export const INTRO_SEO: PageSeo = {
         logo: `${SITE_URL}/rohafya-logo.png`,
         slogan: 'Votre santé, connectée',
         areaServed: { '@type': 'Country', name: 'Cameroun' },
+        sameAs: SOCIAL_LINKS.map((link) => link.url),
       },
       {
         '@type': 'WebSite',
