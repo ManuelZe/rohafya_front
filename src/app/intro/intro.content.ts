@@ -17,17 +17,7 @@ export const NAV_LINKS: NavLink[] = [
   { id: 'comment', label: 'Comment ça marche' },
   { id: 'confiance', label: 'Sécurité' },
   { id: 'faq', label: 'Questions' },
-  { id: 'contact', label: 'Contact' },
 ];
-
-/** Coordonnées publiques : section « Nous contacter », pied de page et données structurées. */
-export const CONTACT = {
-  /** Format international E.164, pour les liens tel: et schema.org. */
-  phone: '+237695995842',
-  phoneDisplay: '+237 6 95 99 58 42',
-  email: 'zeafemanuel@rohafya.com',
-  country: 'CM',
-};
 
 export interface Highlight {
   icon: string;

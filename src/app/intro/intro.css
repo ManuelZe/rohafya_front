@@ -777,11 +777,6 @@ main:focus,
   padding-bottom: 6rem;
 }
 
-/* Après une section teintée, le bandeau a besoin d'air au-dessus. */
-.cta--after-tinted {
-  padding-top: 6rem;
-}
-
 .cta__inner {
   display: flex;
   flex-wrap: wrap;
@@ -826,7 +821,7 @@ main:focus,
 
 .footer__inner {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr)) minmax(0, 1.3fr);
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
   gap: 2rem;
   padding-bottom: 2rem;
 }
@@ -859,17 +854,6 @@ main:focus,
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.footer address {
-  font-style: normal;
-}
-
-.footer address a {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  overflow-wrap: anywhere;
 }
 
 .footer a,
@@ -939,7 +923,7 @@ main:focus,
 }
 
 /* ===== RESPONSIVE ===== */
-/* Le menu hamburger remplace la navigation dès que les six liens ne tiennent plus sur une ligne. */
+/* Le menu hamburger remplace la navigation dès que ses liens ne tiennent plus sur une ligne. */
 @media (max-width: 1200px) {
   .nav {
     display: none;
@@ -1025,14 +1009,6 @@ main:focus,
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .footer__inner {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .footer__brand {
-    grid-column: 1 / -1;
-  }
-
   .integration {
     grid-template-columns: 1fr;
   }
@@ -1116,10 +1092,6 @@ main:focus,
 
   .cta {
     padding-bottom: 4rem;
-  }
-
-  .cta--after-tinted {
-    padding-top: 4rem;
   }
 
   .cta__inner {

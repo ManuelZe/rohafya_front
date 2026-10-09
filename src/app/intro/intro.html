@@ -281,22 +281,8 @@
     </div>
   </section>
 
-  <!-- ===== CONTACT ===== -->
-  <section id="contact" class="section section--tinted" aria-labelledby="contact-title">
-    <div class="container">
-      <header class="section__head" appReveal>
-        <p class="kicker">Nous contacter</p>
-        <h2 id="contact-title" class="section__title" tabindex="-1">Parlons de votre projet ou de votre dossier.</h2>
-        <p class="section__lead">
-          Vous dirigez un établissement de santé, vous êtes médecin ou patient : appelez-nous ou écrivez-nous, nous vous répondons.
-        </p>
-      </header>
-      <app-contact appReveal />
-    </div>
-  </section>
-
   <!-- ===== APPEL À L'ACTION ===== -->
-  <section class="cta cta--after-tinted container" aria-labelledby="cta-title">
+  <section class="cta container" aria-labelledby="cta-title">
     <div class="cta__inner" appReveal>
       <div>
         <h2 id="cta-title" class="cta__title">Ne revenez plus pour un résultat.</h2>
@@ -335,24 +321,6 @@
         <li><button type="button" class="footer__link-btn" aria-haspopup="dialog" (click)="openDemo()">Essayer la démo</button></li>
       </ul>
     </nav>
-
-    <div class="footer__col">
-      <h2 id="footer-contact" class="footer__heading">Contact</h2>
-      <address>
-        <ul>
-          <li>
-            <a [href]="'tel:' + contact.phone">
-              <svg pIcon="phone" [size]="14" aria-hidden="true"></svg>{{ contact.phoneDisplay }}
-            </a>
-          </li>
-          <li>
-            <a [href]="'mailto:' + contact.email">
-              <svg pIcon="envelope" [size]="14" aria-hidden="true"></svg>{{ contact.email }}
-            </a>
-          </li>
-        </ul>
-      </address>
-    </div>
   </div>
   <div class="footer__bottom container">
     <span>© ROHAFYA · Votre santé, connectée</span>

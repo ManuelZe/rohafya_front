@@ -9,10 +9,9 @@ import { BeforeAfter } from './before-after/before-after';
 import { HowItWorks } from './how-it-works/how-it-works';
 import { RoleShowcase } from './role-showcase/role-showcase';
 import { Reveal } from './reveal';
-import { Contact } from './contact/contact';
 import { SeoService } from '../shared/seo/seo.service';
 import { AuthService } from '../connexion/auth-service';
-import { CONTACT, FAQ, NAV_LINKS, TRUST_POINTS } from './intro.content';
+import { FAQ, NAV_LINKS, TRUST_POINTS } from './intro.content';
 import { INTRO_SEO } from './intro.seo';
 
 /** Hauteur de défilement à partir de laquelle l'en-tête prend son ombre. */
@@ -21,7 +20,7 @@ const SCROLLED_AT = 12;
 /** Page d'accueil publique : présentation de ROHAFYA pour les patients, les médecins et les établissements. */
 @Component({
   selector: 'app-intro',
-  imports: [PIcon, NgOptimizedImage, RouterLink, DemoLauncher, RohafyaMark, BeforeAfter, RoleShowcase, HowItWorks, Reveal, Contact],
+  imports: [PIcon, NgOptimizedImage, RouterLink, DemoLauncher, RohafyaMark, BeforeAfter, RoleShowcase, HowItWorks, Reveal],
   templateUrl: './intro.html',
   styleUrls: ['./intro-buttons.css', './intro.css'],
   host: {
@@ -38,7 +37,6 @@ export class Intro {
   readonly navLinks = NAV_LINKS;
   readonly trustPoints = TRUST_POINTS;
   readonly faq = FAQ;
-  readonly contact = CONTACT;
   readonly audiences = [
     { icon: 'filter', label: 'Laboratoires' },
     { icon: 'image', label: 'Centres d’imagerie' },
