@@ -1,8 +1,8 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
-  // Rendu dans le navigateur : la redirection dépend de la session (localStorage), inconnue du serveur.
-  { path: '', renderMode: RenderMode.Client },
+  // Redirection vers /intro : le serveur Express répond par une 301 (server.ts), ceci ne sert qu'en secours.
+  { path: '', renderMode: RenderMode.Server },
   { path: 'intro', renderMode: RenderMode.Prerender },
   { path: 'connexion', renderMode: RenderMode.Prerender },
   { path: 'matricule', renderMode: RenderMode.Prerender },

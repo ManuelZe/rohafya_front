@@ -225,6 +225,12 @@ export class DemoLauncher {
     this.dialog().nativeElement.showModal();
   }
 
+  /** Ouvre la fenêtre et lance directement l'espace choisi (boutons « Essayer » de la page d'accueil). */
+  openFor(space: DemoSpace): void {
+    this.open();
+    void this.start(space);
+  }
+
   close(): void {
     this.dialog().nativeElement.close();
   }

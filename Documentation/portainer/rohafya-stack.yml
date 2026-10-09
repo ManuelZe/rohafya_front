@@ -20,6 +20,8 @@ services:
     environment:
       # URL de l'API Flask appelée par le navigateur (HTTPS obligatoire si ROHAFYA est servi en HTTPS).
       API_URL: ${API_URL:?Définir API_URL (ex. https://site.pdmdsante.com/)}
+      # production | preprod : seule la production est ouverte aux moteurs de recherche (robots.txt, sitemap).
+      ROHAFYA_ENV: ${ROHAFYA_ENV:-production}
       # Noms de domaine autorisés à atteindre le rendu serveur (protection SSRF), séparés par des virgules.
       NG_ALLOWED_HOSTS: ${ROHAFYA_DOMAINS:?Définir ROHAFYA_DOMAINS (ex. rohafya.com)}
       # En-têtes transmis par le reverse proxy (Nginx Proxy Manager).

@@ -1,0 +1,128 @@
+<div class="contact">
+  <div class="contact__info">
+    <address class="channels">
+      <div class="channel">
+        <span class="channel__icon" aria-hidden="true"><svg pIcon="phone" [size]="20"></svg></span>
+        <span class="channel__body">
+          <span class="channel__label">Téléphone</span>
+          <a class="channel__value" [href]="'tel:' + contact.phone">{{ contact.phoneDisplay }}</a>
+        </span>
+        <button type="button" class="channel__copy" aria-label="Copier le numéro de téléphone" (click)="copy('phone')">
+          <svg pIcon="copy" [size]="16" aria-hidden="true"></svg>
+        </button>
+      </div>
+
+      <div class="channel">
+        <span class="channel__icon" aria-hidden="true"><svg pIcon="envelope" [size]="20"></svg></span>
+        <span class="channel__body">
+          <span class="channel__label">E-mail</span>
+          <a class="channel__value" [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+        </span>
+        <button type="button" class="channel__copy" aria-label="Copier l’adresse e-mail" (click)="copy('email')">
+          <svg pIcon="copy" [size]="16" aria-hidden="true"></svg>
+        </button>
+      </div>
+    </address>
+
+    <p class="copy-status" role="status">{{ copied() }}</p>
+
+    <ul class="topics">
+      <li><svg pIcon="building" [size]="16" aria-hidden="true"></svg>Équiper votre laboratoire, centre d’imagerie, clinique ou hôpital</li>
+      <li><svg pIcon="server" [size]="16" aria-hidden="true"></svg>Brancher votre logiciel par API</li>
+      <li><svg pIcon="user" [size]="16" aria-hidden="true"></svg>Une question sur votre compte patient ou médecin</li>
+    </ul>
+
+    <p class="notice">
+      <svg pIcon="info-circle" [size]="16" aria-hidden="true"></svg>
+      <span>
+        ROHAFYA ne donne pas d’avis médical. Pour comprendre un résultat, adressez-vous à votre médecin ; pour un résultat
+        manquant, à l’établissement qui a réalisé l’examen.
+      </span>
+    </p>
+  </div>
+
+  <form class="form" [formRoot]="contactForm" (submit)="send()" aria-labelledby="contact-form-title" aria-describedby="contact-form-hint">
+    <h3 id="contact-form-title" class="form__title">Écrivez-nous</h3>
+    <p id="contact-form-hint" class="form__hint">
+      Votre messagerie s’ouvre avec ce message prérempli : rien n’est envoyé tant que vous ne l’avez pas validé.
+    </p>
+
+    <div class="field">
+      <label for="contact-name" class="field__label">Nom et prénom</label>
+      <input
+        id="contact-name"
+        type="text"
+        class="field__input"
+        autocomplete="name"
+        [formField]="contactForm.name"
+        [attr.aria-invalid]="contactForm.name().touched() && contactForm.name().invalid()"
+        aria-describedby="contact-name-error"
+      />
+      <span id="contact-name-error" class="field__error">
+        @if (contactForm.name().touched() && contactForm.name().invalid()) {
+          {{ contactForm.name().errors()[0]?.message }}
+        }
+      </span>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="contact-profile" class="field__label">Vous êtes</label>
+        <select id="contact-profile" class="field__input" [formField]="contactForm.profile">
+          @for (p of profiles; track p.value) {
+            <option [value]="p.value">{{ p.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="contact-organization" class="field__label">
+          Établissement <span class="field__optional">(facultatif)</span>
+        </label>
+        <input
+          id="contact-organization"
+          type="text"
+          class="field__input"
+          autocomplete="organization"
+          [formField]="contactForm.organization"
+          [attr.aria-invalid]="contactForm.organization().touched() && contactForm.organization().invalid()"
+          aria-describedby="contact-organization-error"
+        />
+        <span id="contact-organization-error" class="field__error">
+          @if (contactForm.organization().touched() && contactForm.organization().invalid()) {
+            {{ contactForm.organization().errors()[0]?.message }}
+          }
+        </span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="contact-message" class="field__label">Message</label>
+      <textarea
+        id="contact-message"
+        class="field__input field__input--area"
+        rows="5"
+        [formField]="contactForm.message"
+        [attr.aria-invalid]="contactForm.message().touched() && contactForm.message().invalid()"
+        aria-describedby="contact-message-error"
+      ></textarea>
+      <span id="contact-message-error" class="field__error">
+        @if (contactForm.message().touched() && contactForm.message().invalid()) {
+          {{ contactForm.message().errors()[0]?.message }}
+        }
+      </span>
+    </div>
+
+    <button type="submit" class="btn btn--primary form__submit">
+      Préparer mon e-mail
+      <svg pIcon="send" [size]="16" aria-hidden="true"></svg>
+    </button>
+
+    <p class="form__status" role="status">
+      @if (prepared()) {
+        Votre messagerie devrait s’ouvrir. Sinon, écrivez directement à
+        <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>.
+      }
+    </p>
+  </form>
+</div>

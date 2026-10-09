@@ -29,8 +29,12 @@ export class SaasAccountService {
 
   readonly adminTenants = computed(() => this._me()?.admin_tenants ?? []);
   readonly isSuperAdmin = computed(() => !!this._me()?.is_super_admin);
-  /** Tant que le profil n'est pas chargé, on conserve l'affichage historique (commissions visibles). */
-  readonly commissionsEnabled = computed(() => this._me()?.features.commissions ?? true);
+  /**
+   * Masqué tant que /saas/me n'a pas répondu : sans cela, points et commissions s'affichent un instant
+   * chez un médecin qui n'y a pas droit (démo comprise). Si /saas/me échoue, on conserve l'affichage
+   * historique (commissions visibles).
+   */
+  readonly commissionsEnabled = computed(() => this._settled() && (this._me()?.features.commissions ?? true));
 
   /** GET /saas/me — mis en cache jusqu'à la déconnexion. */
   load(force = false): Observable<SaasMe | null> {

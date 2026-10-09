@@ -749,7 +749,7 @@ ANNEXE B. VARIABLES DE CONFIGURATION DU CONTENEUR
   ----------------   ----------------------        ----------------------------------
   ROHAFYA_VERSION    (étiquette de l'image)        version déployée, ex. 1.4.2
   ROHAFYA_IMAGE      (nom de l'image)              ghcr.io/<organisation>/rohafya
-  ROHAFYA_ENV        (nom du conteneur)            production | preprod
+  ROHAFYA_ENV        ROHAFYA_ENV + nom conteneur   production | preprod (preprod : fermée aux moteurs de recherche)
   API_URL            API_URL                       URL HTTPS de l'API Flask, « / » final
   ROHAFYA_DOMAINS    NG_ALLOWED_HOSTS              domaine(s) autorisés, séparés par « , »
   —                  NG_TRUST_PROXY_HEADERS        en-têtes du proxy pris en compte (fixe)

@@ -1,4 +1,3 @@
-import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { Connexion } from './connexion/connexion';
 import { Intro } from './intro/intro';
@@ -25,20 +24,14 @@ import { doctorGuard } from './doctors/doctor-guards';
 import { superAdminGuard, tenantAdminGuard } from './saas/saas-guards';
 
 export const routes: Routes = [
-    // La session est partagée par tout le navigateur (localStorage) : un utilisateur déjà connecté
-    // qui tape l'adresse du site arrive dans son espace, les autres sur la page d'accueil.
-    {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: () => {
-            const auth = inject(AuthService);
-            return auth.isLoggedIn() ? auth.homeUrl() : 'intro';
-        },
-    },
-    { path: 'connexion', component: Connexion },
+    // L'adresse du site mène toujours à la page d'accueil, connecté ou non (le serveur répond déjà
+    // par une redirection 301 : voir server.ts). Le lien « Connexion » de l'accueil mène à l'espace
+    // de l'utilisateur connecté : voir AuthService.loginLink.
+    { path: '', pathMatch: 'full', redirectTo: 'intro' },
+    { path: 'connexion', title: 'Connexion · ROHAFYA', component: Connexion },
     { path: 'intro', component: Intro },
-    { path: 'matricule', component: Matricule },
-    { path: 'register', component: Register },
+    { path: 'matricule', title: 'Connexion par matricule · ROHAFYA', component: Matricule },
+    { path: 'register', title: 'Créer un compte · ROHAFYA', component: Register },
     // Lien du QR code imprimé sur la facture : rattachement d'un dossier d'établissement au compte.
     {
         path: 'l/:token',

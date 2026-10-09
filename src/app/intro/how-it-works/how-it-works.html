@@ -1,0 +1,108 @@
+<div class="layout">
+  <div>
+    <ol class="steps">
+      @for (step of steps; track step.title; let i = $index) {
+        <li>
+          <button
+            type="button"
+            class="step"
+            [class.step--on]="current() === i"
+            [class.step--done]="current() > i"
+            [attr.aria-current]="current() === i ? 'step' : null"
+            (click)="choose(i)"
+          >
+            <span class="step__num" aria-hidden="true">
+              @if (current() > i) {
+                <svg pIcon="check-circle" [size]="18"></svg>
+              } @else {
+                {{ i + 1 }}
+              }
+            </span>
+            <span class="step__body">
+              <span class="step__title"><span class="sr-only">Étape {{ i + 1 }} : </span>{{ step.title }}</span>
+              <span class="step__text">{{ step.text }}</span>
+            </span>
+            @if (current() === i && playing()) {
+              <span class="step__progress" aria-hidden="true"></span>
+            }
+          </button>
+        </li>
+      }
+    </ol>
+
+    @if (canPlay()) {
+      <button type="button" class="play" (click)="togglePlay()">
+        <svg [pIcon]="playing() ? 'pause' : 'play'" [size]="14" aria-hidden="true"></svg>
+        {{ playing() ? 'Mettre en pause la démonstration' : 'Lancer la démonstration' }}
+      </button>
+    }
+  </div>
+
+  <!-- Téléphone illustratif : l'étape choisie est déjà décrite dans la liste. -->
+  <div class="phone" aria-hidden="true">
+    <div class="phone__notch"></div>
+    <div class="phone__screen">
+      <div class="screen__top">
+        <span class="screen__brand"><span class="screen__cross"></span>ROHAFYA</span>
+        <span class="screen__time">09:41</span>
+      </div>
+
+      @switch (current()) {
+        @case (0) {
+          <div class="screen screen--center">
+            <p class="screen__label">Facture n° 2026-0418</p>
+            <div class="qr">
+              <svg pIcon="qrcode" [size]="120"></svg>
+              <span class="qr__scan"></span>
+            </div>
+            <p class="screen__hint">Scannez le code en bas de votre facture</p>
+          </div>
+        }
+        @case (1) {
+          <div class="screen">
+            <p class="screen__title">Connexion</p>
+            <p class="screen__hint">Votre adresse e-mail suffit, aucun mot de passe.</p>
+            <span class="field">
+              <svg pIcon="envelope" [size]="14"></svg>
+              <span class="field__typing">amina.n&#64;gmail.com</span>
+            </span>
+            <span class="fake-btn">Recevoir mon code</span>
+          </div>
+        }
+        @case (2) {
+          <div class="screen">
+            <p class="screen__title">Code de connexion</p>
+            <p class="screen__hint">Envoyé à amina.n&#64;gmail.com</p>
+            <span class="code">
+              @for (digit of code; track $index) {
+                <span class="code__digit" [style.--i]="$index">{{ digit }}</span>
+              }
+            </span>
+            <span class="fake-btn">Valider</span>
+          </div>
+        }
+        @default {
+          <div class="screen">
+            <p class="screen__title">Mes résultats</p>
+            <span class="notif">
+              <svg pIcon="bell" [size]="14"></svg>
+              Nouveau résultat disponible
+            </span>
+            <span class="result" style="--i: 0">
+              <span class="result__name">Numération formule sanguine</span>
+              <span class="result__tag">Disponible</span>
+            </span>
+            <span class="result" style="--i: 1">
+              <span class="result__name">Glycémie à jeun</span>
+              <span class="result__tag">Disponible</span>
+            </span>
+            <span class="result" style="--i: 2">
+              <span class="result__name">Échographie pelvienne</span>
+              <span class="result__tag result__tag--info">Compte rendu</span>
+            </span>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

@@ -64,3 +64,17 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ===== Apparition au défilement (directive appReveal de la page d'accueil) ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease var(--reveal-delay, 0ms),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+}
+
+.reveal.reveal--visible {
+  opacity: 1;
+  transform: none;
+}

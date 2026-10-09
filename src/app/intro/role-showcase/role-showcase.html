@@ -1,0 +1,100 @@
+<div class="tabs" role="tablist" aria-label="Espaces ROHAFYA" (keydown)="onKeydown($event)">
+  @for (r of roles; track r.space; let i = $index) {
+    <button
+      #tab
+      type="button"
+      role="tab"
+      class="tab"
+      [id]="'role-tab-' + r.space"
+      [attr.aria-selected]="selected() === i"
+      [attr.aria-controls]="'role-panel-' + r.space"
+      [tabindex]="selected() === i ? 0 : -1"
+      [class.tab--active]="selected() === i"
+      (click)="select(i)"
+    >
+      <span class="tab__icon" aria-hidden="true"><svg [pIcon]="r.icon" [size]="18"></svg></span>
+      {{ r.tab }}
+    </button>
+  }
+</div>
+
+@let r = role();
+<div
+  class="panel"
+  role="tabpanel"
+  tabindex="0"
+  [id]="'role-panel-' + r.space"
+  [attr.aria-labelledby]="'role-tab-' + r.space"
+>
+  <!-- Bloc recréé à chaque changement d'onglet : les animations d'entrée se rejouent. -->
+  @for (current of [r]; track current.space) {
+    <div class="panel__grid">
+      <div class="panel__text">
+        <h3 class="panel__headline">{{ current.headline }}</h3>
+        <p class="panel__pitch">{{ current.pitch }}</p>
+
+        <ul class="features">
+          @for (f of current.features; track f.title; let i = $index) {
+            <li class="feature" [style.--i]="i">
+              <span class="feature__icon" aria-hidden="true"><svg [pIcon]="f.icon" [size]="18"></svg></span>
+              <span>
+                <strong class="feature__title">{{ f.title }}</strong>
+                <span class="feature__text">{{ f.text }}</span>
+              </span>
+            </li>
+          }
+        </ul>
+
+        <div class="panel__actions">
+          <a class="btn btn--primary" [routerLink]="cta().link">
+            {{ cta().label }}
+            <svg pIcon="arrow-right" [size]="16" aria-hidden="true"></svg>
+          </a>
+          <button type="button" class="btn btn--ghost" aria-haspopup="dialog" (click)="tryDemo.emit(current.space)">
+            <svg pIcon="play" [size]="14" aria-hidden="true"></svg>
+            {{ current.demoLabel }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Aperçu d'écran dessiné en CSS : décrit en une phrase pour les lecteurs d'écran. -->
+      <figure class="mock" role="img" [attr.aria-label]="'Aperçu de l’écran ' + current.mock.title + ' : ' + current.mock.listTitle.toLowerCase()">
+        <div class="mock__bar" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span class="mock__url">rohafya.com · {{ current.mock.title }}</span>
+        </div>
+        <div class="mock__body" aria-hidden="true">
+          <aside class="mock__nav">
+            <span class="mock__brand"></span>
+            @for (item of current.mock.nav; track item; let first = $first) {
+              <span class="mock__nav-item" [class.mock__nav-item--on]="first">{{ item }}</span>
+            }
+          </aside>
+          <div class="mock__main">
+            <div class="mock__kpis">
+              @for (k of current.mock.kpis; track k.label) {
+                <div class="mock__kpi">
+                  <span class="mock__kpi-value">{{ k.value }}</span>
+                  <span class="mock__kpi-label">{{ k.label }}</span>
+                </div>
+              }
+            </div>
+            <div class="mock__list">
+              <span class="mock__list-title">{{ current.mock.listTitle }}</span>
+              @for (row of current.mock.rows; track row.title; let i = $index) {
+                <div class="mock__row" [style.--i]="i">
+                  <span class="mock__row-dot" [class]="'tone-' + row.tone"></span>
+                  <span class="mock__row-text">
+                    <span class="mock__row-title">{{ row.title }}</span>
+                    <span class="mock__row-meta">{{ row.meta }}</span>
+                  </span>
+                  <span class="mock__tag" [class]="'tone-' + row.tone">{{ row.status }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </figure>
+    </div>
+  }
+</div>

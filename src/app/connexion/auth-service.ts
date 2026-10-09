@@ -87,6 +87,19 @@ export class AuthService {
     return '/intro';
   }
 
+  /**
+   * Cible du lien « Connexion » des pages publiques : l'espace de l'utilisateur déjà connecté,
+   * sinon la page de connexion (y compris quand aucun espace ne lui est ouvert).
+   */
+  loginLink = computed(() => {
+    if (!this.isLoggedIn()) return '/connexion';
+    const home = this.homeUrl();
+    return home === '/intro' ? '/connexion' : home;
+  });
+
+  /** Libellé du lien « Connexion », selon qu'il mène à la connexion ou à l'espace de l'utilisateur. */
+  loginLabel = computed(() => (this.loginLink() === '/connexion' ? 'Connexion' : 'Mon espace'));
+
   private mapToCurrentUser(response: LoginApiResponse): CurrentUser {
     const { data, access_token } = response;
     return {
