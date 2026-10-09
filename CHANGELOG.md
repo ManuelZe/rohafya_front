@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.7.5 — 2026-10-09
+
+### Nouvelles fonctionnalités
+
+- **verification** fichier documentation et ressource (ec64d54)
+
 ## v0.7.4 — 2026-10-09
 
 ### Nouvelles fonctionnalités
