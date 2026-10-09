@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.7.2 — 2026-10-09
+
+### Nouvelles fonctionnalités
+
+- **home** Modification de l'interface home (c1d45d7)
+
 ## v0.7.1 — 2026-10-07
 
 ### Corrections
