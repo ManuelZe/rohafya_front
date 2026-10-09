@@ -7,7 +7,7 @@ export const SITE_URL = 'https://rohafya.com';
 export const SITE_NAME = 'ROHAFYA';
 
 /** Image de partage sur les réseaux sociaux (1200 × 630). */
-export const SOCIAL_IMAGE = { path: '/og-rohafya.png', width: 1200, height: 630, alt: 'ROHAFYA — Votre santé, connectée' };
+export const SOCIAL_IMAGE = { path: '/og-rohafya.png?v=2', width: 1200, height: 630, alt: 'ROHAFYA — Votre santé, connectée' };
 
 /** Pages publiques à indexer, reprises dans le sitemap. */
 export const INDEXABLE_PATHS = ['/intro', '/register', '/connexion'];

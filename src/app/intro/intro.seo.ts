@@ -21,7 +21,7 @@ export const INTRO_SEO: PageSeo = {
         '@id': ORGANIZATION_ID,
         name: SITE_NAME,
         url: SITE_URL,
-        logo: `${SITE_URL}/rohafya-logo.png`,
+        logo: `${SITE_URL}/rohafya-logo.png?v=2`,
         slogan: 'Votre santé, connectée',
         areaServed: { '@type': 'Country', name: 'Cameroun' },
         sameAs: SOCIAL_LINKS.map((link) => link.url),
