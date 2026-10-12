@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.9.0 — 2026-10-12
+
+### Nouvelles fonctionnalités
+
+- **notifications** Notifications and more (c3eb35b)
+
 ## v0.8.0 — 2026-10-12
 
 ### Nouvelles fonctionnalités
