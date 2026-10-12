@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.8.0 — 2026-10-12
+
+### Nouvelles fonctionnalités
+
+- **interface** modification de l'interface des détails (a8c33a1)
+
 ## v0.7.5 — 2026-10-09
 
 ### Nouvelles fonctionnalités
