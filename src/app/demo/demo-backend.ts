@@ -18,6 +18,7 @@ import {
   Handler,
   audit,
   db,
+  displayName,
   establishments,
   fail,
   find,
@@ -28,6 +29,7 @@ import {
   now,
   persist,
   remove,
+  tenant,
 } from './demo-store';
 
 export { demoUser, resetDemoData } from './demo-store';
@@ -72,13 +74,13 @@ const ROUTES: [string, Handler][] = [
   }],
 
   // --- Examens --------------------------------------------------------
-  ['GET laboratoire/all_results', () => db().patient.laboratoire],
+  ['GET laboratoire/all_results', () => withEstablishment(db().patient.laboratoire)],
   ['GET laboratoire/more_infos/:name/result', ({ params }) =>
     examDetails(db().patient.laboratoire.find((r) => r.name === params[0]), db().patient.laboratoire_details[params[0]])],
-  ['GET imagerie/all_results', () => db().patient.imagerie],
+  ['GET imagerie/all_results', () => withEstablishment(db().patient.imagerie)],
   ['GET imagerie/more_infos/:number/result', ({ params }) =>
     examDetails(db().patient.imagerie.find((r) => r.number === params[0]), db().patient.imagerie_details[params[0]])],
-  ['GET exploration/all_results', () => db().patient.exploration],
+  ['GET exploration/all_results', () => withEstablishment(db().patient.exploration)],
   ['GET exploration/more_infos/:name/result', ({ params }) =>
     examDetails(db().patient.exploration.find((r) => r.name === params[0]), db().patient.exploration_details[params[0]])],
 
@@ -369,12 +371,19 @@ function examDetails(exam: { statut_expiration: boolean } | undefined, details: 
   return exam.statut_expiration ? { Message: EXPIRED_MESSAGE } : (details ?? []);
 }
 
+/** Les résultats de la démo viennent du Centre de démonstration (comme `establishment` dans l'API). */
+function withEstablishment<T extends object>(items: T[]): (T & { establishment: string | null })[] {
+  const t = tenant(RESULTS_TENANT_ID);
+  const name = t ? displayName(t) : null;
+  return items.map((item) => ({ ...item, establishment: (item as { establishment?: string | null }).establishment ?? name }));
+}
+
 /** Résultat d'examen consulté par un médecin (partagé par le patient démo ou par un autre patient fictif). */
 function sharedExam(type: ExamType, code: string, federationId: string): { summary: unknown; details: unknown } {
   const foreign = db().doctor.other_patient_results.find(
     (r) => r.send_result.exam_code === code && r.send_result.patient_federation_id === federationId
   );
-  if (foreign) return { summary: [foreign.summary], details: foreign.details };
+  if (foreign) return { summary: withEstablishment([foreign.summary]), details: foreign.details };
 
   const patient = db().patient;
   if (federationId !== patient.profile.PatientFederationID) {
@@ -387,7 +396,7 @@ function sharedExam(type: ExamType, code: string, federationId: string): { summa
   } as const;
   const [exam, details] = sources[type] ?? [undefined, undefined];
   if (!exam) return { summary: { message: 'Résultat introuvable.' }, details: { message: 'Résultat introuvable.' } };
-  return { summary: [exam], details: examDetails(exam, details as ExamResultDetail[] | undefined) };
+  return { summary: withEstablishment([exam]), details: examDetails(exam, details as ExamResultDetail[] | undefined) };
 }
 
 function doctorProfile(id: number): DoctorProfile {

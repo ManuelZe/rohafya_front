@@ -579,3 +579,46 @@
     width: 100%;
   }
 }
+
+/* ===== Compte rendu ===== */
+.report-wrapper {
+  max-width: 960px;
+}
+
+.report-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+}
+
+.report-bar p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.report-bar .viewer-modal-close {
+  position: static;
+  flex-shrink: 0;
+}
+
+.viewer-modal-close:focus-visible {
+  outline: 3px solid var(--rohafya-green-600, #059669);
+  outline-offset: 2px;
+}
+
+.blocked-title {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+  color: var(--rohafya-navy, #0c4562);
+}
+
+.blocked-title span {
+  font-weight: 500;
+  color: #4b5563;
+}
+

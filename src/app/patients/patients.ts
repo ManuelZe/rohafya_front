@@ -12,14 +12,9 @@ import { SuggestionDialog } from './suggestion-box/suggestion-dialog/suggestion-
 
 const HELP_CONTACTS = [
   {
-    label: 'Relations publiques',
+    label: 'Assistance technique',
     phone: '+237 695 995 842',
     whatsapp: 'https://wa.me/695995842',
-  },
-  {
-    label: 'Service technique',
-    phone: '+237 690 425 467',
-    whatsapp: 'https://wa.me/237690425467',
   },
 ];
 

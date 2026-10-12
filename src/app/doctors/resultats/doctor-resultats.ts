@@ -7,15 +7,16 @@ import { StatusTag } from '../../patients/shared/status-tag/status-tag';
 import { EXAM_TYPES, ExamType, SendResult } from '../../patients/resultats/resultats.models';
 import { dateValue } from '../commissions/commissions.models';
 import { DoctorResultatsService, ExamDetailsResult } from './doctor-resultats.service';
-import { criteriaFromSerializer, patientName, summaryFields, toCriteria, toStudies } from './result-fields';
+import { patientName } from './result-fields';
+import { MedicalReportView } from '../../shared/medical-report/medical-report-view';
+import { buildReport } from '../../shared/medical-report/medical-report';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
 type TypeFilter = 'all' | ExamType;
-type ViewerTab = 'summary' | 'details';
 
 @Component({
   selector: 'app-doctor-resultats',
-  imports: [RohafyaLoader, DatePipe, PIcon, PageHeader, StatusTag],
+  imports: [RohafyaLoader, DatePipe, PIcon, PageHeader, StatusTag, MedicalReportView],
   templateUrl: './doctor-resultats.html',
   styleUrls: ['../shared/doctor-ui.css', './doctor-resultats.css'],
   host: {
@@ -57,7 +58,6 @@ export class DoctorResultats {
 
   // ===== Visionneuse =====
   readonly selected = signal<SendResult | null>(null);
-  readonly tab = signal<ViewerTab>('summary');
   readonly summary = signal<ExamDetailsResult | null>(null);
   readonly summaryLoading = signal(false);
   readonly details = signal<ExamDetailsResult | null>(null);
@@ -68,19 +68,18 @@ export class DoctorResultats {
   private openedFromQuery = false;
 
   readonly selectedPatient = computed(() => patientName(this.summary()?.items[0]));
-  readonly fields = computed(() => {
+  readonly viewerLoading = computed(() => this.summaryLoading() || this.detailsLoading());
+
+  /** Compte rendu : fiche de l'examen (/result/…) + paramètres ou images (/result/more_infos/…). */
+  readonly report = computed(() => {
     const result = this.selected();
-    return result ? summaryFields(result.exam_type, this.summary()?.items[0]) : [];
+    const record = this.summary()?.items[0];
+    if (!result || !record) return null;
+    return buildReport(result.exam_type, record, this.details()?.items ?? [], {
+      name: this.selectedPatient(),
+      identifier: result.patient_federation_id,
+    });
   });
-  readonly shortFields = computed(() => this.fields().filter((f) => !f.long));
-  readonly longFields = computed(() => this.fields().filter((f) => f.long));
-  private readonly detailedCriteria = computed(() => toCriteria(this.details()?.items ?? []));
-  /** Si le détail n'est pas accessible (403 côté API), on retombe sur les valeurs du compte rendu. */
-  readonly criteriaFromReport = computed(() => this.detailedCriteria().length === 0 && this.reportCriteria().length > 0);
-  private readonly reportCriteria = computed(() => criteriaFromSerializer(this.summary()?.items[0]));
-  readonly criteria = computed(() => (this.detailedCriteria().length > 0 ? this.detailedCriteria() : this.reportCriteria()));
-  readonly studies = computed(() => toStudies(this.details()?.items ?? []));
-  readonly outOfRange = computed(() => this.criteria().filter((c) => c.warning).length);
 
   constructor() {
     effect(() => {
@@ -121,16 +120,23 @@ export class DoctorResultats {
   openViewer(result: SendResult, event?: Event): void {
     this.lastTrigger = (event?.currentTarget as HTMLElement | null) ?? null;
     this.selected.set(result);
-    this.tab.set('summary');
     this.summary.set(null);
     this.details.set(null);
-    this.detailsLoading.set(false);
 
     this.summaryLoading.set(true);
     this.service.getExamResults(result.exam_type, result.exam_code, result.patient_federation_id).subscribe((res) => {
       if (this.selected()?.id !== result.id) return; // réponse d'un résultat déjà refermé
       this.summary.set(res);
       this.summaryLoading.set(false);
+      this.logResult(result);
+    });
+
+    this.detailsLoading.set(true);
+    this.service.getMoreInformations(result.exam_type, result.exam_code, result.patient_federation_id).subscribe((res) => {
+      if (this.selected()?.id !== result.id) return;
+      this.details.set(res);
+      this.detailsLoading.set(false);
+      this.logResult(result);
     });
 
     afterNextRender(() => this.closeButton()?.nativeElement.focus(), { injector: this.injector });
@@ -143,20 +149,20 @@ export class DoctorResultats {
     this.lastTrigger = null;
   }
 
-  setTab(tab: ViewerTab): void {
-    this.tab.set(tab);
-    const result = this.selected();
-    if (tab === 'details' && result && !this.details() && !this.detailsLoading()) {
-      this.detailsLoading.set(true);
-      this.service.getMoreInformations(result.exam_type, result.exam_code, result.patient_federation_id).subscribe((res) => {
-        if (this.selected()?.id !== result.id) return;
-        this.details.set(res);
-        this.detailsLoading.set(false);
-      });
-    }
-  }
-
   typeCount(type: TypeFilter): number {
     return this.countsByType()[type] ?? 0;
+  }
+
+  /** Débogage (console du navigateur) : réponses de l'API et compte rendu affiché, une fois les deux appels terminés. */
+  private logResult(result: SendResult): void {
+    if (this.summaryLoading() || this.detailsLoading()) return;
+    console.groupCollapsed(`[ROHAFYA] Résultat reçu ${result.exam_type} ${result.exam_code} — patient ${result.patient_federation_id}`);
+    console.log('Partage :', result);
+    console.log('Fiche de l’examen (/result) :', this.summary());
+    console.log('Détail (/result/more_infos) :', this.details());
+    const items = this.details()?.items ?? [];
+    if (items.length) console.table(items);
+    console.log('Compte rendu affiché :', this.report());
+    console.groupEnd();
   }
 }

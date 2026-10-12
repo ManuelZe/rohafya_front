@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { PIcon } from '@primeicons/angular/p-icon';
 import { ImagerieService } from './imagerie.service';
@@ -9,12 +10,16 @@ import { ShareExamDialog } from '../shared/share-exam-dialog/share-exam-dialog';
 import { ExamenImagerie } from '../patients.models';
 import { ExpirationFilter, isWithinDateRange, matchesExpirationFilter } from '../shared/exam-filters';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { MedicalReportView } from '../../shared/medical-report/medical-report-view';
+import { buildReport, PatientIdentity } from '../../shared/medical-report/medical-report';
+import { ExamResultDetail } from '../resultats/resultats.models';
+import { PatientProfileService } from '../patient-profile-service';
 
 const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES DONNÉES.';
 
 @Component({
   selector: 'app-imagerie',
-  imports: [RohafyaLoader, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
+  imports: [RohafyaLoader, MedicalReportView, CdkTrapFocus, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
   templateUrl: './imagerie.html',
   styleUrl: './imagerie.css',
   host: {
@@ -25,6 +30,7 @@ export class Imagerie {
   private readonly imagerieService = inject(ImagerieService);
   private readonly authService = inject(AuthService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly patientProfile = inject(PatientProfileService).profile;
 
   readonly accessDeniedMessage = ACCESS_DENIED_MESSAGE;
 
@@ -65,6 +71,22 @@ export class Imagerie {
   moreInfoBlockedMessage = signal<string | null>(null);
   moreInfoItems = signal<Record<string, string | number | boolean | null>[] | null>(null);
 
+  /** Compte rendu de l'examen ouvert : fiche + détail + identité du patient connecté. */
+  readonly report = computed(() => {
+    const result = this.selectedResult();
+    if (!result || this.moreInfoLoading() || this.moreInfoBlockedMessage()) return null;
+    const p = this.patientProfile();
+    const identity: PatientIdentity = p
+      ? {
+          name: `${p.PatientName ?? ''} ${p.PatientLastname ?? ''}`.trim(),
+          identifier: p.PatientFederationID,
+          birthDate: p.PatientDOB,
+          sex: p.PatientGender,
+        }
+      : {};
+    return buildReport('Imagerie', result as unknown as ExamResultDetail, this.moreInfoItems() ?? [], identity);
+  });
+
   shareTarget = signal<ExamenImagerie | null>(null);
 
   constructor() {
@@ -80,6 +102,7 @@ export class Imagerie {
     this.imagerieService.getAllResults().subscribe({
       next: (data) => {
         this.results.set(data);
+        console.log('[ROHAFYA] Imagerie — liste des résultats reçue de l’API :', data);
         this.loading.set(false);
       },
       error: (err) => {
@@ -121,6 +144,7 @@ export class Imagerie {
       } else {
         this.moreInfoItems.set(res.items);
       }
+      this.logResult(result, res);
     });
   }
 
@@ -139,20 +163,13 @@ export class Imagerie {
     this.shareTarget.set(null);
   }
 
-  detailEntries(record: Record<string, string | number | boolean | null>): Array<{ label: string; value: string }> {
-    return Object.entries(record)
-      .filter(([, value]) => value !== null && value !== '' && value !== undefined)
-      .map(([key, value]) => ({ label: this.formatDetailKey(key), value: this.formatDetailValue(value) }));
-  }
-
-  private formatDetailKey(key: string): string {
-    return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-  }
-
-  private formatDetailValue(value: string | number | boolean | null): string {
-    if (typeof value === 'boolean') {
-      return value ? 'Oui' : 'Non';
-    }
-    return String(value);
+  /** Débogage (console du navigateur) : champs reçus de l'API et compte rendu affiché. */
+  private logResult(result: ExamenImagerie, res: { blocked: boolean; message?: string; items: Record<string, unknown>[] }): void {
+    console.groupCollapsed(`[ROHAFYA] Imagerie ${result.number} — ${result.requested_test}`);
+    console.log('Fiche de l’examen (liste) :', result);
+    console.log('Détail (more_infos) :', res.blocked ? res.message : res.items);
+    if (res.items.length) console.table(res.items);
+    console.log('Compte rendu affiché :', this.report());
+    console.groupEnd();
   }
 }

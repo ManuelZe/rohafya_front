@@ -139,51 +139,39 @@
       </div>
     }
 
-    <!-- Modal Visualiseur -->
+    <!-- Compte rendu du résultat -->
     @if (selectedResult(); as result) {
       <div class="viewer-modal-overlay" (click)="closeViewer()">
-        <div class="viewer-modal-wrapper" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
-          <button type="button" class="viewer-modal-close" (click)="closeViewer()" aria-label="Fermer la vue du résultat">&times;</button>
-
-          <div class="viewer-modal-header">
-            <h3>{{ result.requested_test }}</h3>
+        <div
+          class="viewer-modal-wrapper report-wrapper"
+          (click)="$event.stopPropagation()"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="'Compte rendu : ' + result.requested_test"
+          cdkTrapFocus
+          [cdkTrapFocusAutoCapture]="true"
+        >
+          <div class="viewer-modal-header report-bar">
             <p>
+              <strong>Compte rendu</strong>
               <app-status-tag kind="expiration" [status]="result.statut_expiration ? 'true' : 'false'" />
-              <span>&middot; {{ result.number }}</span>
             </p>
+            <button type="button" class="viewer-modal-close" (click)="closeViewer()" aria-label="Fermer le compte rendu">&times;</button>
           </div>
 
           <div class="viewer-modal-body">
             @if (moreInfoLoading()) {
               <div class="state-container">
-                <app-rohafya-loader label="Chargement des informations complémentaires" />
+                <app-rohafya-loader label="Chargement du compte rendu" />
               </div>
             } @else if (moreInfoBlockedMessage()) {
-              <div class="blocked-banner">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
+              <h3 class="blocked-title">{{ result.requested_test }} <span>· {{ result.number }}</span></h3>
+              <div class="blocked-banner" role="status">
+                <svg [pIcon]="'lock'" [size]="18" aria-hidden="true"></svg>
                 <span>{{ moreInfoBlockedMessage() }}</span>
               </div>
-            } @else if (!moreInfoItems() || moreInfoItems()!.length === 0) {
-              <div class="state-container">
-                <p>Aucune donnée détaillée disponible pour ce résultat.</p>
-              </div>
-            } @else {
-              @for (entry of moreInfoItems(); track $index) {
-                <div class="detail-section">
-                  <dl class="detail-list">
-                    @for (item of detailEntries(entry); track item.label) {
-                      <div class="detail-item">
-                        <dt>{{ item.label }}</dt>
-                        <dd>{{ item.value }}</dd>
-                      </div>
-                    }
-                  </dl>
-                </div>
-              }
+            } @else if (report(); as report) {
+              <app-medical-report [report]="report" audience="patient" />
             }
           </div>
         </div>

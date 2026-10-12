@@ -104,123 +104,16 @@
           </button>
         </header>
 
-        <div class="segmented tabs" role="group" aria-label="Section du résultat">
-          <button type="button" [attr.aria-pressed]="tab() === 'summary'" (click)="setTab('summary')">Compte rendu</button>
-          <button type="button" [attr.aria-pressed]="tab() === 'details'" (click)="setTab('details')">
-            {{ result.exam_type === 'Imagerie' ? 'Études & images' : 'Paramètres analysés' }}
-          </button>
-        </div>
-
         <div class="viewer-body" aria-live="polite">
-          @if (tab() === 'summary') {
-            @if (summaryLoading()) {
-              <app-rohafya-loader label="Chargement du résultat" />
-            } @else if (fields().length === 0) {
-              <div class="banner banner-info">
-                <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
-                <span>{{ summary()?.message ?? 'Aucune donnée disponible pour ce résultat.' }}</span>
-              </div>
-            } @else {
-              <dl class="facts">
-                @for (f of shortFields(); track f.label) {
-                  <div>
-                    <dt>{{ f.label }}</dt>
-                    <dd>{{ f.value }}</dd>
-                  </div>
-                }
-              </dl>
-              @for (f of longFields(); track f.label) {
-                <section class="report">
-                  <h3>{{ f.label }}</h3>
-                  <p>{{ f.value }}</p>
-                </section>
-              }
-            }
+          @if (viewerLoading()) {
+            <app-rohafya-loader label="Chargement du compte rendu" />
+          } @else if (report(); as report) {
+            <app-medical-report [report]="report" audience="doctor" />
           } @else {
-            @if (detailsLoading()) {
-              <app-rohafya-loader label="Chargement des détails" />
-            } @else if (result.exam_type === 'Imagerie') {
-              @if (studies().length === 0) {
-                <div class="banner banner-info">
-                  <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
-                  <span>{{ details()?.message ?? 'Aucune étude associée à cet examen.' }}</span>
-                </div>
-              } @else {
-                <ul class="studies">
-                  @for (s of studies(); track $index) {
-                    <li>
-                      <div>
-                        <strong>{{ s.description }}</strong>
-                        <span class="muted">
-                          {{ s.date ? (s.date | date: 'dd/MM/yyyy') : '' }}
-                          {{ s.institution ? '· ' + s.institution : '' }}
-                          {{ s.physician ? '· ' + s.physician : '' }}
-                        </span>
-                      </div>
-                      @if (s.link) {
-                        <a class="btn btn-primary" [href]="s.link" target="_blank" rel="noopener">
-                          <svg [pIcon]="'images'" [size]="16" aria-hidden="true"></svg>
-                          Voir les images<span class="sr-only"> (nouvel onglet)</span>
-                        </a>
-                      }
-                    </li>
-                  }
-                </ul>
-              }
-            } @else {
-              @if (criteria().length === 0) {
-                <div class="banner banner-info">
-                  <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
-                  <span>{{ details()?.message ?? 'Aucun paramètre détaillé pour cet examen.' }}</span>
-                </div>
-              } @else {
-                @if (criteriaFromReport()) {
-                  <div class="banner banner-info">
-                    <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
-                    <span>Valeurs issues du compte rendu validé. Les valeurs de référence ne sont pas communiquées pour ce résultat.</span>
-                  </div>
-                }
-                @if (outOfRange() > 0) {
-                  <div class="banner banner-error">
-                    <svg [pIcon]="'exclamation-triangle'" [size]="16" aria-hidden="true"></svg>
-                    <span>{{ outOfRange() }} valeur(s) hors des normes de référence.</span>
-                  </div>
-                }
-                <div class="table-wrap">
-                  <table class="criteria">
-                    <thead>
-                      <tr>
-                        <th scope="col">Paramètre</th>
-                        <th scope="col">Résultat</th>
-                        <th scope="col">Unité</th>
-                        <th scope="col">Valeurs de référence</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (c of criteria(); track $index) {
-                        <tr [class.warn]="c.warning">
-                          <th scope="row">
-                            {{ c.name }}
-                            @if (c.remarks) {
-                              <span class="remarks">{{ c.remarks }}</span>
-                            }
-                          </th>
-                          <td class="result-value">
-                            @if (c.warning) {
-                              <svg [pIcon]="'exclamation-triangle'" [size]="14" aria-hidden="true"></svg>
-                              <span class="sr-only">Hors normes : </span>
-                            }
-                            {{ c.result }}
-                          </td>
-                          <td>{{ c.units || '—' }}</td>
-                          <td>{{ c.range || '—' }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              }
-            }
+            <div class="banner banner-info">
+              <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+              <span>{{ summary()?.message ?? 'Aucune donnée disponible pour ce résultat.' }}</span>
+            </div>
           }
         </div>
       </div>

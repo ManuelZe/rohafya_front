@@ -1,0 +1,181 @@
+@let r = report();
+<article class="mr" [attr.aria-labelledby]="titleId">
+  <header class="mr-head">
+    <div class="mr-head-text">
+      <p class="mr-kicker">{{ r.discipline }}</p>
+      <h2 class="mr-title" [id]="titleId">{{ r.title }}</h2>
+      <p class="mr-establishment" [class.is-missing]="!r.establishment">
+        <svg [pIcon]="'building'" [size]="16" aria-hidden="true"></svg>
+        <span class="sr-only">Établissement : </span>
+        <span>{{ r.establishment || 'Établissement non communiqué' }}</span>
+      </p>
+      <p class="mr-meta">
+        @if (r.code) {
+          <span>N° {{ r.code }}</span>
+        }
+        @if (validation()) {
+          <span class="mr-validated">
+            <svg [pIcon]="'verified'" [size]="14" aria-hidden="true"></svg>
+            {{ validation() }}
+          </span>
+        }
+      </p>
+    </div>
+    <button type="button" class="mr-print" (click)="print()">
+      <svg [pIcon]="'print'" [size]="16" aria-hidden="true"></svg>
+      <span>Imprimer / PDF</span>
+    </button>
+  </header>
+
+  @if (identity().length) {
+    <dl class="mr-identity" aria-label="Identification du patient">
+      @for (f of identity(); track f.label) {
+        <div>
+          <dt>{{ f.label }}</dt>
+          <dd>{{ f.value }}</dd>
+        </div>
+      }
+    </dl>
+  }
+
+  @if (r.conclusion; as conclusion) {
+    <section class="mr-conclusion" [attr.aria-labelledby]="titleId + '-conclusion'">
+      <h3 [id]="titleId + '-conclusion'">{{ conclusion.title }}</h3>
+      <p>{{ conclusion.text }}</p>
+    </section>
+  }
+
+  @if (r.measures.length) {
+    <section class="mr-block" [attr.aria-labelledby]="titleId + '-results'">
+      <div class="mr-block-head">
+        <h3 [id]="titleId + '-results'">{{ r.measuresTitle }}</h3>
+        @if (hasRanges()) {
+          @if (outOfRange()) {
+            <p class="mr-pill is-out">
+              <svg [pIcon]="'exclamation-triangle'" [size]="14" aria-hidden="true"></svg>
+              {{ outOfRange() }} sur {{ r.measures.length }} en dehors des valeurs de référence
+            </p>
+          } @else {
+            <p class="mr-pill is-normal">
+              <svg [pIcon]="'check-circle'" [size]="14" aria-hidden="true"></svg>
+              {{ r.measures.length }} valeur{{ r.measures.length > 1 ? 's' : '' }} dans les valeurs de référence
+            </p>
+          }
+        }
+      </div>
+
+      @if (r.measuresFromReport) {
+        <p class="mr-note">
+          <svg [pIcon]="'info-circle'" [size]="14" aria-hidden="true"></svg>
+          Valeurs reprises du compte rendu validé : les valeurs de référence ne sont pas communiquées pour cet examen.
+        </p>
+      }
+
+      <table class="mr-table">
+        <caption class="sr-only">Résultats de {{ r.title }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Paramètre</th>
+            <th scope="col">Résultat</th>
+            <th scope="col">Valeurs de référence</th>
+            <th scope="col"><span class="sr-only">Position dans les valeurs de référence</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of r.measures; track $index) {
+            @let g = gauge(m);
+            <tr [class]="flagClass(m)">
+              <th scope="row" class="mr-name">
+                {{ m.name }}
+                @if (m.remarks) {
+                  <span class="mr-remark">{{ m.remarks }}</span>
+                }
+              </th>
+              <td class="mr-value" data-label="Résultat">
+                <strong>{{ m.value }}</strong>
+                @if (m.unit) {
+                  <span class="mr-unit">{{ m.unit }}</span>
+                }
+                @if (isOutOfRange(m)) {
+                  <span class="mr-flag is-out"><span aria-hidden="true">{{ flagSymbols[m.flag] }}</span> {{ flagLabels[m.flag] }}</span>
+                } @else if (m.flag === 'normal') {
+                  <span class="mr-flag is-normal">Normal</span>
+                }
+              </td>
+              <td class="mr-range" data-label="Valeurs de référence">{{ m.range || '—' }}</td>
+              <td class="mr-gauge-cell" aria-hidden="true">
+                @if (g) {
+                  <span class="mr-gauge">
+                    <span class="mr-gauge-zone" [style.left.%]="g.from" [style.width.%]="g.to - g.from"></span>
+                    <span class="mr-gauge-marker" [style.left.%]="g.marker"></span>
+                  </span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (hasRanges()) {
+        <p class="mr-legend">
+          La bande verte représente les valeurs de référence de l'établissement ; le repère situe {{ audience() === 'patient' ? 'votre' : 'le' }} résultat.
+        </p>
+      }
+    </section>
+  }
+
+  @if (r.studies.length) {
+    <section class="mr-block" [attr.aria-labelledby]="titleId + '-studies'">
+      <h3 [id]="titleId + '-studies'">Images de l'examen</h3>
+      <ul class="mr-studies">
+        @for (s of r.studies; track $index) {
+          <li>
+            <span class="mr-study-icon" aria-hidden="true"><svg [pIcon]="'images'" [size]="18"></svg></span>
+            <span class="mr-study-text">
+              <strong>{{ s.description }}</strong>
+              <span>{{ studyMeta(s) }}</span>
+            </span>
+            @if (s.link) {
+              <a class="mr-link" [href]="s.link" target="_blank" rel="noopener">
+                Voir les images<span class="sr-only"> (nouvel onglet)</span>
+              </a>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @for (s of r.sections; track s.title) {
+    <section class="mr-block mr-text">
+      <h3>{{ s.title }}</h3>
+      <p>{{ s.text }}</p>
+    </section>
+  }
+
+  @if (r.dates.length || r.people.length) {
+    <section class="mr-block" [attr.aria-labelledby]="titleId + '-facts'">
+      <h3 [id]="titleId + '-facts'">Dates et intervenants</h3>
+      <dl class="mr-facts">
+        @for (f of r.dates; track f.label) {
+          <div>
+            <dt>{{ f.label }}</dt>
+            <dd>{{ formatDate(f.value) }}</dd>
+          </div>
+        }
+        @for (f of r.people; track f.label) {
+          <div>
+            <dt>{{ f.label }}</dt>
+            <dd>{{ f.value }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+  }
+
+  @if (audience() === 'patient' && (r.measures.length || r.conclusion)) {
+    <p class="mr-notice">
+      <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ notice }}</span>
+    </p>
+  }
+</article>
