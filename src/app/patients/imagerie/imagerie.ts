@@ -9,6 +9,11 @@ import { StatusTag } from '../shared/status-tag/status-tag';
 import { ShareExamDialog } from '../shared/share-exam-dialog/share-exam-dialog';
 import { ExamenImagerie } from '../patients.models';
 import { ExpirationFilter, isWithinDateRange, matchesExpirationFilter } from '../shared/exam-filters';
+import { ListToolbar } from '../../shared/list/list-toolbar';
+import { ShowMore } from '../../shared/list/show-more';
+import { ListWindow } from '../../shared/list/list-window';
+import { FilterOption, SortOrder, distinctValues, matchesText, sortByDate } from '../../shared/list/list-filters';
+import { SaasAccountService } from '../../saas/saas-account.service';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 import { MedicalReportView } from '../../shared/medical-report/medical-report-view';
 import { buildReport, PatientIdentity } from '../../shared/medical-report/medical-report';
@@ -19,7 +24,7 @@ const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES D
 
 @Component({
   selector: 'app-imagerie',
-  imports: [RohafyaLoader, MedicalReportView, CdkTrapFocus, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
+  imports: [RohafyaLoader, ListToolbar, ShowMore, MedicalReportView, CdkTrapFocus, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
   templateUrl: './imagerie.html',
   styleUrl: './imagerie.css',
   host: {
@@ -50,21 +55,51 @@ export class Imagerie {
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
-  expirationFilter = signal<ExpirationFilter>('all');
-  dateFrom = signal('');
-  dateTo = signal('');
+  readonly statusOptions: FilterOption[] = [
+    { value: 'all', label: 'Tous' },
+    { value: 'available', label: 'Disponibles' },
+    { value: 'expired', label: 'Expirés' },
+  ];
+  readonly search = signal('');
+  readonly expirationFilter = signal<string>('all');
+  readonly establishment = signal('');
+  readonly dateFrom = signal('');
+  readonly dateTo = signal('');
+  readonly sort = signal<SortOrder>('recent');
 
-  filteredResults = computed(() => {
-    const filter = this.expirationFilter();
+  /** Établissements présents dans les résultats (filtre affiché à partir de deux). */
+  readonly establishments = computed(() => distinctValues(this.results().map((r) => r.establishment)));
+
+  readonly filteredResults = computed(() => {
+    const filter = this.expirationFilter() as ExpirationFilter;
     const from = this.dateFrom();
     const to = this.dateTo();
-
-    return this.results().filter(
-      (r) => matchesExpirationFilter(filter, r.statut_expiration) && isWithinDateRange(r.validation_date, from, to)
+    const term = this.search();
+    const establishment = this.establishment();
+    const items = this.results().filter(
+      (r) =>
+        matchesExpirationFilter(filter, r.statut_expiration) &&
+        isWithinDateRange(r.validation_date, from, to) &&
+        (!establishment || r.establishment === establishment) &&
+        matchesText(term, r.requested_test, r.number, r.establishment, r.requestor, r.doctor)
     );
+    return sortByDate(items, (r) => r.validation_date, this.sort());
   });
 
-  hasActiveFilters = computed(() => this.expirationFilter() !== 'all' || !!this.dateFrom() || !!this.dateTo());
+  /** Affichage par tranches de 10 : lisible sur téléphone même avec des centaines de résultats. */
+  readonly list = new ListWindow(this.filteredResults, 10, () => [
+    this.search(),
+    this.expirationFilter(),
+    this.establishment(),
+    this.dateFrom(),
+    this.dateTo(),
+    this.sort(),
+  ]);
+
+  private readonly account = inject(SaasAccountService);
+  /** Partage : illimité sauf configuration contraire du super-administrateur. */
+  readonly canShare = this.account.canShare;
+  readonly shareMessage = computed(() => this.account.shareRight()?.message ?? null);
 
   selectedResult = signal<ExamenImagerie | null>(null);
   moreInfoLoading = signal(false);
@@ -113,22 +148,16 @@ export class Imagerie {
     });
   }
 
-  setExpirationFilter(filter: ExpirationFilter): void {
-    this.expirationFilter.set(filter);
-  }
 
-  onDateFromChange(event: Event): void {
-    this.dateFrom.set((event.target as HTMLInputElement).value);
-  }
 
-  onDateToChange(event: Event): void {
-    this.dateTo.set((event.target as HTMLInputElement).value);
-  }
 
   resetFilters(): void {
+    this.search.set('');
     this.expirationFilter.set('all');
+    this.establishment.set('');
     this.dateFrom.set('');
     this.dateTo.set('');
+    this.sort.set('recent');
   }
 
   openViewer(result: ExamenImagerie): void {
@@ -156,11 +185,14 @@ export class Imagerie {
 
   openShare(result: ExamenImagerie, event: Event): void {
     event.stopPropagation();
+    if (!this.canShare()) return;
     this.shareTarget.set(result);
   }
 
   closeShare(): void {
     this.shareTarget.set(null);
+    // Le compteur de partages (s'il est limité) a pu changer.
+    if (this.account.shareRight()?.configured) this.account.load(true).subscribe();
   }
 
   /** Débogage (console du navigateur) : champs reçus de l'API et compte rendu affiché. */

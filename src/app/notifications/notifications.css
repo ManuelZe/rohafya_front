@@ -204,6 +204,8 @@
   color: var(--color-text);
   line-height: 1.4;
   word-break: break-word;
+  /* Les messages des consoles gardent leurs retours à la ligne. */
+  white-space: pre-line;
 }
 
 .notification-row:not(.unread) .notification-message {
@@ -247,4 +249,15 @@
   .page-header-actions {
     justify-content: space-between;
   }
+}
+
+/* Intégrée dans la console d'établissement : ni fond de page ni marges propres. */
+:host(.is-embedded) {
+  min-height: 0;
+  background: none;
+}
+
+:host(.is-embedded) .notifications-page {
+  max-width: none;
+  padding: 0;
 }

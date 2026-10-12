@@ -7,6 +7,7 @@ import { PageHeader } from '../../../patients/shared/page-header/page-header';
 import { Pager } from '../../shared/pager';
 import { AccountView } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
+import { AccountRightsDialog } from './account-rights/account-rights-dialog';
 
 const PAGE_SIZE = 25;
 const ROLE_LABELS: Record<string, string> = {
@@ -19,7 +20,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-super-accounts',
-  imports: [PIcon, PageHeader, Pager],
+  imports: [PIcon, PageHeader, Pager, AccountRightsDialog],
   templateUrl: './super-accounts.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })
@@ -46,6 +47,9 @@ export class SuperAccounts {
   readonly loaded = signal(false);
   readonly error = signal<string | null>(null);
   readonly busyId = signal<number | null>(null);
+  /** Compte dont on règle les droits (impression, partage). */
+  readonly rightsAccount = signal<AccountView | null>(null);
+  private rightsTrigger: HTMLElement | null = null;
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -94,6 +98,19 @@ export class SuperAccounts {
         this.loading.set(false);
       },
     });
+  }
+
+  openRights(account: AccountView, event: Event): void {
+    this.rightsTrigger = event.currentTarget as HTMLElement;
+    this.rightsAccount.set(account);
+  }
+
+  onRightsClosed(changed: boolean): void {
+    this.rightsAccount.set(null);
+    if (changed) this.load();
+    // Retour du focus sur le bouton qui a ouvert la fenêtre.
+    this.rightsTrigger?.focus();
+    this.rightsTrigger = null;
   }
 
   toggleActive(account: AccountView): void {

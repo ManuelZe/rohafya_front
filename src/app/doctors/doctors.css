@@ -44,8 +44,8 @@
   height: 40px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: #ecfdf5;
-  color: #047857;
+  background: var(--tenant-primary-soft, #ecfdf5);
+  color: var(--tenant-primary, #047857);
 }
 
 .profile-info {
@@ -142,7 +142,7 @@
 
 .menu-item:hover,
 .menu-item.active {
-  background: #047857;
+  background: var(--tenant-primary, #047857);
 }
 
 .menu-item.active {
@@ -306,6 +306,7 @@
   max-width: 460px;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 26px 22px 22px;
   border-radius: 16px;
   background: #fff;
@@ -400,6 +401,18 @@
 
 /* ===== Responsive ===== */
 @media (max-width: 992px) {
+  /* Mobile : c'est la page qui défile, pas un bloc intérieur de hauteur 100vh.
+     Un défilement imbriqué se bloque sur téléphone (barre d'adresse, inertie, iOS). */
+  .shell {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .main-content {
+    overflow: visible;
+  }
+
   .sidebar-desktop {
     display: none;
   }

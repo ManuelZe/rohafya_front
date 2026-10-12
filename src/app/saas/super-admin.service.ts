@@ -2,7 +2,22 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { AccountView, AuditEntry, Paged, SourceType, SuperStats, TenantAdminView, TenantSettings, TenantWithStats } from './saas.models';
+import {
+  AccountRightsUpdate,
+  AccountView,
+  AdminAccountRights,
+  AuditEntry,
+  NotificationAudience,
+  NotificationCampaign,
+  NotificationPayload,
+  NotificationRecipient,
+  Paged,
+  SourceType,
+  SuperStats,
+  TenantAdminView,
+  TenantSettings,
+  TenantWithStats,
+} from './saas.models';
 
 export interface TenantPayload {
   name?: string;
@@ -75,10 +90,42 @@ export class SuperAdminService {
     return this.http.put<AccountView>(`${this.baseUrl}/users/${userId}/super-admin`, { enabled });
   }
 
+  /** Droits d'un compte personnel : impression des comptes rendus, partage des résultats. */
+  rights(userId: number): Observable<AdminAccountRights> {
+    return this.http.get<AdminAccountRights>(`${this.baseUrl}/users/${userId}/rights`);
+  }
+
+  updateRights(userId: number, payload: AccountRightsUpdate): Observable<AdminAccountRights> {
+    return this.http.put<AdminAccountRights>(`${this.baseUrl}/users/${userId}/rights`, payload);
+  }
+
+  /** Supprime la configuration : tout redevient disponible pour ce compte. */
+  clearRights(userId: number): Observable<AdminAccountRights> {
+    return this.http.delete<AdminAccountRights>(`${this.baseUrl}/users/${userId}/rights`);
+  }
+
   audit(query: { page?: number; tenant_id?: number }): Observable<Paged<AuditEntry>> {
     let params = new HttpParams();
     if (query.page) params = params.set('page', query.page);
     if (query.tenant_id) params = params.set('tenant_id', query.tenant_id);
     return this.http.get<Paged<AuditEntry>>(`${this.baseUrl}/audit`, { params });
+  }
+
+  /** Toutes les notifications envoyées depuis les consoles (filtre facultatif par établissement). */
+  notifications(query: { page?: number; tenant_id?: number }): Observable<Paged<NotificationCampaign>> {
+    let params = new HttpParams();
+    if (query.page) params = params.set('page', query.page);
+    if (query.tenant_id) params = params.set('tenant_id', query.tenant_id);
+    return this.http.get<Paged<NotificationCampaign>>(`${this.baseUrl}/notifications`, { params });
+  }
+
+  /** Notification (interface + e-mail) aux administrateurs, patients ou médecins d'un établissement. */
+  sendNotification(tenantId: number, payload: NotificationPayload): Observable<NotificationCampaign> {
+    return this.http.post<NotificationCampaign>(`${this.baseUrl}/tenants/${tenantId}/notifications`, payload);
+  }
+
+  notificationRecipients(tenantId: number, audience: NotificationAudience, q = ''): Observable<{ items: NotificationRecipient[]; total: number }> {
+    const params = new HttpParams().set('audience', audience).set('q', q);
+    return this.http.get<{ items: NotificationRecipient[]; total: number }>(`${this.baseUrl}/tenants/${tenantId}/notification-recipients`, { params });
   }
 }

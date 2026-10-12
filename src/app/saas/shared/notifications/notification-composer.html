@@ -1,0 +1,123 @@
+<form class="composer" [formRoot]="composerForm" (submit)="send()" [attr.aria-labelledby]="id + '-title'">
+  <h2 class="card-title" [id]="id + '-title'">Nouvelle notification</h2>
+  <p class="composer-intro">Chaque destinataire la reçoit dans son espace ROHAFYA et par e-mail.</p>
+
+  <fieldset class="composer-block">
+    <legend>Destinataires</legend>
+    <div class="segmented" role="group" aria-label="Groupe destinataire">
+      @for (a of audiences(); track a) {
+        <button type="button" [attr.aria-pressed]="audience() === a" (click)="setAudience(a)">{{ labels[a] }}</button>
+      }
+    </div>
+
+    <div class="composer-scope">
+      <label class="check-row">
+        <input type="radio" [name]="id + '-scope'" [checked]="scope() === 'all'" (change)="setScope('all')" />
+        <span>{{ groupLabel(audience(), groupTotal()) }}</span>
+      </label>
+      <label class="check-row">
+        <input type="radio" [name]="id + '-scope'" [checked]="scope() === 'selected'" (change)="setScope('selected')" />
+        <span>Choisir un ou plusieurs destinataires</span>
+      </label>
+    </div>
+
+    @if (groupTotal() === 0) {
+      <p class="form-hint">Aucun compte ROHAFYA actif dans ce groupe pour cet établissement.</p>
+    }
+
+    @if (scope() === 'selected') {
+      <div class="composer-picker">
+        <label [for]="id + '-search'">Rechercher (nom, e-mail, matricule)</label>
+        <input [id]="id + '-search'" class="field" type="search" [value]="query()" (input)="onSearch($event)" autocomplete="off" />
+        <p class="form-hint" aria-live="polite">
+          @if (searching()) {
+            Recherche…
+          } @else {
+            {{ resultsTotal() }} résultat{{ resultsTotal() > 1 ? 's' : '' }}{{ resultsTotal() > results().length ? ' (les ' + results().length + ' premiers affichés)' : '' }}
+          }
+        </p>
+        <ul class="composer-results" [attr.aria-label]="'Résultats : ' + labels[audience()]">
+          @for (r of results(); track r.user_id) {
+            <li>
+              <label class="check-row">
+                <input type="checkbox" [checked]="selectedIds().has(r.user_id)" (change)="toggle(r)" />
+                <span>
+                  <strong>{{ r.name }}</strong>
+                  <small>{{ r.email || 'Sans e-mail' }}{{ r.ref ? ' · ' + r.ref : '' }}</small>
+                </span>
+              </label>
+            </li>
+          }
+        </ul>
+
+        @if (selected().length) {
+          <p class="composer-selected-title">{{ selected().length }} sélectionné{{ selected().length > 1 ? 's' : '' }}</p>
+          <ul class="composer-chips">
+            @for (r of selected(); track r.user_id) {
+              <li>
+                <span>{{ r.name }}</span>
+                <button type="button" (click)="remove(r)" [attr.aria-label]="'Retirer ' + r.name">×</button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </fieldset>
+
+  <div class="form-row">
+    <label [for]="id + '-subject'">Objet *</label>
+    <input
+      [id]="id + '-subject'"
+      class="field"
+      type="text"
+      [formField]="composerForm.title"
+      [attr.aria-invalid]="composerForm.title().touched() && composerForm.title().invalid()"
+      [attr.aria-describedby]="id + '-subject-count ' + id + '-subject-error'"
+    />
+    <span class="form-hint" [id]="id + '-subject-count'">{{ model().title.length }} / {{ titleMax }}</span>
+    <span class="form-error" [id]="id + '-subject-error'">
+      @if (composerForm.title().touched() && composerForm.title().invalid()) {
+        {{ composerForm.title().errors()[0]?.message }}
+      }
+    </span>
+  </div>
+
+  <div class="form-row">
+    <label [for]="id + '-message'">Message *</label>
+    <textarea
+      [id]="id + '-message'"
+      class="field composer-message"
+      rows="6"
+      [formField]="composerForm.message"
+      [attr.aria-invalid]="composerForm.message().touched() && composerForm.message().invalid()"
+      [attr.aria-describedby]="id + '-message-count ' + id + '-message-error'"
+    ></textarea>
+    <span class="form-hint" [id]="id + '-message-count'">{{ model().message.length }} / {{ messageMax }}</span>
+    <span class="form-error" [id]="id + '-message-error'">
+      @if (composerForm.message().touched() && composerForm.message().invalid()) {
+        {{ composerForm.message().errors()[0]?.message }}
+      }
+    </span>
+  </div>
+
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <span>{{ error() }}</span>
+    </div>
+  }
+  @if (success()) {
+    <div class="banner banner-success" role="status">
+      <span>{{ success() }}</span>
+    </div>
+  }
+
+  <div class="composer-actions">
+    <button type="submit" class="btn btn-primary" [disabled]="sending() || tenantId() === null || recipientCount() === 0">
+      @if (sending()) {
+        <span class="spinner" aria-hidden="true"></span>
+      }
+      {{ submitLabel() }}
+    </button>
+  </div>
+</form>

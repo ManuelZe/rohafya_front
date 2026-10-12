@@ -1,6 +1,6 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { computed, signal } from '@angular/core';
-import { Observable, Subscription, TimeoutError, timeout } from 'rxjs';
+import { Observable, Subscription, timeout } from 'rxjs';
+import { extractErrorMessage } from '../../shared/api-error';
 
 /** Même logique que PatientsService : le backend Flask (mono-thread, requêtes Tryton lourdes)
  *  peut mettre plusieurs dizaines de secondes à répondre. */
@@ -17,28 +17,7 @@ interface ResourceState<T> {
   loadedAt: number | null;
 }
 
-/** L'API renvoie parfois un statut 200 avec { message: "..." } au lieu d'une erreur HTTP. */
-export class ApiSoftError extends Error {}
-
-export function extractErrorMessage(err: unknown, fallback = 'Impossible de récupérer les éléments. Réessayez plus tard.'): string {
-  if (err instanceof TimeoutError) {
-    return 'Le serveur met trop de temps à répondre. Réessayez plus tard.';
-  }
-  if (err instanceof ApiSoftError) {
-    return err.message;
-  }
-  if (err instanceof HttpErrorResponse) {
-    if (err.status === 0) {
-      return 'Serveur injoignable. Vérifiez votre connexion internet.';
-    }
-    if (err.status === 403) {
-      return "Vous n'avez pas les droits nécessaires pour consulter ces données.";
-    }
-    const body = err.error as { message?: string; Message?: string; error?: string } | null;
-    return body?.message ?? body?.Message ?? fallback;
-  }
-  return fallback;
-}
+export { ApiSoftError, extractErrorMessage } from '../../shared/api-error';
 
 /** Renvoie le message d'une réponse « erreur douce » ({ message } / { Message }) ou null. */
 export function softErrorMessage(res: unknown): string | null {

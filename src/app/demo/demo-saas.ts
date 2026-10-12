@@ -1,8 +1,13 @@
 import { HttpRequest } from '@angular/common/http';
 import { CurrentUser } from '../connexion/current-user.model';
 import {
+  AUDIENCE_LABELS,
   DoctorLinkView,
   LinkStatus,
+  NotificationAudience,
+  NotificationCampaign,
+  NotificationPayload,
+  NotificationRecipient,
   RecordKind,
   SubmissionAdminItem,
   SubmissionAnswer,
@@ -263,7 +268,7 @@ export const SAAS_ROUTES: [string, Handler][] = [
     const profile = db().patient.profile;
     return {
       is_super_admin: false,
-      admin_tenants: adminTenants(user.id).map((t) => tenantView(t, false)),
+      admin_tenants: adminTenants(user.id).map((t) => ({ ...tenantView(t, false), primary_color: t.settings.primary_color })),
       links: patientLinks(user.patient_id),
       // Démonstration : le module commissions n'est activé pour aucun établissement.
       features: { commissions: false },
@@ -404,6 +409,60 @@ export const SAAS_ROUTES: [string, Handler][] = [
     db().practitioners = db().practitioners.filter((p) => p !== link);
     audit('doctor.unlinked', { tenant_id: t.id, user_id: user.id, target: doctorView(link).matricule });
     return { message: "Médecin retiré de l'établissement." };
+  }],
+  // --- Notifications aux patients et médecins de l'établissement -------
+  [`GET ${T}/notification-recipients`, ({ req, user, params }) => {
+    const t = adminTenant(user, params[0]);
+    const audience = (req.params.get('audience') ?? 'patients') as NotificationAudience;
+    if (audience !== 'patients' && audience !== 'doctors') fail(400, 'Destinataires possibles : patients, médecins.');
+    const q = req.params.get('q') ?? '';
+    const people = recipientsOf(t, audience).filter((p) => matches(q, p.name, p.email, p.ref));
+    return { items: people.slice(0, 20), total: people.length };
+  }],
+  [`GET ${T}/notifications`, ({ req, user, params }) => {
+    const t = adminTenant(user, params[0]);
+    return paged(req, (db().campaigns ?? []).filter((c) => c.tenant_id === t.id));
+  }],
+  [`POST ${T}/notifications`, ({ req, user, params }) => {
+    const t = adminTenant(user, params[0]);
+    const data = body<NotificationPayload>(req);
+    const audience = data.audience as NotificationAudience;
+    if (audience !== 'patients' && audience !== 'doctors') fail(400, 'Destinataires possibles : patients, médecins.');
+    const title = String(data.title ?? '').trim();
+    const message = String(data.message ?? '').trim();
+    if (!title) fail(400, "Indiquez l'objet de la notification.");
+    if (!message) fail(400, 'Écrivez le message de la notification.');
+    if (title.length > 150) fail(400, "L'objet ne doit pas dépasser 150 caractères.");
+    if (message.length > 2000) fail(400, 'Le message ne doit pas dépasser 2000 caractères.');
+    let people = recipientsOf(t, audience);
+    const selected = new Set((data.user_ids ?? []).map(Number));
+    if (selected.size) {
+      const unknown = [...selected].filter((id) => !people.some((p) => p.user_id === id));
+      if (unknown.length) fail(400, `${unknown.length} destinataire(s) ne font pas partie des ${AUDIENCE_LABELS[audience].toLowerCase()} de cet établissement.`);
+      people = people.filter((p) => selected.has(p.user_id));
+    }
+    if (!people.length) fail(400, `Aucun ${audience === 'patients' ? 'patient' : 'médecin'} de cet établissement n'a de compte ROHAFYA actif.`);
+    people.forEach((p) => notify(p.user_id, `${displayName(t)} · ${title}`, message));
+    const withEmail = people.filter((p) => p.email).length;
+    const campaign: NotificationCampaign = {
+      id: newId(),
+      tenant_id: t.id,
+      establishment: displayName(t),
+      sender_role: 'tenant_admin',
+      sender_name: fullName(account(user.id)),
+      audience,
+      selection: selected.size ? 'selected' : 'all',
+      title,
+      message,
+      recipients_count: people.length,
+      emails_count: withEmail,
+      // Démonstration : aucun e-mail n'est réellement envoyé.
+      emails_sent: withEmail,
+      created_at: now(),
+    };
+    (db().campaigns ??= []).unshift(campaign);
+    audit('notification.sent', { tenant_id: t.id, user_id: user.id, target: AUDIENCE_LABELS[audience].toLowerCase(), details: { recipients: people.length } });
+    return campaign;
   }],
   [`GET ${T}/records`, ({ req, user, params }) => {
     const t = adminTenant(user, params[0]);
@@ -559,4 +618,21 @@ function rotateKey(t: TenantRow, user: CurrentUser) {
   const key = newApiKey(t);
   audit('tenant.api_key_rotated', { tenant_id: t.id, user_id: user.id });
   return { api_key: key, message: 'Copiez cette clé maintenant : elle ne sera plus jamais affichée.' };
+}
+
+/** Comptes actifs de l'établissement : patients rattachés (lien actif) ou médecins rattachés. */
+function recipientsOf(t: TenantRow, audience: NotificationAudience): NotificationRecipient[] {
+  const accounts =
+    audience === 'patients'
+      ? db()
+          .links.filter((l) => l.tenant_id === t.id && l.status === 'active' && l.patient_id !== null)
+          .map((l) => ({ a: db().accounts.find((acc) => acc.patient_id === l.patient_id), ref: l.local_ref }))
+      : db()
+          .practitioners.filter((p) => p.tenant_id === t.id)
+          .map((p) => ({ a: db().accounts.find((acc) => acc.doctor_id === p.doctor_id), ref: p.local_ref }));
+  const seen = new Set<number>();
+  return accounts
+    .filter((x): x is { a: NonNullable<typeof x.a>; ref: string | null } => !!x.a && x.a.active && !seen.has(x.a.id) && !!seen.add(x.a.id))
+    .map(({ a, ref }) => ({ user_id: a.id, name: fullName(a) || a.email, email: a.email || null, ref: ref ?? a.username }))
+    .sort((x, y) => x.name.localeCompare(y.name, 'fr'));
 }

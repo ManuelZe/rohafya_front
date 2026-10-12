@@ -1,46 +1,50 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { AppNotification } from './notifications.models';
 import { environment } from '../../environments/environment';
 
+/**
+ * Notifications de l'utilisateur connecté (patient, médecin, administrateur d'établissement) :
+ * GET/PUT/DELETE /saas/me/notifications — l'API ne renvoie que les siennes.
+ */
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly baseUrl = `${environment.apiUrl}saas/me/notifications`;
 
-  /** GET /notifications/user/{userId}/ */
-  getUserNotifications(userId: number): Observable<AppNotification[]> {
-    return this.http.get<AppNotification[]>(`${this.baseUrl}notifications/user/${userId}/`);
+  /** Nombre de notifications non lues, partagé par toutes les cloches. */
+  private readonly _unread = signal(0);
+  readonly unread = this._unread.asReadonly();
+
+  list(): Observable<AppNotification[]> {
+    return this.http.get<AppNotification[]>(this.baseUrl).pipe(
+      tap((list) => this._unread.set(Array.isArray(list) ? list.filter((n) => !n.is_read && n.user_id !== null).length : 0))
+    );
   }
 
-  /** DELETE /notifications/user/del/{notificationId} */
-  deleteNotification(notificationId: number): Observable<unknown> {
-    return this.http.delete(`${this.baseUrl}notifications/user/del/${notificationId}`);
+  markAsRead(notificationId: number): Observable<AppNotification> {
+    return this.http.put<AppNotification>(`${this.baseUrl}/${notificationId}/read`, {}).pipe(tap(() => this.decrement()));
   }
 
-  /** DELETE /notifications/user/{userId}/del/{notificationId} */
-  deleteUserNotification(userId: number, notificationId: number): Observable<unknown> {
-    return this.http.delete(`${this.baseUrl}notifications/user/${userId}/del/${notificationId}`);
+  markAllAsRead(): Observable<{ message: string; count: number }> {
+    return this.http.put<{ message: string; count: number }>(`${this.baseUrl}/read`, {}).pipe(tap(() => this._unread.set(0)));
   }
 
-  /** DELETE /notifications/user/{userId}/del_all */
-  deleteAllUserNotifications(userId: number): Observable<unknown> {
-    return this.http.delete(`${this.baseUrl}notifications/user/${userId}/del_all`);
+  /** Retire une notification de la liste de l'utilisateur (elle reste pour les autres destinataires). */
+  hide(notification: AppNotification): Observable<unknown> {
+    return this.http.delete(`${this.baseUrl}/${notification.id}`).pipe(tap(() => !notification.is_read && this.decrement()));
   }
 
-  /** PUT /notifications/mark_read/{notificationId} */
-  markAsRead(notificationId: number): Observable<unknown> {
-    return this.http.put(`${this.baseUrl}notifications/mark_read/${notificationId}`, {});
+  hideAll(): Observable<unknown> {
+    return this.http.delete(this.baseUrl).pipe(tap(() => this._unread.set(0)));
   }
 
-  /** GET /notifications/type/{typeId} */
-  getByType(typeId: number): Observable<AppNotification[]> {
-    return this.http.get<AppNotification[]>(`${this.baseUrl}notifications/type/${typeId}`);
+  reset(): void {
+    this._unread.set(0);
   }
 
-  /** GET /notifications/etiquette/{etiquetteId} */
-  getByEtiquette(etiquetteId: number): Observable<AppNotification[]> {
-    return this.http.get<AppNotification[]>(`${this.baseUrl}notifications/etiquette/${etiquetteId}`);
+  private decrement(): void {
+    this._unread.update((n) => Math.max(0, n - 1));
   }
 }

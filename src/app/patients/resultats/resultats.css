@@ -485,6 +485,7 @@
 .viewer-modal-body {
   padding: 20px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex: 1;
 }
 
@@ -544,6 +545,7 @@
   max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: var(--shadow-lg);
   padding: 24px;
   animation: scaleUp 0.2s ease-out;
@@ -750,4 +752,20 @@
   .edit-modal-panel {
     padding: 16px;
   }
+}
+
+.share-quota {
+  margin: 0 0 1rem;
+  padding: 10px 14px;
+  border: 1px solid #c5d7e2;
+  border-radius: 10px;
+  background: #f2f7f9;
+  font-size: 0.88rem;
+  color: #0c4562;
+}
+
+.share-quota.is-blocked {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
 }

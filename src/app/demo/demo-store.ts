@@ -11,7 +11,7 @@ import { Prescription, PrescriptionDevis } from '../patients/prescriptions/presc
 import { UserRequest } from '../patients/requests/requests.models';
 import { ExamResultDetail, SendResult } from '../patients/resultats/resultats.models';
 import { Suggestion } from '../patients/suggestion-box/suggestion-box.models';
-import { AuditEntry, LinkStatus, LinkTokenView, PatientLinkView, RecordKind, SourceType, Tenant, TenantSettings } from '../saas/saas.models';
+import { AuditEntry, LinkStatus, LinkTokenView, PatientLinkView, RecordKind, SourceType, Tenant, TenantSettings, NotificationCampaign } from '../saas/saas.models';
 import {
   Establishment,
   SUBMISSION_STATUS_LABELS,
@@ -264,6 +264,8 @@ export interface DemoStore {
   records: RecordRow[];
   audit: AuditRow[];
   otherSubmissions: OtherSubmission[];
+  /** Notifications envoyées depuis la console d'établissement (absent des sessions plus anciennes). */
+  campaigns?: NotificationCampaign[];
   nextId: number;
 }
 

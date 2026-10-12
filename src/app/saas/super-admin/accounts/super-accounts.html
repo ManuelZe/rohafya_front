@@ -44,6 +44,7 @@
               <th scope="col">Rôles</th>
               <th scope="col">Administre</th>
               <th scope="col">État</th>
+              <th scope="col">Droits</th>
               <th scope="col"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
@@ -65,9 +66,25 @@
                 <td data-label="État">
                   <span [class]="'pill ' + (account.active ? 'pill-active' : 'pill-danger')">{{ account.active ? 'Actif' : 'Désactivé' }}</span>
                 </td>
+                <td data-label="Droits">
+                  @if (account.rights?.length) {
+                    <span class="roles">
+                      @for (right of account.rights; track right) {
+                        <span class="pill pill-pending">{{ right }}</span>
+                      }
+                    </span>
+                  } @else {
+                    <span class="pill pill-none">Tout disponible</span>
+                  }
+                </td>
                 <td class="actions-cell">
+                  <span class="cell-actions">
+                    @if (account.patient_id !== null || account.doctor_id !== null) {
+                      <button type="button" class="btn btn-ghost btn-sm" (click)="openRights(account, $event)">
+                        Droits<span class="sr-only"> : {{ account.email }}</span>
+                      </button>
+                    }
                   @if (account.id !== currentUserId()) {
-                    <span class="cell-actions">
                       @if (!account.roles.includes('Admin')) {
                         <button type="button" class="btn btn-ghost btn-sm" (click)="toggleSuperAdmin(account)" [disabled]="busyId() === account.id">
                           {{ account.roles.includes('SuperAdmin') ? 'Retirer super-admin' : 'Nommer super-admin' }}<span class="sr-only"> : {{ account.email }}</span>
@@ -81,8 +98,8 @@
                       >
                         {{ account.active ? 'Désactiver' : 'Réactiver' }}<span class="sr-only"> {{ account.email }}</span>
                       </button>
-                    </span>
                   }
+                  </span>
                 </td>
               </tr>
             }
@@ -90,6 +107,10 @@
         </table>
       </div>
       <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />
+    }
+
+    @if (rightsAccount(); as account) {
+      <app-account-rights-dialog [account]="account" (closed)="onRightsClosed($event)" />
     }
   </section>
 </div>

@@ -21,7 +21,7 @@
     }
 
     @if (errorMessage()) {
-      <div class="error-banner" role="alert">
+      <div #errorBanner class="error-banner" role="alert" tabindex="-1">
         <span>{{ errorMessage() }}</span>
       </div>
     }

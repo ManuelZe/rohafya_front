@@ -29,6 +29,7 @@ export interface DoctorUpdatePayload {
   DoctorPOB: string;
   DoctorCNI: string;
   DoctorPhone: string;
-  DoctorPhone2: string;
+  /** Facultatif : null quand il n'est pas renseigné. */
+  DoctorPhone2: string | null;
   DoctorEmail: string;
 }

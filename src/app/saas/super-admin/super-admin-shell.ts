@@ -7,6 +7,7 @@ const MENU: ConsoleMenuLink[] = [
   { label: "Vue d'ensemble", icon: 'chart-line', link: '/super-admin', exact: true },
   { label: 'Établissements', icon: 'building', link: '/super-admin/etablissements' },
   { label: 'Comptes', icon: 'users', link: '/super-admin/comptes' },
+  { label: 'Notifications', icon: 'send', link: '/super-admin/notifications' },
   { label: 'Journal', icon: 'history', link: '/super-admin/journal' },
 ];
 

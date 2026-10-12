@@ -409,6 +409,7 @@
 .viewer-modal-body {
   padding: 20px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex: 1;
 }
 
@@ -622,3 +623,97 @@
   color: #4b5563;
 }
 
+
+/* ===== Établissement et quota de partage ===== */
+.exam-establishment {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #0c4562;
+}
+
+.exam-establishment.is-missing {
+  font-weight: 500;
+  font-style: italic;
+  color: #4b5563;
+}
+
+.exam-establishment svg {
+  flex-shrink: 0;
+}
+
+.share-quota {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #c5d7e2;
+  border-radius: 10px;
+  background: #f2f7f9;
+  font-size: 0.88rem;
+  color: #0c4562;
+}
+
+.share-quota.is-blocked {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Téléphone : cartes compactes (le détail complet reste dans le compte rendu) ===== */
+@media (max-width: 640px) {
+  .exam-grid {
+    gap: 10px;
+  }
+
+  .exam-card:hover {
+    transform: none;
+  }
+
+  .exam-card-header {
+    padding: 10px 12px 0;
+  }
+
+  .card-body {
+    padding: 6px 12px 10px;
+  }
+
+  .exam-title {
+    margin-bottom: 4px;
+    font-size: 1rem;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .exam-meta {
+    display: none;
+  }
+
+  .card-footer-meta {
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .card-actions {
+    padding: 8px 12px;
+  }
+}

@@ -30,6 +30,11 @@ export const SUPER_ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./accounts/super-accounts').then((m) => m.SuperAccounts),
       },
       {
+        path: 'notifications',
+        title: 'Notifications' + TITLE_SUFFIX,
+        loadComponent: () => import('./notifications/super-notifications').then((m) => m.SuperNotifications),
+      },
+      {
         path: 'journal',
         title: 'Journal' + TITLE_SUFFIX,
         loadComponent: () => import('./audit/super-audit').then((m) => m.SuperAudit),

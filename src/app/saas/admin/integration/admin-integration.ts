@@ -19,7 +19,7 @@ curl -X POST ${base}ingest/v1/patients \\
   -d '[{"local_ref": "P-88-17", "first_name": "Aïcha", "last_name": "Ngono",
         "email": "aicha@exemple.com", "birth_date": "1988-04-12", "gender": "F"}]'
 
-# 2. Un résultat de laboratoire (champs identiques à la démo) et ses valeurs
+# 2. Un résultat de laboratoire et ses valeurs
 curl -X POST ${base}ingest/v1/laboratoire \\
   -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
   -d '[{"local_ref": "P-88-17", "name": "LAB-0412", "test": "Numération Formule Sanguine",
@@ -42,7 +42,8 @@ curl -X POST "${base}ingest/v1/link-tokens?qr=1" \\
   -d '{"local_ref": "P-88-17"}'
 
 # Autres types : imagerie (clé « number »), exploration (clé « name »).
-# Retirer un envoi erroné : DELETE ${base}ingest/v1/laboratoire/LAB-0412`;
+# Retirer un envoi erroné : DELETE ${base}ingest/v1/laboratoire/LAB-0412
+# Le numéro de facture ne doit contenir, aucun caractère spécial (FAC-2026-0105 → FAC20260105), encore moins de slash.`;
 
 const PDF_EXAMPLE = (base: string) => `curl -X POST ${base}ingest/v1/pdf \\
   -H "X-ROHAFYA-API-Key: VOTRE_CLE" \\

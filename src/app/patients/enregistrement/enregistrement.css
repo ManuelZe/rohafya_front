@@ -788,3 +788,58 @@
   font-size: 0.8rem;
   color: #4a5568;
 }
+
+.list-toolbar-block {
+  margin-bottom: 1rem;
+}
+
+.card-image-container:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: -3px;
+}
+
+/* ===== Téléphone : vignette à gauche, informations à droite ===== */
+@media (max-width: 640px) {
+  .saves-grid {
+    gap: 10px;
+  }
+
+  .save-card {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-areas:
+      'image body'
+      'actions actions';
+  }
+
+  .save-card:hover {
+    transform: none;
+  }
+
+  .card-image-container {
+    grid-area: image;
+    height: auto;
+    min-height: 112px;
+  }
+
+  .image-overlay-hint span,
+  .image-placeholder span {
+    display: none;
+  }
+
+  .card-body {
+    grid-area: body;
+    padding: 10px 12px;
+  }
+
+  .card-description {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    margin-bottom: 6px;
+  }
+
+  .card-actions {
+    grid-area: actions;
+    padding: 8px 12px;
+  }
+}

@@ -784,6 +784,7 @@
 .devis-body {
   padding: 20px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .devis-price-box {
@@ -951,4 +952,71 @@
   margin: 0.25rem 0 0;
   font-size: 0.8rem;
   color: #4a5568;
+}
+
+.list-toolbar-block {
+  margin-bottom: 1rem;
+}
+
+.card-image-container:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: -3px;
+}
+
+/* ===== Téléphone : vignette à gauche, informations à droite (une carte ≈ 1/4 d'écran) ===== */
+@media (max-width: 640px) {
+  .prescriptions-grid {
+    gap: 10px;
+  }
+
+  .prescription-card {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-areas:
+      'image body'
+      'actions actions';
+  }
+
+  .prescription-card:hover {
+    transform: none;
+  }
+
+  .card-image-container {
+    grid-area: image;
+    height: auto;
+    min-height: 112px;
+  }
+
+  .image-overlay-hint span,
+  .image-placeholder span {
+    display: none;
+  }
+
+  .badge-devis-wrapper {
+    display: none;
+  }
+
+  .card-body {
+    grid-area: body;
+    padding: 10px 12px;
+  }
+
+  .doctor-name {
+    font-size: 1rem;
+  }
+
+  .doctor-ordre {
+    display: none;
+  }
+
+  .card-description {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    margin-bottom: 6px;
+  }
+
+  .card-actions {
+    grid-area: actions;
+    padding: 8px 12px;
+  }
 }

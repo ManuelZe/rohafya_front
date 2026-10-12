@@ -9,6 +9,7 @@ import { PatientProfileService } from './patient-profile-service';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from "@angular/router";
 import { UserInfoCard } from './shared/user-info-card/user-info-card';
 import { SuggestionDialog } from './suggestion-box/suggestion-dialog/suggestion-dialog';
+import { SaasAccountService } from '../saas/saas-account.service';
 
 const HELP_CONTACTS = [
   {
@@ -39,6 +40,7 @@ export class Patients {
   private authService = inject(AuthService);
   private patientService = inject(PatientsService);
   private patientProfileService = inject(PatientProfileService);
+  private readonly saasAccount = inject(SaasAccountService);
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
 
@@ -56,6 +58,8 @@ export class Patients {
       const user = this.authService.currentUser();
       if (isPlatformBrowser(this.platformId) && user && this.authService.isPatient() && user.patient_id !== null) {
         this.patientProfileService.loadProfile(user.patient_id).subscribe();
+        // Droits du compte (impression, partage) : les boutons concernés en dépendent.
+        this.saasAccount.load().subscribe();
       }
     });
   }

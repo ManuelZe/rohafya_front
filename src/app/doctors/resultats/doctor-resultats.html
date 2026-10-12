@@ -24,8 +24,19 @@
     <div class="search">
       <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
       <label class="sr-only" for="results-search">Rechercher un résultat</label>
-      <input id="results-search" type="search" placeholder="Code d'examen, matricule patient…" [value]="search()" (input)="onSearch($event)" />
+      <input id="results-search" type="search" placeholder="Code d'examen, matricule, établissement…" [value]="search()" (input)="onSearch($event)" />
     </div>
+    @if (establishments().length > 1) {
+      <div class="establishment-filter">
+        <label class="sr-only" for="results-establishment">Établissement</label>
+        <select id="results-establishment" class="field" (change)="onEstablishment($event)">
+          <option value="" [selected]="!establishmentFilter()">Tous les établissements</option>
+          @for (name of establishments(); track name) {
+            <option [value]="name" [selected]="name === establishmentFilter()">{{ name }}</option>
+          }
+        </select>
+      </div>
+    }
   </div>
 
   @if (received.loading() && !received.data()) {
@@ -57,7 +68,7 @@
     </section>
   } @else {
     <ul class="cards" [class.is-refreshing]="received.refreshing()">
-      @for (r of filtered(); track r.id) {
+      @for (r of list.visible(); track r.id) {
         <li>
           <button type="button" class="result-card" (click)="openViewer(r, $event)">
             <span class="result-top">
@@ -70,6 +81,10 @@
               }
             </span>
             <span class="result-code">{{ r.exam_code }}</span>
+            <span class="result-meta result-establishment" [class.is-missing]="!r.establishment">
+              <svg [pIcon]="'building'" [size]="13" aria-hidden="true"></svg>
+              <span class="sr-only">Établissement : </span>{{ r.establishment || 'Établissement non communiqué' }}
+            </span>
             <span class="result-meta">
               <svg [pIcon]="'id-card'" [size]="13" aria-hidden="true"></svg>
               Patient {{ r.patient_federation_id }}
@@ -82,6 +97,7 @@
         </li>
       }
     </ul>
+    <app-show-more [list]="list" noun="résultats" />
   }
 
   <!-- ===== Visionneuse ===== -->

@@ -21,10 +21,41 @@
         }
       </p>
     </div>
-    <button type="button" class="mr-print" (click)="print()">
-      <svg [pIcon]="'print'" [size]="16" aria-hidden="true"></svg>
-      <span>Imprimer / PDF</span>
-    </button>
+    <div class="mr-actions">
+      <div class="mr-buttons">
+        @if (!touchDevice) {
+          <button type="button" class="mr-print" (click)="print()" [disabled]="!canPrint()" [attr.aria-describedby]="printMessage() ? printNoteId : null">
+            <svg [pIcon]="'print'" [size]="16" aria-hidden="true"></svg>
+            <span>Imprimer</span>
+          </button>
+        }
+        <button
+          type="button"
+          class="mr-print mr-pdf"
+          (click)="downloadPdf()"
+          [disabled]="!canPrint() || pdfBusy()"
+          [attr.aria-busy]="pdfBusy()"
+          [attr.aria-describedby]="printMessage() ? printNoteId : null"
+        >
+          @if (pdfBusy()) {
+            <span class="mr-spinner" aria-hidden="true"></span>
+            <span>Préparation du PDF…</span>
+          } @else {
+            <svg [pIcon]="'download'" [size]="16" aria-hidden="true"></svg>
+            <span>Télécharger le PDF</span>
+          }
+        </button>
+      </div>
+      @if (printMessage()) {
+        <p class="mr-print-note" [class.is-blocked]="!canPrint()" [id]="printNoteId">
+          <svg [pIcon]="canPrint() ? 'clock' : 'lock'" [size]="13" aria-hidden="true"></svg>
+          {{ printMessage() }}
+        </p>
+      }
+      @if (pdfError()) {
+        <p class="mr-print-note is-blocked" role="alert">{{ pdfError() }}</p>
+      }
+    </div>
   </header>
 
   @if (identity().length) {

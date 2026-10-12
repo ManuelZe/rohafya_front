@@ -33,6 +33,8 @@ export interface Tenant {
   created_at: string | null;
   updated_at: string | null;
   settings?: TenantSettings;
+  /** Couleur de la console (fournie dans /saas/me pour les établissements administrés). */
+  primary_color?: string;
 }
 
 export interface TenantStats {
@@ -252,12 +254,61 @@ export const PDF_STATUS_LABELS: Record<PdfImportStatus, string> = {
   erreur: 'Erreur',
 };
 
+/** Droit d'imprimer les comptes rendus (sans configuration : toujours disponible). */
+export interface PrintRight {
+  configured: boolean;
+  allowed: boolean;
+  mode?: 'window' | 'blocked';
+  from: string | null;
+  until: string | null;
+  /** Raison affichée sous le bouton, ou échéance de l'accès. */
+  message: string | null;
+}
+
+/** Droit de partager des résultats (sans configuration : partages illimités). */
+export interface ShareRight {
+  configured: boolean;
+  allowed: boolean;
+  limit: number | null;
+  used: number | null;
+  remaining: number | null;
+  message: string | null;
+}
+
+export interface AccountRights {
+  print: PrintRight;
+  share: ShareRight;
+}
+
 export interface SaasMe {
   is_super_admin: boolean;
   admin_tenants: Tenant[];
   links: PatientLinkView[];
   features: { commissions: boolean };
   patient_federation_id: string | null;
+  /** Absent (API plus ancienne, démo) : tout est disponible. */
+  rights?: AccountRights;
+}
+
+/** Configuration des droits d'un compte (console du super-administrateur). */
+export interface AdminAccountRights {
+  user_id: number;
+  configured: boolean;
+  print_mode: 'window' | 'blocked' | null;
+  print_from: string | null;
+  print_until: string | null;
+  share_limit: number | null;
+  share_since: string | null;
+  updated_at: string | null;
+  effective: AccountRights;
+}
+
+export interface AccountRightsUpdate {
+  print_mode?: 'window' | 'blocked' | null;
+  print_from?: string | null;
+  print_until?: string | null;
+  share_limit?: number | null;
+  reset_share_count?: boolean;
 }
 
 export interface SuperStats {
@@ -297,6 +348,8 @@ export interface AccountView {
   admin_of: string[];
   patient_id: number | null;
   doctor_id: number | null;
+  /** Résumé des droits configurés (« Impression bloquée », « Partages 2/5 »), vide sans configuration. */
+  rights?: string[];
 }
 
 export const SOURCE_LABELS: Record<SourceType, string> = {
@@ -404,4 +457,48 @@ export interface SubmissionAnswer {
   response?: string;
   /** Montant du devis en FCFA ; chaîne vide pour l'effacer. */
   quote_amount?: number | '';
+}
+
+/** Destinataires d'une notification envoyée depuis une console. */
+export type NotificationAudience = 'admins' | 'patients' | 'doctors';
+
+export const AUDIENCE_LABELS: Record<NotificationAudience, string> = {
+  admins: 'Administrateurs',
+  patients: 'Patients',
+  doctors: 'Médecins',
+};
+
+/** Compte proposé à la sélection des destinataires. */
+export interface NotificationRecipient {
+  user_id: number;
+  name: string;
+  email: string | null;
+  /** Matricule ou identifiant local, s'il est connu. */
+  ref: string | null;
+}
+
+export interface NotificationPayload {
+  audience: NotificationAudience;
+  /** Vide : tout le groupe de l'établissement. */
+  user_ids?: number[];
+  title: string;
+  message: string;
+}
+
+/** Envoi (historique) : une notification et un e-mail par destinataire. */
+export interface NotificationCampaign {
+  id: number;
+  tenant_id: number;
+  establishment: string | null;
+  sender_role: 'super_admin' | 'tenant_admin';
+  sender_name: string | null;
+  audience: NotificationAudience;
+  selection: 'all' | 'selected';
+  title: string;
+  message: string;
+  recipients_count: number;
+  emails_count: number;
+  /** null tant que les e-mails partent (envoi en tâche de fond). */
+  emails_sent: number | null;
+  created_at: string;
 }

@@ -95,7 +95,7 @@ export class Factures {
     }
 
     this.selectedFacture.set(selected);
-    this.facturesService.getDetailsFactures(selected.invoice_number);
+    this.facturesService.getDetailsFactures(selected.details_ref || selected.invoice_number);
   }
 
   constructor() {

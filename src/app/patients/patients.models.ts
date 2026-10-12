@@ -11,6 +11,8 @@ export interface FacturesResponseApi {
   untaxed_amount: number;
   /** Établissement émetteur (mode SaaS, plusieurs établissements par patient). */
   establishment?: string | null;
+  /** Identifiant à passer à /patient/factures/products/… quand il diffère du numéro affiché (ex. FAC-CLB-5002). */
+  details_ref?: string | null;
 }
 
 export interface ExamenImagerie {

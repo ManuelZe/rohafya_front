@@ -1,0 +1,68 @@
+.rights-dialog {
+  max-width: 560px;
+  border: none;
+  color: var(--doc-text);
+}
+
+.rights-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.rights-who {
+  font-weight: 700;
+}
+
+.rights-who span {
+  font-weight: 400;
+  color: var(--doc-muted);
+}
+
+.rights-intro {
+  color: var(--doc-muted);
+}
+
+.rights-block {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--doc-border);
+  border-radius: 10px;
+}
+
+.rights-block legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+  color: #0c4562;
+}
+
+.rights-state {
+  margin: 0 0 0.6rem !important;
+  font-size: 0.85rem !important;
+  color: var(--doc-success);
+}
+
+.rights-state.is-blocked {
+  color: var(--doc-danger);
+}
+
+.rights-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.rights-options .check-row input {
+  accent-color: var(--doc-primary);
+}
+
+.rights-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.rights-spacer {
+  flex: 1;
+}

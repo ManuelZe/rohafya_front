@@ -54,7 +54,7 @@ export class AuthService {
 
   /** Envoie un code de connexion à usage unique à cette adresse. */
   requestEmailCode(email: string) {
-    return this.httpClient.post<{ message: string }>(`${this.baseUrl}saas/auth/otp/request`, { email });
+    return this.httpClient.post<{ message: string; account_exists?: boolean }>(`${this.baseUrl}saas/auth/otp/request`, { email });
   }
 
   /** Vérifie le code ; crée le compte patient si `names` est fourni et qu'aucun compte n'existe. */

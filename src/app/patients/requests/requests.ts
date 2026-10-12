@@ -13,8 +13,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CardModule } from 'primeng/card';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -28,13 +26,18 @@ import { Spinner } from '@primeicons/angular/spinner';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 import { EstablishmentsService } from '../../shared/submission/establishments.service';
+import { ListToolbar } from '../../shared/list/list-toolbar';
+import { ShowMore } from '../../shared/list/show-more';
+import { ListWindow } from '../../shared/list/list-window';
+import { FilterOption, SortOrder, distinctValues, matchesText, sortByDate } from '../../shared/list/list-filters';
+import { extractErrorMessage } from '../../shared/api-error';
 import { SaasAccountService } from '../../saas/saas-account.service';
 import { SubmissionInfoView } from '../../shared/submission/submission-info';
 import { SUBMISSION_STATUS_SEVERITY, SubmissionAudience } from '../../shared/submission/submission.models';
 
 @Component({
   selector: 'app-requests',
-  imports: [
+  imports: [ListToolbar, ShowMore, 
     CommonModule,
     FormsModule,
     DatePipe,
@@ -48,8 +51,6 @@ import { SUBMISSION_STATUS_SEVERITY, SubmissionAudience } from '../../shared/sub
     CardModule,
     Trash,
     Spinner,
-    IconFieldModule,
-    InputIconModule,
     SkeletonModule,
     SelectButtonModule,
     ButtonDirective,
@@ -107,21 +108,40 @@ export class Requests implements OnInit {
   ];
   readonly tabOptions = computed(() => (this.isAnonymous() ? this.allTabs.filter((t) => t.value === 'add') : this.allTabs));
 
-  filteredRequests = computed(() => {
+  readonly statusOptions: FilterOption[] = [
+    { value: '', label: 'Toutes' },
+    { value: 'recue', label: 'Reçues' },
+    { value: 'en_cours', label: 'En cours' },
+    { value: 'traitee', label: 'Traitées' },
+    { value: 'refusee', label: 'Refusées' },
+  ];
+  readonly statusFilter = signal('');
+  readonly establishmentFilter = signal('');
+  readonly sort = signal<SortOrder>('recent');
+
+  /** Établissements destinataires présents dans la liste (filtre affiché à partir de deux). */
+  readonly requestEstablishments = computed(() => distinctValues(this.requestList().map((r) => r.submission?.establishment)));
+
+  private readonly requestList = computed(() => {
     const rawData = this.requests();
-    const list = Array.isArray(rawData) ? rawData : [];
-    const term = this.searchTerm().toLowerCase();
-
-    if (!term) return list;
-
-    return list.filter(r => 
-      r.first_name?.toLowerCase().includes(term) ||
-      r.last_name?.toLowerCase().includes(term) ||
-      r.email?.toLowerCase().includes(term) ||
-      r.message?.toLowerCase().includes(term) ||
-      r.submission?.establishment?.toLowerCase().includes(term)
-    );
+    return Array.isArray(rawData) ? rawData : [];
   });
+
+  filteredRequests = computed(() => {
+    const term = this.searchTerm();
+    const status = this.statusFilter();
+    const establishment = this.establishmentFilter();
+    const items = this.requestList().filter(
+      (r) =>
+        (!status || r.submission?.status === status) &&
+        (!establishment || r.submission?.establishment === establishment) &&
+        matchesText(term, r.id, r.first_name, r.last_name, r.email, r.message, r.submission?.establishment)
+    );
+    return sortByDate(items, (r) => r.CreatedAt, this.sort());
+  });
+
+  /** Vue mobile : 10 requêtes, puis « Afficher plus » (le tableau desktop garde sa pagination). */
+  readonly mobileList = new ListWindow(this.filteredRequests, 10, () => [this.searchTerm(), this.statusFilter(), this.establishmentFilter(), this.sort()]);
 
   /** Espace appelant, fourni par les données de route : les catégories proposées diffèrent. */
   readonly audience = input<SubmissionAudience>('patient');
@@ -252,7 +272,7 @@ export class Requests implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: err?.error?.message ?? "Échec de l'envoi de la requête."
+          detail: extractErrorMessage(err, "Échec de l'envoi de la requête.")
         });
       }
     });
@@ -302,10 +322,6 @@ export class Requests implements OnInit {
         });
       }
     });
-  }
-
-  filterMobile(value: string) {
-    this.searchTerm.set(value);
   }
 
   toggleCheckbox(controlName: string) {

@@ -1,9 +1,10 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { DrawerModule } from 'primeng/drawer';
 import { PIcon } from '@primeicons/angular/p-icon';
 import { SidebarService } from '../../../patients/sidebar-service';
+import { tenantPalette } from '../../../shared/theme/tenant-theme';
 
 export interface ConsoleMenuLink {
   label: string;
@@ -30,6 +31,15 @@ export interface ConsoleTenantOption {
   imports: [RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, DrawerModule, PIcon],
   templateUrl: './console-shell.html',
   styleUrls: ['../../../doctors/doctors.css', './console-shell.css'],
+  host: {
+    // Couleur de l'établissement : héritée par toutes les pages de la console.
+    '[style.--tenant-primary]': 'palette()?.primary',
+    '[style.--tenant-primary-hover]': 'palette()?.hover',
+    '[style.--tenant-primary-soft]': 'palette()?.soft',
+    '[style.--color-primary]': 'palette()?.primary',
+    '[style.--color-primary-hover]': 'palette()?.hover',
+    '[style.--color-primary-light]': 'palette()?.soft',
+  },
 })
 export class ConsoleShell {
   readonly sidebarService = inject(SidebarService);
@@ -42,6 +52,9 @@ export class ConsoleShell {
   readonly tenants = input<ConsoleTenantOption[]>([]);
   readonly selectedTenantId = input<number | null>(null);
   readonly switchLink = input<{ label: string; link: string } | null>(null);
+  /** Couleur principale de l'établissement administré (#rrggbb) ; sinon les couleurs ROHAFYA. */
+  readonly accent = input<string | null | undefined>(null);
+  readonly palette = computed(() => tenantPalette(this.accent()));
 
   readonly tenantChange = output<number>();
   readonly logoutRequested = output<void>();

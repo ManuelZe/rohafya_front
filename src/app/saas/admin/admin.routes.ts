@@ -40,6 +40,11 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./qr-codes/admin-qr-codes').then((m) => m.AdminQrCodes),
       },
       {
+        path: 'notifications',
+        title: 'Notifications' + TITLE_SUFFIX,
+        loadComponent: () => import('./notifications/admin-notifications').then((m) => m.AdminNotifications),
+      },
+      {
         path: 'medecins',
         title: 'Médecins' + TITLE_SUFFIX,
         loadComponent: () => import('./doctors/admin-doctors').then((m) => m.AdminDoctors),

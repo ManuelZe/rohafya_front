@@ -17,12 +17,34 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .page-heading-top {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.page-bell {
+  margin-left: auto;
+  flex-shrink: 0;
+  /* Cloche sur fond clair : marine, cerclée de blanc. */
+  --bell-color: #0c4562;
+  --bell-background: #ffffff;
+  --bell-border: 1px solid #c5d7e2;
+  --bell-hover: #f2f7f9;
+}
+
+.page-bell.mobile-only {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .page-bell.mobile-only {
+    display: inline-flex;
+  }
 }
 
 .page-heading h1 {

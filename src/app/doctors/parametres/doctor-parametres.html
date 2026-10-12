@@ -15,7 +15,7 @@
   }
 
   @if (errorMessage()) {
-    <div class="banner banner-error" role="alert">
+    <div #errorBanner class="banner banner-error" role="alert" tabindex="-1">
       <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
       <span>{{ errorMessage() }}</span>
     </div>

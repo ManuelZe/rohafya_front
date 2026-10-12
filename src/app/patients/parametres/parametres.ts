@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, PLATFORM_ID } from '@angular/core';
+import { Component, ElementRef, Injector, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { form, required, email, FormField, FormRoot } from '@angular/forms/signals';
 import { AuthService } from '../../connexion/auth-service';
@@ -6,6 +6,7 @@ import { PatientProfileService } from '../patient-profile-service';
 import { PatientUpdatePayload } from '../patient-profile.models';
 import { PageHeader } from '../shared/page-header/page-header';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { extractErrorMessage } from '../../shared/api-error';
 
 interface ParametresFormModel {
   PatientName: string;
@@ -71,6 +72,8 @@ export class Parametres {
   private readonly authService = inject(AuthService);
   private readonly profileService = inject(PatientProfileService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
+  private readonly errorBanner = viewChild<ElementRef<HTMLElement>>('errorBanner');
 
   readonly accessDeniedMessage = ACCESS_DENIED_MESSAGE;
 
@@ -138,7 +141,7 @@ export class Parametres {
 
   submit(): void {
     if (this.profileForm().invalid()) {
-      this.errorMessage.set('Merci de compléter correctement tous les champs obligatoires.');
+      this.showError('Merci de compléter correctement tous les champs obligatoires.');
       this.successMessage.set(null);
       return;
     }
@@ -149,7 +152,8 @@ export class Parametres {
     }
 
     const model = this.formModel();
-    const payload: PatientUpdatePayload = { ...model };
+    // Le téléphone secondaire est facultatif : vide, il est envoyé à null (deux numéros vides entreraient en conflit en base).
+    const payload: PatientUpdatePayload = { ...model, PatientPhone: model.PatientPhone.trim(), PatientPhone2: model.PatientPhone2.trim() || null };
 
     this.submitting.set(true);
     this.errorMessage.set(null);
@@ -160,11 +164,17 @@ export class Parametres {
         this.submitting.set(false);
         this.successMessage.set('Vos informations ont été mises à jour avec succès. Votre compte est confirmé.');
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.submitting.set(false);
-        this.errorMessage.set('Échec de la mise à jour de vos informations.');
+        this.showError(extractErrorMessage(err, 'Échec de la mise à jour de vos informations.'));
         console.error(err);
       },
     });
+  }
+
+  /** Affiche l'erreur et y amène le focus : le bandeau est en haut de page, loin du bouton d'envoi. */
+  private showError(message: string): void {
+    this.errorMessage.set(message);
+    afterNextRender(() => this.errorBanner()?.nativeElement.focus(), { injector: this.injector });
   }
 }

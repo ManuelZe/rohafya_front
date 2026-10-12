@@ -29,10 +29,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // échoue en 401 (token déjà invalide), il ne faut pas rappeler logout() dessus,
   // sous peine de boucle infinie (logout -> 401 -> logout -> 401 -> ...).
   const isLogoutRequest = req.url.endsWith('user/logout');
+  // Un 401 sur la connexion signale des identifiants erronés, pas une session expirée.
+  const isLoginRequest = req.url.endsWith('user/login');
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !isLogoutRequest) {
+      if (error.status === 401 && token && !isLogoutRequest && !isLoginRequest) {
         // logout() renvoie un Observable "cold" : sans souscription, la requête de
         // déconnexion ne part jamais et la session locale n'est jamais effacée.
         authService.logout().subscribe(() => {

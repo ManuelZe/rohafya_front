@@ -2,8 +2,7 @@ import { Component, inject, input, signal } from '@angular/core';
 import { form, required, minLength, FormField, FormRoot } from '@angular/forms/signals';
 import { Router, RouterLink } from "@angular/router";
 import { AuthService } from './auth-service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { LoginErrorResponse } from './login-response.model';
+import { extractErrorMessage } from '../shared/api-error';
 import { EmailCodeLogin } from './email-code-login/email-code-login';
 
 interface LoginFormModel {
@@ -55,12 +54,9 @@ export class Connexion {
 
     this.authService.login(username, password, remember_me).subscribe({
       next: () => this.onLoggedIn(),
-      error: (err: HttpErrorResponse) => {
-        const backendError = err.error as LoginErrorResponse;
+      error: (err: unknown) => {
         console.error('Erreur de connexion', err);
-        this.errorMessage.set(
-          backendError?.message ?? 'Une erreur est survenue. Réessayez.'
-        );
+        this.errorMessage.set(extractErrorMessage(err, 'Une erreur est survenue. Réessayez.'));
       }
     });
   }

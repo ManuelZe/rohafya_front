@@ -19,34 +19,28 @@
     }
 
     @if (!loading() && results().length > 0) {
-      <div class="filters-bar">
-        <div class="filter-switch">
-          <button type="button" class="filter-btn" [class.active]="expirationFilter() === 'all'" (click)="setExpirationFilter('all')">
-            Toutes
-          </button>
-          <button type="button" class="filter-btn" [class.active]="expirationFilter() === 'available'" (click)="setExpirationFilter('available')">
-            Disponibles
-          </button>
-          <button type="button" class="filter-btn" [class.active]="expirationFilter() === 'expired'" (click)="setExpirationFilter('expired')">
-            Expirées
-          </button>
-        </div>
-
-        <div class="date-filter">
-          <label>
-            <span>Du</span>
-            <input type="date" [value]="dateFrom()" (change)="onDateFromChange($event)" />
-          </label>
-          <label>
-            <span>Au</span>
-            <input type="date" [value]="dateTo()" (change)="onDateToChange($event)" />
-          </label>
-        </div>
-
-        @if (hasActiveFilters()) {
-          <button type="button" class="btn-reset" (click)="resetFilters()">Réinitialiser</button>
-        }
-      </div>
+      <app-list-toolbar
+        [(search)]="search"
+        searchPlaceholder="Examen, code, établissement…"
+        searchLabel="Rechercher un résultat"
+        [statusOptions]="statusOptions"
+        [(status)]="expirationFilter"
+        statusLabel="Disponibilité"
+        [establishments]="establishments()"
+        [(establishment)]="establishment"
+        [showDates]="true"
+        [(dateFrom)]="dateFrom"
+        [(dateTo)]="dateTo"
+        [(sort)]="sort"
+        [count]="filteredResults().length"
+        [noun]="filteredResults().length > 1 ? 'résultats' : 'résultat'"
+      />
+      @if (shareMessage()) {
+        <p class="share-quota" [class.is-blocked]="!canShare()" role="note">
+          <svg [pIcon]="canShare() ? 'share-alt' : 'lock'" [size]="14" aria-hidden="true"></svg>
+          {{ shareMessage() }}
+        </p>
+      }
     }
 
     @if (!loading() && results().length === 0) {
@@ -66,14 +60,14 @@
     @if (!loading() && results().length > 0 && filteredResults().length === 0) {
       <div class="state-container empty-state">
         <h3>Aucun résultat ne correspond aux filtres</h3>
-        <p>Essayez d'élargir la période ou de modifier le filtre de disponibilité.</p>
+        <p>Essayez une autre recherche, un autre établissement ou une période plus large.</p>
         <button type="button" class="btn btn-secondary" (click)="resetFilters()">Réinitialiser les filtres</button>
       </div>
     }
 
     @if (!loading() && filteredResults().length > 0) {
       <div class="exam-grid">
-        @for (r of filteredResults(); track r.id) {
+        @for (r of list.visible(); track r.id) {
           <article class="exam-card" (click)="openViewer(r)">
             <div class="exam-card-header">
               <app-status-tag kind="expiration" [status]="r.statut_expiration ? 'true' : 'false'" />
@@ -82,9 +76,10 @@
 
             <div class="card-body">
               <h2 class="exam-title" [title]="r.test">{{ r.test }}</h2>
-              @if (r.establishment) {
-                <p class="exam-meta">Établissement : {{ r.establishment }}</p>
-              }
+              <p class="exam-establishment" [class.is-missing]="!r.establishment">
+                <svg [pIcon]="'building'" [size]="14" aria-hidden="true"></svg>
+                <span class="sr-only">Établissement : </span>{{ r.establishment || 'Établissement non communiqué' }}
+              </p>
 
               @if (r.requestor) {
                 <p class="exam-meta">Prescripteur : {{ r.requestor }}</p>
@@ -108,12 +103,12 @@
               <button
                 type="button"
                 class="icon-btn-share"
-                [disabled]="r.statut_expiration"
+                [disabled]="r.statut_expiration || !canShare()"
                 (click)="openShare(r, $event)"
-                [attr.aria-label]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : 'Partager ce résultat'"
-                [attr.title]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : 'Partager'"
+                [attr.aria-label]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : !canShare() ? 'Partage indisponible : ' + shareMessage() : 'Partager ce résultat'"
+                [attr.title]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : !canShare() ? shareMessage() : 'Partager'"
               >
-                <svg [pIcon]="'share-alt'" [size]="16"></svg>
+                <svg [pIcon]="canShare() ? 'share-alt' : 'lock'" [size]="16" aria-hidden="true"></svg>
               </button>
               <button type="button" class="btn btn-secondary btn-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -126,6 +121,7 @@
           </article>
         }
       </div>
+      <app-show-more [list]="list" noun="résultats" />
     }
 
     <!-- Compte rendu du résultat -->

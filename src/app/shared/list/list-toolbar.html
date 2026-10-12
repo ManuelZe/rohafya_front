@@ -1,0 +1,77 @@
+<div class="lt" role="search" [attr.aria-label]="searchLabel()">
+  <div class="lt-row">
+    <div class="lt-search">
+      <svg class="lt-search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <label class="sr-only" [for]="id + '-search'">{{ searchLabel() }}</label>
+      <input [id]="id + '-search'" type="search" [placeholder]="searchPlaceholder()" [value]="search()" (input)="search.set(value($event))" />
+    </div>
+    <button
+      type="button"
+      class="lt-toggle"
+      [attr.aria-expanded]="filtersOpen()"
+      [attr.aria-controls]="id + '-panel'"
+      (click)="filtersOpen.set(!filtersOpen())"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      <span>Filtres</span>
+      @if (activeFilters()) {
+        <span class="lt-badge">{{ activeFilters() }}<span class="sr-only"> actif{{ activeFilters() > 1 ? 's' : '' }}</span></span>
+      }
+    </button>
+  </div>
+
+  <div class="lt-panel" [class.is-open]="filtersOpen()" [id]="id + '-panel'">
+    @if (statusOptions().length) {
+      <div class="lt-segmented" role="group" [attr.aria-label]="statusLabel()">
+        @for (option of statusOptions(); track option.value) {
+          <button type="button" [attr.aria-pressed]="status() === option.value" (click)="status.set(option.value)">{{ option.label }}</button>
+        }
+      </div>
+    }
+
+    @if (establishments().length > 1) {
+      <div class="lt-field">
+        <label [for]="id + '-establishment'">Établissement</label>
+        <select [id]="id + '-establishment'" [value]="establishment()" (change)="establishment.set(value($event))">
+          <option value="">Tous les établissements</option>
+          @for (name of establishments(); track name) {
+            <option [value]="name" [selected]="name === establishment()">{{ name }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (showDates()) {
+      <div class="lt-field lt-dates">
+        <span class="lt-field-label" [id]="id + '-period'">Période</span>
+        <div class="lt-date-inputs" role="group" [attr.aria-labelledby]="id + '-period'">
+          <label class="sr-only" [for]="id + '-from'">Du</label>
+          <input [id]="id + '-from'" type="date" [value]="dateFrom()" (change)="dateFrom.set(value($event))" />
+          <span aria-hidden="true">→</span>
+          <label class="sr-only" [for]="id + '-to'">Au</label>
+          <input [id]="id + '-to'" type="date" [value]="dateTo()" (change)="dateTo.set(value($event))" />
+        </div>
+      </div>
+    }
+
+    <div class="lt-field">
+      <label [for]="id + '-sort'">Trier</label>
+      <select [id]="id + '-sort'" [value]="sort()" (change)="sort.set($any(value($event)))">
+        <option value="recent" [selected]="sort() === 'recent'">Plus récents d'abord</option>
+        <option value="oldest" [selected]="sort() === 'oldest'">Plus anciens d'abord</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="lt-foot">
+    <p class="lt-count" aria-live="polite">{{ count() }} {{ noun() }}</p>
+    @if (hasActive()) {
+      <button type="button" class="lt-reset" (click)="reset()">Réinitialiser</button>
+    }
+  </div>
+</div>

@@ -10,13 +10,20 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  color: var(--color-surface);
+  border: var(--bell-border, none);
+  background-color: var(--bell-background, transparent);
+  color: var(--bell-color, var(--color-surface));
   flex-shrink: 0;
   transition: background-color 0.2s ease;
 }
 
 .notification-bell:hover {
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: var(--bell-hover, rgba(255, 255, 255, 0.12));
+}
+
+.notification-bell:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: 2px;
 }
 
 .notification-bell-badge {

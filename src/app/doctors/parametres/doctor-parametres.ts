@@ -1,4 +1,4 @@
-import { Component, DestroyRef, PLATFORM_ID, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { form, required, email, pattern, validate, FormField, FormRoot } from '@angular/forms/signals';
@@ -11,7 +11,8 @@ import { DoctorUpdatePayload } from '../doctor.models';
 import { extractErrorMessage } from '../shared/api-resource';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
-type ProfileFormModel = DoctorUpdatePayload;
+// Dans le formulaire, un champ vide vaut '' ; il est converti en null à l'envoi.
+type ProfileFormModel = Omit<DoctorUpdatePayload, 'DoctorPhone2'> & { DoctorPhone2: string };
 type FieldName = keyof ProfileFormModel;
 
 const FIELD_NAMES: FieldName[] = [
@@ -61,6 +62,8 @@ export class DoctorParametres {
   private readonly profileService = inject(DoctorProfileService);
   readonly commissionsEnabled = inject(SaasAccountService).commissionsEnabled;
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
+  private readonly errorBanner = viewChild<ElementRef<HTMLElement>>('errorBanner');
 
   readonly profile = this.profileService.profile;
   readonly loading = this.profileService.loading;
@@ -156,7 +159,7 @@ export class DoctorParametres {
   submit(): void {
     if (this.profileForm().invalid()) {
       FIELD_NAMES.forEach((name) => this.profileForm[name]().markAsTouched());
-      this.errorMessage.set('Merci de corriger les champs signalés.');
+      this.showError('Merci de corriger les champs signalés.');
       this.successMessage.set(null);
       return;
     }
@@ -170,7 +173,11 @@ export class DoctorParametres {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.profileService.updateAndConfirm(doctorId, this.model()).subscribe({
+    const model = this.model();
+    // Un numéro vide est envoyé à null : en base, deux numéros vides entreraient en conflit.
+    const payload = { ...model, DoctorPhone: model.DoctorPhone.trim(), DoctorPhone2: model.DoctorPhone2.trim() || null };
+
+    this.profileService.updateAndConfirm(doctorId, payload).subscribe({
       next: () => {
         this.submitting.set(false);
         this.justConfirmed.set(!wasConfirmed);
@@ -180,7 +187,7 @@ export class DoctorParametres {
       },
       error: (err: unknown) => {
         this.submitting.set(false);
-        this.errorMessage.set(extractErrorMessage(err, 'Échec de la mise à jour de vos informations.'));
+        this.showError(extractErrorMessage(err, 'Échec de la mise à jour de vos informations.'));
       },
     });
   }
@@ -198,5 +205,11 @@ export class DoctorParametres {
       },
       error: () => this.signatureState.set('none'),
     });
+  }
+
+  /** Affiche l'erreur et y amène le focus : le bandeau est en haut de page, loin du bouton d'envoi. */
+  private showError(message: string): void {
+    this.errorMessage.set(message);
+    afterNextRender(() => this.errorBanner()?.nativeElement.focus(), { injector: this.injector });
   }
 }

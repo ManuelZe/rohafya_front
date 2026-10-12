@@ -11,6 +11,8 @@ export interface SendResult {
   patient_federation_id: string;
   envoi_email: boolean;
   sended_at: string;
+  /** Établissement qui a produit le résultat (listes des partages). */
+  establishment?: string | null;
 }
 
 export interface SendResultCreatePayload {

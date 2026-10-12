@@ -1,0 +1,226 @@
+:host {
+  display: block;
+}
+
+.lt *,
+.lt *::before,
+.lt *::after {
+  box-sizing: border-box;
+}
+
+.lt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  background: #ffffff;
+}
+
+.lt-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lt-search {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.lt-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  color: #6b7280;
+  transform: translateY(-50%);
+}
+
+.lt-search input,
+.lt-field select,
+.lt-date-inputs input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.lt-search input {
+  padding-left: 2.25rem;
+}
+
+.lt-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lt-toggle[aria-expanded='true'] {
+  border-color: var(--color-primary, #047857);
+  color: var(--color-primary, #047857);
+}
+
+.lt-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--color-primary, #047857);
+  color: #ffffff;
+  font-size: 0.75rem;
+}
+
+.lt-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 1rem;
+}
+
+.lt-segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.7rem;
+  background: #f1f5f9;
+}
+
+.lt-segmented button {
+  min-height: 38px;
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #374151;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lt-segmented button[aria-pressed='true'] {
+  background: #ffffff;
+  color: var(--color-primary, #047857);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.lt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 11rem;
+}
+
+.lt-field label,
+.lt-field-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.lt-date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6b7280;
+}
+
+.lt-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lt-count {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.lt-reset {
+  min-height: 36px;
+  padding: 0 0.6rem;
+  border: none;
+  background: transparent;
+  color: var(--color-primary, #047857);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.lt button:focus-visible,
+.lt input:focus-visible,
+.lt select:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Téléphone : recherche + bouton « Filtres » ; les filtres se déplient sous la recherche. */
+@media (max-width: 640px) {
+  .lt {
+    padding: 0.75rem;
+  }
+
+  .lt-toggle {
+    display: inline-flex;
+  }
+
+  .lt-panel {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lt-panel.is-open {
+    display: flex;
+  }
+
+  .lt-segmented {
+    display: flex;
+  }
+
+  .lt-segmented button {
+    flex: 1;
+  }
+
+  .lt-field {
+    min-width: 0;
+  }
+
+  .lt-date-inputs input {
+    min-width: 0;
+  }
+}

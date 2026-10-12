@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal, OnDestroy, OnInit, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, OnDestroy, OnInit, AfterViewInit, ElementRef } from '@angular/core';
 import { form, required, maxLength, FormField, FormRoot } from '@angular/forms/signals';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -8,9 +8,14 @@ import { PrescriptionCreatePayload, PrescriptionWithImage } from './prescription
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { extractErrorMessage } from '../../shared/api-error';
 import { EstablishmentsService } from '../../shared/submission/establishments.service';
 import { SubmissionInfoView } from '../../shared/submission/submission-info';
 import { SubmissionAudience, formatFcfa } from '../../shared/submission/submission.models';
+import { ListToolbar } from '../../shared/list/list-toolbar';
+import { ShowMore } from '../../shared/list/show-more';
+import { ListWindow } from '../../shared/list/list-window';
+import { FilterOption, SortOrder, distinctValues, matchesText, sortByDate } from '../../shared/list/list-filters';
 
 interface PrescriptionFormModel {
   /** Établissement destinataire (id, sous forme de texte pour la liste déroulante). */
@@ -36,7 +41,7 @@ function emptyFormModel(): PrescriptionFormModel {
 
 @Component({
   selector: 'app-prescriptions',
-  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView],
+  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView, ListToolbar, ShowMore],
   templateUrl: './prescriptions.html',
   styleUrl: './prescriptions.css',
   host: {
@@ -59,6 +64,35 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
   );
 
   prescriptions = signal<PrescriptionWithImage[]>([]);
+
+  readonly statusOptions: FilterOption[] = [
+    { value: '', label: 'Toutes' },
+    { value: 'recue', label: 'Reçues' },
+    { value: 'en_cours', label: 'En cours' },
+    { value: 'traitee', label: 'Traitées' },
+    { value: 'refusee', label: 'Refusées' },
+  ];
+  readonly search = signal('');
+  readonly statusFilter = signal('');
+  readonly establishmentFilter = signal('');
+  readonly sort = signal<SortOrder>('recent');
+  readonly establishmentNames = computed(() => distinctValues(this.prescriptions().map((p) => p.submission?.establishment)));
+
+  readonly filteredPrescriptions = computed(() => {
+    const term = this.search();
+    const status = this.statusFilter();
+    const establishment = this.establishmentFilter();
+    const items = this.prescriptions().filter(
+      (p) =>
+        (!status || p.submission?.status === status) &&
+        (!establishment || p.submission?.establishment === establishment) &&
+        matchesText(term, p.Sequence, p.NameDoctor, p.OrdreDoctor, p.Description, p.submission?.establishment, p.submission?.patient_name)
+    );
+    return sortByDate(items, (p) => p.Create_date, this.sort());
+  });
+
+  /** 10 prescriptions, puis « Afficher plus » ; le chargement des images n'y touche pas. */
+  readonly list = new ListWindow(this.filteredPrescriptions, 10, () => [this.search(), this.statusFilter(), this.establishmentFilter(), this.sort()]);
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
@@ -92,6 +126,13 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
 
   // Observer pour le chargement paresseux des images
   private observer: IntersectionObserver | null = null;
+
+  constructor() {
+    // Les cartes affichées après un filtre ou « Afficher plus » chargent aussi leur image à l'approche.
+    effect(() => {
+      if (this.list.visible().length) this.observeCards();
+    });
+  }
 
   ngOnInit(): void {
     this.establishments.load();
@@ -289,7 +330,7 @@ export class Prescriptions implements OnInit, OnDestroy, AfterViewInit {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.errorMessage.set(err?.error?.message ?? "Échec de l'envoi de la prescription.");
+        this.errorMessage.set(extractErrorMessage(err, "Échec de l'envoi de la prescription."));
         console.error(err);
       },
     });

@@ -5,8 +5,9 @@
   --doc-border: #e2e8f0;
   --doc-surface: #ffffff;
   --doc-soft: #f4f6fa;
-  --doc-primary: #047857;
-  --doc-primary-soft: #ecfdf5;
+  /* Console d'établissement : couleur choisie dans ses paramètres (posée par la console). */
+  --doc-primary: var(--tenant-primary, #047857);
+  --doc-primary-soft: var(--tenant-primary-soft, #ecfdf5);
   --doc-success: #137a36;
   --doc-danger: #b91c1c;
   --series-prescription: #0c4562;
@@ -91,7 +92,7 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #065f46;
+  background: var(--tenant-primary-hover, #065f46);
 }
 
 .btn-ghost {

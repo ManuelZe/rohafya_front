@@ -12,6 +12,7 @@ const MENU: ConsoleMenuLink[] = [
   { label: 'Rattachements', icon: 'link', link: '/admin/rattachements' },
   { label: 'QR codes', icon: 'qrcode', link: '/admin/qr-codes' },
   { label: 'Médecins', icon: 'user-plus', link: '/admin/medecins' },
+  { label: 'Notifications', icon: 'bell', link: '/admin/notifications' },
   { label: 'Données reçues', icon: 'database', link: '/admin/donnees' },
   { label: 'Imports PDF', icon: 'file-pdf', link: '/admin/imports-pdf', disabled: !PDF_IMPORT_ENABLED, hint: PDF_IMPORT_ENABLED ? undefined : 'Bientôt' },
   { label: 'Intégration', icon: 'server', link: '/admin/integration' },
@@ -32,6 +33,7 @@ const MENU: ConsoleMenuLink[] = [
       [tenants]="tenantOptions()"
       [selectedTenantId]="context.tenantId()"
       [switchLink]="switchLink()"
+      [accent]="context.tenant()?.primary_color"
       (tenantChange)="context.select($event)"
       (logoutRequested)="logout()"
     />

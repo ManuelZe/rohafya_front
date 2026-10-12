@@ -66,11 +66,14 @@ const ROUTES: [string, Handler][] = [
 
   // --- Profil patient -----------------------------------------------
   ['GET patient/factures/products/:ref', ({ params }) => db().patient.facture_products[params[0]] ?? fail(404, 'Aucune facture trouvée pour cette référence.')],
-  ['GET patient/factures/:id', () => db().patient.factures],
+  // Comme les factures reçues des établissements : le détail se demande par la référence.
+  ['GET patient/factures/:id', () => db().patient.factures.map((f) => ({ ...f, details_ref: f.reference }))],
   ['GET patient/:id', () => db().patient.profile],
   ['PUT patient/update/:id', ({ req }) => {
-    Object.assign(db().patient.profile, req.body, { patient_is_confirmed: true, ModifiedAt: now() });
-    return { message: 'Informations mises à jour.' };
+    const body = req.body as Record<string, string | null>;
+    const phones = checkPhones(body['PatientPhone'], body['PatientPhone2'], []);
+    Object.assign(db().patient.profile, body, { PatientPhone: phones[0], PatientPhone2: phones[1], patient_is_confirmed: true, ModifiedAt: now() });
+    return { message: 'Vos informations ont été mises à jour.', data: db().patient.profile };
   }],
 
   // --- Examens --------------------------------------------------------
@@ -170,8 +173,8 @@ const ROUTES: [string, Handler][] = [
     }
     return { message: 'Résultat partagé avec succès.', data: result };
   }],
-  ['GET send_result/patient/:id', ({ params }) => db().sendResults.filter((r) => r.patient_id === Number(params[0]))],
-  ['GET send_result/doctor/:id', ({ params }) => db().sendResults.filter((r) => r.doctor_id === Number(params[0]))],
+  ['GET send_result/patient/:id', ({ params }) => withEstablishment(db().sendResults.filter((r) => r.patient_id === Number(params[0])))],
+  ['GET send_result/doctor/:id', ({ params }) => withEstablishment(db().sendResults.filter((r) => r.doctor_id === Number(params[0])))],
   ['PUT send_result/modify/:id', ({ req, params }) => Object.assign(find(db().sendResults, Number(params[0])), req.body)],
   ['DELETE send_result/del/:id', ({ params }) => {
     remove(db().sendResults, Number(params[0]));
@@ -191,9 +194,13 @@ const ROUTES: [string, Handler][] = [
     db().doctor.directory.find((d) => d.DoctorFederationID?.toUpperCase() === params[0].trim().toUpperCase()) ??
     fail(404, 'Aucun médecin trouvé pour ce matricule.')],
   ['GET doctors/informations/:id', ({ params }) => doctorProfile(Number(params[0]))],
-  ['PUT doctors/update/:id', ({ req, params }) => ({
-    Doctor: Object.assign(doctorProfile(Number(params[0])), req.body, { ModifiedAt: now() }),
-  })],
+  ['PUT doctors/update/:id', ({ req, params }) => {
+    const doctor = doctorProfile(Number(params[0]));
+    const body = req.body as Record<string, string | null>;
+    const others = db().doctor.directory.filter((d) => d.id !== doctor.id).flatMap((d) => [d.DoctorPhone, d.DoctorPhone2]);
+    const phones = checkPhones(body['DoctorPhone'] ?? doctor.DoctorPhone, body['DoctorPhone2'] ?? null, others);
+    return { Doctor: Object.assign(doctor, body, { DoctorPhone: phones[0], DoctorPhone2: phones[1], ModifiedAt: now() }) };
+  }],
   ['PUT doctors/confirm/:id', ({ params }) => ({
     Doctor: Object.assign(doctorProfile(Number(params[0])), { doctor_is_confirmed: true }),
   })],
@@ -258,26 +265,28 @@ const ROUTES: [string, Handler][] = [
   ['GET devis/produits/recherche', ({ req }) => searchProducts(req.params.get('q') ?? '', Number(req.params.get('limit') ?? 20))],
   ['POST devis/calculer/:id', ({ req, params }) => computeDevis(Number(params[0]), (req.body as { produits: { product_id: number; quantity: number }[] }).produits)],
 
-  // --- Notifications --------------------------------------------------
-  ['GET notifications/user/:userId', ({ params }) => notificationsOf(Number(params[0]))],
-  ['GET notifications/type/:typeId', ({ params, user }) => notificationsOf(user.id).filter((n) => n.types === Number(params[0]))],
-  ['GET notifications/etiquette/:id', () => []],
-  ['PUT notifications/mark_read/:id', ({ params }) => {
-    Object.assign(find(db().notifications, Number(params[0])), { is_read: true, read_at: now() });
-    return { message: 'Notification lue.' };
+  // --- Notifications (de l'utilisateur connecté) --------------------------
+  ['GET saas/me/notifications', ({ user }) =>
+    [...notificationsOf(user.id)].sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? '') || b.id - a.id)],
+  ['PUT saas/me/notifications/read', ({ user }) => {
+    const mine = db().notifications.filter((n) => n.user_id === user.id && !n.is_read);
+    mine.forEach((n) => Object.assign(n, { is_read: true, read_at: now() }));
+    return { message: `${mine.length} notification(s) marquée(s) comme lue(s).`, count: mine.length };
   }],
-  ['DELETE notifications/user/del/:id', ({ params }) => {
+  ['PUT saas/me/notifications/:id/read', ({ params, user }) => {
+    const notification = notificationsOf(user.id).find((n) => n.id === Number(params[0])) ?? fail(404, 'Notification introuvable.');
+    if (notification.user_id === user.id) Object.assign(notification, { is_read: true, read_at: now() });
+    return notification;
+  }],
+  ['DELETE saas/me/notifications/:id', ({ params, user }) => {
+    if (!notificationsOf(user.id).some((n) => n.id === Number(params[0]))) fail(404, 'Notification introuvable.');
     remove(db().notifications, Number(params[0]));
-    return { message: 'Notification supprimée.' };
+    return { message: 'Notification supprimée de votre liste.' };
   }],
-  ['DELETE notifications/user/:userId/del_all', ({ params }) => {
-    const userId = Number(params[0]);
-    db().notifications = db().notifications.filter((n) => n.user_id !== userId && !n.all_users);
-    return { message: 'Notifications supprimées.' };
-  }],
-  ['DELETE notifications/user/:userId/del/:id', ({ params }) => {
-    remove(db().notifications, Number(params[1]));
-    return { message: 'Notification supprimée.' };
+  ['DELETE saas/me/notifications', ({ user }) => {
+    const before = db().notifications.length;
+    db().notifications = db().notifications.filter((n) => n.user_id !== user.id && !n.all_users);
+    return { message: 'Notifications supprimées.', count: before - db().notifications.length };
   }],
 
   // --- Actualités -----------------------------------------------------
@@ -399,12 +408,31 @@ function sharedExam(type: ExamType, code: string, federationId: string): { summa
   return { summary: withEstablishment([exam]), details: examDetails(exam, details as ExamResultDetail[] | undefined) };
 }
 
+/** Mêmes règles que l'API : principal obligatoire, deux numéros distincts, aucun numéro déjà pris par un autre compte. */
+function checkPhones(phone: string | null | undefined, phone2: string | null | undefined, others: (string | null | undefined)[]): [string, string | null] {
+  const key = (value: string) => value.replace(/\D/g, '').replace(/^(00237|237)(?=\d{9})/, '');
+  const main = phone?.trim() || fail(400, 'Le numéro de téléphone principal est obligatoire.');
+  const second = phone2?.trim() || null;
+  if (second && key(second) === key(main)) fail(400, 'Le téléphone principal et le téléphone secondaire doivent être différents.');
+  const taken = new Set(others.filter((o): o is string => !!o?.trim()).map(key));
+  const clash = [main, second].find((p) => p && taken.has(key(p)));
+  if (clash) fail(409, `Le numéro ${clash} est déjà utilisé par un autre compte. Indiquez un autre numéro ou contactez l'établissement.`);
+  return [main, second];
+}
+
 function doctorProfile(id: number): DoctorProfile {
   return db().doctor.directory.find((d) => d.id === id) ?? fail(404, 'Aucun Docteur trouvé avec cet ID.');
 }
 
 function notificationsOf(userId: number): AppNotification[] {
-  return db().notifications.filter((n) => n.user_id === userId || n.all_users);
+  // Les annonces « à tous » figurent dans les données patient et médecin : une seule fois chacune.
+  const seen = new Set<string>();
+  return db().notifications.filter((n) => {
+    if (n.user_id === userId) return true;
+    if (!n.all_users) return false;
+    const key = `${n.title}|${n.created_at}`;
+    return !seen.has(key) && !!seen.add(key);
+  });
 }
 
 function prescriptionLabel(id: number): string {

@@ -1,7 +1,8 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, of, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { apiMessage, extractErrorMessage } from '../../shared/api-error';
 import { ExamenImagerie } from '../patients.models';
 
 export interface MoreInfoResult {
@@ -30,11 +31,11 @@ export class ImagerieService {
         if (Array.isArray(res)) {
           return { blocked: false, items: res as MoreInfoResult['items'] };
         }
-        const message = (res as Record<string, string>)?.['Message'] ?? 'Ce résultat n\'est plus accessible.';
+        const message = apiMessage(res) ?? "Ce résultat n'est plus accessible.";
         return { blocked: true, message, items: [] };
       }),
-      catchError((err: HttpErrorResponse) => {
-        const message = (err.error as { message?: string } | null)?.message ?? 'Impossible de récupérer les informations complémentaires.';
+      catchError((err: unknown) => {
+        const message = extractErrorMessage(err, 'Impossible de récupérer les informations complémentaires.');
         return of({ blocked: true, message, items: [] });
       })
     );

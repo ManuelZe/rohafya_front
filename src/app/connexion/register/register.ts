@@ -2,7 +2,7 @@ import { Component, afterNextRender, inject, signal } from '@angular/core';
 import { form, required, minLength, email as emailValidator, FormField, FormRoot } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth-service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { extractErrorMessage } from '../../shared/api-error';
 import { RegistrationFormData } from '../register.model';
 import { EstablishmentsService } from '../../shared/submission/establishments.service';
 
@@ -57,9 +57,8 @@ export class Register {
         void this.router.navigate(['/connexion']);
         this.model.set({ tenant_id: '', first_name: '', last_name: '', email: '', message: '' });
       },
-      error: (err: HttpErrorResponse) => {
-        const message = (err.error as { message?: string } | null)?.message;
-        this.errorMessage.set(message || 'Une erreur est survenue. Réessayez plus tard.');
+      error: (err: unknown) => {
+        this.errorMessage.set(extractErrorMessage(err, 'Une erreur est survenue. Réessayez plus tard.'));
       }
     });
   }

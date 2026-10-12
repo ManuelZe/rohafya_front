@@ -22,9 +22,14 @@ import { AuthService } from '../../connexion/auth-service';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { extractErrorMessage } from '../../shared/api-error';
 import { EstablishmentsService } from '../../shared/submission/establishments.service';
 import { SubmissionInfoView } from '../../shared/submission/submission-info';
 import { SubmissionAudience } from '../../shared/submission/submission.models';
+import { ListToolbar } from '../../shared/list/list-toolbar';
+import { ShowMore } from '../../shared/list/show-more';
+import { ListWindow } from '../../shared/list/list-window';
+import { FilterOption, SortOrder, distinctValues, matchesText, sortByDate } from '../../shared/list/list-filters';
 
 interface SavePatientFormModel {
   /** Établissement destinataire (id, sous forme de texte pour la liste déroulante). */
@@ -42,7 +47,7 @@ const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES D
 
 @Component({
   selector: 'app-enregistrement',
-  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView],
+  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView, ListToolbar, ShowMore],
   templateUrl: './enregistrement.html',
   styleUrl: './enregistrement.css',
   host: {
@@ -81,6 +86,35 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
   });
 
   saves = signal<SavePatientWithImage[]>([]);
+
+  readonly statusOptions: FilterOption[] = [
+    { value: '', label: 'Tous' },
+    { value: 'recue', label: 'Reçus' },
+    { value: 'en_cours', label: 'En cours' },
+    { value: 'traitee', label: 'Traités' },
+    { value: 'refusee', label: 'Refusés' },
+  ];
+  readonly search = signal('');
+  readonly statusFilter = signal('');
+  readonly establishmentFilter = signal('');
+  readonly sort = signal<SortOrder>('recent');
+  readonly establishmentNames = computed(() => distinctValues(this.saves().map((s) => s.submission?.establishment)));
+
+  readonly filteredSaves = computed(() => {
+    const term = this.search();
+    const status = this.statusFilter();
+    const establishment = this.establishmentFilter();
+    const items = this.saves().filter(
+      (s) =>
+        (!status || s.submission?.status === status) &&
+        (!establishment || s.submission?.establishment === establishment) &&
+        matchesText(term, s.nom, s.prenom, s.description, s.submission?.establishment)
+    );
+    return sortByDate(items, (s) => s.Create_date, this.sort());
+  });
+
+  /** 10 pré-enregistrements, puis « Afficher plus » ; le chargement des images n'y touche pas. */
+  readonly list = new ListWindow(this.filteredSaves, 10, () => [this.search(), this.statusFilter(), this.establishmentFilter(), this.sort()]);
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
@@ -107,6 +141,10 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
   private observer: IntersectionObserver | null = null;
 
   constructor() {
+    // Les cartes affichées après un filtre ou « Afficher plus » chargent aussi leur image à l'approche.
+    effect(() => {
+      if (this.list.visible().length) untracked(() => this.observeCards());
+    });
     effect(() => {
       if (!this.accessDenied()) {
         untracked(() => {
@@ -301,7 +339,7 @@ export class Enregistrement implements AfterViewInit, OnDestroy {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.errorMessage.set(err?.error?.message ?? "Échec de l'envoi du pré-enregistrement.");
+        this.errorMessage.set(extractErrorMessage(err, "Échec de l'envoi du pré-enregistrement."));
         console.error(err);
       },
     });

@@ -36,10 +36,18 @@
       </div>
 
       <nav class="hero-actions" aria-label="Actions rapides">
-        <a pButton routerLink="/patients/resultats" class="action">
-          <svg [pIcon]="'share-alt'" [size]="16" aria-hidden="true"></svg>
-          <span pButtonLabel>Partager un résultat</span>
-        </a>
+        @if (canShare()) {
+          <a pButton routerLink="/patients/resultats" class="action">
+            <svg [pIcon]="'share-alt'" [size]="16" aria-hidden="true"></svg>
+            <span pButtonLabel>Partager un résultat</span>
+          </a>
+        } @else {
+          <button pButton type="button" class="action" disabled aria-describedby="share-blocked-note">
+            <svg [pIcon]="'lock'" [size]="16" aria-hidden="true"></svg>
+            <span pButtonLabel>Partager un résultat</span>
+          </button>
+          <p id="share-blocked-note" class="share-blocked-note">{{ shareMessage() }}</p>
+        }
         <a pButton routerLink="/patients/requests" severity="secondary" [outlined]="true" class="action">
           <svg [pIcon]="'send'" [size]="16" aria-hidden="true"></svg>
           <span pButtonLabel>Nouvelle requête</span>

@@ -16,8 +16,19 @@ const SPACE_LABELS: Record<DemoSpace, string> = {
   selector: 'app-demo-banner',
   template: `
     @if (demoSession.space(); as current) {
-      <aside class="demo-banner" aria-label="Mode démonstration : données fictives" [attr.aria-busy]="busy()">
+      <aside class="demo-banner" [class.is-open]="open()" aria-label="Mode démonstration : données fictives" [attr.aria-busy]="busy()">
         <span class="demo-banner__badge">DÉMO</span>
+        <!-- Téléphone : pastille repliée pour ne pas masquer le contenu. -->
+        <button
+          type="button"
+          class="demo-banner__toggle"
+          [attr.aria-expanded]="open()"
+          aria-controls="demo-banner-controls"
+          (click)="open.set(!open())"
+        >
+          {{ open() ? 'Masquer' : labels[current] }}
+        </button>
+        <span class="demo-banner__controls" id="demo-banner-controls">
         <label class="demo-banner__label" for="demo-profile">Profil</label>
         <select id="demo-profile" class="demo-banner__select" [disabled]="busy()" (change)="switchTo($event)">
           @for (space of spaces; track space) {
@@ -26,6 +37,7 @@ const SPACE_LABELS: Record<DemoSpace, string> = {
         </select>
         <button type="button" class="demo-banner__ghost" [disabled]="busy()" (click)="reset()">Réinitialiser</button>
         <button type="button" class="demo-banner__quit" [disabled]="busy()" (click)="stop()">Quitter la démo</button>
+        </span>
       </aside>
     }
   `,
@@ -117,13 +129,56 @@ const SPACE_LABELS: Record<DemoSpace, string> = {
       outline-offset: 2px;
     }
 
+    .demo-banner__controls {
+      display: contents;
+    }
+
+    .demo-banner__toggle {
+      display: none;
+    }
+
     @media (max-width: 640px) {
       .demo-banner {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
+        right: 0.75rem;
         bottom: 0.75rem;
+        padding: 0.3rem 0.35rem 0.3rem 0.5rem;
+      }
+
+      .demo-banner__toggle {
+        display: inline-flex;
+        min-height: 36px;
+        align-items: center;
+        padding: 0 0.7rem;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 999px;
+        background: transparent;
+        color: #ffffff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .demo-banner__toggle:focus-visible {
+        outline: 2px solid var(--rohafya-green-400);
+        outline-offset: 2px;
+      }
+
+      .demo-banner__controls {
+        display: none;
+      }
+
+      .demo-banner.is-open {
+        left: 0.75rem;
         border-radius: 16px;
+      }
+
+      .demo-banner.is-open .demo-banner__controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
       }
     }
   `,
@@ -133,6 +188,8 @@ export class DemoBanner {
   protected readonly spaces = DEMO_SPACES;
   protected readonly labels = SPACE_LABELS;
   protected readonly busy = signal(false);
+  /** Téléphone : bandeau replié par défaut. */
+  protected readonly open = signal(false);
 
   protected async switchTo(event: Event): Promise<void> {
     const space = (event.target as HTMLSelectElement).value as DemoSpace;

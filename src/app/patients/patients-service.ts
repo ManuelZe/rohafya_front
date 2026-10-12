@@ -1,8 +1,9 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Subscription, TimeoutError, timeout } from 'rxjs';
+import { Subscription, timeout } from 'rxjs';
 import { FacturesResponseApi, ExamensLab, ExamenImagerie, ExplorationLab, Prescriptions, Requetes } from './patients.models';
 import { environment } from '../../environments/environment';
+import { extractErrorMessage } from '../shared/api-error';
 
 interface ResourceState<T> {
   data: T[] | null;
@@ -73,14 +74,7 @@ export class PatientsService {
   }
 
   private extractErrorMessage(err: unknown): string {
-    if (err instanceof TimeoutError) {
-      return 'Le serveur met trop de temps à répondre. Réessayez plus tard.';
-    }
-    if (err instanceof HttpErrorResponse) {
-      const backendMessage = (err.error as { message?: string } | null)?.message;
-      return backendMessage ?? 'Impossible de récupérer les éléments. Réessayez plus tard.';
-    }
-    return 'Impossible de récupérer les éléments. Réessayez plus tard.';
+    return extractErrorMessage(err);
   }
 
   // ===================== EXAMENS LABORATOIRES =====================

@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { DetailsFactures } from './factures.models';
 import { environment } from '../../../environments/environment';
+import { extractErrorMessage } from '../../shared/api-error';
 
 interface ResourceState<T> {
   data: T | null;
@@ -9,10 +10,20 @@ interface ResourceState<T> {
   error: string | null;
 }
 
+/**
+ * URL des produits d'une facture : la référence est transmise telle quelle (FAC-CLB-5002, FAC/2026/0105…),
+ * chaque segment encodé, sans double barre oblique après l'adresse de l'API.
+ */
+export function invoiceDetailsUrl(apiUrl: string, reference: string): string {
+  const base = apiUrl.endsWith('/') ? apiUrl : `${apiUrl}/`;
+  const ref = reference.trim().split('/').filter(Boolean).map(encodeURIComponent).join('/');
+  return `${base}patient/factures/products/${ref}`;
+}
+
 @Injectable({ providedIn: 'root' })
 export class FacturesService {
   private http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;;
+  private readonly baseUrl = environment.apiUrl;
 
   readonly detailsState = signal<ResourceState<DetailsFactures>>({
     data: null,
@@ -28,7 +39,7 @@ export class FacturesService {
     this.detailsState.set({ data: null, loading: true, error: null });
 
     this.http
-      .get<DetailsFactures>(`${this.baseUrl}/patient/factures/products/${reference}`)
+      .get<DetailsFactures>(invoiceDetailsUrl(this.baseUrl, reference))
       .subscribe({
         next: (data) => {
           this.detailsState.set({ data, loading: false, error: null });
@@ -49,9 +60,6 @@ export class FacturesService {
   }
 
   private extractErrorMessage(err: HttpErrorResponse): string {
-    return (
-      (err.error as { message?: string })?.message ??
-      'Aucune facture trouvée pour cette référence.'
-    );
+    return extractErrorMessage(err, 'Aucune facture trouvée pour cette référence.');
   }
 }

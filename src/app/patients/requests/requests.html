@@ -25,19 +25,20 @@
     <!-- ===================== LISTE DES REQUÊTES ===================== -->
     @if (activeTab() === 'list') {
       <section class="list-section" aria-label="Liste des requêtes">
-        <div class="list-toolbar">
-          <p-iconfield class="search-box">
-            <p-inputicon class="pi pi-search" />
-            <input
-              type="text"
-              pInputText
-              placeholder="Rechercher par nom, email ou message..."
-              [value]="searchTerm()"
-              (input)="filterMobile($event.target.value)"
-            />
-          </p-iconfield>
-          <span class="results-count">{{ filteredRequests().length }} requête(s)</span>
-        </div>
+        <app-list-toolbar
+          class="requests-toolbar"
+          [(search)]="searchTerm"
+          searchPlaceholder="Message, établissement, n°…"
+          searchLabel="Rechercher une requête"
+          [statusOptions]="statusOptions"
+          [(status)]="statusFilter"
+          statusLabel="État de la requête"
+          [establishments]="requestEstablishments()"
+          [(establishment)]="establishmentFilter"
+          [(sort)]="sort"
+          [count]="filteredRequests().length"
+          [noun]="filteredRequests().length > 1 ? 'requêtes' : 'requête'"
+        />
 
         <!-- ===== Vue tableau (desktop / tablette large) ===== -->
         <div class="table-wrapper table-desktop">
@@ -149,51 +150,31 @@
               <button pButton icon="pi pi-plus" [outlined]="true" (click)="setTab('add')">Créer une requête</button>
             </div>
           } @else {
-            @for (req of filteredRequests(); track req.id) {
+            @for (req of mobileList.visible(); track req.id) {
               <p-card styleClass="request-card" [class.expanded]="expandedCardId() === req.id">
-                <div
+                <button
+                  type="button"
                   class="request-card-header"
-                  role="button"
-                  tabindex="0"
                   [attr.aria-expanded]="expandedCardId() === req.id"
+                  [attr.aria-controls]="'request-details-' + req.id"
                   (click)="toggleCard(req.id)"
-                  (keydown.enter)="toggleCard(req.id)"
-                  (keydown.space)="toggleCard(req.id)"
                 >
-                  <div class="request-card-identity">
-                    <span class="id-cell">#{{ req.id }}</span>
-                    <span class="cell-primary">{{ req.first_name }} {{ req.last_name }}</span>
-                  </div>
-                  <div class="request-card-summary">
-                    <span class="request-card-date">{{ req.CreatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  <span class="request-card-identity">
+                    <span class="id-cell">#{{ req.id }} · {{ req.CreatedAt | date:'dd/MM/yyyy' }}</span>
+                    <span class="cell-primary">{{ req.submission?.establishment || 'Établissement non précisé' }}</span>
+                  </span>
+                  <span class="request-card-summary">
                     @if (req.submission) {
                       <p-tag [severity]="statusSeverity[req.submission.status]" [value]="req.submission.status_label" />
                     } @else {
                       <app-status-tag kind="requete" [status]="req.valide ? 'true' : 'false'" />
                     }
-                    
-                    <button 
-                      pButton 
-                      iconOnly 
-                      [severity]="'danger'"
-                      [text]="true"
-                      [rounded]="true"
-                      [disabled]="deletingId() !== null"
-                      pTooltip="Supprimer cette requête"
-                      tooltipPosition="top"
-                      (click)="confirmDelete(req)">
-                      @if (deletingId() === req.id) {
-                        <svg data-p-icon="spinner" class="animate-spin"></svg>
-                      } @else {
-                        <svg data-p-icon="trash" size="20"></svg>
-                      }
-                    </button>
-                    <i class="pi pi-chevron-down expand-icon" [class.rotated]="expandedCardId() === req.id"></i>
-                  </div>
-                </div>
+                    <i class="pi pi-chevron-down expand-icon" [class.rotated]="expandedCardId() === req.id" aria-hidden="true"></i>
+                  </span>
+                </button>
 
                 @if (expandedCardId() === req.id) {
-                  <div class="request-card-details">
+                  <div class="request-card-details" [id]="'request-details-' + req.id">
                     <div class="detail-row">
                       <span class="detail-label">Établissement</span>
                       <app-submission-info [submission]="req.submission" />
@@ -244,6 +225,7 @@
                 }
               </p-card>
             }
+            <app-show-more [list]="mobileList" noun="requêtes" />
           }
         </div>
       </section>

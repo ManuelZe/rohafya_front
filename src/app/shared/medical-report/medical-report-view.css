@@ -88,8 +88,87 @@
   cursor: pointer;
 }
 
-.mr-print:hover {
+.mr-print:hover:not(:disabled) {
   background: var(--rohafya-navy-50, #f2f7f9);
+}
+
+.mr-print:disabled {
+  border-color: #9ca3af;
+  color: #4b5563;
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.mr-pdf:not(:disabled) {
+  background: var(--rohafya-navy, #0c4562);
+  color: #ffffff;
+}
+
+.mr-pdf:hover:not(:disabled) {
+  background: var(--rohafya-navy-dark, #08304a);
+}
+
+.mr-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  max-width: 100%;
+}
+
+.mr-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.mr-print-note {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  max-width: 22rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+  text-align: right;
+}
+
+.mr-print-note.is-blocked {
+  color: #b91c1c;
+}
+
+.mr-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: mr-spin 0.8s linear infinite;
+}
+
+@keyframes mr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .mr-actions,
+  .mr-buttons {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .mr-buttons > .mr-print {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .mr-print-note {
+    max-width: none;
+    text-align: left;
+  }
 }
 
 .mr-print:focus-visible,

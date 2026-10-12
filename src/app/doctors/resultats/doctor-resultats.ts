@@ -11,12 +11,15 @@ import { patientName } from './result-fields';
 import { MedicalReportView } from '../../shared/medical-report/medical-report-view';
 import { buildReport } from '../../shared/medical-report/medical-report';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { ShowMore } from '../../shared/list/show-more';
+import { ListWindow } from '../../shared/list/list-window';
+import { distinctValues, matchesText } from '../../shared/list/list-filters';
 
 type TypeFilter = 'all' | ExamType;
 
 @Component({
   selector: 'app-doctor-resultats',
-  imports: [RohafyaLoader, DatePipe, PIcon, PageHeader, StatusTag, MedicalReportView],
+  imports: [RohafyaLoader, DatePipe, PIcon, PageHeader, StatusTag, MedicalReportView, ShowMore],
   templateUrl: './doctor-resultats.html',
   styleUrls: ['../shared/doctor-ui.css', './doctor-resultats.css'],
   host: {
@@ -37,6 +40,9 @@ export class DoctorResultats {
 
   readonly typeFilter = signal<TypeFilter>('all');
   readonly search = signal('');
+  readonly establishmentFilter = signal('');
+  /** Établissements des résultats reçus (filtre affiché à partir de deux). */
+  readonly establishments = computed(() => distinctValues((this.received.data() ?? []).map((r) => r.establishment)));
 
   readonly sorted = computed(() => [...(this.received.data() ?? [])].sort((a, b) => dateValue(b.sended_at) - dateValue(a.sended_at)));
 
@@ -48,13 +54,22 @@ export class DoctorResultats {
 
   readonly filtered = computed(() => {
     const type = this.typeFilter();
-    const term = this.search().trim().toLowerCase();
+    const term = this.search();
+    const establishment = this.establishmentFilter();
     return this.sorted().filter(
       (r) =>
         (type === 'all' || r.exam_type === type) &&
-        (!term || `${r.exam_code} ${r.patient_federation_id}`.toLowerCase().includes(term))
+        (!establishment || r.establishment === establishment) &&
+        matchesText(term, r.exam_code, r.patient_federation_id, r.establishment)
     );
   });
+
+  /** 12 résultats, puis « Afficher plus ». */
+  readonly list = new ListWindow(this.filtered, 12, () => [this.typeFilter(), this.search(), this.establishmentFilter()]);
+
+  onEstablishment(event: Event): void {
+    this.establishmentFilter.set((event.target as HTMLSelectElement).value);
+  }
 
   // ===== Visionneuse =====
   readonly selected = signal<SendResult | null>(null);

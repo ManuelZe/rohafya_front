@@ -8,7 +8,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'matricule', renderMode: RenderMode.Prerender },
   { path: 'register', renderMode: RenderMode.Prerender },
   { path: 'requests', renderMode: RenderMode.Prerender },
-  { path: 'notifications', renderMode: RenderMode.Prerender },
+  // Page protégée (session dans le navigateur) : pré-rendue, elle redirigeait toujours vers /connexion.
+  { path: 'notifications', renderMode: RenderMode.Client },
   { path: 'patients/**', renderMode: RenderMode.Client },
   { path: 'doctors/**', renderMode: RenderMode.Client },
   { path: '**', renderMode: RenderMode.Client }

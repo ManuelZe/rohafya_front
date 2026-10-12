@@ -1,5 +1,5 @@
 import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -52,7 +52,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideAppInitializer(() => inject(DemoSession).closeObsoleteSession()),
     provideHttpClient(withInterceptors([demoInterceptor, authInterceptor])),
-    provideRouter(routes, withComponentInputBinding()), provideClientHydration(),
+    // Sur mobile la page elle-même défile : chaque nouvelle page s'ouvre en haut, le retour arrière restaure la position.
+    provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })), provideClientHydration(),
     providePrimeNG({
       license : "eyJpZCI6IjM4NTA2ZTVkLTQ3NmEtNDUwMi04ZDg2LTY0YzA3NzQ3ZGQ5NyIsInByb2R1Y3QiOiJwcmltZXVpIiwidGllciI6ImNvbW11bml0eSIsInR5cGUiOiJkZXYiLCJpYXQiOjE3ODI5MDUzODAsImV4cCI6MTgxNDQ0MTM4MH0.I7n5VbbUT4iokSQ3JuuvSN6HR4-6x00vQzIcumP-OGexo-iydFm-4LMFm-AyNaIGjWeNiWnWQcMQQavr5i3-Cw",
       theme: {

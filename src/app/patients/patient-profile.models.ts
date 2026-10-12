@@ -27,6 +27,7 @@ export interface PatientUpdatePayload {
   PatientCNI: string;
   PatientGender: string;
   PatientPhone: string;
-  PatientPhone2: string;
+  /** Facultatif : null quand il n'est pas renseigné. */
+  PatientPhone2: string | null;
   PatientEmail: string;
 }

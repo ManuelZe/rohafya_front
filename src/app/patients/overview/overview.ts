@@ -11,6 +11,7 @@ import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 import { KpiTile } from '../../shared/kpi-tile/kpi-tile';
 import { RohafyaMark } from '../../shared/rohafya-mark/rohafya-mark';
+import { SaasAccountService } from '../../saas/saas-account.service';
 
 type ExamKind = 'Laboratoire' | 'Imagerie' | 'Exploration';
 
@@ -61,6 +62,10 @@ export class Overview {
   private readonly patientService = inject(PatientsService);
   private readonly profileService = inject(PatientProfileService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly account = inject(SaasAccountService);
+  /** Partage : illimité sauf configuration contraire du super-administrateur. */
+  readonly canShare = this.account.canShare;
+  readonly shareMessage = computed(() => this.account.shareRight()?.message ?? null);
 
   readonly accessDeniedMessage = ACCESS_DENIED_MESSAGE;
   readonly formatFcfa = formatFcfa;

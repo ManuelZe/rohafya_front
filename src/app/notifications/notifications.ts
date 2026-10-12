@@ -13,6 +13,7 @@ type NotificationsFilter = 'all' | 'unread';
   imports: [CommonModule, RouterLink, ButtonModule],
   templateUrl: './notifications.html',
   styleUrl: './notifications.css',
+  host: { '[class.is-embedded]': 'embedded()' },
 })
 export class Notifications {
   private readonly authService = inject(AuthService);
@@ -20,6 +21,8 @@ export class Notifications {
 
   /** Lien « Retour » : fourni par les données de route (ex. /doctors pour l'espace docteur). */
   readonly homeLink = input<string>();
+  /** Intégrée à une autre page (console d'établissement) : sans lien « Retour » ni titre. */
+  readonly embedded = input(false);
 
   /** withComponentInputBinding() remet l'input à undefined quand la route ne fournit pas `homeLink` :
    *  on retombe alors sur l'espace de l'utilisateur (patient en priorité, sinon docteur). */
@@ -63,7 +66,7 @@ export class Notifications {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.notificationsService.getUserNotifications(user.id).subscribe({
+    this.notificationsService.list().subscribe({
       next: (data) => {
         this.notifications.set(Array.isArray(data) ? data : []);
         this.loading.set(false);
@@ -95,10 +98,7 @@ export class Notifications {
   deleteNotification(notification: AppNotification, event?: Event): void {
     event?.stopPropagation();
 
-    const user = this.authService.currentUser();
-    if (!user) return;
-
-    this.notificationsService.deleteUserNotification(user.id, notification.id).subscribe({
+    this.notificationsService.hide(notification).subscribe({
       next: () => {
         this.notifications.update((list) => list.filter((n) => n.id !== notification.id));
       },
@@ -110,12 +110,11 @@ export class Notifications {
   }
 
   deleteAll(): void {
-    const user = this.authService.currentUser();
-    if (!user || this.notifications().length === 0) return;
+    if (this.notifications().length === 0) return;
 
     this.deletingAll.set(true);
 
-    this.notificationsService.deleteAllUserNotifications(user.id).subscribe({
+    this.notificationsService.hideAll().subscribe({
       next: () => {
         this.notifications.set([]);
         this.deletingAll.set(false);

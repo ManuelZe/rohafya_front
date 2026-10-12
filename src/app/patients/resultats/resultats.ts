@@ -14,6 +14,8 @@ import { ExplorationService } from '../exploration/exploration.service';
 import { DoctorSearchService } from './doctor-search.service';
 import { DoctorInfo } from './doctor-search.models';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
+import { extractErrorMessage } from '../../shared/api-error';
+import { SaasAccountService } from '../../saas/saas-account.service';
 
 interface SendResultFormModel {
   exam_type: ExamType;
@@ -179,6 +181,10 @@ export class Resultats {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly doctorSearchService = inject(DoctorSearchService);
   private readonly route = inject(ActivatedRoute);
+  private readonly account = inject(SaasAccountService);
+  /** Partage : illimité sauf configuration contraire du super-administrateur. */
+  readonly canShare = this.account.canShare;
+  readonly shareMessage = computed(() => this.account.shareRight()?.message ?? null);
 
   readonly accessDeniedMessage = ACCESS_DENIED_MESSAGE;
   readonly examTypes = EXAM_TYPES;
@@ -295,6 +301,7 @@ export class Resultats {
   }
 
   toggleAddForm(): void {
+    if (!this.showAddForm() && !this.canShare()) return;
     this.showAddForm.update((v) => !v);
     if (this.showAddForm()) {
       this.examOptions.ensureLoaded(this.formModel().exam_type);
@@ -344,10 +351,11 @@ export class Resultats {
         this.formModel.set(emptyFormModel());
         this.addDoctorSearch.reset();
         this.loadResults(user.patient_id!);
+        if (this.account.shareRight()?.configured) this.account.load(true).subscribe();
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.submitting.set(false);
-        this.errorMessage.set('Échec du partage du résultat.');
+        this.errorMessage.set(extractErrorMessage(err, 'Échec du partage du résultat.'));
         console.error(err);
       },
     });

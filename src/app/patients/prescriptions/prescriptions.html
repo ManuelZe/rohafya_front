@@ -168,12 +168,37 @@
 
   <!-- Grille des prescriptions -->
   @if (!loading() && prescriptions().length > 0) {
+    <app-list-toolbar
+      class="list-toolbar-block"
+      [(search)]="search"
+      [searchPlaceholder]="isDoctor() ? 'Patient, établissement, n°…' : 'Médecin, établissement, n°…'"
+      searchLabel="Rechercher une prescription"
+      [statusOptions]="statusOptions"
+      [(status)]="statusFilter"
+      statusLabel="État de la prescription"
+      [establishments]="establishmentNames()"
+      [(establishment)]="establishmentFilter"
+      [(sort)]="sort"
+      [count]="filteredPrescriptions().length"
+      [noun]="filteredPrescriptions().length > 1 ? 'prescriptions' : 'prescription'"
+    />
+    @if (filteredPrescriptions().length === 0) {
+      <div class="state-container empty-state">
+        <h3>Aucune prescription ne correspond à votre recherche</h3>
+        <p>Modifiez la recherche ou les filtres.</p>
+      </div>
+    }
     <div class="prescriptions-grid">
-      @for (p of prescriptions(); track p.id) {
+      @for (p of list.visible(); track p.id) {
         <article class="prescription-card" [attr.data-id]="p.id">
           <div
             class="card-image-container clickable"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'Agrandir la prescription SEQ-' + p.Sequence"
             (click)="openImagePreview(p)"
+            (keydown.enter)="openImagePreview(p)"
+            (keydown.space)="$event.preventDefault(); openImagePreview(p)"
             title="Cliquer pour agrandir la prescription"
           >
             @if (p.imageUrl) {
@@ -274,6 +299,7 @@
         </article>
       }
     </div>
+    <app-show-more [list]="list" noun="prescriptions" />
   }
 
   <!-- Modal Visualiseur d'Image (Lightbox) -->

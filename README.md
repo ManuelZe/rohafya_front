@@ -49,9 +49,10 @@ Les trois profils partagent les mêmes données, et une information circule du p
 - **patient ou médecin → établissement** : les prescriptions, pré-enregistrements et requêtes arrivent dans « Demandes ». La réponse de l'établissement revient à l'auteur, avec une notification ;
 - **patient → établissement** : le rattachement avec le code d'un QR code généré par l'administrateur (menu « QR codes ») apparaît dans « Rattachements » ;
 - **médecin → établissement** : la consultation d'un résultat partagé est inscrite au journal ;
+- **établissement → patients et médecins** : depuis « Notifications », l'administrateur écrit à un patient ou un médecin précis, à une sélection ou à tout le groupe ; la notification apparaît dans l'espace du destinataire (en démo, aucun e-mail ne part) ;
 - **dans l'établissement** : toutes ces actions sont inscrites au journal, et le tableau de bord suit.
 
-La console super-administrateur n'a pas de profil de démo.
+La console super-administrateur (dont l'envoi de notifications aux établissements et les droits des comptes) n'a pas de profil de démo.
 
 Le bandeau « Démo » permet de changer de profil sans perdre les données, de les remettre à zéro ou de quitter la démo. Les données sont gardées dans l'onglet (`sessionStorage`) : elles survivent à un rechargement, mais pas à la fermeture de l'onglet. Les fichiers joints restent en mémoire et sont remplacés par une image générée après un rechargement.
 

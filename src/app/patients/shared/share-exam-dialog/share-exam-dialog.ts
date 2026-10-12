@@ -4,6 +4,8 @@ import { ResultatsService } from '../../resultats/resultats.service';
 import { DoctorSearchService } from '../../resultats/doctor-search.service';
 import { DoctorInfo } from '../../resultats/doctor-search.models';
 import { ExamType } from '../../resultats/resultats.models';
+import { extractErrorMessage } from '../../../shared/api-error';
+import { SaasAccountService } from '../../../saas/saas-account.service';
 
 @Component({
   selector: 'app-share-exam-dialog',
@@ -17,6 +19,7 @@ import { ExamType } from '../../resultats/resultats.models';
 export class ShareExamDialog {
   private readonly resultatsService = inject(ResultatsService);
   private readonly doctorSearchService = inject(DoctorSearchService);
+  private readonly account = inject(SaasAccountService);
 
   readonly open = input.required<boolean>();
   readonly examType = input.required<ExamType>();
@@ -117,10 +120,12 @@ export class ShareExamDialog {
         next: () => {
           this.submitting.set(false);
           this.success.set(true);
+          // Partages limités : le compteur restant est mis à jour.
+          if (this.account.shareRight()?.configured) this.account.load(true).subscribe();
         },
-        error: (err) => {
+        error: (err: unknown) => {
           this.submitting.set(false);
-          this.submitError.set('Échec du partage du résultat.');
+          this.submitError.set(extractErrorMessage(err, 'Échec du partage du résultat.'));
           console.error(err);
         },
       });

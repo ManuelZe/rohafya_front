@@ -35,6 +35,12 @@ export class SaasAccountService {
    * historique (commissions visibles).
    */
   readonly commissionsEnabled = computed(() => this._settled() && (this._me()?.features.commissions ?? true));
+  /** Impression des comptes rendus : disponible sauf configuration contraire du super-administrateur. */
+  readonly printRight = computed(() => this._me()?.rights?.print ?? null);
+  readonly canPrint = computed(() => this.printRight()?.allowed ?? true);
+  /** Partage des résultats : illimité sauf configuration contraire du super-administrateur. */
+  readonly shareRight = computed(() => this._me()?.rights?.share ?? null);
+  readonly canShare = computed(() => this.shareRight()?.allowed ?? true);
 
   /** GET /saas/me — mis en cache jusqu'à la déconnexion. */
   load(force = false): Observable<SaasMe | null> {

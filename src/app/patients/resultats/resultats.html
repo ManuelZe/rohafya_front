@@ -1,6 +1,6 @@
 <div class="resultats-container">
   <app-page-header title="Résultats Partagés" subtitle="Partagez vos résultats d'examens avec vos médecins et consultez-les">
-    <button pButton type="button" actions (click)="toggleAddForm()">
+    <button pButton type="button" actions (click)="toggleAddForm()" [disabled]="!showAddForm() && !canShare()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -23,6 +23,10 @@
         </svg>
         <span>{{ errorMessage() }}</span>
       </div>
+    }
+
+    @if (shareMessage()) {
+      <p class="share-quota" [class.is-blocked]="!canShare()" role="note">{{ shareMessage() }}</p>
     }
 
     <!-- Formulaire de partage -->
@@ -126,7 +130,7 @@
         </div>
         <h3>Aucun résultat partagé</h3>
         <p>Vous n'avez encore partagé aucun résultat d'examen avec un médecin.</p>
-        <button class="btn btn-secondary" (click)="toggleAddForm()">Partager un résultat</button>
+        <button class="btn btn-secondary" (click)="toggleAddForm()" [disabled]="!canShare()">Partager un résultat</button>
       </div>
     }
 

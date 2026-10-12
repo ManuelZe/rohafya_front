@@ -26,6 +26,10 @@ import {
   TenantDashboard,
   TenantPatientRow,
   TenantSettings,
+  NotificationAudience,
+  NotificationCampaign,
+  NotificationPayload,
+  NotificationRecipient,
 } from './saas.models';
 
 export interface PageQuery {
@@ -53,7 +57,7 @@ export interface SubmissionQuery {
   status?: SubmissionStatus | '';
 }
 
-function toParams(query: PageQuery | SubmissionQuery = {}): HttpParams {
+function toParams(query: PageQuery | SubmissionQuery | Record<string, string | number> = {}): HttpParams {
   let params = new HttpParams();
   for (const [key, value] of Object.entries(query)) {
     if (value !== undefined && value !== null && value !== '') {
@@ -204,5 +208,21 @@ export class TenantAdminService {
 
   answerSubmission(tenantId: number, submissionId: number, answer: SubmissionAnswer): Observable<SubmissionAdminItem> {
     return this.http.put<SubmissionAdminItem>(this.url(tenantId, `/submissions/${submissionId}`), answer);
+  }
+
+  /** Notifications envoyées par l'établissement (historique). */
+  notifications(tenantId: number, page = 1): Observable<Paged<NotificationCampaign>> {
+    return this.http.get<Paged<NotificationCampaign>>(this.url(tenantId, '/notifications'), { params: toParams({ page }) });
+  }
+
+  /** Notification (interface + e-mail) à des patients ou des médecins de l'établissement. */
+  sendNotification(tenantId: number, payload: NotificationPayload): Observable<NotificationCampaign> {
+    return this.http.post<NotificationCampaign>(this.url(tenantId, '/notifications'), payload);
+  }
+
+  notificationRecipients(tenantId: number, audience: NotificationAudience, q = ''): Observable<{ items: NotificationRecipient[]; total: number }> {
+    return this.http.get<{ items: NotificationRecipient[]; total: number }>(this.url(tenantId, '/notification-recipients'), {
+      params: toParams({ audience, q }),
+    });
   }
 }

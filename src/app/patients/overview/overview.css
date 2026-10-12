@@ -495,3 +495,9 @@
     justify-content: center;
   }
 }
+
+.share-blocked-note {
+  margin: -0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}

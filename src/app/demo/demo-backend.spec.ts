@@ -45,7 +45,7 @@ describe('handleDemoRequest', () => {
       `send_result/patient/${patient.patient_id}`,
       'suggestions/for_user/',
       'devis/liste_prix/',
-      `notifications/user/${patient.id}/`,
+      `saas/me/notifications`,
       'doctors/informations/matricule/DEMO-D-0001',
     ];
     const bodies = await Promise.all(paths.map((p) => call('GET', p)));
@@ -188,7 +188,7 @@ describe('interconnexions entre les profils de démo', () => {
     const answered = mine.find((r) => r.id === sent.id)!;
     expect(answered.valide).toBe(true);
     expect(answered.submission).toMatchObject({ status: 'traitee', response: 'Oui, de 8 h à 12 h.' });
-    const notifications = (await call('GET', `notifications/user/${patient.id}/`, patient)) as { title: string }[];
+    const notifications = (await call('GET', `saas/me/notifications`, patient)) as { title: string }[];
     expect(notifications[0].title).toBe('Réponse de Centre de démonstration ROHAFYA');
 
     const journal = (await call('GET', 'saas/admin/tenants/1/audit', admin)) as { items: AuditView[] };
@@ -241,5 +241,69 @@ describe('interconnexions entre les profils de démo', () => {
     resetDemoData();
     const patients = (await call('GET', 'saas/admin/tenants/1/patients', admin)) as { items: { local_ref: string }[] };
     expect(patients.items.some((p) => p.local_ref === 'PAT-DEMO-0099')).toBe(false);
+  });
+});
+
+describe('numéros de téléphone en démo', () => {
+  beforeEach(() => resetDemoData());
+
+  const status = (method: string, path: string, user: typeof patient, body: unknown) =>
+    call(method, path, user, body).then(
+      () => 200,
+      (err: HttpErrorResponse) => ({ status: err.status, message: (err.error as { message: string }).message })
+    );
+
+  it('accepte un téléphone secondaire vide et l’enregistre à null', async () => {
+    await call('PUT', `patient/update/${patient.patient_id}`, patient, { PatientPhone: '+237 600 000 001', PatientPhone2: '' });
+    const profile = (await call('GET', `patient/${patient.patient_id}`)) as { PatientPhone2: string | null };
+    expect(profile.PatientPhone2).toBeNull();
+  });
+
+  it('refuse, avec un message explicite, deux numéros identiques ou un numéro déjà pris', async () => {
+    expect(await status('PUT', `patient/update/${patient.patient_id}`, patient, { PatientPhone: '600000001', PatientPhone2: '+237 600 000 001' })).toEqual({
+      status: 400,
+      message: 'Le téléphone principal et le téléphone secondaire doivent être différents.',
+    });
+    const taken = (await status('PUT', `doctors/update/${doctor.doctor_id}`, doctor, { DoctorPhone: '+237 600 000 102', DoctorPhone2: null })) as {
+      status: number;
+      message: string;
+    };
+    expect(taken.status).toBe(409);
+    expect(taken.message).toContain('déjà utilisé par un autre compte');
+  });
+});
+
+describe('notifications de la console d’établissement (démo)', () => {
+  beforeEach(() => resetDemoData());
+
+  it('écrit à un patient choisi, qui la reçoit dans son espace', async () => {
+    const me = (await call('GET', 'saas/me', admin)) as { admin_tenants: { id: number }[] };
+    const tenantId = me.admin_tenants[0].id;
+    const recipients = (await call('GET', `saas/admin/tenants/${tenantId}/notification-recipients`, admin, null, new HttpParams().set('audience', 'patients'))) as {
+      items: { user_id: number }[];
+    };
+    const target = recipients.items.find((r) => r.user_id === patient.id);
+    expect(target).toBeTruthy();
+
+    const campaign = (await call('POST', `saas/admin/tenants/${tenantId}/notifications`, admin, {
+      audience: 'patients',
+      user_ids: [patient.id],
+      title: 'Résultat disponible',
+      message: 'Votre bilan est prêt.\nPassez au laboratoire.',
+    })) as { recipients_count: number; selection: string };
+    expect(campaign).toMatchObject({ recipients_count: 1, selection: 'selected' });
+
+    const received = (await call('GET', 'saas/me/notifications', patient)) as { title: string; message: string }[];
+    expect(received[0].title).toContain('Résultat disponible');
+    const history = (await call('GET', `saas/admin/tenants/${tenantId}/notifications`, admin)) as { total: number };
+    expect(history.total).toBe(1);
+  });
+
+  it('refuse un message vide ou destiné aux administrateurs', async () => {
+    const me = (await call('GET', 'saas/me', admin)) as { admin_tenants: { id: number }[] };
+    const url = `saas/admin/tenants/${me.admin_tenants[0].id}/notifications`;
+    const status = (payload: unknown) => call('POST', url, admin, payload).then(() => 200, (err: HttpErrorResponse) => err.status);
+    expect(await status({ audience: 'patients', title: 'x', message: ' ' })).toBe(400);
+    expect(await status({ audience: 'admins', title: 'x', message: 'y' })).toBe(400);
   });
 });

@@ -79,10 +79,14 @@ export class EmailCodeLogin {
     this.busy.set(true);
     this.errorMessage.set(null);
     this.authService.requestEmailCode(this.email()).subscribe({
-      next: () => {
+      next: (res) => {
         this.busy.set(false);
         this.step.set('code');
-        this.info.set(`Un code à 6 chiffres a été envoyé à ${this.email()}. Il est valable 10 minutes.`);
+        this.info.set(
+          res?.account_exists === false
+            ? `Aucun compte n'existe avec l'adresse ${this.email()}. Un code à 6 chiffres vous a été envoyé (valable 10 minutes) : saisissez-le pour créer votre compte patient, ou corrigez l'adresse.`
+            : `Un code à 6 chiffres a été envoyé à ${this.email()}. Il est valable 10 minutes.`
+        );
       },
       error: (err: unknown) => {
         this.busy.set(false);

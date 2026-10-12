@@ -147,12 +147,37 @@
 
     <!-- Grille des pré-enregistrements -->
     @if (!loading() && saves().length > 0) {
+      <app-list-toolbar
+        class="list-toolbar-block"
+        [(search)]="search"
+        searchPlaceholder="Nom, établissement, description…"
+        searchLabel="Rechercher un pré-enregistrement"
+        [statusOptions]="statusOptions"
+        [(status)]="statusFilter"
+        statusLabel="État du pré-enregistrement"
+        [establishments]="establishmentNames()"
+        [(establishment)]="establishmentFilter"
+        [(sort)]="sort"
+        [count]="filteredSaves().length"
+        [noun]="filteredSaves().length > 1 ? 'pré-enregistrements' : 'pré-enregistrement'"
+      />
+      @if (filteredSaves().length === 0) {
+        <div class="state-container empty-state">
+          <h3>Aucun pré-enregistrement ne correspond à votre recherche</h3>
+          <p>Modifiez la recherche ou les filtres.</p>
+        </div>
+      }
       <div class="saves-grid">
-        @for (s of saves(); track s.id) {
+        @for (s of list.visible(); track s.id) {
           <article class="save-card" [attr.data-id]="s.id">
             <div
               class="card-image-container clickable"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'Agrandir le document de ' + s.prenom + ' ' + s.nom"
               (click)="openPreview(s)"
+              (keydown.enter)="openPreview(s)"
+              (keydown.space)="$event.preventDefault(); openPreview(s)"
               title="Cliquer pour agrandir le document"
             >
               @if (s.imageUrl) {
@@ -233,6 +258,7 @@
           </article>
         }
       </div>
+      <app-show-more [list]="list" noun="pré-enregistrements" />
     }
 
     <!-- Modal Visualiseur (Lightbox) -->
