@@ -3,22 +3,23 @@ import { PIcon } from '@primeicons/angular/p-icon';
 import { COMPARE_ROWS } from '../intro.content';
 import { Reveal } from '../reveal';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 type Mode = 'before' | 'after';
 
 /** Comparatif « Avant / Avec ROHAFYA » : un sélecteur bascule les mêmes lignes d'un état à l'autre. */
 @Component({
   selector: 'app-before-after',
-  imports: [PIcon, Reveal],
+  imports: [TranslatePipe, PIcon, Reveal],
   template: `
     <fieldset class="switch">
-      <legend class="sr-only">Afficher la situation</legend>
+      <legend class="sr-only">{{ 'Afficher la situation' | t }}</legend>
       <label class="switch__option" [class.switch__option--on]="mode() === 'before'">
         <input type="radio" name="compare-mode" value="before" [checked]="mode() === 'before'" (change)="mode.set('before')" />
-        Sans ROHAFYA
+        {{ 'Sans ROHAFYA' | t }}
       </label>
       <label class="switch__option" [class.switch__option--on]="mode() === 'after'">
         <input type="radio" name="compare-mode" value="after" [checked]="mode() === 'after'" (change)="mode.set('after')" />
-        Avec ROHAFYA
+        {{ 'Avec ROHAFYA' | t }}
       </label>
       <span class="switch__thumb" [class.switch__thumb--after]="mode() === 'after'" aria-hidden="true"></span>
     </fieldset>
@@ -29,7 +30,7 @@ type Mode = 'before' | 'after';
           <span class="row__icon" aria-hidden="true">
             <svg [pIcon]="mode() === 'after' ? 'check-circle' : row.icon" [size]="20"></svg>
           </span>
-          <p class="row__text">{{ mode() === 'after' ? row.after : row.before }}</p>
+          <p class="row__text">{{ (mode() === 'after' ? row.after : row.before) | t }}</p>
         </li>
       }
     </ul>

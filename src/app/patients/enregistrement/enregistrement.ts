@@ -31,6 +31,8 @@ import { ShowMore } from '../../shared/list/show-more';
 import { ListWindow } from '../../shared/list/list-window';
 import { FilterOption, SortOrder, distinctValues, matchesText, sortByDate } from '../../shared/list/list-filters';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../shared/i18n/ldate.pipe';
 interface SavePatientFormModel {
   /** Établissement destinataire (id, sous forme de texte pour la liste déroulante). */
   tenant_id: string;
@@ -47,7 +49,7 @@ const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES D
 
 @Component({
   selector: 'app-enregistrement',
-  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView, ListToolbar, ShowMore],
+  imports: [LocalDatePipe, TranslatePipe, RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView, ListToolbar, ShowMore],
   templateUrl: './enregistrement.html',
   styleUrl: './enregistrement.css',
   host: {

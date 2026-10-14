@@ -1,0 +1,25 @@
+/* Demandes d'essai : pastilles de statut (le reste vient des styles de la console et des demandes). */
+
+.count-badge-muted {
+  background: #4a5568;
+}
+
+.pill-trial-nouvelle {
+  background: #e5eef3;
+  color: #0c4562;
+}
+
+.pill-trial-contactee {
+  background: #fff6e5;
+  color: #8a5a00;
+}
+
+.pill-trial-essai {
+  background: #ecf8f0;
+  color: #1f6b3a;
+}
+
+.pill-trial-close {
+  background: #eef0f3;
+  color: #3d4654;
+}

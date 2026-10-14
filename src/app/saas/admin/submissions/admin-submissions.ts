@@ -18,6 +18,8 @@ import { SubmissionAdminItem, SubmissionList } from '../../saas.models';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../../shared/i18n/ldate.pipe';
 const PAGE_SIZE = 25;
 const AUTHOR_LABELS: Record<string, string> = { patient: 'Patient', doctor: 'Médecin', anonyme: 'Visiteur' };
 const REQUEST_CATEGORIES: Record<string, string> = {
@@ -44,7 +46,7 @@ interface AnswerModel {
 /** Demandes reçues par l'établissement : prescriptions, pré-enregistrements et requêtes. */
 @Component({
   selector: 'app-admin-submissions',
-  imports: [DatePipe, PIcon, PageHeader, Pager, FormRoot, FormField, CdkTrapFocus],
+  imports: [LocalDatePipe, TranslatePipe, DatePipe, PIcon, PageHeader, Pager, FormRoot, FormField, CdkTrapFocus],
   templateUrl: './admin-submissions.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css', './admin-submissions.css'],
   host: {

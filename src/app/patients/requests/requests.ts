@@ -35,9 +35,11 @@ import { SaasAccountService } from '../../saas/saas-account.service';
 import { SubmissionInfoView } from '../../shared/submission/submission-info';
 import { SUBMISSION_STATUS_SEVERITY, SubmissionAudience } from '../../shared/submission/submission.models';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { tr } from '../../shared/i18n/i18n';
 @Component({
   selector: 'app-requests',
-  imports: [ListToolbar, ShowMore, 
+  imports: [TranslatePipe, ListToolbar, ShowMore, 
     CommonModule,
     FormsModule,
     DatePipe,
@@ -106,7 +108,9 @@ export class Requests implements OnInit {
     { label: 'Mes requêtes', value: 'list', icon: 'pi pi-list' },
     { label: 'Nouvelle requête', value: 'add', icon: 'pi pi-plus' }
   ];
-  readonly tabOptions = computed(() => (this.isAnonymous() ? this.allTabs.filter((t) => t.value === 'add') : this.allTabs));
+  readonly tabOptions = computed(() =>
+    (this.isAnonymous() ? this.allTabs.filter((t) => t.value === 'add') : this.allTabs).map((tab) => ({ ...tab, label: tr(tab.label) }))
+  );
 
   readonly statusOptions: FilterOption[] = [
     { value: '', label: 'Toutes' },
@@ -251,13 +255,13 @@ export class Requests implements OnInit {
     const payload: UserRequest = { ...this.requestForm.value, audience: this.audience() };
     this.requestService.createRequest(payload).subscribe({
       next: (created) => {
-        const establishment = created.submission?.establishment ?? "l'établissement";
+        const establishment = created.submission?.establishment ?? tr("l'établissement");
         this.messageService.add({
           severity: 'success',
-          summary: 'Requête envoyée',
+          summary: tr('Requête envoyée'),
           detail: this.isAnonymous()
-            ? `Votre requête a été envoyée à ${establishment}. La réponse vous parviendra par e-mail.`
-            : `Votre requête a été envoyée à ${establishment}.`
+            ? tr('Votre requête a été envoyée à {establishment}. La réponse vous parviendra par e-mail.', { establishment })
+            : tr('Votre requête a été envoyée à {establishment}.', { establishment })
         });
         this.requestForm.reset();
         this.initFormWithUserData();
@@ -271,8 +275,8 @@ export class Requests implements OnInit {
         this.isLoading.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'Erreur',
-          detail: extractErrorMessage(err, "Échec de l'envoi de la requête.")
+          summary: tr('Erreur'),
+          detail: extractErrorMessage(err, tr("Échec de l'envoi de la requête."))
         });
       }
     });
@@ -285,11 +289,14 @@ export class Requests implements OnInit {
     if (req.id === undefined) return;
 
     this.confirmationService.confirm({
-      header: 'Confirmer la suppression',
-      message: `Voulez-vous vraiment supprimer la requête #${req.id} de ${req.first_name} ${req.last_name} ? Cette action est irréversible.`,
+      header: tr('Confirmer la suppression'),
+      message: tr('Voulez-vous vraiment supprimer la requête #{id} de {name} ? Cette action est irréversible.', {
+        id: req.id,
+        name: `${req.first_name} ${req.last_name}`,
+      }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Supprimer',
-      rejectLabel: 'Annuler',
+      acceptLabel: tr('Supprimer'),
+      rejectLabel: tr('Annuler'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined p-button-secondary',
       accept: () => this.deleteRequest(req.id),

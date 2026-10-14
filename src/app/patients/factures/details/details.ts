@@ -6,9 +6,10 @@ import { DetailsFactures } from '../factures.models';
 import { FacturesResponseApi } from '../../patients.models';
 import { StatusTag } from '../../shared/status-tag/status-tag';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-details',
-  imports: [CommonModule, TableModule, ProgressSpinnerModule, StatusTag],
+  imports: [TranslatePipe, CommonModule, TableModule, ProgressSpinnerModule, StatusTag],
   templateUrl: './details.html',
   styleUrls: ['./details.css'],
 })

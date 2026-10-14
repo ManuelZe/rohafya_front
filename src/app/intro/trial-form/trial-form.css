@@ -1,0 +1,153 @@
+:host {
+  display: block;
+}
+
+.trial {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.trial__required {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.trial__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #94a3b8;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible,
+.trial__consent input:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: 1px;
+}
+
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'] {
+  border-color: #b91c1c;
+}
+
+.field__error {
+  min-height: 1em;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}
+
+.field__error:empty {
+  display: none;
+}
+
+.trial__trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.trial__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.trial__consent input {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  accent-color: #047857;
+}
+
+.trial__alert {
+  padding: 0.75rem 1rem;
+  border: 1px solid #fecaca;
+  border-radius: 0.6rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.trial__submit {
+  align-self: flex-start;
+}
+
+.trial-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #065f46;
+}
+
+.trial-done:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: 4px;
+  border-radius: 1rem;
+}
+
+.trial-done__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0c4562;
+}
+
+.trial-done p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .trial__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trial__submit {
+    align-self: stretch;
+  }
+}

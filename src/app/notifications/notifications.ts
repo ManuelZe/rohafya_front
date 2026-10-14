@@ -6,11 +6,13 @@ import { AuthService } from '../connexion/auth-service';
 import { NotificationsService } from './notifications.service';
 import { AppNotification } from './notifications.models';
 
+import { TranslatePipe } from '../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../shared/i18n/ldate.pipe';
 type NotificationsFilter = 'all' | 'unread';
 
 @Component({
   selector: 'app-notifications',
-  imports: [CommonModule, RouterLink, ButtonModule],
+  imports: [LocalDatePipe, TranslatePipe, CommonModule, RouterLink, ButtonModule],
   templateUrl: './notifications.html',
   styleUrl: './notifications.css',
   host: { '[class.is-embedded]': 'embedded()' },

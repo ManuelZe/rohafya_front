@@ -11,11 +11,13 @@ import { TenantAdminService } from '../../tenant-admin.service';
 import { QrTicket } from '../shared/qr-ticket';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { tr } from '../../../shared/i18n/i18n';
 const PAGE_SIZE = 25;
 
 @Component({
   selector: 'app-admin-patients',
-  imports: [RouterLink, FormField, FormRoot, PIcon, PageHeader, Pager, QrTicket],
+  imports: [TranslatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader, Pager, QrTicket],
   templateUrl: './admin-patients.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })
@@ -105,7 +107,7 @@ export class AdminPatients {
       next: (token) => {
         this.issuing.set(null);
         if (token.already_linked) {
-          this.notice.set(`Le dossier ${row.local_ref} est déjà rattaché à un compte ROHAFYA : aucun QR code n'est nécessaire.`);
+          this.notice.set(tr("Le dossier {ref} est déjà rattaché à un compte ROHAFYA : aucun QR code n'est nécessaire.", { ref: row.local_ref }));
         } else {
           this.ticket.set(token);
         }

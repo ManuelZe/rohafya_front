@@ -10,47 +10,49 @@ import { SOURCE_LABELS } from '../../saas.models';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { tr } from '../../../shared/i18n/i18n';
 type Method = 'api' | 'fhir' | 'pdf';
 
 /** Exemples d'envoi : même format que les données de la démo (src/app/demo/data/patient.json). */
-const ROHAFYA_EXAMPLES = (base: string) => `# 1. Le patient (dossier local de l'établissement)
+const ROHAFYA_EXAMPLES = (base: string) => `# ${tr('1. Le patient (dossier local de l\'établissement)')}
 curl -X POST ${base}ingest/v1/patients \\
-  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: ${tr('VOTRE_CLE')}" -H "Content-Type: application/json" \\
   -d '[{"local_ref": "P-88-17", "first_name": "Aïcha", "last_name": "Ngono",
         "email": "aicha@exemple.com", "birth_date": "1988-04-12", "gender": "F"}]'
 
-# 2. Un résultat de laboratoire et ses valeurs
+# ${tr('2. Un résultat de laboratoire et ses valeurs')}
 curl -X POST ${base}ingest/v1/laboratoire \\
-  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: ${tr('VOTRE_CLE')}" -H "Content-Type: application/json" \\
   -d '[{"local_ref": "P-88-17", "name": "LAB-0412", "test": "Numération Formule Sanguine",
         "validation_date": "2026-09-27T09:00:00", "requestor": "Dr Paul Ekané",
         "validated_by": "Dr Martin Owona", "diagnosis": "Anémie légère",
         "details": [{"name": "Hémoglobine", "result": 11.4, "units": "g/dl",
                      "normal_range": "12 – 16", "warning": true}]}]'
 
-# 3. Une facture et ses lignes
+# ${tr('3. Une facture et ses lignes')}
 curl -X POST ${base}ingest/v1/factures \\
-  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: ${tr('VOTRE_CLE')}" -H "Content-Type: application/json" \\
   -d '[{"local_ref": "P-88-17", "reference": "FAC-2026-0105", "date": "2026-09-27",
         "state": "posted", "total_amount2": 42500, "untaxed_amount": 42500,
         "amount_to_pay_today": 12750, "montant_patient": 12750, "montant_assurance": "29750",
         "products": [{"product_name": "NFS", "quantity": "1"}]}]'
 
-# 4. Le QR code à imprimer sur la facture (url + code court ; ?qr=1 ajoute l'image PNG)
+# ${tr('4. Le QR code à imprimer sur la facture (url + code court ; ?qr=1 ajoute l\'image PNG)')}
 curl -X POST "${base}ingest/v1/link-tokens?qr=1" \\
-  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/json" \\
+  -H "X-ROHAFYA-API-Key: ${tr('VOTRE_CLE')}" -H "Content-Type: application/json" \\
   -d '{"local_ref": "P-88-17"}'
 
-# Autres types : imagerie (clé « number »), exploration (clé « name »).
-# Retirer un envoi erroné : DELETE ${base}ingest/v1/laboratoire/LAB-0412
-# Le numéro de facture ne doit contenir, aucun caractère spécial (FAC-2026-0105 → FAC20260105), encore moins de slash.`;
+# ${tr('Autres types : imagerie (clé « number »), exploration (clé « name »).')}
+# ${tr('Retirer un envoi erroné : DELETE {base}ingest/v1/laboratoire/LAB-0412', { base })}
+# ${tr('Le numéro de facture ne doit contenir, aucun caractère spécial (FAC-2026-0105 → FAC20260105), encore moins de slash.')}`;
 
 const PDF_EXAMPLE = (base: string) => `curl -X POST ${base}ingest/v1/pdf \\
-  -H "X-ROHAFYA-API-Key: VOTRE_CLE" \\
+  -H "X-ROHAFYA-API-Key: ${tr('VOTRE_CLE')}" \\
   -F "file=@compte-rendu.pdf" -F "local_ref=P-88-17"`;
 
 const FHIR_EXAMPLE = (base: string) => `curl -X POST ${base}fhir/r4 \\
-  -H "X-ROHAFYA-API-Key: VOTRE_CLE" -H "Content-Type: application/fhir+json" \\
+  -H "X-ROHAFYA-API-Key: ${tr('VOTRE_CLE')}" -H "Content-Type: application/fhir+json" \\
   -d '{
   "resourceType": "Bundle", "type": "transaction",
   "entry": [
@@ -72,12 +74,12 @@ const FHIR_EXAMPLE = (base: string) => `curl -X POST ${base}fhir/r4 \\
       "lineItem": [{"chargeItemCodeableConcept": {"text": "NFS"}}]}}
   ]}'
 
-# Catégorie du DiagnosticReport : LAB → laboratoire, RAD / IMG → imagerie, autre → exploration.
-# Invoice.status : issued → à régler, balanced → payée, cancelled → annulée.`;
+# ${tr('Catégorie du DiagnosticReport : LAB → laboratoire, RAD / IMG → imagerie, autre → exploration.')}
+# ${tr('Invoice.status : issued → à régler, balanced → payée, cancelled → annulée.')}`;
 
 @Component({
   selector: 'app-admin-integration',
-  imports: [PIcon, PageHeader, RouterLink],
+  imports: [TranslatePipe, PIcon, PageHeader, RouterLink],
   templateUrl: './admin-integration.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })
@@ -94,14 +96,15 @@ export class AdminIntegration {
     const source = this.context.tenant()?.source_type;
     return source === 'fhir' || source === 'pdf' ? source : 'api';
   });
-  readonly rohafyaExample = ROHAFYA_EXAMPLES(environment.apiUrl);
-  readonly fhirExample = FHIR_EXAMPLE(environment.apiUrl);
-  readonly pdfExample = PDF_EXAMPLE(environment.apiUrl);
+  /** Recalculé au changement de langue (commentaires traduits). */
+  readonly rohafyaExample = computed(() => ROHAFYA_EXAMPLES(environment.apiUrl));
+  readonly fhirExample = computed(() => FHIR_EXAMPLE(environment.apiUrl));
+  readonly pdfExample = computed(() => PDF_EXAMPLE(environment.apiUrl));
 
   readonly sourceLabel = computed(() => {
     const source = this.context.tenant()?.source_type;
-    if (source === 'pdf' && !this.pdfEnabled) return `${SOURCE_LABELS.pdf} (disponible prochainement)`;
-    return source ? SOURCE_LABELS[source] : '';
+    if (source === 'pdf' && !this.pdfEnabled) return tr('{label} (disponible prochainement)', { label: tr(SOURCE_LABELS.pdf) });
+    return source ? tr(SOURCE_LABELS[source]) : '';
   });
   readonly isGnuHealth = computed(() => this.context.tenant()?.source_type === 'gnuhealth');
 

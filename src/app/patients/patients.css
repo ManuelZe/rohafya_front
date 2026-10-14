@@ -1012,3 +1012,9 @@
 .main-content::-webkit-scrollbar-thumb:hover {
   background: #a0aec0;
 }
+/* Choix de la langue, sous la date */
+.sidebar-lang {
+  display: flex;
+  justify-content: center;
+  margin: 0.25rem 0 0.5rem;
+}

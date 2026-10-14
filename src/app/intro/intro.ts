@@ -1,5 +1,5 @@
-import { Component, DOCUMENT, DestroyRef, afterNextRender, inject, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, DOCUMENT, DestroyRef, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 import { PIcon } from '@primeicons/angular/p-icon';
 import { DemoLauncher } from '../demo/demo-launcher/demo-launcher';
@@ -11,16 +11,38 @@ import { RoleShowcase } from './role-showcase/role-showcase';
 import { Reveal } from './reveal';
 import { SeoService } from '../shared/seo/seo.service';
 import { AuthService } from '../connexion/auth-service';
-import { FAQ, NAV_LINKS, SOCIAL_LINKS, TRUST_POINTS } from './intro.content';
-import { INTRO_SEO } from './intro.seo';
+import {
+  AUDIENCES,
+  FAQ,
+  FOUNDERS,
+  NAV_LINKS,
+  ONBOARDING,
+  PLANS,
+  PRICING_NOTES,
+  SEGMENTS,
+  SOCIAL_LINKS,
+  TRIAL_ANCHOR,
+  TRUST_POINTS,
+  WHATSAPP_DISPLAY,
+  WHATSAPP_NUMBER,
+} from './intro.content';
+import { introSeo } from './intro.seo';
+import { I18n, Lang } from '../shared/i18n/i18n';
+import { LangSwitch } from '../shared/i18n/lang-switch';
+import { TranslatePipe } from '../shared/i18n/t.pipe';
+import { TrialForm } from './trial-form/trial-form';
 
 /** Hauteur de défilement à partir de laquelle l'en-tête prend son ombre. */
 const SCROLLED_AT = 12;
 
-/** Page d'accueil publique : présentation de ROHAFYA pour les patients, les médecins et les établissements. */
+/**
+ * Site de présentation, écrit pour les établissements de santé (ce sont eux qui achètent) :
+ * constat, solution, mise en service à distance, tarifs, questions, demande d'essai.
+ * Français sur /intro, anglais sur /en : deux pages pré-rendues, reliées par hreflang.
+ */
 @Component({
   selector: 'app-intro',
-  imports: [PIcon, NgOptimizedImage, RouterLink, DemoLauncher, RohafyaMark, BeforeAfter, RoleShowcase, HowItWorks, Reveal],
+  imports: [PIcon, NgOptimizedImage, RouterLink, DemoLauncher, RohafyaMark, BeforeAfter, RoleShowcase, HowItWorks, Reveal, LangSwitch, TranslatePipe, TrialForm],
   templateUrl: './intro.html',
   styleUrls: ['./intro-buttons.css', './intro.css'],
   host: {
@@ -34,17 +56,31 @@ export class Intro {
   /** Lien « Connexion » : l'espace de l'utilisateur connecté, sinon la page de connexion. */
   protected readonly auth = inject(AuthService);
 
+  private readonly i18n = inject(I18n);
+  private readonly router = inject(Router);
+
   readonly navLinks = NAV_LINKS;
   readonly trustPoints = TRUST_POINTS;
   readonly faq = FAQ;
   readonly socialLinks = SOCIAL_LINKS;
-  readonly audiences = [
-    { icon: 'filter', label: 'Laboratoires' },
-    { icon: 'image', label: 'Centres d’imagerie' },
-    { icon: 'building', label: 'Cliniques et hôpitaux' },
-    { icon: 'id-card', label: 'Médecins prescripteurs' },
-    { icon: 'user', label: 'Patients' },
-  ];
+  readonly audiences = AUDIENCES;
+  readonly segments = SEGMENTS;
+  readonly onboarding = ONBOARDING;
+  readonly plans = PLANS;
+  readonly pricingNotes = PRICING_NOTES;
+  readonly founders = FOUNDERS;
+  readonly trialAnchor = TRIAL_ANCHOR;
+  readonly whatsappDisplay = WHATSAPP_DISPLAY;
+
+  /** Adresse de la page dans la langue affichée. */
+  readonly home = computed(() => (this.i18n.lang() === 'en' ? '/en' : '/intro'));
+  /** Conversation WhatsApp, avec un premier message prérempli dans la langue de la page. */
+  readonly whatsappLink = computed(
+    () =>
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        this.i18n.t('Bonjour, je souhaite une démonstration de ROHAFYA pour mon établissement.')
+      )}`
+  );
 
   readonly menuOpen = signal(false);
   readonly scrolled = signal(false);
@@ -56,7 +92,7 @@ export class Intro {
 
     // Balises posées pendant le rendu : elles figurent dans le HTML pré-rendu lu par les moteurs.
     const seo = inject(SeoService);
-    seo.apply(INTRO_SEO);
+    seo.apply(introSeo(this.i18n.lang(), (text) => this.i18n.t(text)));
     destroyRef.onDestroy(() => seo.clear());
 
     afterNextRender(() => {
@@ -95,10 +131,10 @@ export class Intro {
    * Fait défiler jusqu'à la section sans recharger la page (le lien reste valide sans JavaScript),
    * puis place le focus sur son titre pour les lecteurs d'écran et la navigation au clavier.
    */
-  goTo(event: Event, id: string): void {
+  goTo(event: Event | null, id: string): void {
     const target = this.document.getElementById(id);
     if (!target) return;
-    event.preventDefault();
+    event?.preventDefault();
     this.menuOpen.set(false);
 
     const reduce = this.document.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -114,6 +150,14 @@ export class Intro {
   }
 
   tryDemo(space: DemoSpace): void {
+    this.menuOpen.set(false);
     this.launcher().openFor(space);
+  }
+
+  /** Chaque langue a sa page (/intro, /en) : la langue est retenue puis la page correspondante s'ouvre. */
+  async switchLang(lang: Lang): Promise<void> {
+    if (lang === this.i18n.lang()) return;
+    await this.i18n.use(lang);
+    await this.router.navigateByUrl(lang === 'en' ? '/en' : '/intro');
   }
 }

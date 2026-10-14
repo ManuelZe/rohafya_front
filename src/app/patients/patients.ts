@@ -11,6 +11,9 @@ import { UserInfoCard } from './shared/user-info-card/user-info-card';
 import { SuggestionDialog } from './suggestion-box/suggestion-dialog/suggestion-dialog';
 import { SaasAccountService } from '../saas/saas-account.service';
 
+import { TranslatePipe } from '../shared/i18n/t.pipe';
+import { I18n } from '../shared/i18n/i18n';
+import { LangSwitch } from '../shared/i18n/lang-switch';
 const HELP_CONTACTS = [
   {
     label: 'Assistance technique',
@@ -23,7 +26,7 @@ const ACCESS_DENIED_MESSAGE = 'L\u2019UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CE
 
 @Component({
   selector: 'app-patients',
-  imports: [
+  imports: [LangSwitch, TranslatePipe, 
     CommonModule,
     PRIMENG_MODULES,
     PIcon,
@@ -91,11 +94,9 @@ export class Patients {
     this.suggestionDialogOpen.set(false);
   }
 
-  currentDate = new Date().toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
+  private readonly i18n = inject(I18n);
+  /** Date du jour, dans la langue de l'interface. */
+  readonly currentDate = computed(() => new Date().toLocaleDateString(this.i18n.locale(), { day: '2-digit', month: 'long', year: 'numeric' }));
 
   userName = computed(() => this.authService.fullName() || 'Utilisateur');
 

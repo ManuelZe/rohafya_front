@@ -8,9 +8,10 @@ import { KpiTile } from '../../../shared/kpi-tile/kpi-tile';
 import { SOURCE_LABELS, SuperStats, TenantWithStats, auditLabel } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-super-overview',
-  imports: [DatePipe, RouterLink, PIcon, PageHeader, KpiTile],
+  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, KpiTile],
   templateUrl: './super-overview.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

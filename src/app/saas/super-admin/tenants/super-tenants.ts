@@ -9,9 +9,10 @@ import { SaasAccountService } from '../../saas-account.service';
 import { SOURCE_LABELS, SourceType, TenantWithStats } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-super-tenants',
-  imports: [RouterLink, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './super-tenants.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

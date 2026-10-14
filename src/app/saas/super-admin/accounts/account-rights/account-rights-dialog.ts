@@ -4,6 +4,7 @@ import { extractErrorMessage } from '../../../../shared/api-error';
 import { AccountRightsUpdate, AccountView, AdminAccountRights } from '../../../saas.models';
 import { SuperAdminService } from '../../../super-admin.service';
 
+import { TranslatePipe } from '../../../../shared/i18n/t.pipe';
 type PrintMode = 'none' | 'window' | 'blocked';
 type ShareMode = 'unlimited' | 'limited';
 
@@ -46,7 +47,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-account-rights-dialog',
-  imports: [FormField, FormRoot],
+  imports: [TranslatePipe, FormField, FormRoot],
   templateUrl: './account-rights-dialog.html',
   styleUrls: ['../../../../doctors/shared/doctor-ui.css', '../../../shared/console-ui.css', './account-rights-dialog.css'],
 })

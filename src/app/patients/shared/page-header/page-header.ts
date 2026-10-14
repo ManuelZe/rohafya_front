@@ -5,9 +5,10 @@ import { filter, map } from 'rxjs';
 import { SidebarToggleButton } from '../sidebar-toggle-button/sidebar-toggle-button';
 import { NotificationBell } from '../../../notifications/notification-bell/notification-bell';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-page-header',
-  imports: [SidebarToggleButton, NotificationBell],
+  imports: [TranslatePipe, SidebarToggleButton, NotificationBell],
   templateUrl: './page-header.html',
   styleUrl: './page-header.css',
 })

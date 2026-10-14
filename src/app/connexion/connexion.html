@@ -2,7 +2,7 @@
   <!-- Colonne gauche: Image futuriste -->
   <div class="login-visual">
     <div class="future-medical">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Médecine numérique futuriste">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" [attr.aria-label]="'Médecine numérique futuriste' | t">
         <!-- Circulaire de base -->
         <circle cx="100" cy="100" r="90" class="circle-bg" />
         
@@ -31,16 +31,17 @@
           <line x1="100" y1="150" x2="100" y2="100" class="connection-line" />
         </g>
       </svg>
-      <h2 class="medical-title">Médecine Numérique</h2>
-      <p class="medical-subtitle">Plateforme de santé digitale</p>
+      <h2 class="medical-title">{{ 'Médecine Numérique' | t }}</h2>
+      <p class="medical-subtitle">{{ 'Plateforme de santé digitale' | t }}</p>
     </div>
   </div>
 
   <!-- Colonne droite: Formulaire -->
   <div class="login-form">
+    <div class="auth-lang"><app-lang-switch /></div>
     <div class="form-content">
-      <h1 class="form-title">Connexion</h1>
-      <p class="form-description">Accédez à votre espace de santé</p>
+      <h1 class="form-title">{{ 'Connexion' | t }}</h1>
+      <p class="form-description">{{ 'Accédez à votre espace de santé' | t }}</p>
 
       <!-- Sélection du type d'utilisateur -->
       <div class="user-type-selector">
@@ -67,7 +68,7 @@
             class="user-type-btn"
             [class.active]="userType() === 'patient'"
             (click)="selectUserType('patient')"
-            aria-label="Se connecter en tant que patient"
+            [attr.aria-label]="'Se connecter en tant que patient' | t"
             aria-pressed="{{userType() === 'patient'}}"
           >
             <svg class="btn-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -75,15 +76,15 @@
                 d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
               />
             </svg>
-            <span>Patient</span>
+            <span>{{ 'Patient' | t }}</span>
           </button>
         </div>
       </div>
 
       <!-- Méthode de connexion -->
-      <div class="login-mode" role="group" aria-label="Méthode de connexion">
-        <button type="button" [attr.aria-pressed]="mode() === 'password'" (click)="mode.set('password')">Mot de passe</button>
-        <button type="button" [attr.aria-pressed]="mode() === 'email'" (click)="mode.set('email')">Code par e-mail</button>
+      <div class="login-mode" role="group" [attr.aria-label]="'Méthode de connexion' | t">
+        <button type="button" [attr.aria-pressed]="mode() === 'password'" (click)="mode.set('password')">{{ 'Mot de passe' | t }}</button>
+        <button type="button" [attr.aria-pressed]="mode() === 'email'" (click)="mode.set('email')">{{ 'Code par e-mail' | t }}</button>
       </div>
 
       @if (mode() === 'email') {
@@ -93,33 +94,33 @@
       <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">
         <!-- Username -->
         <div class="form-group">
-          <label for="username" class="form-label">Nom d'utilisateur</label>
+          <label for="username" class="form-label">{{ 'Nom d\'utilisateur' | t }}</label>
           <input
             id="username"
             type="text"
             class="form-input"
             [formField]="form.username"
-            placeholder="Entrez votre nom d'utilisateur"
-            aria-label="Nom d'utilisateur"
+            [placeholder]="'Entrez votre nom d\'utilisateur' | t"
+            [attr.aria-label]="'Nom d\'utilisateur' | t"
           />
           @if (form.username().touched() && form.username().invalid()) {
-            <span class="form-error">{{ form.username().errors()[0]?.message }}</span>
+            <span class="form-error">{{ (form.username().errors()[0]?.message) | t }}</span>
           }
         </div>
 
         <!-- Password -->
         <div class="form-group">
-          <label for="password" class="form-label">Mot de passe</label>
+          <label for="password" class="form-label">{{ 'Mot de passe' | t }}</label>
           <input
             id="password"
             type="password"
             class="form-input"
             [formField]="form.password"
-            placeholder="Entrez votre mot de passe"
-            aria-label="Mot de passe"
+            [placeholder]="'Entrez votre mot de passe' | t"
+            [attr.aria-label]="'Mot de passe' | t"
           />
           @if (form.password().touched() && form.password().invalid()) {
-            <span class="form-error">{{ form.password().errors()[0]?.message }}</span>
+            <span class="form-error">{{ (form.password().errors()[0]?.message) | t }}</span>
           }
         </div>
 
@@ -128,15 +129,15 @@
           type="submit"
           class="submit-btn"
           [disabled]="form().invalid() || !userType()"
-          aria-label="Se connecter"
+          [attr.aria-label]="'Se connecter' | t"
         >
-          Se connecter
+          {{ 'Se connecter' | t }}
         </button>
 
         @if (errorMessage()) {
           <div class="error-message" role="alert" aria-live="assertive">
             <span class="error-icon" aria-hidden="true">⚠️</span>
-            <span>{{ errorMessage() }}</span>
+            <span>{{ errorMessage() | t }}</span>
           </div>
         }
 
@@ -146,14 +147,14 @@
       <!-- Register Link -->
       <div class="register-section">
         <p class="register-text">
-          Vous n'avez pas de compte?
+          {{ 'Vous n\'avez pas de compte?' | t }}
           <button
             type="button"
             class="register-link"
             routerLink="/register"
-            aria-label="Aller à la page d'enregistrement"
+            [attr.aria-label]="'Aller à la page d\'enregistrement' | t"
           >
-            S'enregistrer ici
+            {{ 'S\'enregistrer ici' | t }}
           </button>
         </p>
       </div>
@@ -164,9 +165,9 @@
           type="button"
           class="back-to-intro-link"
           routerLink="/"
-          aria-label="Revenir à la page d'accueil"
+          [attr.aria-label]="'Revenir à la page d\'accueil' | t"
         >
-          ← Retour à l'accueil
+          {{ '← Retour à l\'accueil' | t }}
         </button>
       </div>
     </div>

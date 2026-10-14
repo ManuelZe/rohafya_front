@@ -1,59 +1,59 @@
 <div class="page">
-  <app-page-header title="Comptes" subtitle="Tous les comptes ROHAFYA : patients, médecins et administrateurs." />
+  <app-page-header [title]="'Comptes' | t" [subtitle]="'Tous les comptes ROHAFYA : patients, médecins et administrateurs.' | t" />
 
   <section class="card">
     <div class="toolbar">
-      <div class="segmented" role="group" aria-label="Filtrer par rôle">
+      <div class="segmented" role="group" [attr.aria-label]="'Filtrer par rôle' | t">
         @for (filter of roleFilters; track filter.value) {
-          <button type="button" [attr.aria-pressed]="role() === filter.value" (click)="setRole(filter.value)">{{ filter.label }}</button>
+          <button type="button" [attr.aria-pressed]="role() === filter.value" (click)="setRole(filter.value)">{{ filter.label | t }}</button>
         }
       </div>
       <div class="search">
         <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
-        <label class="sr-only" for="account-search">Rechercher un compte</label>
-        <input id="account-search" type="search" placeholder="Nom, e-mail ou identifiant" [value]="query()" (input)="onSearch($event)" />
+        <label class="sr-only" for="account-search">{{ 'Rechercher un compte' | t }}</label>
+        <input id="account-search" type="search" [placeholder]="'Nom, e-mail ou identifiant' | t" [value]="query()" (input)="onSearch($event)" />
       </div>
     </div>
 
     @if (error()) {
       <div class="banner banner-error notice" role="alert">
         <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ error() }}</span>
-        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+        <span>{{ error() | t }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
       </div>
     }
 
     @if (loading() && !loaded()) {
       <div class="state" role="status">
         <span class="spinner spinner-lg" aria-hidden="true"></span>
-        <span>Chargement…</span>
+        <span>{{ 'Chargement…' | t }}</span>
       </div>
     } @else if (items().length === 0) {
       <div class="state">
         <svg [pIcon]="'users'" [size]="32" aria-hidden="true"></svg>
-        <strong>Aucun compte</strong>
+        <strong>{{ 'Aucun compte' | t }}</strong>
       </div>
     } @else {
       <div class="table-wrap" [class.is-refreshing]="loading()">
         <table class="rtable">
-          <caption class="sr-only">Comptes ROHAFYA</caption>
+          <caption class="sr-only">{{ 'Comptes ROHAFYA' | t }}</caption>
           <thead>
             <tr>
-              <th scope="col">Nom</th>
-              <th scope="col">E-mail</th>
-              <th scope="col">Rôles</th>
-              <th scope="col">Administre</th>
-              <th scope="col">État</th>
-              <th scope="col">Droits</th>
-              <th scope="col"><span class="sr-only">Actions</span></th>
+              <th scope="col">{{ 'Nom' | t }}</th>
+              <th scope="col">{{ 'E-mail' | t }}</th>
+              <th scope="col">{{ 'Rôles' | t }}</th>
+              <th scope="col">{{ 'Administre' | t }}</th>
+              <th scope="col">{{ 'État' | t }}</th>
+              <th scope="col">{{ 'Droits' | t }}</th>
+              <th scope="col"><span class="sr-only">{{ 'Actions' | t }}</span></th>
             </tr>
           </thead>
           <tbody>
             @for (account of items(); track account.id) {
               <tr>
-                <td data-label="Nom" class="strong">{{ account.first_name }} {{ account.last_name }}</td>
-                <td data-label="E-mail">{{ account.email || '—' }}</td>
-                <td data-label="Rôles">
+                <td [attr.data-label]="'Nom' | t" class="strong">{{ account.first_name }} {{ account.last_name }}</td>
+                <td [attr.data-label]="'E-mail' | t">{{ account.email || '—' }}</td>
+                <td [attr.data-label]="'Rôles' | t">
                   <span class="roles">
                     @for (role of account.roles; track role) {
                       <span class="pill">{{ roleLabel(role) }}</span>
@@ -62,11 +62,11 @@
                     }
                   </span>
                 </td>
-                <td data-label="Administre">{{ account.admin_of.length ? account.admin_of.join(', ') : '—' }}</td>
-                <td data-label="État">
-                  <span [class]="'pill ' + (account.active ? 'pill-active' : 'pill-danger')">{{ account.active ? 'Actif' : 'Désactivé' }}</span>
+                <td [attr.data-label]="'Administre' | t">{{ account.admin_of.length ? account.admin_of.join(', ') : '—' }}</td>
+                <td [attr.data-label]="'État' | t">
+                  <span [class]="'pill ' + (account.active ? 'pill-active' : 'pill-danger')">{{ (account.active ? 'Actif' : 'Désactivé') | t }}</span>
                 </td>
-                <td data-label="Droits">
+                <td [attr.data-label]="'Droits' | t">
                   @if (account.rights?.length) {
                     <span class="roles">
                       @for (right of account.rights; track right) {
@@ -74,20 +74,20 @@
                       }
                     </span>
                   } @else {
-                    <span class="pill pill-none">Tout disponible</span>
+                    <span class="pill pill-none">{{ 'Tout disponible' | t }}</span>
                   }
                 </td>
                 <td class="actions-cell">
                   <span class="cell-actions">
                     @if (account.patient_id !== null || account.doctor_id !== null) {
                       <button type="button" class="btn btn-ghost btn-sm" (click)="openRights(account, $event)">
-                        Droits<span class="sr-only"> : {{ account.email }}</span>
+                        {{ 'Droits' | t }}<span class="sr-only"> : {{ account.email }}</span>
                       </button>
                     }
                   @if (account.id !== currentUserId()) {
                       @if (!account.roles.includes('Admin')) {
                         <button type="button" class="btn btn-ghost btn-sm" (click)="toggleSuperAdmin(account)" [disabled]="busyId() === account.id">
-                          {{ account.roles.includes('SuperAdmin') ? 'Retirer super-admin' : 'Nommer super-admin' }}<span class="sr-only"> : {{ account.email }}</span>
+                          {{ (account.roles.includes('SuperAdmin') ? 'Retirer super-admin' : 'Nommer super-admin') | t }}<span class="sr-only"> : {{ account.email }}</span>
                         </button>
                       }
                       <button
@@ -96,7 +96,7 @@
                         (click)="toggleActive(account)"
                         [disabled]="busyId() === account.id"
                       >
-                        {{ account.active ? 'Désactiver' : 'Réactiver' }}<span class="sr-only"> {{ account.email }}</span>
+                        {{ (account.active ? 'Désactiver' : 'Réactiver') | t }}<span class="sr-only"> {{ account.email }}</span>
                       </button>
                   }
                   </span>

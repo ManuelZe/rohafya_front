@@ -5,6 +5,8 @@ import { AuthService } from './auth-service';
 import { extractErrorMessage } from '../shared/api-error';
 import { EmailCodeLogin } from './email-code-login/email-code-login';
 
+import { TranslatePipe } from '../shared/i18n/t.pipe';
+import { LangSwitch } from '../shared/i18n/lang-switch';
 interface LoginFormModel {
   username: string;
   password: string;
@@ -12,7 +14,7 @@ interface LoginFormModel {
 
 @Component({
   selector: 'app-connexion',
-  imports: [RouterLink, FormField, FormRoot, EmailCodeLogin],
+  imports: [LangSwitch, TranslatePipe, RouterLink, FormField, FormRoot, EmailCodeLogin],
   templateUrl: './connexion.html',
   styleUrl: './connexion.css',
 })

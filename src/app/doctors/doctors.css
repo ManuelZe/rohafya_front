@@ -449,3 +449,10 @@
 :host ::ng-deep .doctor-drawer .p-drawer-close-button {
   color: #34d399;
 }
+
+/* Choix de la langue, sous la date */
+.sidebar-lang {
+  display: flex;
+  justify-content: center;
+  margin: 0.25rem 0 0.5rem;
+}

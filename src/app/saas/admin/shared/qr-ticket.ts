@@ -3,39 +3,39 @@ import { DatePipe } from '@angular/common';
 import { PIcon } from '@primeicons/angular/p-icon';
 import { IssuedLinkToken } from '../../saas.models';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 /** Fenêtre affichant le QR code à imprimer sur la facture, son code court et son lien. */
 @Component({
   selector: 'app-qr-ticket',
-  imports: [DatePipe, PIcon],
+  imports: [TranslatePipe, DatePipe, PIcon],
   host: { '(document:keydown.escape)': 'closed.emit()' },
   template: `
     <div class="overlay" (click)="closed.emit()">
       <div class="dialog ticket" role="dialog" aria-modal="true" aria-labelledby="qr-title" (click)="$event.stopPropagation()">
-        <h2 id="qr-title">QR code de rattachement</h2>
+        <h2 id="qr-title">{{ 'QR code de rattachement' | t }}</h2>
         <p class="muted">
-          Dossier <strong>{{ token().local_ref }}</strong>{{ token().establishment ? ' · ' + token().establishment : '' }}.
-          À imprimer sur la facture ou à remettre au patient. Il ne sert qu’une fois.
+          {{ 'Dossier' | t }} <strong>{{ token().local_ref }}</strong>{{ token().establishment ? ' · ' + token().establishment : '' }}. {{ 'À imprimer sur la facture ou à remettre au patient. Il ne sert qu’une fois.' | t }}
         </p>
         @if (imageSrc(); as src) {
-          <img class="qr" [src]="src" width="220" height="220" alt="QR code de rattachement du dossier {{ token().local_ref }}" />
+          <img class="qr" [src]="src" width="220" height="220" [alt]="'QR code de rattachement du dossier {0}' | t: [token().local_ref]" />
         }
-        <p class="short-label">Code à saisir si le QR code ne peut pas être scanné</p>
+        <p class="short-label">{{ 'Code à saisir si le QR code ne peut pas être scanné' | t }}</p>
         <p class="short-code">{{ token().short_code }}</p>
         @if (token().expires_at) {
-          <p class="muted expires">Valable jusqu’au {{ token().expires_at | date: 'dd/MM/yyyy' }}</p>
+          <p class="muted expires">{{ 'Valable jusqu’au {0}' | t: [(token().expires_at | date: 'dd/MM/yyyy')] }}</p>
         }
         <div class="ticket-actions">
           @if (imageSrc(); as src) {
             <a class="btn btn-ghost" [href]="src" [attr.download]="'qr-' + token().local_ref + '.png'">
               <svg [pIcon]="'download'" [size]="16" aria-hidden="true"></svg>
-              <span>Télécharger</span>
+              <span>{{ 'Télécharger' | t }}</span>
             </a>
           }
           <button type="button" class="btn btn-ghost" (click)="copyLink()">
             <svg [pIcon]="'copy'" [size]="16" aria-hidden="true"></svg>
-            <span>{{ copied() ? 'Lien copié' : 'Copier le lien' }}</span>
+            <span>{{ (copied() ? 'Lien copié' : 'Copier le lien') | t }}</span>
           </button>
-          <button type="button" class="btn btn-primary" (click)="closed.emit()">Fermer</button>
+          <button type="button" class="btn btn-primary" (click)="closed.emit()">{{ 'Fermer' | t }}</button>
         </div>
       </div>
     </div>

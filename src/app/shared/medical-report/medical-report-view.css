@@ -108,6 +108,11 @@
   background: var(--rohafya-navy-dark, #08304a);
 }
 
+/* Téléphone : le PDF préparé est un lien, présenté comme le bouton. */
+a.mr-print {
+  text-decoration: none;
+}
+
 .mr-actions {
   display: flex;
   flex-direction: column;
@@ -526,7 +531,7 @@ tr.is-out .mr-gauge-marker {
   }
 
   .mr-range::before {
-    content: 'Valeurs de référence : ';
+    content: attr(data-label) ' ';
     color: #4b5563;
   }
 

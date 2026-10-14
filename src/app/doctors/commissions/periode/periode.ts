@@ -9,6 +9,7 @@ import { PointsPipe, formatPoints } from '../../shared/points';
 import { sortLinesByDate } from '../commissions.models';
 import { CommissionsService } from '../commissions.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 type PresetId = 'today' | 'week' | 'cycle' | 'month' | 'days30' | 'custom';
 
 interface Preset {
@@ -29,7 +30,7 @@ function daysAgo(n: number): Date {
 
 @Component({
   selector: 'app-periode',
-  imports: [DatePipe, PIcon, PageHeader, KpiTile, PointsPipe],
+  imports: [TranslatePipe, DatePipe, PIcon, PageHeader, KpiTile, PointsPipe],
   templateUrl: './periode.html',
   styleUrls: ['../../shared/doctor-ui.css', './periode.css'],
 })

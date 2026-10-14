@@ -1,26 +1,27 @@
 import { Component, input } from '@angular/core';
 import { PIcon } from '@primeicons/angular/p-icon';
 
+import { TranslatePipe } from '../i18n/t.pipe';
 /** Tuile indicateur : libellé · valeur · précision. La couleur ne sert qu'à l'icône, jamais au texte. */
 @Component({
   selector: 'app-kpi-tile',
-  imports: [PIcon],
+  imports: [TranslatePipe, PIcon],
   template: `
     <article class="kpi" [style.--kpi-accent]="accent()" [attr.aria-busy]="loading()">
       <div class="kpi-top">
         <span class="kpi-icon" aria-hidden="true"><svg [pIcon]="icon()" [size]="18"></svg></span>
-        <h3 class="kpi-label">{{ label() }}</h3>
+        <h3 class="kpi-label">{{ label() | t }}</h3>
       </div>
       @if (loading()) {
         <span class="kpi-skeleton" aria-hidden="true"></span>
-        <span class="sr-only">Chargement…</span>
+        <span class="sr-only">{{ 'Chargement…' | t }}</span>
       } @else if (error()) {
         <p class="kpi-value kpi-value-na">—</p>
-        <p class="kpi-hint">Indisponible</p>
+        <p class="kpi-hint">{{ 'Indisponible' | t }}</p>
       } @else {
         <p class="kpi-value">{{ value() }}</p>
         @if (hint()) {
-          <p class="kpi-hint">{{ hint() }}</p>
+          <p class="kpi-hint">{{ hint() | t }}</p>
         }
       }
     </article>

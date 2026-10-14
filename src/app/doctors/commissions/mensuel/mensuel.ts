@@ -19,9 +19,10 @@ import { StackedMeter } from '../../shared/stacked-meter/stacked-meter';
 import { InvoiceFilter, sortLinesByDate } from '../commissions.models';
 import { CommissionsService } from '../commissions.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-mensuel',
-  imports: [DatePipe, PIcon, PageHeader, StatusTag, KpiTile, StackedMeter, PointsPipe],
+  imports: [TranslatePipe, DatePipe, PIcon, PageHeader, StatusTag, KpiTile, StackedMeter, PointsPipe],
   templateUrl: './mensuel.html',
   styleUrls: ['../../shared/doctor-ui.css', './mensuel.css'],
 })

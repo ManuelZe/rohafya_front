@@ -10,7 +10,7 @@ export const SITE_NAME = 'ROHAFYA';
 export const SOCIAL_IMAGE = { path: '/og-rohafya.png?v=2', width: 1200, height: 630, alt: 'ROHAFYA — Votre santé, connectée' };
 
 /** Pages publiques à indexer, reprises dans le sitemap. */
-export const INDEXABLE_PATHS = ['/intro', '/register', '/connexion'];
+export const INDEXABLE_PATHS = ['/intro', '/en', '/register', '/connexion'];
 
 /**
  * Espaces privés fermés aux robots (robots.txt). Ils exigent une connexion ;

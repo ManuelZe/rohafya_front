@@ -33,6 +33,21 @@ L'URL de l'API vient de `src/environments/environment.development.ts` avec `ng s
 - Les liens absolus produits par l'API (QR codes `/l/<jeton>`, e-mails) pointent vers le front d'où vient la requête, s'il figure dans les origines autorisées de l'API. Ces origines sont définies dans `Rohafya/saas/constants.py` ou par la variable `ROHAFYA_FRONT_ORIGINS`. Par défaut : `https://rohafya.com`, `https://preprod.rohafya.com`, `http://localhost:4000` et `http://localhost:4200`.
 - Sans origine reconnue, l'API utilise `ROHAFYA_FRONT_URL`, qui vaut `https://rohafya.com` par défaut.
 
+## Site de présentation
+
+`/intro` (français) et `/en` (anglais) présentent ROHAFYA aux établissements de santé : constat, solution, mise en service, tarifs, questions fréquentes et formulaire « Demander un essai » (`src/app/intro/trial-form`), envoyé à `POST saas/public/trial-requests`. Les textes et les tarifs sont dans `src/app/intro/intro.content.ts`. Les deux pages sont pré-rendues, avec leurs balises `hreflang`. Un visiteur qui a choisi l'anglais est renvoyé de `/intro` vers `/en`. Les demandes reçues se suivent dans la console super-administrateur, page « Demandes d'essai ».
+
+## Langues (français / anglais)
+
+L'interface est écrite en français ; l'anglais est une traduction, choisie par chaque compte (sélecteur FR / EN des barres latérales et des pages de connexion). Le choix est gardé sur l'appareil (`localStorage`, clé `rohafyaLang`) et enregistré sur le compte (`PUT saas/me/preferences`), puis réappliqué à chaque connexion.
+
+- **Dans un gabarit** : `{{ 'Texte français' | t }}`, avec paramètres `{{ '{0} résultat(s)' | t: [n] }}` ; dates : `{{ d | ldate: 'datetime' }}` (« à » / « at »).
+- **Dans le code** : `tr('Texte français')` ou `tr('{n} disponibles', { n })` (`src/app/shared/i18n/i18n.ts`). Dans un `computed()`, le texte se recalcule au changement de langue.
+- **Traductions** : `src/app/shared/i18n/en/*.ts` (une clé = le texte français exact, espaces normalisés). Un texte sans traduction reste en français, jamais vide. En développement, les textes manquants rencontrés sont listés dans `window.__rohafyaMissing`.
+- **Règle** : une phrase complète par clé. Ne pas coller des morceaux (« résultat » + « s ») : écrire une clé par variante, par exemple `(n > 1 ? '{0} résultats' : '{0} résultat') | t: [n]`.
+- Les messages de l'API (en français) passent aussi par le dictionnaire (`en/api.ts`). Les données saisies (noms, examens, messages) ne sont pas traduites.
+- Le dictionnaire anglais n'est chargé que si l'anglais est choisi. `src/app/shared/i18n/i18n.spec.ts` vérifie notamment que chaque traduction garde les paramètres `{…}` du texte français.
+
 ## Mode démonstration
 
 Le bouton « Démo » de la page d'accueil ouvre l'application avec des données fictives. Rien ne part vers l'API : `src/app/demo/demo-interceptor.ts` répond à sa place. Trois profils sont proposés, du moins élevé au plus élevé :
@@ -52,7 +67,7 @@ Les trois profils partagent les mêmes données, et une information circule du p
 - **établissement → patients et médecins** : depuis « Notifications », l'administrateur écrit à un patient ou un médecin précis, à une sélection ou à tout le groupe ; la notification apparaît dans l'espace du destinataire (en démo, aucun e-mail ne part) ;
 - **dans l'établissement** : toutes ces actions sont inscrites au journal, et le tableau de bord suit.
 
-La console super-administrateur (dont l'envoi de notifications aux établissements et les droits des comptes) n'a pas de profil de démo.
+La console super-administrateur (dont l'envoi de notifications aux établissements, les droits des comptes et les demandes d'essai) n'a pas de profil de démo.
 
 Le bandeau « Démo » permet de changer de profil sans perdre les données, de les remettre à zéro ou de quitter la démo. Les données sont gardées dans l'onglet (`sessionStorage`) : elles survivent à un rechargement, mais pas à la fermeture de l'onglet. Les fichiers joints restent en mémoire et sont remplacés par une image générée après un rechargement.
 

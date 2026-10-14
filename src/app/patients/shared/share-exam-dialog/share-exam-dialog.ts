@@ -7,9 +7,10 @@ import { ExamType } from '../../resultats/resultats.models';
 import { extractErrorMessage } from '../../../shared/api-error';
 import { SaasAccountService } from '../../../saas/saas-account.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-share-exam-dialog',
-  imports: [CommonModule],
+  imports: [TranslatePipe, CommonModule],
   templateUrl: './share-exam-dialog.html',
   styleUrl: './share-exam-dialog.css',
   host: {

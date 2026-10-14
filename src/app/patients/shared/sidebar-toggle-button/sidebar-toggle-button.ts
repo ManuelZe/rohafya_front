@@ -3,9 +3,10 @@ import { ButtonModule } from 'primeng/button';
 import { Bars } from '@primeicons/angular/bars';
 import { SidebarService } from '../../sidebar-service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-sidebar-toggle-button',
-  imports: [ButtonModule, Bars],
+  imports: [TranslatePipe, ButtonModule, Bars],
   templateUrl: './sidebar-toggle-button.html',
   styleUrl: './sidebar-toggle-button.css',
 })

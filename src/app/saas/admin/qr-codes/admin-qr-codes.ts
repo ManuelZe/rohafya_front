@@ -11,6 +11,8 @@ import { TenantAdminService } from '../../tenant-admin.service';
 import { QrTicket } from '../shared/qr-ticket';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { tr } from '../../../shared/i18n/i18n';
 const PAGE_SIZE = 20;
 const STATUS_LABELS: Record<LinkTokenView['status'], string> = {
   active: 'Actif',
@@ -21,7 +23,7 @@ const STATUS_LABELS: Record<LinkTokenView['status'], string> = {
 
 @Component({
   selector: 'app-admin-qr-codes',
-  imports: [DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader, Pager, QrTicket],
+  imports: [TranslatePipe, DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader, Pager, QrTicket],
   templateUrl: './admin-qr-codes.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })
@@ -97,7 +99,7 @@ export class AdminQrCodes {
       next: (token) => {
         this.issuing.set(false);
         if (token.already_linked) {
-          this.notice.set(`Le dossier ${token.local_ref} est déjà rattaché à un compte ROHAFYA : aucun QR code n'est nécessaire.`);
+          this.notice.set(tr("Le dossier {ref} est déjà rattaché à un compte ROHAFYA : aucun QR code n'est nécessaire.", { ref: token.local_ref }));
           return;
         }
         this.ticket.set(token);

@@ -1,73 +1,73 @@
 <div class="page">
-  <app-page-header title="Données reçues" subtitle="Résultats et factures envoyés par votre logiciel, tels que vos patients les voient." />
+  <app-page-header [title]="'Données reçues' | t" [subtitle]="'Résultats et factures envoyés par votre logiciel, tels que vos patients les voient.' | t" />
 
   @if (isGnuHealth()) {
     <div class="banner banner-info" role="status">
       <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>Cet établissement est relié directement à GNU Health : ses résultats sont lus en direct et n'apparaissent pas dans cette liste.</span>
+      <span>{{ 'Cet établissement est relié directement à GNU Health : ses résultats sont lus en direct et n\'apparaissent pas dans cette liste.' | t }}</span>
     </div>
   }
 
   <section class="card">
     <div class="toolbar">
-      <div class="segmented" role="group" aria-label="Filtrer par type">
+      <div class="segmented" role="group" [attr.aria-label]="'Filtrer par type' | t">
         @for (option of kinds; track option.value) {
-          <button type="button" [attr.aria-pressed]="kind() === option.value" (click)="setKind(option.value)">{{ option.label }}</button>
+          <button type="button" [attr.aria-pressed]="kind() === option.value" (click)="setKind(option.value)">{{ option.label | t }}</button>
         }
       </div>
       <div class="search">
         <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
-        <label class="sr-only" for="record-search">Rechercher par code ou dossier</label>
-        <input id="record-search" type="search" placeholder="Code ou numéro de dossier" [value]="query()" (input)="onSearch($event)" />
+        <label class="sr-only" for="record-search">{{ 'Rechercher par code ou dossier' | t }}</label>
+        <input id="record-search" type="search" [placeholder]="'Code ou numéro de dossier' | t" [value]="query()" (input)="onSearch($event)" />
       </div>
     </div>
 
     @if (error()) {
       <div class="banner banner-error notice" role="alert">
         <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ error() }}</span>
-        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+        <span>{{ error() | t }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
       </div>
     }
 
     @if (loading() && !loaded()) {
       <div class="state" role="status">
         <span class="spinner spinner-lg" aria-hidden="true"></span>
-        <span>Chargement…</span>
+        <span>{{ 'Chargement…' | t }}</span>
       </div>
     } @else if (items().length === 0) {
       <div class="state">
         <svg [pIcon]="'database'" [size]="32" aria-hidden="true"></svg>
-        <strong>Aucune donnée</strong>
-        <span>Consultez la page Intégration pour brancher votre logiciel.</span>
+        <strong>{{ 'Aucune donnée' | t }}</strong>
+        <span>{{ 'Consultez la page Intégration pour brancher votre logiciel.' | t }}</span>
       </div>
     } @else {
       <div class="table-wrap" [class.is-refreshing]="loading()">
         <table class="rtable">
-          <caption class="sr-only">Données reçues</caption>
+          <caption class="sr-only">{{ 'Données reçues' | t }}</caption>
           <thead>
             <tr>
-              <th scope="col">Type</th>
-              <th scope="col">Code</th>
-              <th scope="col">Intitulé</th>
-              <th scope="col">Dossier</th>
-              <th scope="col">Validé le</th>
-              <th scope="col">Reçu le</th>
-              <th scope="col">Source</th>
+              <th scope="col">{{ 'Type' | t }}</th>
+              <th scope="col">{{ 'Code' | t }}</th>
+              <th scope="col">{{ 'Intitulé' | t }}</th>
+              <th scope="col">{{ 'Dossier' | t }}</th>
+              <th scope="col">{{ 'Validé le' | t }}</th>
+              <th scope="col">{{ 'Reçu le' | t }}</th>
+              <th scope="col">{{ 'Source' | t }}</th>
             </tr>
           </thead>
           <tbody>
             @for (record of items(); track record.id) {
               <tr>
-                <td data-label="Type">{{ kindLabels[record.kind] }}</td>
-                <td data-label="Code" class="mono">{{ record.code }}</td>
-                <td data-label="Intitulé" class="strong">{{ record.title }}</td>
-                <td data-label="Dossier" class="mono">
+                <td [attr.data-label]="'Type' | t">{{ kindLabels[record.kind] | t }}</td>
+                <td [attr.data-label]="'Code' | t" class="mono">{{ record.code }}</td>
+                <td [attr.data-label]="'Intitulé' | t" class="strong">{{ record.title | t }}</td>
+                <td [attr.data-label]="'Dossier' | t" class="mono">
                   <a class="link" [routerLink]="['/admin/patients', record.local_ref]">{{ record.local_ref }}</a>
                 </td>
-                <td data-label="Validé le">{{ record.validated_at ? (record.validated_at | date: 'dd/MM/yyyy') : '—' }}</td>
-                <td data-label="Reçu le">{{ (record.updated_at || record.created_at) | date: 'dd/MM/yyyy HH:mm' }}</td>
-                <td data-label="Source">{{ source(record) }}</td>
+                <td [attr.data-label]="'Validé le' | t">{{ record.validated_at ? (record.validated_at | date: 'dd/MM/yyyy') : '—' }}</td>
+                <td [attr.data-label]="'Reçu le' | t">{{ (record.updated_at || record.created_at) | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td [attr.data-label]="'Source' | t">{{ source(record) }}</td>
               </tr>
             }
           </tbody>

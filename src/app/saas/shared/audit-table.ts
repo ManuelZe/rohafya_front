@@ -2,36 +2,37 @@ import { Component, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AuditEntry, auditLabel } from '../saas.models';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 /** Tableau du journal d'audit (cartes sur mobile). */
 @Component({
   selector: 'app-audit-table',
-  imports: [DatePipe],
+  imports: [TranslatePipe, DatePipe],
   styleUrls: ['../../doctors/shared/doctor-ui.css', './console-ui.css'],
   template: `
     <div class="table-wrap">
       <table class="rtable">
-        <caption class="sr-only">Journal d'audit</caption>
+        <caption class="sr-only">{{ 'Journal d\\'audit' | t }}</caption>
         <thead>
           <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Action</th>
+            <th scope="col">{{ 'Date' | t }}</th>
+            <th scope="col">{{ 'Action' | t }}</th>
             @if (showEstablishment()) {
-              <th scope="col">Établissement</th>
+              <th scope="col">{{ 'Établissement' | t }}</th>
             }
-            <th scope="col">Objet</th>
-            <th scope="col">Par</th>
+            <th scope="col">{{ 'Objet' | t }}</th>
+            <th scope="col">{{ 'Par' | t }}</th>
           </tr>
         </thead>
         <tbody>
           @for (entry of entries(); track entry.id) {
             <tr>
-              <td data-label="Date">{{ entry.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td data-label="Action" class="strong">{{ label(entry.action) }}</td>
+              <td [attr.data-label]="'Date' | t">{{ entry.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td [attr.data-label]="'Action' | t" class="strong">{{ label(entry.action) | t }}</td>
               @if (showEstablishment()) {
-                <td data-label="Établissement">{{ entry.establishment || '—' }}</td>
+                <td [attr.data-label]="'Établissement' | t">{{ entry.establishment || '—' }}</td>
               }
-              <td data-label="Objet" class="mono">{{ entry.target || '—' }}</td>
-              <td data-label="Par">{{ entry.user_name || entry.user_email || (entry.action.startsWith('ingest') ? 'Logiciel de l’établissement' : '—') }}</td>
+              <td [attr.data-label]="'Objet' | t" class="mono">{{ entry.target || '—' }}</td>
+              <td [attr.data-label]="'Par' | t">{{ (entry.user_name || entry.user_email || (entry.action.startsWith('ingest') ? 'Logiciel de l’établissement' : '—')) | t }}</td>
             </tr>
           }
         </tbody>

@@ -1,13 +1,14 @@
 import { Component, computed, input } from '@angular/core';
 import { PointsPipe } from '../points';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 /**
  * Répartition prescriptions / réalisations sur une barre empilée.
  * Deux séries → légende toujours présente, valeurs en texte (jamais la couleur seule).
  */
 @Component({
   selector: 'app-stacked-meter',
-  imports: [PointsPipe],
+  imports: [TranslatePipe, PointsPipe],
   template: `
     <div class="meter" role="img" [attr.aria-label]="ariaLabel()">
       @if (total() > 0) {
@@ -22,7 +23,7 @@ import { PointsPipe } from '../points';
     <ul class="legend">
       <li>
         <span class="key key-prescription" aria-hidden="true"></span>
-        <span class="legend-label">Prescriptions</span>
+        <span class="legend-label">{{ 'Prescriptions' | t }}</span>
         <strong>{{ prescription() | points }}</strong>
         @if (showPct()) {
           <span class="legend-pct">{{ prescriptionPct() }} %</span>
@@ -30,7 +31,7 @@ import { PointsPipe } from '../points';
       </li>
       <li>
         <span class="key key-realisation" aria-hidden="true"></span>
-        <span class="legend-label">Réalisations</span>
+        <span class="legend-label">{{ 'Réalisations' | t }}</span>
         <strong>{{ realisation() | points }}</strong>
         @if (showPct()) {
           <span class="legend-pct">{{ realisationPct() }} %</span>

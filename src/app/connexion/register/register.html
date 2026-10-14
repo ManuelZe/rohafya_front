@@ -1,7 +1,7 @@
 <div class="login-container">
   <div class="login-visual">
     <div class="future-medical">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Médecine numérique futuriste">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" [attr.aria-label]="'Médecine numérique futuriste' | t">
         <circle cx="100" cy="100" r="90" class="circle-bg" />
         <g class="medical-elements">
           <path
@@ -20,27 +20,28 @@
           <line x1="100" y1="150" x2="100" y2="100" class="connection-line" />
         </g>
       </svg>
-      <h2 class="medical-title">Demande d'enregistrement</h2>
-      <p class="medical-subtitle">Plateforme de santé digitale</p>
+      <h2 class="medical-title">{{ 'Demande d\'enregistrement' | t }}</h2>
+      <p class="medical-subtitle">{{ 'Plateforme de santé digitale' | t }}</p>
     </div>
   </div>
 
   <div class="login-form">
+    <div class="auth-lang"><app-lang-switch /></div>
     <div class="form-content">
-      <h1 class="form-title">S'enregistrer</h1>
-      <p class="form-description">Veuillez compléter le formulaire pour soumettre votre demande.</p>
+      <h1 class="form-title">{{ 'S\'enregistrer' | t }}</h1>
+      <p class="form-description">{{ 'Veuillez compléter le formulaire pour soumettre votre demande.' | t }}</p>
 
       <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">
         <div class="form-group">
-          <label for="tenant_id" class="form-label">Établissement destinataire</label>
+          <label for="tenant_id" class="form-label">{{ 'Établissement destinataire' | t }}</label>
           <select id="tenant_id" class="form-input" [formField]="form.tenant_id" aria-describedby="tenant_hint tenant_error">
-            <option value="" disabled>{{ establishments.loading() ? 'Chargement…' : 'Choisir un établissement' }}</option>
+            <option value="" disabled>{{ (establishments.loading() ? 'Chargement…' : 'Choisir un établissement') | t }}</option>
             @for (e of establishments.list(); track e.id) {
               <option [value]="e.id">{{ e.name }}</option>
             }
           </select>
           @if (form.tenant_id().touched() && form.tenant_id().invalid()) {
-            <span id="tenant_error" class="form-error">{{ form.tenant_id().errors()[0]?.message }}</span>
+            <span id="tenant_error" class="form-error">{{ (form.tenant_id().errors()[0]?.message) | t }}</span>
           } @else {
             <span id="tenant_hint" class="form-hint">
               {{ establishments.error() ?? "L'établissement choisi reçoit votre demande et vous répond par e-mail." }}
@@ -49,76 +50,76 @@
         </div>
 
         <div class="form-group">
-          <label for="first_name" class="form-label">Nom</label>
+          <label for="first_name" class="form-label">{{ 'Nom' | t }}</label>
           <input
             id="first_name"
             type="text"
             class="form-input"
             [formField]="form.first_name"
-            placeholder="Entrez votre nom"
-            aria-label="Nom"
+            [placeholder]="'Entrez votre nom' | t"
+            [attr.aria-label]="'Nom' | t"
           />
           @if (form.first_name().touched() && form.first_name().invalid()) {
-            <span class="form-error">{{ form.first_name().errors()[0]?.message }}</span>
+            <span class="form-error">{{ (form.first_name().errors()[0]?.message) | t }}</span>
           }
         </div>
 
         <div class="form-group">
-          <label for="last_name" class="form-label">Prénom</label>
+          <label for="last_name" class="form-label">{{ 'Prénom' | t }}</label>
           <input
             id="last_name"
             type="text"
             class="form-input"
             [formField]="form.last_name"
-            placeholder="Entrez votre prénom"
-            aria-label="Prénom"
+            [placeholder]="'Entrez votre prénom' | t"
+            [attr.aria-label]="'Prénom' | t"
           />
           @if (form.last_name().touched() && form.last_name().invalid()) {
-            <span class="form-error">{{ form.last_name().errors()[0]?.message }}</span>
+            <span class="form-error">{{ (form.last_name().errors()[0]?.message) | t }}</span>
           }
         </div>
 
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="email" class="form-label">{{ 'Email' | t }}</label>
           <input
             id="email"
             type="email"
             class="form-input"
             [formField]="form.email"
-            placeholder="Entrez votre email"
-            aria-label="Email"
+            [placeholder]="'Entrez votre email' | t"
+            [attr.aria-label]="'Email' | t"
           />
           @if (form.email().touched() && form.email().invalid()) {
-            <span class="form-error">{{ form.email().errors()[0]?.message }}</span>
+            <span class="form-error">{{ (form.email().errors()[0]?.message) | t }}</span>
           }
         </div>
 
         <div class="form-group">
-          <label for="message" class="form-label">Message</label>
+          <label for="message" class="form-label">{{ 'Message' | t }}</label>
           <textarea
             id="message"
             class="form-input textarea-input"
             [formField]="form.message"
-            placeholder="Votre message (Optionnel)"
-            aria-label="Message"
+            [placeholder]="'Votre message (Optionnel)' | t"
+            [attr.aria-label]="'Message' | t"
             rows="4"
           ></textarea>
         </div>
 
         @if (errorMessage(); as message) {
-          <p class="form-alert" role="alert">{{ message }}</p>
+          <p class="form-alert" role="alert">{{ message | t }}</p>
         }
 
-        <button type="submit" class="submit-btn" [disabled]="form().invalid()" aria-label="S'enregistrer">
-          S'enregistrer
+        <button type="submit" class="submit-btn" [disabled]="form().invalid()" [attr.aria-label]="'S\'enregistrer' | t">
+          {{ 'S\'enregistrer' | t }}
         </button>
       </form>
 
       <div class="register-section">
         <p class="register-text">
-          Déjà inscrit ?
-          <a routerLink="/connexion" class="register-link" aria-label="Retour à la page de connexion">
-            Retour à la connexion
+          {{ 'Déjà inscrit ?' | t }}
+          <a routerLink="/connexion" class="register-link" [attr.aria-label]="'Retour à la page de connexion' | t">
+            {{ 'Retour à la connexion' | t }}
           </a>
         </p>
       </div>

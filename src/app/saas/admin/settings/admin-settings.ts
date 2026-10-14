@@ -10,6 +10,7 @@ import { PDF_IMPORT_ENABLED } from '../../features';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 interface SettingsModel {
   display_name: string;
   contact_email: string;
@@ -34,7 +35,7 @@ function emptyModel(): SettingsModel {
 
 @Component({
   selector: 'app-admin-settings',
-  imports: [DatePipe, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, DatePipe, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './admin-settings.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

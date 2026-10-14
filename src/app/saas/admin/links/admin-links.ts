@@ -9,6 +9,7 @@ import { LINK_STATUS_LABELS, LinkStatus, PatientLinkView } from '../../saas.mode
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const PAGE_SIZE = 25;
 const METHOD_LABELS: Record<string, string> = {
   qr: 'QR code',
@@ -19,7 +20,7 @@ const METHOD_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-admin-links',
-  imports: [DatePipe, RouterLink, PIcon, PageHeader, Pager],
+  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, Pager],
   templateUrl: './admin-links.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

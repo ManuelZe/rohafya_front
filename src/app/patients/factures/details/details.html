@@ -1,65 +1,65 @@
 <div class="details-container">
   @if (loading()) {
     <div class="state-box loading-box">
-      <p>Chargement des détails...</p>
+      <p>{{ 'Chargement des détails...' | t }}</p>
     </div>
   } @else if (error()) {
     <div class="state-box error-box">
       <i class="pi pi-exclamation-triangle error-icon"></i>
-      <p>{{ error() }}</p>
+      <p>{{ error() | t }}</p>
     </div>
   } @else if (selectedFacture(); as facture) {
     <div class="details-card">
       <div class="details-header">
-        <h3>Détails de la Facture</h3>
-        <span class="ref-badge">{{ facture.reference || 'N/A' }}</span>
+        <h3>{{ 'Détails de la Facture' | t }}</h3>
+        <span class="ref-badge">{{ facture.reference || 'N/A' | t }}</span>
       </div>
 
       <div class="meta-grid">
         <div class="meta-item">
-          <span class="meta-label">Date :</span>
+          <span class="meta-label">{{ 'Date :' | t }}</span>
           <span class="meta-value">{{ facture.date | date:'dd/MM/yyyy' }}</span>
         </div>
         <div class="meta-item">
-          <span class="meta-label">Montant Total :</span>
-          <span class="meta-value highlight">{{ facture.total_amount2 | number:'1.0-0' }} FCFA</span>
+          <span class="meta-label">{{ 'Montant Total :' | t }}</span>
+          <span class="meta-value highlight">{{ '{0} FCFA' | t: [(facture.total_amount2 | number:'1.0-0')] }}</span>
         </div>
         <div class="meta-item">
-          <span class="meta-label">Statut :</span>
+          <span class="meta-label">{{ 'Statut :' | t }}</span>
           <app-status-tag kind="facture" [status]="facture.state" />
         </div>
       </div>
 
       <div class="products-section">
-        <h4>Produits / Prestations ({{ details()?.length ?? 0 }})</h4>
+        <h4>{{ 'Produits / Prestations ({0})' | t: [details()?.length ?? 0] }}</h4>
         @if (hasProducts()) {
           <div class="table-scroll">
             <table class="products-table">
               <thead>
                 <tr>
-                  <th>Produit</th>
-                  <th>Quantité</th>
+                  <th>{{ 'Produit' | t }}</th>
+                  <th>{{ 'Quantité' | t }}</th>
                 </tr>
               </thead>
               <tbody>
                 @for (product of details(); track product.product_name + '-' + $index) {
                   <tr>
-                    <td data-label="Produit">{{ product.product_name }}</td>
-                    <td data-label="Quantité">{{ product.quantity }}</td>
+                    <td [attr.data-label]="'Produit' | t">{{ product.product_name }}</td>
+                    <td [attr.data-label]="'Quantité' | t">{{ product.quantity }}</td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
         } @else {
-          <p class="no-products">Aucun produit associé à cette facture.</p>
+          <p class="no-products">{{ 'Aucun produit associé à cette facture.' | t }}</p>
         }
       </div>
     </div>
   } @else {
     <div class="state-box empty-box">
       <i class="pi pi-info-circle info-icon"></i>
-      <p>Sélectionnez une facture dans le tableau pour afficher ses détails.</p>
+      <p>{{ 'Sélectionnez une facture dans le tableau pour afficher ses détails.' | t }}</p>
     </div>
   }
 </div>

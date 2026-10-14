@@ -1,13 +1,13 @@
-<a class="skip-link" href="/intro#contenu" (click)="goTo($event, 'contenu')">Aller au contenu</a>
+<a class="skip-link" [href]="home() + '#contenu'" (click)="goTo($event, 'contenu')">{{ 'Aller au contenu' | t }}</a>
 
 <!-- ===== EN-TÊTE ===== -->
 <header class="header" [class.header--scrolled]="scrolled() || menuOpen()">
   <div class="header__inner container">
-    <a class="header__brand" routerLink="/intro" aria-label="ROHAFYA, accueil">
+    <a class="header__brand" [routerLink]="home()" [attr.aria-label]="'ROHAFYA, accueil' | t">
       <img ngSrc="rohafya-emblem.png" width="244" height="128" alt="" priority />
     </a>
 
-    <nav class="nav" aria-label="Sections de la page">
+    <nav class="nav" [attr.aria-label]="'Sections de la page' | t">
       <ul class="nav__list">
         @for (link of navLinks; track link.id) {
           <li>
@@ -15,9 +15,9 @@
               class="nav__link"
               [class.nav__link--active]="activeSection() === link.id"
               [attr.aria-current]="activeSection() === link.id ? 'true' : null"
-              [href]="'/intro#' + link.id"
+              [href]="home() + '#' + link.id"
               (click)="goTo($event, link.id)"
-              >{{ link.label }}</a
+              >{{ link.label | t }}</a
             >
           </li>
         }
@@ -25,14 +25,15 @@
     </nav>
 
     <div class="header__actions">
+      <app-lang-switch class="header__lang" [navigate]="true" (changed)="switchLang($event)" />
       <app-demo-launcher />
-      <a class="btn btn--primary header__login" [routerLink]="auth.loginLink()">{{ auth.loginLabel() }}</a>
+      <a class="btn btn--primary header__login" [href]="home() + '#' + trialAnchor" (click)="goTo($event, trialAnchor)">{{ 'Demander un essai' | t }}</a>
       <button
         type="button"
         class="burger"
         [attr.aria-expanded]="menuOpen()"
         aria-controls="intro-mobile-menu"
-        [attr.aria-label]="menuOpen() ? 'Fermer le menu' : 'Ouvrir le menu'"
+        [attr.aria-label]="(menuOpen() ? 'Fermer le menu' : 'Ouvrir le menu') | t"
         (click)="toggleMenu()"
       >
         <svg [pIcon]="menuOpen() ? 'times' : 'bars'" [size]="22" aria-hidden="true"></svg>
@@ -42,12 +43,12 @@
 
   <div id="intro-mobile-menu" class="mobile-menu" [class.mobile-menu--open]="menuOpen()" [attr.inert]="menuOpen() ? null : ''">
     <div class="mobile-menu__inner">
-      <nav aria-label="Menu principal">
+      <nav [attr.aria-label]="'Menu principal' | t">
         <ul class="mobile-menu__list">
           @for (link of navLinks; track link.id) {
             <li>
-              <a class="mobile-menu__link" [href]="'/intro#' + link.id" (click)="goTo($event, link.id)">
-                {{ link.label }}
+              <a class="mobile-menu__link" [href]="home() + '#' + link.id" (click)="goTo($event, link.id)">
+                {{ link.label | t }}
                 <svg pIcon="angle-right" [size]="18" aria-hidden="true"></svg>
               </a>
             </li>
@@ -55,8 +56,9 @@
         </ul>
       </nav>
       <div class="mobile-menu__actions">
-        <a class="btn btn--primary" [routerLink]="auth.loginLink()">{{ auth.loginLabel() }}</a>
-        <a class="btn btn--ghost" routerLink="/register">Créer un compte</a>
+        <app-lang-switch [navigate]="true" (changed)="switchLang($event)" />
+        <a class="btn btn--primary" [href]="home() + '#' + trialAnchor" (click)="goTo($event, trialAnchor)">{{ 'Demander un essai' | t }}</a>
+        <a class="btn btn--ghost" [routerLink]="auth.loginLink()">{{ auth.loginLabel() | t }}</a>
       </div>
     </div>
   </div>
@@ -70,32 +72,31 @@
       <div class="hero__content">
         <p class="eyebrow">
           <app-rohafya-mark [size]="18" />
-          Votre santé, connectée
+          {{ 'Pour les établissements de santé' | t }}
         </p>
         <h1 id="hero-title" class="hero__title">
-          Vos résultats médicaux sur votre téléphone,
-          <span class="hero__highlight">sans revenir les chercher.</span>
+          {{ 'Vos résultats arrivent à vos patients sans qu’ils reviennent,' | t }}
+          <span class="hero__highlight">{{ 'et votre accueil respire.' | t }}</span>
         </h1>
         <p class="hero__lead">
-          ROHAFYA relie patients, médecins et établissements de santé. Résultats de laboratoire, d’imagerie et d’exploration,
-          factures et prescriptions : tout est réuni dans un seul compte, quel que soit l’établissement.
+          {{ 'Laboratoires, centres d’imagerie, centres médicaux et cliniques : ROHAFYA publie vos résultats et vos factures dans le compte de vos patients, à partir d’un QR code imprimé sur la facture. Sans changer de logiciel, et avec une trace de chaque remise.' | t }}
         </p>
 
         <div class="hero__actions">
-          <a class="btn btn--primary btn--lg" routerLink="/register">
-            Créer mon compte gratuit
+          <a class="btn btn--primary btn--lg" [href]="home() + '#' + trialAnchor" (click)="goTo($event, trialAnchor)">
+            {{ 'Demander un essai gratuit' | t }}
             <svg pIcon="arrow-right" [size]="16" aria-hidden="true"></svg>
           </a>
-          <button type="button" class="btn btn--ghost btn--lg" aria-haspopup="dialog" (click)="openDemo()">
+          <button type="button" class="btn btn--ghost btn--lg" aria-haspopup="dialog" (click)="tryDemo('admin')">
             <svg pIcon="play" [size]="14" aria-hidden="true"></svg>
-            Découvrir la démo
+            {{ 'Visiter l’espace établissement' | t }}
           </button>
         </div>
 
         <ul class="hero__trust">
-          <li><svg pIcon="check-circle" [size]="16" aria-hidden="true"></svg>Gratuit pour le patient</li>
-          <li><svg pIcon="check-circle" [size]="16" aria-hidden="true"></svg>Rien à installer</li>
-          <li><svg pIcon="check-circle" [size]="16" aria-hidden="true"></svg>Connexion par code unique</li>
+          <li><svg pIcon="check-circle" [size]="16" aria-hidden="true"></svg>{{ 'Sans changer de logiciel' | t }}</li>
+          <li><svg pIcon="check-circle" [size]="16" aria-hidden="true"></svg>{{ 'Mise en service à distance' | t }}</li>
+          <li><svg pIcon="check-circle" [size]="16" aria-hidden="true"></svg>{{ 'Essai de 60 jours sans engagement' | t }}</li>
         </ul>
       </div>
 
@@ -108,104 +109,137 @@
             height="1024"
             priority
             class="hero__image"
-            alt="Femme souriante consultant ses résultats médicaux sur une tablette"
+            [alt]="'Patiente consultant sur une tablette le résultat remis par son établissement' | t"
           />
         </div>
 
-        <!-- Cartes décoratives : elles illustrent ce que le patient reçoit. -->
+        <!-- Cartes décoratives : ce que voit l'établissement. -->
         <div class="float-card float-card--a" aria-hidden="true">
-          <span class="float-card__icon float-card__icon--green"><svg pIcon="bell" [size]="16"></svg></span>
+          <span class="float-card__icon float-card__icon--green"><svg pIcon="check-circle" [size]="16"></svg></span>
           <span>
-            <strong>Résultat disponible</strong>
-            <small>Bilan lipidique · à l’instant</small>
+            <strong>{{ 'Résultat publié' | t }}</strong>
+            <small>{{ 'Bilan lipidique · sans second passage' | t }}</small>
           </span>
         </div>
         <div class="float-card float-card--b" aria-hidden="true">
-          <span class="float-card__icon float-card__icon--navy"><svg pIcon="share-alt" [size]="16"></svg></span>
+          <span class="float-card__icon float-card__icon--navy"><svg pIcon="inbox" [size]="16"></svg></span>
           <span>
-            <strong>Partagé avec votre médecin</strong>
-            <small>Révocable à tout moment</small>
+            <strong>{{ 'Demande de devis reçue' | t }}</strong>
+            <small>{{ 'Avant la venue du patient' | t }}</small>
           </span>
         </div>
         <div class="float-card float-card--c" aria-hidden="true">
-          <span class="float-card__icon float-card__icon--green"><svg pIcon="check-circle" [size]="16"></svg></span>
+          <span class="float-card__icon float-card__icon--green"><svg pIcon="history" [size]="16"></svg></span>
           <span>
-            <strong>Facture réglée</strong>
-            <small>Détail du résultat débloqué</small>
+            <strong>{{ 'Consultation tracée' | t }}</strong>
+            <small>{{ 'Journal de l’établissement' | t }}</small>
           </span>
         </div>
       </div>
     </div>
 
     <div class="audiences container">
-      <p class="audiences__label">Pensé pour</p>
+      <p class="audiences__label">{{ 'Pensé pour' | t }}</p>
       <ul class="audiences__list">
         @for (a of audiences; track a.label) {
-          <li><svg [pIcon]="a.icon" [size]="16" aria-hidden="true"></svg>{{ a.label }}</li>
+          <li><svg [pIcon]="a.icon" [size]="16" aria-hidden="true"></svg>{{ a.label | t }}</li>
         }
       </ul>
     </div>
   </section>
 
-  <!-- ===== POURQUOI ===== -->
-  <section id="pourquoi" class="section" aria-labelledby="pourquoi-title">
+  <!-- ===== LE CONSTAT ===== -->
+  <section id="constat" class="section" aria-labelledby="constat-title">
     <div class="container">
       <header class="section__head" appReveal>
-        <p class="kicker">Le constat</p>
-        <h2 id="pourquoi-title" class="section__title" tabindex="-1">Un examen ne devrait coûter qu’un seul déplacement.</h2>
+        <p class="kicker">{{ 'Le constat' | t }}</p>
+        <h2 id="constat-title" class="section__title" tabindex="-1">{{ 'La remise des résultats coûte plus cher qu’il n’y paraît.' | t }}</h2>
         <p class="section__lead">
-          Aujourd’hui, le patient revient chercher son résultat, l’accueil passe ses journées au téléphone, et les comptes rendus
-          non retirés s’accumulent. Comparez.
+          {{ 'Résultats non retirés, accueil saturé d’appels, envois par WhatsApp sans trace, prescripteurs qui relancent : comparez votre établissement sans et avec ROHAFYA.' | t }}
         </p>
       </header>
       <app-before-after />
     </div>
   </section>
 
-  <!-- ===== ESPACES ===== -->
-  <section id="espaces" class="section section--tinted" aria-labelledby="espaces-title">
+  <!-- ===== LA SOLUTION ===== -->
+  <section id="solution" class="section section--tinted" aria-labelledby="solution-title">
     <div class="container">
       <header class="section__head" appReveal>
-        <p class="kicker">Fonctionnalités</p>
-        <h2 id="espaces-title" class="section__title" tabindex="-1">Un espace pour chacun, reliés entre eux.</h2>
+        <p class="kicker">{{ 'La solution' | t }}</p>
+        <h2 id="solution-title" class="section__title" tabindex="-1">{{ 'Trois bénéficiaires, un seul abonnement : le vôtre.' | t }}</h2>
         <p class="section__lead">
-          Ce que l’établissement publie arrive chez le patient, qui choisit de le partager avec son médecin. Découvrez chaque espace.
+          {{ 'Votre établissement publie ; votre patient consulte et partage ; son médecin reçoit. Chaque gain du patient et du médecin revient à votre établissement.' | t }}
         </p>
       </header>
 
-      <ol class="flow" appReveal aria-label="Circuit d’un résultat">
+      <ol class="flow" appReveal [attr.aria-label]="'Circuit d’un résultat' | t">
         <li class="flow__node">
           <span class="flow__icon"><svg pIcon="building" [size]="22" aria-hidden="true"></svg></span>
-          <strong>L’établissement</strong>
-          <span>publie résultats et factures</span>
+          <strong>{{ 'Votre établissement' | t }}</strong>
+          <span>{{ 'publie résultats et factures, sans saisie' | t }}</span>
           <span class="flow__link" aria-hidden="true"><span class="flow__dot"></span></span>
         </li>
         <li class="flow__node">
           <span class="flow__icon flow__icon--green"><svg pIcon="user" [size]="22" aria-hidden="true"></svg></span>
-          <strong>Le patient</strong>
-          <span>consulte et décide du partage</span>
+          <strong>{{ 'Votre patient' | t }}</strong>
+          <span>{{ 'consulte sans revenir et décide du partage' | t }}</span>
           <span class="flow__link" aria-hidden="true"><span class="flow__dot"></span></span>
         </li>
         <li class="flow__node">
           <span class="flow__icon"><svg pIcon="id-card" [size]="22" aria-hidden="true"></svg></span>
-          <strong>Le médecin</strong>
-          <span>reçoit les résultats partagés</span>
+          <strong>{{ 'Son médecin' | t }}</strong>
+          <span>{{ 'reçoit le résultat et vous adresse ses patients' | t }}</span>
         </li>
       </ol>
 
       <div appReveal>
-        <app-role-showcase (tryDemo)="tryDemo($event)" />
+        <app-role-showcase (tryDemo)="tryDemo($event)" (askTrial)="goTo(null, trialAnchor)" />
       </div>
+
+      <div class="segments-head" appReveal>
+        <h3 class="segments-title">{{ 'Ce que nous vous montrons d’abord, selon votre établissement' | t }}</h3>
+      </div>
+      <ul class="segments">
+        @for (s of segments; track s.title; let i = $index) {
+          <li class="segment" [appReveal]="(i % 4) * 80">
+            <span class="segment__icon" aria-hidden="true"><svg [pIcon]="s.icon" [size]="20"></svg></span>
+            <h4 class="segment__title">{{ s.title | t }}</h4>
+            <ul class="segment__points">
+              @for (p of s.points; track p) {
+                <li><svg pIcon="check" [size]="14" aria-hidden="true"></svg>{{ p | t }}</li>
+              }
+            </ul>
+            <p class="segment__first"><strong>{{ 'En démonstration :' | t }}</strong> {{ s.first | t }}</p>
+          </li>
+        }
+      </ul>
     </div>
   </section>
 
-  <!-- ===== COMMENT ÇA MARCHE ===== -->
-  <section id="comment" class="section" aria-labelledby="comment-title">
+  <!-- ===== MISE EN SERVICE ===== -->
+  <section id="mise-en-service" class="section" aria-labelledby="mise-en-service-title">
     <div class="container">
       <header class="section__head" appReveal>
-        <p class="kicker">Comment ça marche</p>
-        <h2 id="comment-title" class="section__title" tabindex="-1">Vos résultats en quatre gestes.</h2>
-        <p class="section__lead">Aucune application à télécharger, aucun mot de passe à retenir.</p>
+        <p class="kicker">{{ 'Mise en service' | t }}</p>
+        <h2 id="mise-en-service-title" class="section__title" tabindex="-1">{{ 'Tout se fait à distance, partout au Cameroun.' | t }}</h2>
+        <p class="section__lead">{{ 'Aucune visite n’est nécessaire pour démarrer : de la démonstration aux premiers résultats publiés, en quelques jours.' | t }}</p>
+      </header>
+
+      <ol class="onboarding">
+        @for (step of onboarding; track step.title; let i = $index) {
+          <li class="onboarding__step" [appReveal]="i * 80">
+            <span class="onboarding__num" aria-hidden="true">{{ i + 1 }}</span>
+            <span class="onboarding__icon" aria-hidden="true"><svg [pIcon]="step.icon" [size]="20"></svg></span>
+            <h3 class="onboarding__title"><span class="sr-only">{{ 'Étape {0} :' | t: [i + 1] }} </span>{{ step.title | t }}</h3>
+            <p class="onboarding__text">{{ step.text | t }}</p>
+          </li>
+        }
+      </ol>
+
+      <header class="section__head section__head--sub" appReveal>
+        <h3 class="section__subtitle">{{ 'Pour votre patient : quatre gestes, une phrase à l’accueil.' | t }}</h3>
+        <p class="section__lead">{{ 'Aucune application à télécharger, aucun mot de passe à retenir. Votre accueil n’a qu’à montrer le QR code de la facture.' | t }}</p>
       </header>
       <app-how-it-works appReveal />
     </div>
@@ -215,37 +249,37 @@
   <section id="confiance" class="section section--tinted" aria-labelledby="confiance-title">
     <div class="container">
       <header class="section__head" appReveal>
-        <p class="kicker">Sécurité et confidentialité</p>
-        <h2 id="confiance-title" class="section__title" tabindex="-1">Conçu avec la protection des données en tête.</h2>
-        <p class="section__lead">Voici concrètement ce que fait ROHAFYA pour que chaque résultat n’arrive qu’à la bonne personne.</p>
+        <p class="kicker">{{ 'Sécurité et confidentialité' | t }}</p>
+        <h2 id="confiance-title" class="section__title" tabindex="-1">{{ 'Conçu avec la protection des données en tête.' | t }}</h2>
+        <p class="section__lead">{{ 'Voici concrètement ce que fait ROHAFYA pour que chaque résultat n’arrive qu’à la bonne personne. Votre mise en conformité relève de vous : nous vous y aidons.' | t }}</p>
       </header>
 
       <ul class="trust-grid">
         @for (point of trustPoints; track point.title; let i = $index) {
           <li class="trust-card" [appReveal]="(i % 3) * 90">
             <span class="trust-card__icon" aria-hidden="true"><svg [pIcon]="point.icon" [size]="20"></svg></span>
-            <h3 class="trust-card__title">{{ point.title }}</h3>
-            <p class="trust-card__text">{{ point.text }}</p>
+            <h3 class="trust-card__title">{{ point.title | t }}</h3>
+            <p class="trust-card__text">{{ point.text | t }}</p>
           </li>
         }
       </ul>
 
       <article class="integration" appReveal aria-labelledby="integration-title">
         <div class="integration__text">
-          <p class="kicker kicker--light">Pour les équipes informatiques</p>
-          <h3 id="integration-title" class="integration__title">Rien à changer dans votre logiciel.</h3>
+          <p class="kicker kicker--light">{{ 'Pour votre informaticien ou votre éditeur' | t }}</p>
+          <h3 id="integration-title" class="integration__title">{{ 'Rien à changer dans votre logiciel.' | t }}</h3>
           <p>
-            ROHAFYA se branche par API, au format ROHAFYA ou au standard <strong>HL7 FHIR R4</strong>, et se teste avec des données
-            fictives. Les données d’origine restent dans votre logiciel : vous ne dépendez pas de ROHAFYA pour travailler.
+            {{ 'ROHAFYA se branche par API, au format ROHAFYA ou au standard HL7 FHIR R4, et se teste en une heure avec des données fictives. Les données d’origine restent dans votre logiciel : vous ne dépendez pas de ROHAFYA pour travailler.' | t }}
           </p>
           <ul class="integration__chips">
-            <li>API ROHAFYA</li>
-            <li>HL7 FHIR R4</li>
-            <li>Clé d’API renouvelable</li>
-            <li>Envois répétés sans doublon</li>
+            <li>{{ 'API ROHAFYA' | t }}</li>
+            <li>{{ 'HL7 FHIR R4' | t }}</li>
+            <li>{{ 'Clé d’API renouvelable' | t }}</li>
+            <li>{{ 'Envois répétés sans doublon' | t }}</li>
+            <li>{{ 'Établissement de test' | t }}</li>
           </ul>
         </div>
-        <pre class="code" tabindex="0" aria-label="Exemple d’envoi au format HL7 FHIR R4"><span class="code__c"># En-tête : X-ROHAFYA-API-Key</span>
+        <pre class="code" tabindex="0" [attr.aria-label]="'Exemple d’envoi au format HL7 FHIR R4' | t"><span class="code__c"># X-ROHAFYA-API-Key</span>
 {{ '{' }}
   <span class="code__k">"resourceType"</span>: <span class="code__s">"Bundle"</span>,
   <span class="code__k">"entry"</span>: [
@@ -259,38 +293,116 @@
     </div>
   </section>
 
+  <!-- ===== TARIFS ===== -->
+  <section id="tarifs" class="section" aria-labelledby="tarifs-title">
+    <div class="container">
+      <header class="section__head" appReveal>
+        <p class="kicker">{{ 'Tarifs' | t }}</p>
+        <h2 id="tarifs-title" class="section__title" tabindex="-1">{{ 'Un prix lié à l’usage réel, affiché pour tous.' | t }}</h2>
+        <p class="section__lead">{{ 'Des frais de mise en service payés une fois, puis un abonnement selon le nombre de résultats publiés. En formule Standard, la remise d’un résultat revient à environ 25 FCFA.' | t }}</p>
+      </header>
+
+      <ul class="plans">
+        @for (plan of plans; track plan.name; let i = $index) {
+          <li class="plan" [class.plan--highlight]="plan.highlight" [appReveal]="i * 80">
+            @if (plan.highlight) {
+              <span class="plan__badge">{{ 'Le plus courant' | t }}</span>
+            }
+            <h3 class="plan__name">{{ plan.name | t }}</h3>
+            <p class="plan__volume">{{ plan.volume | t }}</p>
+            <p class="plan__price"><strong>{{ plan.monthly | t }}</strong> <span>{{ 'par mois' | t }}</span></p>
+            <dl class="plan__facts">
+              <div><dt>{{ 'Mise en service' | t }}</dt><dd>{{ plan.setup | t }}</dd></div>
+              <div><dt>{{ 'Paiement annuel' | t }}</dt><dd>{{ plan.yearly | t }}</dd></div>
+            </dl>
+          </li>
+        }
+      </ul>
+      <ul class="plan-notes">
+        @for (note of pricingNotes; track note) {
+          <li><svg pIcon="check-circle" [size]="16" aria-hidden="true"></svg>{{ note | t }}</li>
+        }
+      </ul>
+
+      <article class="founders" appReveal aria-labelledby="founders-title">
+        <div>
+          <p class="kicker">{{ 'Programme « établissements fondateurs »' | t }}</p>
+          <h3 id="founders-title" class="founders__title">{{ 'Dix établissements, dont trois hors de Douala et Yaoundé.' | t }}</h3>
+          <p class="founders__text">{{ 'Pour nos premiers clients, partout au Cameroun : en échange, un référent dans l’établissement, un relevé avant et après l’essai, et votre témoignage si vous êtes satisfait.' | t }}</p>
+        </div>
+        <ul class="founders__list">
+          @for (item of founders; track item) {
+            <li><svg pIcon="star" [size]="16" aria-hidden="true"></svg>{{ item | t }}</li>
+          }
+        </ul>
+        <a class="btn btn--light btn--lg" [href]="home() + '#' + trialAnchor" (click)="goTo($event, trialAnchor)">{{ 'Devenir établissement fondateur' | t }}</a>
+      </article>
+    </div>
+  </section>
+
   <!-- ===== FAQ ===== -->
-  <section id="faq" class="section" aria-labelledby="faq-title">
+  <section id="faq" class="section section--tinted" aria-labelledby="faq-title">
     <div class="container container--narrow">
       <header class="section__head section__head--center" appReveal>
-        <p class="kicker">Questions fréquentes</p>
-        <h2 id="faq-title" class="section__title" tabindex="-1">Vous vous posez sans doute ces questions.</h2>
+        <p class="kicker">{{ 'Questions fréquentes' | t }}</p>
+        <h2 id="faq-title" class="section__title" tabindex="-1">{{ 'Les questions que nous posent les directeurs.' | t }}</h2>
       </header>
 
       <div class="faq">
         @for (item of faq; track item.question; let first = $first) {
           <details class="faq__item" name="intro-faq" [open]="first">
             <summary class="faq__question">
-              {{ item.question }}
+              {{ item.question | t }}
               <span class="faq__chevron" aria-hidden="true"><svg pIcon="chevron-down" [size]="18"></svg></span>
             </summary>
-            <p class="faq__answer">{{ item.answer }}</p>
+            <p class="faq__answer">{{ item.answer | t }}</p>
           </details>
         }
       </div>
     </div>
   </section>
 
-  <!-- ===== APPEL À L'ACTION ===== -->
-  <section class="cta container" aria-labelledby="cta-title">
-    <div class="cta__inner" appReveal>
-      <div>
-        <h2 id="cta-title" class="cta__title">Ne revenez plus pour un résultat.</h2>
-        <p class="cta__text">Créez votre compte en quelques secondes, ou explorez ROHAFYA en démo avec des données fictives.</p>
+  <!-- ===== DEMANDE D'ESSAI ===== -->
+  <section [id]="trialAnchor" class="section" aria-labelledby="essai-title">
+    <div class="container trial-layout">
+      <div class="trial-pitch" appReveal>
+        <p class="kicker">{{ 'Essai gratuit' | t }}</p>
+        <h2 id="essai-title" class="section__title" tabindex="-1">{{ 'Essayez ROHAFYA 60 jours, sans engagement.' | t }}</h2>
+        <p class="section__lead">{{ 'Dites-nous qui vous êtes : nous vous recontactons sous 24 heures ouvrées pour une démonstration de 20 minutes en visioconférence.' | t }}</p>
+        <ul class="trial-pitch__list">
+          <li><svg pIcon="video" [size]="18" aria-hidden="true"></svg>{{ 'Une démonstration sur votre propre téléphone' | t }}</li>
+          <li><svg pIcon="chart-line" [size]="18" aria-hidden="true"></svg>{{ 'Un bilan chiffré, avant et après l’essai' | t }}</li>
+          <li><svg pIcon="wallet" [size]="18" aria-hidden="true"></svg>{{ 'Aucun paiement avant la fin de l’essai' | t }}</li>
+        </ul>
+        <div class="trial-pitch__alt">
+          <p>{{ 'Vous préférez écrire ?' | t }}</p>
+          <a class="btn btn--ghost" [href]="whatsappLink()" target="_blank" rel="noopener noreferrer">
+            <svg pIcon="whatsapp" [size]="16" aria-hidden="true"></svg>
+            {{ 'WhatsApp : {0}' | t: [whatsappDisplay] }}<span class="sr-only"> {{ '(s’ouvre dans un nouvel onglet)' | t }}</span>
+          </a>
+          <button type="button" class="btn btn--ghost" aria-haspopup="dialog" (click)="tryDemo('admin')">
+            <svg pIcon="play" [size]="14" aria-hidden="true"></svg>
+            {{ 'Essayer la démo d’abord' | t }}
+          </button>
+        </div>
       </div>
-      <div class="cta__actions">
-        <a class="btn btn--light btn--lg" routerLink="/register">Créer mon compte</a>
-        <button type="button" class="btn btn--outline-light btn--lg" aria-haspopup="dialog" (click)="openDemo()">Découvrir la démo</button>
+      <div class="trial-card" appReveal>
+        <app-trial-form />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PATIENTS ET MÉDECINS DÉJÀ INSCRITS ===== -->
+  <section class="members container" aria-labelledby="members-title">
+    <div class="members__inner">
+      <svg pIcon="user" [size]="22" aria-hidden="true"></svg>
+      <div>
+        <h2 id="members-title" class="members__title">{{ 'Vous êtes patient ou médecin ?' | t }}</h2>
+        <p class="members__text">{{ 'Votre établissement vous a remis un QR code ou un identifiant : accédez à votre espace.' | t }}</p>
+      </div>
+      <div class="members__actions">
+        <a class="btn btn--primary" [routerLink]="auth.loginLink()">{{ auth.loginLabel() | t }}</a>
+        <a class="btn btn--ghost" routerLink="/register">{{ 'Créer un compte patient' | t }}</a>
       </div>
     </div>
   </section>
@@ -300,14 +412,14 @@
 <footer class="footer">
   <div class="footer__inner container">
     <div class="footer__brand">
-      <img ngSrc="rohafya-emblem.png" width="244" height="128" alt="ROHAFYA" />
-      <p>Plateforme de santé connectée au Cameroun : patients, médecins et établissements de santé, reliés.</p>
-      <ul class="footer__social" aria-label="ROHAFYA sur les réseaux sociaux">
+      <img ngSrc="rohafya-emblem.png" width="244" height="128" [alt]="'ROHAFYA' | t" />
+      <p>{{ 'La remise des résultats et des factures en ligne, pour les établissements de santé du Cameroun.' | t }}</p>
+      <ul class="footer__social" [attr.aria-label]="'ROHAFYA sur les réseaux sociaux' | t">
         @for (social of socialLinks; track social.url) {
           <li>
             <a class="social-link" [href]="social.url" target="_blank" rel="noopener noreferrer">
               <svg [pIcon]="social.icon" [size]="18" aria-hidden="true"></svg>
-              {{ social.label }}<span class="sr-only"> (s’ouvre dans un nouvel onglet)</span>
+              {{ social.label | t }}<span class="sr-only"> {{ '(s’ouvre dans un nouvel onglet)' | t }}</span>
             </a>
           </li>
         }
@@ -315,25 +427,33 @@
     </div>
 
     <nav class="footer__col" aria-labelledby="footer-discover">
-      <h2 id="footer-discover" class="footer__heading">Découvrir</h2>
+      <h2 id="footer-discover" class="footer__heading">{{ 'Découvrir' | t }}</h2>
       <ul>
         @for (link of navLinks; track link.id) {
-          <li><a [href]="'/intro#' + link.id" (click)="goTo($event, link.id)">{{ link.label }}</a></li>
+          <li><a [href]="home() + '#' + link.id" (click)="goTo($event, link.id)">{{ link.label | t }}</a></li>
         }
       </ul>
     </nav>
 
-    <nav class="footer__col" aria-labelledby="footer-access">
-      <h2 id="footer-access" class="footer__heading">Accéder</h2>
+    <nav class="footer__col" aria-labelledby="footer-establishments">
+      <h2 id="footer-establishments" class="footer__heading">{{ 'Établissements' | t }}</h2>
       <ul>
-        <li><a [routerLink]="auth.loginLink()">{{ auth.loginLabel() }}</a></li>
-        <li><a routerLink="/register">Créer un compte patient</a></li>
-        <li><button type="button" class="footer__link-btn" aria-haspopup="dialog" (click)="openDemo()">Essayer la démo</button></li>
+        <li><a [href]="home() + '#' + trialAnchor" (click)="goTo($event, trialAnchor)">{{ 'Demander un essai' | t }}</a></li>
+        <li><button type="button" class="footer__link-btn" aria-haspopup="dialog" (click)="openDemo()">{{ 'Essayer la démo' | t }}</button></li>
+        <li><a [href]="whatsappLink()" target="_blank" rel="noopener noreferrer">{{ 'WhatsApp' | t }}<span class="sr-only"> {{ '(s’ouvre dans un nouvel onglet)' | t }}</span></a></li>
+      </ul>
+    </nav>
+
+    <nav class="footer__col" aria-labelledby="footer-access">
+      <h2 id="footer-access" class="footer__heading">{{ 'Patients et médecins' | t }}</h2>
+      <ul>
+        <li><a [routerLink]="auth.loginLink()">{{ auth.loginLabel() | t }}</a></li>
+        <li><a routerLink="/register">{{ 'Créer un compte patient' | t }}</a></li>
       </ul>
     </nav>
   </div>
   <div class="footer__bottom container">
-    <span>© ROHAFYA · Votre santé, connectée</span>
-    <a href="https://rohafya.com">rohafya.com</a>
+    <span>{{ '© ROHAFYA · Votre santé, connectée' | t }}</span>
+    <app-lang-switch tone="dark" [navigate]="true" (changed)="switchLang($event)" />
   </div>
 </footer>

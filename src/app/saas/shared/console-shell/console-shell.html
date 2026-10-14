@@ -9,14 +9,14 @@
           <div class="profile-name">{{ userName() }}</div>
           <div class="profile-status">
             <span class="status-dot" aria-hidden="true"></span>
-            <span>{{ roleLabel() }}</span>
+            <span>{{ roleLabel() | t }}</span>
           </div>
         </div>
       </div>
 
       @if (tenants().length > 1) {
         <div class="tenant-switcher">
-          <label class="tenant-label" [for]="tenantSelectId + (mobile ? '-m' : '')">Établissement</label>
+          <label class="tenant-label" [for]="tenantSelectId + (mobile ? '-m' : '')">{{ 'Établissement' | t }}</label>
           <select
             class="tenant-select"
             [id]="tenantSelectId + (mobile ? '-m' : '')"
@@ -49,9 +49,9 @@
           (click)="entry.disabled ? null : onNavigate()"
         >
           <svg [pIcon]="entry.icon" [size]="20" aria-hidden="true"></svg>
-          <span>{{ entry.label }}</span>
+          <span>{{ entry.label | t }}</span>
           @if (entry.hint) {
-            <span class="menu-hint">{{ entry.hint }}</span>
+            <span class="menu-hint">{{ entry.hint | t }}</span>
           }
         </a>
       }
@@ -60,17 +60,18 @@
     <div class="sidebar-footer">
       <div class="sidebar-date">
         <svg [pIcon]="'calendar'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ currentDate }}</span>
+        <span>{{ currentDate() }}</span>
       </div>
+      <div class="sidebar-lang"><app-lang-switch tone="dark" /></div>
       @if (switchLink(); as target) {
         <a class="footer-btn switch-btn" [routerLink]="target.link" (click)="onNavigate()">
           <svg [pIcon]="'arrow-right-arrow-left'" [size]="16" aria-hidden="true"></svg>
-          <span>{{ target.label }}</span>
+          <span>{{ target.label | t }}</span>
         </a>
       }
       <button type="button" class="logout-btn" (click)="logout()">
         <svg [pIcon]="'sign-out'" [size]="16" aria-hidden="true"></svg>
-        <span>Déconnexion</span>
+        <span>{{ 'Déconnexion' | t }}</span>
       </button>
     </div>
   </ng-template>
@@ -82,7 +83,7 @@
     [closable]="true"
     class="sidebar-mobile"
     styleClass="doctor-drawer"
-    ariaCloseLabel="Fermer le menu"
+    [ariaCloseLabel]="'Fermer le menu' | t"
   >
     <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: true }" />
   </p-drawer>

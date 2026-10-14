@@ -1,10 +1,10 @@
 <form class="composer" [formRoot]="composerForm" (submit)="send()" [attr.aria-labelledby]="id + '-title'">
-  <h2 class="card-title" [id]="id + '-title'">Nouvelle notification</h2>
-  <p class="composer-intro">Chaque destinataire la reçoit dans son espace ROHAFYA et par e-mail.</p>
+  <h2 class="card-title" [id]="id + '-title'">{{ 'Nouvelle notification' | t }}</h2>
+  <p class="composer-intro">{{ 'Chaque destinataire la reçoit dans son espace ROHAFYA et par e-mail.' | t }}</p>
 
   <fieldset class="composer-block">
-    <legend>Destinataires</legend>
-    <div class="segmented" role="group" aria-label="Groupe destinataire">
+    <legend>{{ 'Destinataires' | t }}</legend>
+    <div class="segmented" role="group" [attr.aria-label]="'Groupe destinataire' | t">
       @for (a of audiences(); track a) {
         <button type="button" [attr.aria-pressed]="audience() === a" (click)="setAudience(a)">{{ labels[a] }}</button>
       }
@@ -17,26 +17,26 @@
       </label>
       <label class="check-row">
         <input type="radio" [name]="id + '-scope'" [checked]="scope() === 'selected'" (change)="setScope('selected')" />
-        <span>Choisir un ou plusieurs destinataires</span>
+        <span>{{ 'Choisir un ou plusieurs destinataires' | t }}</span>
       </label>
     </div>
 
     @if (groupTotal() === 0) {
-      <p class="form-hint">Aucun compte ROHAFYA actif dans ce groupe pour cet établissement.</p>
+      <p class="form-hint">{{ 'Aucun compte ROHAFYA actif dans ce groupe pour cet établissement.' | t }}</p>
     }
 
     @if (scope() === 'selected') {
       <div class="composer-picker">
-        <label [for]="id + '-search'">Rechercher (nom, e-mail, matricule)</label>
+        <label [for]="id + '-search'">{{ 'Rechercher (nom, e-mail, matricule)' | t }}</label>
         <input [id]="id + '-search'" class="field" type="search" [value]="query()" (input)="onSearch($event)" autocomplete="off" />
         <p class="form-hint" aria-live="polite">
           @if (searching()) {
-            Recherche…
+            {{ 'Recherche…' | t }}
           } @else {
-            {{ resultsTotal() }} résultat{{ resultsTotal() > 1 ? 's' : '' }}{{ resultsTotal() > results().length ? ' (les ' + results().length + ' premiers affichés)' : '' }}
+            {{ (resultsTotal() > 1 ? '{0} résultats' : '{0} résultat') | t: [resultsTotal()] }}@if (resultsTotal() > results().length) { {{ '(les {0} premiers affichés)' | t: [results().length] }}}
           }
         </p>
-        <ul class="composer-results" [attr.aria-label]="'Résultats : ' + labels[audience()]">
+        <ul class="composer-results" [attr.aria-label]="'Résultats : {0}' | t: [(labels[audience()] | t)]">
           @for (r of results(); track r.user_id) {
             <li>
               <label class="check-row">
@@ -51,12 +51,12 @@
         </ul>
 
         @if (selected().length) {
-          <p class="composer-selected-title">{{ selected().length }} sélectionné{{ selected().length > 1 ? 's' : '' }}</p>
+          <p class="composer-selected-title">{{ (selected().length > 1 ? '{0} sélectionnés' : '{0} sélectionné') | t: [selected().length] }}</p>
           <ul class="composer-chips">
             @for (r of selected(); track r.user_id) {
               <li>
                 <span>{{ r.name }}</span>
-                <button type="button" (click)="remove(r)" [attr.aria-label]="'Retirer ' + r.name">×</button>
+                <button type="button" (click)="remove(r)" [attr.aria-label]="'Retirer {0}' | t: [r.name]">×</button>
               </li>
             }
           </ul>
@@ -66,7 +66,7 @@
   </fieldset>
 
   <div class="form-row">
-    <label [for]="id + '-subject'">Objet *</label>
+    <label [for]="id + '-subject'">{{ 'Objet *' | t }}</label>
     <input
       [id]="id + '-subject'"
       class="field"
@@ -78,13 +78,13 @@
     <span class="form-hint" [id]="id + '-subject-count'">{{ model().title.length }} / {{ titleMax }}</span>
     <span class="form-error" [id]="id + '-subject-error'">
       @if (composerForm.title().touched() && composerForm.title().invalid()) {
-        {{ composerForm.title().errors()[0]?.message }}
+        {{ (composerForm.title().errors()[0]?.message) | t }}
       }
     </span>
   </div>
 
   <div class="form-row">
-    <label [for]="id + '-message'">Message *</label>
+    <label [for]="id + '-message'">{{ 'Message *' | t }}</label>
     <textarea
       [id]="id + '-message'"
       class="field composer-message"
@@ -96,19 +96,19 @@
     <span class="form-hint" [id]="id + '-message-count'">{{ model().message.length }} / {{ messageMax }}</span>
     <span class="form-error" [id]="id + '-message-error'">
       @if (composerForm.message().touched() && composerForm.message().invalid()) {
-        {{ composerForm.message().errors()[0]?.message }}
+        {{ (composerForm.message().errors()[0]?.message) | t }}
       }
     </span>
   </div>
 
   @if (error()) {
     <div class="banner banner-error" role="alert">
-      <span>{{ error() }}</span>
+      <span>{{ error() | t }}</span>
     </div>
   }
   @if (success()) {
     <div class="banner banner-success" role="status">
-      <span>{{ success() }}</span>
+      <span>{{ success() | t }}</span>
     </div>
   }
 
@@ -117,7 +117,7 @@
       @if (sending()) {
         <span class="spinner" aria-hidden="true"></span>
       }
-      {{ submitLabel() }}
+      {{ submitLabel() | t }}
     </button>
   </div>
 </form>

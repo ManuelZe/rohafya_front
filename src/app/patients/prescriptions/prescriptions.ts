@@ -17,6 +17,8 @@ import { ShowMore } from '../../shared/list/show-more';
 import { ListWindow } from '../../shared/list/list-window';
 import { FilterOption, SortOrder, distinctValues, matchesText, sortByDate } from '../../shared/list/list-filters';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../shared/i18n/ldate.pipe';
 interface PrescriptionFormModel {
   /** Établissement destinataire (id, sous forme de texte pour la liste déroulante). */
   tenant_id: string;
@@ -41,7 +43,7 @@ function emptyFormModel(): PrescriptionFormModel {
 
 @Component({
   selector: 'app-prescriptions',
-  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView, ListToolbar, ShowMore],
+  imports: [LocalDatePipe, TranslatePipe, RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag, SubmissionInfoView, ListToolbar, ShowMore],
   templateUrl: './prescriptions.html',
   styleUrl: './prescriptions.css',
   host: {

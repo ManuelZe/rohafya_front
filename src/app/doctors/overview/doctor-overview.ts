@@ -14,9 +14,11 @@ import { KpiTile } from '../../shared/kpi-tile/kpi-tile';
 import { PointsPipe, formatPoints } from '../shared/points';
 import { StackedMeter } from '../shared/stacked-meter/stacked-meter';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { tr } from '../../shared/i18n/i18n';
 @Component({
   selector: 'app-doctor-overview',
-  imports: [DatePipe, RouterLink, PIcon, PageHeader, StatusTag, KpiTile, StackedMeter, PointsPipe],
+  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, StatusTag, KpiTile, StackedMeter, PointsPipe],
   templateUrl: './doctor-overview.html',
   styleUrls: ['../shared/doctor-ui.css', './doctor-overview.css'],
 })
@@ -45,8 +47,8 @@ export class DoctorOverview {
   );
 
   readonly closingLabel = computed(() => {
-    if (this.daysLeft === 0) return "Clôture du cycle aujourd'hui";
-    return this.daysLeft === 1 ? 'Clôture du cycle demain' : `Clôture dans ${this.daysLeft} jours`;
+    if (this.daysLeft === 0) return tr("Clôture du cycle aujourd'hui");
+    return this.daysLeft === 1 ? tr('Clôture du cycle demain') : tr('Clôture dans {n} jours', { n: this.daysLeft });
   });
 
   readonly todayValue = computed(() => formatPoints(this.today.data()?.total ?? 0));

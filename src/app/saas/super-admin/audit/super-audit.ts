@@ -8,41 +8,42 @@ import { Pager } from '../../shared/pager';
 import { AuditEntry, TenantWithStats } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const PAGE_SIZE = 30;
 
 @Component({
   selector: 'app-super-audit',
-  imports: [PIcon, PageHeader, AuditTable, Pager],
+  imports: [TranslatePipe, PIcon, PageHeader, AuditTable, Pager],
   template: `
     <div class="page">
-      <app-page-header title="Journal" subtitle="Toutes les opérations sensibles de la plateforme." />
+      <app-page-header [title]="'Journal' | t" [subtitle]="'Toutes les opérations sensibles de la plateforme.' | t" />
       <section class="card">
         <div class="toolbar">
           <div class="form-row tenant-filter">
-            <label for="audit-tenant">Établissement</label>
+            <label for="audit-tenant">{{ 'Établissement' | t }}</label>
             <select id="audit-tenant" class="field" (change)="onTenant($event)">
-              <option value="">Tous</option>
+              <option value="">{{ 'Tous' | t }}</option>
               @for (tenant of tenants(); track tenant.id) {
                 <option [value]="tenant.id">{{ tenant.display_name }}</option>
               }
             </select>
           </div>
-          <span class="muted total" aria-live="polite">{{ total() }} entrée(s)</span>
+          <span class="muted total" aria-live="polite">{{ '{0} entrée(s)' | t: [total()] }}</span>
         </div>
         @if (error()) {
           <div class="banner banner-error notice" role="alert">
             <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-            <span>{{ error() }}</span>
-            <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+            <span>{{ error() | t }}</span>
+            <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
           </div>
         }
         @if (loading() && entries().length === 0) {
           <div class="state" role="status">
             <span class="spinner spinner-lg" aria-hidden="true"></span>
-            <span>Chargement…</span>
+            <span>{{ 'Chargement…' | t }}</span>
           </div>
         } @else if (entries().length === 0) {
-          <div class="state"><span>Aucune activité enregistrée.</span></div>
+          <div class="state"><span>{{ 'Aucune activité enregistrée.' | t }}</span></div>
         } @else {
           <div class="audit-body">
             <app-audit-table [entries]="entries()" [showEstablishment]="true" [class.is-refreshing]="loading()" />

@@ -2,6 +2,7 @@ import { Component, DestroyRef, ElementRef, afterNextRender, inject, signal } fr
 import { PIcon } from '@primeicons/angular/p-icon';
 import { STEPS } from '../intro.content';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 /** Durée d'affichage de chaque étape en lecture automatique. */
 const STEP_MS = 4500;
 
@@ -12,7 +13,7 @@ const STEP_MS = 4500;
  */
 @Component({
   selector: 'app-how-it-works',
-  imports: [PIcon],
+  imports: [TranslatePipe, PIcon],
   templateUrl: './how-it-works.html',
   styleUrl: './how-it-works.css',
   host: { '[style.--step-ms]': 'stepMs' },

@@ -19,8 +19,8 @@
               }
             </span>
             <span class="step__body">
-              <span class="step__title"><span class="sr-only">Étape {{ i + 1 }} : </span>{{ step.title }}</span>
-              <span class="step__text">{{ step.text }}</span>
+              <span class="step__title"><span class="sr-only">{{ 'Étape {0} :' | t: [i + 1] }} </span>{{ step.title | t }}</span>
+              <span class="step__text">{{ step.text | t }}</span>
             </span>
             @if (current() === i && playing()) {
               <span class="step__progress" aria-hidden="true"></span>
@@ -33,7 +33,7 @@
     @if (canPlay()) {
       <button type="button" class="play" (click)="togglePlay()">
         <svg [pIcon]="playing() ? 'pause' : 'play'" [size]="14" aria-hidden="true"></svg>
-        {{ playing() ? 'Mettre en pause la démonstration' : 'Lancer la démonstration' }}
+        {{ (playing() ? 'Mettre en pause la démonstration' : 'Lancer la démonstration') | t }}
       </button>
     }
   </div>
@@ -43,62 +43,62 @@
     <div class="phone__notch"></div>
     <div class="phone__screen">
       <div class="screen__top">
-        <span class="screen__brand"><span class="screen__cross"></span>ROHAFYA</span>
+        <span class="screen__brand"><span class="screen__cross"></span>{{ 'ROHAFYA' | t }}</span>
         <span class="screen__time">09:41</span>
       </div>
 
       @switch (current()) {
         @case (0) {
           <div class="screen screen--center">
-            <p class="screen__label">Facture n° 2026-0418</p>
+            <p class="screen__label">{{ 'Facture n° 2026-0418' | t }}</p>
             <div class="qr">
               <svg pIcon="qrcode" [size]="120"></svg>
               <span class="qr__scan"></span>
             </div>
-            <p class="screen__hint">Scannez le code en bas de votre facture</p>
+            <p class="screen__hint">{{ 'Scannez le code en bas de votre facture' | t }}</p>
           </div>
         }
         @case (1) {
           <div class="screen">
-            <p class="screen__title">Connexion</p>
-            <p class="screen__hint">Votre adresse e-mail suffit, aucun mot de passe.</p>
+            <p class="screen__title">{{ 'Connexion' | t }}</p>
+            <p class="screen__hint">{{ 'Votre adresse e-mail suffit, aucun mot de passe.' | t }}</p>
             <span class="field">
               <svg pIcon="envelope" [size]="14"></svg>
-              <span class="field__typing">amina.n&#64;gmail.com</span>
+              <span class="field__typing">{{ 'amina.n@gmail.com' | t }}</span>
             </span>
-            <span class="fake-btn">Recevoir mon code</span>
+            <span class="fake-btn">{{ 'Recevoir mon code' | t }}</span>
           </div>
         }
         @case (2) {
           <div class="screen">
-            <p class="screen__title">Code de connexion</p>
-            <p class="screen__hint">Envoyé à amina.n&#64;gmail.com</p>
+            <p class="screen__title">{{ 'Code de connexion' | t }}</p>
+            <p class="screen__hint">{{ 'Envoyé à' | t }} amina.n&#64;gmail.com</p>
             <span class="code">
               @for (digit of code; track $index) {
                 <span class="code__digit" [style.--i]="$index">{{ digit }}</span>
               }
             </span>
-            <span class="fake-btn">Valider</span>
+            <span class="fake-btn">{{ 'Valider' | t }}</span>
           </div>
         }
         @default {
           <div class="screen">
-            <p class="screen__title">Mes résultats</p>
+            <p class="screen__title">{{ 'Mes résultats' | t }}</p>
             <span class="notif">
               <svg pIcon="bell" [size]="14"></svg>
-              Nouveau résultat disponible
+              {{ 'Nouveau résultat disponible' | t }}
             </span>
             <span class="result" style="--i: 0">
-              <span class="result__name">Numération formule sanguine</span>
-              <span class="result__tag">Disponible</span>
+              <span class="result__name">{{ 'Numération formule sanguine' | t }}</span>
+              <span class="result__tag">{{ 'Disponible' | t }}</span>
             </span>
             <span class="result" style="--i: 1">
-              <span class="result__name">Glycémie à jeun</span>
-              <span class="result__tag">Disponible</span>
+              <span class="result__name">{{ 'Glycémie à jeun' | t }}</span>
+              <span class="result__tag">{{ 'Disponible' | t }}</span>
             </span>
             <span class="result" style="--i: 2">
-              <span class="result__name">Échographie pelvienne</span>
-              <span class="result__tag result__tag--info">Compte rendu</span>
+              <span class="result__name">{{ 'Échographie pelvienne' | t }}</span>
+              <span class="result__tag result__tag--info">{{ 'Compte rendu' | t }}</span>
             </span>
           </div>
         }

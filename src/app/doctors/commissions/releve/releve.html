@@ -1,71 +1,71 @@
 <div class="page">
-  <app-page-header title="Relevé de commissions" subtitle="Toutes vos commissions depuis l'ouverture, en points.">
+  <app-page-header [title]="'Relevé de commissions' | t" [subtitle]="'Toutes vos commissions depuis l\'ouverture, en points.' | t">
     <button actions type="button" class="btn btn-ghost" (click)="refresh()" [disabled]="statement.loading()">
       @if (statement.loading()) {
         <span class="spinner" aria-hidden="true"></span>
       } @else {
         <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
       }
-      <span>Actualiser</span>
+      <span>{{ 'Actualiser' | t }}</span>
     </button>
   </app-page-header>
 
-  <section class="kpis" aria-label="Synthèse du relevé">
-    <app-kpi-tile label="Total" icon="wallet" accent="#0c4562" [value]="totalValue()" hint="Prescriptions + réalisations" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
-    <app-kpi-tile label="Prescriptions" icon="file-edit" accent="#0c4562" [value]="prescriptionValue()" hint="Commissions CP V01" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
-    <app-kpi-tile label="Réalisations" icon="check-circle" accent="#c2410c" [value]="realisationValue()" hint="Commissions CP V02" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+  <section class="kpis" [attr.aria-label]="'Synthèse du relevé' | t">
+    <app-kpi-tile [label]="'Total' | t" icon="wallet" accent="#0c4562" [value]="totalValue()" [hint]="'Prescriptions + réalisations' | t" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+    <app-kpi-tile [label]="'Prescriptions' | t" icon="file-edit" accent="#0c4562" [value]="prescriptionValue()" [hint]="'Commissions CP V01' | t" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
+    <app-kpi-tile [label]="'Réalisations' | t" icon="check-circle" accent="#c2410c" [value]="realisationValue()" [hint]="'Commissions CP V02' | t" [loading]="statement.loading() && !statement.data()" [error]="!!statement.error()" />
     <app-kpi-tile
-      label="En attente"
+      [label]="'En attente' | t"
       icon="clock"
       accent="#b45309"
       [value]="waitingValue()"
-      [hint]="waitingCount() + ' commission(s) non facturée(s)'"
+      [hint]="'{0} commission(s) non facturée(s)' | t: [waitingCount()]"
       [loading]="statement.loading() && !statement.data()"
       [error]="!!statement.error()"
     />
   </section>
 
   <section class="card" aria-labelledby="list-title">
-    <h2 id="list-title" class="sr-only">Détail des commissions</h2>
+    <h2 id="list-title" class="sr-only">{{ 'Détail des commissions' | t }}</h2>
 
     <div class="toolbar">
-      <div class="segmented" role="group" aria-label="Type de commission">
+      <div class="segmented" role="group" [attr.aria-label]="'Type de commission' | t">
         @for (opt of kindOptions; track opt.value) {
-          <button type="button" [attr.aria-pressed]="kindFilter() === opt.value" (click)="setKind(opt.value)">{{ opt.label }}</button>
+          <button type="button" [attr.aria-pressed]="kindFilter() === opt.value" (click)="setKind(opt.value)">{{ opt.label | t }}</button>
         }
       </div>
 
-      <label class="sr-only" for="state-filter">Statut</label>
+      <label class="sr-only" for="state-filter">{{ 'Statut' | t }}</label>
       <select id="state-filter" class="field state-select" [value]="stateFilter()" (change)="onStateChange($event)">
         @for (opt of stateOptions; track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
+          <option [value]="opt.value">{{ opt.label | t }}</option>
         }
       </select>
 
       <div class="search">
         <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
-        <label class="sr-only" for="releve-search">Rechercher</label>
-        <input id="releve-search" type="search" placeholder="Patient, examen…" [value]="search()" (input)="onSearch($event)" />
+        <label class="sr-only" for="releve-search">{{ 'Rechercher' | t }}</label>
+        <input id="releve-search" type="search" [placeholder]="'Patient, examen…' | t" [value]="search()" (input)="onSearch($event)" />
       </div>
 
       <button type="button" class="btn btn-ghost" (click)="exportCsv()" [disabled]="filtered().length === 0">
         <svg [pIcon]="'download'" [size]="16" aria-hidden="true"></svg>
-        <span>Exporter</span>
+        <span>{{ 'Exporter' | t }}</span>
       </button>
     </div>
 
     <div class="selection-bar" aria-live="polite">
       <span>
-        <strong>{{ filtered().length }}</strong> commission(s)
+        <strong>{{ filtered().length }}</strong> {{ 'commission(s)' | t }}
         @if (hasActiveFilters()) {
-          sur {{ rows().length }}
+          {{ 'sur {0}' | t: [rows().length] }}
         }
         · <strong>{{ filteredTotal() | points }}</strong>
       </span>
       @if (hasActiveFilters()) {
         <button type="button" class="link reset" (click)="resetFilters()">
           <svg [pIcon]="'filter-slash'" [size]="14" aria-hidden="true"></svg>
-          Réinitialiser les filtres
+          {{ 'Réinitialiser les filtres' | t }}
         </button>
       }
     </div>
@@ -77,54 +77,54 @@
     } @else if (statement.error()) {
       <div class="banner banner-error" role="alert">
         <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ statement.error() }}</span>
-        <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+        <span>{{ statement.error() | t }}</span>
+        <button type="button" class="btn btn-ghost" (click)="refresh()">{{ 'Réessayer' | t }}</button>
       </div>
     } @else if (rows().length === 0) {
       <div class="state">
         <svg [pIcon]="'wallet'" [size]="32" aria-hidden="true"></svg>
-        <strong>Aucune commission pour le moment</strong>
-        <span>Vos commissions apparaîtront ici dès qu'un de vos patients réalisera un examen.</span>
+        <strong>{{ 'Aucune commission pour le moment' | t }}</strong>
+        <span>{{ 'Vos commissions apparaîtront ici dès qu\'un de vos patients réalisera un examen.' | t }}</span>
       </div>
     } @else if (filtered().length === 0) {
       <div class="state">
         <svg [pIcon]="'filter-slash'" [size]="32" aria-hidden="true"></svg>
-        <strong>Aucun résultat</strong>
-        <span>Aucune commission ne correspond à ces filtres.</span>
-        <button type="button" class="btn btn-ghost" (click)="resetFilters()">Réinitialiser les filtres</button>
+        <strong>{{ 'Aucun résultat' | t }}</strong>
+        <span>{{ 'Aucune commission ne correspond à ces filtres.' | t }}</span>
+        <button type="button" class="btn btn-ghost" (click)="resetFilters()">{{ 'Réinitialiser les filtres' | t }}</button>
       </div>
     } @else {
       <div class="table-wrap" [class.is-refreshing]="statement.refreshing()">
         <table class="rtable">
           <thead>
             <tr>
-              <th scope="col">Date</th>
-              <th scope="col">Patient</th>
-              <th scope="col">Examen</th>
-              <th scope="col">Type</th>
-              <th scope="col">Statut</th>
-              <th scope="col" class="num">Points</th>
+              <th scope="col">{{ 'Date' | t }}</th>
+              <th scope="col">{{ 'Patient' | t }}</th>
+              <th scope="col">{{ 'Examen' | t }}</th>
+              <th scope="col">{{ 'Type' | t }}</th>
+              <th scope="col">{{ 'Statut' | t }}</th>
+              <th scope="col" class="num">{{ 'Points' | t }}</th>
             </tr>
           </thead>
           <tbody>
             @for (row of visibleRows(); track row.id) {
               <tr>
-                <td data-label="Date">{{ row.date ? (row.date | date: 'dd/MM/yyyy') : '—' }}</td>
-                <td data-label="Patient" class="strong">{{ row.patient }}</td>
-                <td data-label="Examen">{{ row.examen }}</td>
-                <td data-label="Type"><app-status-tag kind="commissionKind" [status]="row.kind" /></td>
-                <td data-label="Statut">
+                <td [attr.data-label]="'Date' | t">{{ row.date ? (row.date | date: 'dd/MM/yyyy') : '—' }}</td>
+                <td [attr.data-label]="'Patient' | t" class="strong">{{ row.patient }}</td>
+                <td [attr.data-label]="'Examen' | t">{{ row.examen }}</td>
+                <td [attr.data-label]="'Type' | t"><app-status-tag kind="commissionKind" [status]="row.kind" /></td>
+                <td [attr.data-label]="'Statut' | t">
                   <span class="status-cell">
                     <app-status-tag kind="commission" [status]="row.state" />
                     @if (row.validated) {
-                      <span class="validated" title="Commission validée">
+                      <span class="validated" [title]="'Commission validée' | t">
                         <svg [pIcon]="'check-circle'" [size]="14" aria-hidden="true"></svg>
-                        <span class="sr-only">Validée</span>
+                        <span class="sr-only">{{ 'Validée' | t }}</span>
                       </span>
                     }
                   </span>
                 </td>
-                <td data-label="Points" class="num strong">{{ row.points | points }}</td>
+                <td [attr.data-label]="'Points' | t" class="num strong">{{ row.points | points }}</td>
               </tr>
             }
           </tbody>
@@ -134,8 +134,8 @@
       @if (remaining() > 0) {
         <div class="more">
           <button type="button" class="btn btn-ghost" (click)="showMore()">
-            Afficher {{ remaining() > 20 ? 20 : remaining() }} de plus
-            <span class="muted">({{ remaining() }} restantes)</span>
+            {{ 'Afficher {0} de plus' | t: [remaining() > 20 ? 20 : remaining()] }}
+            <span class="muted">{{ '({0} restantes)' | t: [remaining()] }}</span>
           </button>
         </div>
       }
@@ -143,7 +143,7 @@
 
     <p class="footnote muted">
       <svg [pIcon]="'info-circle'" [size]="14" aria-hidden="true"></svg>
-      Montants nets, après la retenue de 11 % appliquée sur chaque commission.
+      {{ 'Montants nets, après la retenue de 11 % appliquée sur chaque commission.' | t }}
     </p>
   </section>
 </div>

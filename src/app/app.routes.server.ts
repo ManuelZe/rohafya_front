@@ -4,6 +4,7 @@ export const serverRoutes: ServerRoute[] = [
   // Redirection vers /intro : le serveur Express répond par une 301 (server.ts), ceci ne sert qu'en secours.
   { path: '', renderMode: RenderMode.Server },
   { path: 'intro', renderMode: RenderMode.Prerender },
+  { path: 'en', renderMode: RenderMode.Prerender },
   { path: 'connexion', renderMode: RenderMode.Prerender },
   { path: 'matricule', renderMode: RenderMode.Prerender },
   { path: 'register', renderMode: RenderMode.Prerender },

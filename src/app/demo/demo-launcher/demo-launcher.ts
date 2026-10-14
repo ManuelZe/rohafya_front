@@ -3,6 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { DemoSession } from '../demo-session';
 import { DemoSpace } from '../demo-token';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 interface DemoChoice {
   space: DemoSpace;
   title: string;
@@ -31,41 +32,39 @@ const CHOICES: DemoChoice[] = [
 /** Bouton « Démo » de la page d'introduction : choix de l'espace puis ouverture de la session fictive. */
 @Component({
   selector: 'app-demo-launcher',
-  imports: [ButtonModule],
+  imports: [TranslatePipe, ButtonModule],
   template: `
-    <button pButton type="button" class="btn-demo" aria-haspopup="dialog" (click)="open()">Démo</button>
+    <button pButton type="button" class="btn-demo" aria-haspopup="dialog" (click)="open()">{{ 'Démo' | t }}</button>
 
     <dialog #dialog class="demo-dialog" aria-labelledby="demo-dialog-title" aria-describedby="demo-dialog-desc" (close)="error.set(null)">
       <div class="demo-dialog__header">
-        <h2 id="demo-dialog-title">Découvrir ROHAFYA en démo</h2>
-        <button type="button" class="demo-dialog__close" aria-label="Fermer" (click)="close()">&times;</button>
+        <h2 id="demo-dialog-title">{{ 'Découvrir ROHAFYA en démo' | t }}</h2>
+        <button type="button" class="demo-dialog__close" [attr.aria-label]="'Fermer' | t" (click)="close()">&times;</button>
       </div>
 
       <p id="demo-dialog-desc" class="demo-dialog__intro">
-        Explorez toutes les fonctionnalités avec un utilisateur fictif. Les données sont inventées : rien n'est lu ni enregistré sur
-        nos serveurs.
+        {{ 'Explorez toutes les fonctionnalités avec un utilisateur fictif. Les données sont inventées : rien n\\'est lu ni enregistré sur nos serveurs.' | t }}
       </p>
       <p class="demo-dialog__intro">
-        Les trois profils partagent les mêmes données : une demande envoyée par le patient ou le médecin arrive chez l'établissement,
-        qui y répond. Changez de profil à tout moment depuis le bandeau « Démo ».
+        {{ 'Les trois profils partagent les mêmes données : une demande envoyée par le patient ou le médecin arrive chez l\\'établissement, qui y répond. Changez de profil à tout moment depuis le bandeau « Démo ».' | t }}
       </p>
 
       <div class="demo-dialog__choices" [attr.aria-busy]="starting() !== null">
         @for (choice of choices; track choice.space) {
           <button type="button" class="demo-choice" [disabled]="starting() !== null" (click)="start(choice.space)">
             <span class="demo-choice__title">
-              {{ choice.title }}
+              {{ choice.title | t }}
               @if (starting() === choice.space) {
-                <span class="demo-choice__loading">Ouverture…</span>
+                <span class="demo-choice__loading">{{ 'Ouverture…' | t }}</span>
               }
             </span>
-            <span class="demo-choice__desc">{{ choice.description }}</span>
+            <span class="demo-choice__desc">{{ choice.description | t }}</span>
           </button>
         }
       </div>
 
       @if (error(); as message) {
-        <p class="demo-dialog__error" role="alert">{{ message }}</p>
+        <p class="demo-dialog__error" role="alert">{{ message | t }}</p>
       }
     </dialog>
   `,

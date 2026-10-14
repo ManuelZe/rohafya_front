@@ -20,11 +20,13 @@ import { buildReport, PatientIdentity } from '../../shared/medical-report/medica
 import { ExamResultDetail } from '../resultats/resultats.models';
 import { PatientProfileService } from '../patient-profile-service';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../shared/i18n/ldate.pipe';
 const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES DONNÉES.';
 
 @Component({
   selector: 'app-imagerie',
-  imports: [RohafyaLoader, ListToolbar, ShowMore, MedicalReportView, CdkTrapFocus, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
+  imports: [LocalDatePipe, TranslatePipe, RohafyaLoader, ListToolbar, ShowMore, MedicalReportView, CdkTrapFocus, CommonModule, PIcon, PageHeader, StatusTag, ShareExamDialog],
   templateUrl: './imagerie.html',
   styleUrl: './imagerie.css',
   host: {

@@ -8,10 +8,11 @@ import { LINK_STATUS_LABELS, PatientLinkView } from '../../saas/saas.models';
 import { PatientsService } from '../patients-service';
 import { PageHeader } from '../shared/page-header/page-header';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 /** « Mes établissements » : établissements rattachés au compte, ajout par code, retrait. */
 @Component({
   selector: 'app-etablissements',
-  imports: [DatePipe, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, DatePipe, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './etablissements.html',
   styleUrls: ['../../doctors/shared/doctor-ui.css', './etablissements.css'],
 })

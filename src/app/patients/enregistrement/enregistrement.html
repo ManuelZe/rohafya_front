@@ -1,17 +1,17 @@
 <div class="enregistrement-container">
-  <app-page-header title="Pré-enregistrements" [subtitle]="subtitle()">
+  <app-page-header [title]="'Pré-enregistrements' | t" [subtitle]="subtitle()">
     <button pButton type="button" actions (click)="toggleAddForm()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
-      <span>{{ showAddForm() ? 'Fermer le formulaire' : 'Nouveau pré-enregistrement' }}</span>
+      <span>{{ (showAddForm() ? 'Fermer le formulaire' : 'Nouveau pré-enregistrement') | t }}</span>
     </button>
   </app-page-header>
 
   @if (accessDenied()) {
     <div class="access-denied-message">
-      {{ accessDeniedMessage }}
+      {{ accessDeniedMessage | t }}
     </div>
   } @else {
     <!-- Banner d'erreur -->
@@ -22,7 +22,7 @@
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-        <span>{{ errorMessage() }}</span>
+        <span>{{ errorMessage() | t }}</span>
       </div>
     }
 
@@ -30,16 +30,16 @@
     @if (showAddForm()) {
       <section class="add-form-wrapper">
         <div class="form-header">
-          <h2>{{ isDoctor() ? 'Pré-enregistrer un patient' : 'Nouveau pré-enregistrement' }}</h2>
-          <p>Choisissez l'établissement, renseignez l'identité de la personne et joignez un document : l'établissement vous répondra ici.</p>
+          <h2>{{ (isDoctor() ? 'Pré-enregistrer un patient' : 'Nouveau pré-enregistrement') | t }}</h2>
+          <p>{{ 'Choisissez l\'établissement, renseignez l\'identité de la personne et joignez un document : l\'établissement vous répondra ici.' | t }}</p>
         </div>
 
         <form class="add-form" [formRoot]="saveForm" (submit)="submitSave()">
           <div class="form-grid">
             <div class="form-row form-row-full">
-              <label for="tenantId">Établissement destinataire <span class="required">*</span></label>
+              <label for="tenantId">{{ 'Établissement destinataire' | t }} <span class="required">*</span></label>
               <select id="tenantId" [formField]="saveForm.tenant_id" aria-describedby="tenantHint">
-                <option value="" disabled>{{ establishments.loading() ? 'Chargement…' : 'Choisir un établissement' }}</option>
+                <option value="" disabled>{{ (establishments.loading() ? 'Chargement…' : 'Choisir un établissement') | t }}</option>
                 @for (e of establishments.list(); track e.id) {
                   <option [value]="e.id">{{ e.name }}</option>
                 }
@@ -50,27 +50,27 @@
             </div>
 
             <div class="form-row">
-              <label for="nom">Nom <span class="required">*</span></label>
-              <input id="nom" type="text" [formField]="saveForm.nom" placeholder="Nom du patient" />
+              <label for="nom">{{ 'Nom' | t }} <span class="required">*</span></label>
+              <input id="nom" type="text" [formField]="saveForm.nom" [placeholder]="'Nom du patient' | t" />
             </div>
 
             <div class="form-row">
-              <label for="prenom">Prénom <span class="required">*</span></label>
-              <input id="prenom" type="text" [formField]="saveForm.prenom" placeholder="Prénom du patient" />
+              <label for="prenom">{{ 'Prénom' | t }} <span class="required">*</span></label>
+              <input id="prenom" type="text" [formField]="saveForm.prenom" [placeholder]="'Prénom du patient' | t" />
             </div>
 
             <div class="form-row form-row-full">
-              <label for="description">Description</label>
+              <label for="description">{{ 'Description' | t }}</label>
               <textarea
                 id="description"
                 rows="3"
-                placeholder="Précisions utiles à la validation..."
+                [placeholder]="'Précisions utiles à la validation...' | t"
                 [formField]="saveForm.description"
               ></textarea>
             </div>
 
             <div class="form-row form-row-full">
-              <label for="file">Document / Photo <span class="required">*</span></label>
+              <label for="file">{{ 'Document / Photo' | t }} <span class="required">*</span></label>
 
               <div class="file-input-wrapper" [class.has-file]="!!selectedFile()">
                 <input id="file" type="file" accept="image/*" (change)="onFileSelected($event)" />
@@ -80,25 +80,25 @@
                     <polyline points="17 8 12 3 7 8"></polyline>
                     <line x1="12" y1="3" x2="12" y2="15"></line>
                   </svg>
-                  <span>{{ selectedFile() ? selectedFile()!.name : 'Parcourir ou déposer une image' }}</span>
+                  <span>{{ (selectedFile() ? selectedFile()!.name : 'Parcourir ou déposer une image') | t }}</span>
                 </div>
               </div>
 
               @if (selectedFilePreviewUrl()) {
                 <div class="selected-image-preview">
                   <div class="preview-thumbnail">
-                    <img [src]="selectedFilePreviewUrl()" alt="Aperçu du fichier" />
+                    <img [src]="selectedFilePreviewUrl()" [alt]="'Aperçu du fichier' | t" />
                   </div>
                   <div class="preview-info">
                     <span class="file-name">{{ selectedFile()?.name }}</span>
-                    <span class="file-size">{{ (selectedFile()?.size || 0) / 1024 | number:'1.0-1' }} Ko</span>
+                    <span class="file-size">{{ '{0} Ko' | t: [((selectedFile()?.size || 0) / 1024 | number:'1.0-1')] }}</span>
                   </div>
                   <button
                     type="button"
                     class="btn-remove-file"
                     (click)="clearSelectedFile()"
-                    title="Retirer l'image"
-                    aria-label="Retirer le fichier sélectionné"
+                    [title]="'Retirer l\'image' | t"
+                    [attr.aria-label]="'Retirer le fichier sélectionné' | t"
                   >
                     &times;
                   </button>
@@ -108,12 +108,12 @@
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn btn-tertiary" (click)="toggleAddForm()">Annuler</button>
+            <button type="button" class="btn btn-tertiary" (click)="toggleAddForm()">{{ 'Annuler' | t }}</button>
             <button type="submit" class="btn btn-primary" [disabled]="submitting()">
               @if (submitting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ submitting() ? 'Envoi en cours...' : 'Envoyer' }}</span>
+              <span>{{ (submitting() ? 'Envoi en cours...' : 'Envoyer') | t }}</span>
             </button>
           </div>
         </form>
@@ -123,7 +123,7 @@
     <!-- État Chargement -->
     @if (loading()) {
       <div class="state-container loading-state">
-        <app-rohafya-loader label="Chargement des pré-enregistrements" />
+        <app-rohafya-loader [label]="'Chargement des pré-enregistrements' | t" />
       </div>
     }
 
@@ -139,9 +139,9 @@
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
         </div>
-        <h3>Aucun pré-enregistrement disponible</h3>
-        <p>Aucun pré-enregistrement n'a encore été envoyé à un établissement.</p>
-        <button class="btn btn-secondary" (click)="toggleAddForm()">Nouveau pré-enregistrement</button>
+        <h3>{{ 'Aucun pré-enregistrement disponible' | t }}</h3>
+        <p>{{ 'Aucun pré-enregistrement n\'a encore été envoyé à un établissement.' | t }}</p>
+        <button class="btn btn-secondary" (click)="toggleAddForm()">{{ 'Nouveau pré-enregistrement' | t }}</button>
       </div>
     }
 
@@ -150,21 +150,21 @@
       <app-list-toolbar
         class="list-toolbar-block"
         [(search)]="search"
-        searchPlaceholder="Nom, établissement, description…"
-        searchLabel="Rechercher un pré-enregistrement"
+        [searchPlaceholder]="'Nom, établissement, description…' | t"
+        [searchLabel]="'Rechercher un pré-enregistrement' | t"
         [statusOptions]="statusOptions"
         [(status)]="statusFilter"
-        statusLabel="État du pré-enregistrement"
+        [statusLabel]="'État du pré-enregistrement' | t"
         [establishments]="establishmentNames()"
         [(establishment)]="establishmentFilter"
         [(sort)]="sort"
         [count]="filteredSaves().length"
-        [noun]="filteredSaves().length > 1 ? 'pré-enregistrements' : 'pré-enregistrement'"
+        [noun]="(filteredSaves().length > 1 ? 'pré-enregistrements' : 'pré-enregistrement') | t"
       />
       @if (filteredSaves().length === 0) {
         <div class="state-container empty-state">
-          <h3>Aucun pré-enregistrement ne correspond à votre recherche</h3>
-          <p>Modifiez la recherche ou les filtres.</p>
+          <h3>{{ 'Aucun pré-enregistrement ne correspond à votre recherche' | t }}</h3>
+          <p>{{ 'Modifiez la recherche ou les filtres.' | t }}</p>
         </div>
       }
       <div class="saves-grid">
@@ -174,14 +174,14 @@
               class="card-image-container clickable"
               role="button"
               tabindex="0"
-              [attr.aria-label]="'Agrandir le document de ' + s.prenom + ' ' + s.nom"
+              [attr.aria-label]="'Agrandir le document de {0} {1}' | t: [s.prenom, s.nom]"
               (click)="openPreview(s)"
               (keydown.enter)="openPreview(s)"
               (keydown.space)="$event.preventDefault(); openPreview(s)"
-              title="Cliquer pour agrandir le document"
+              [title]="'Cliquer pour agrandir le document' | t"
             >
               @if (s.imageUrl) {
-                <img [src]="s.imageUrl" [alt]="'Document de ' + s.prenom + ' ' + s.nom" loading="lazy" />
+                <img [src]="s.imageUrl" [alt]="'Document de {0} {1}' | t: [s.prenom, s.nom]" loading="lazy" />
 
                 <div class="image-overlay-hint">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -190,14 +190,14 @@
                     <line x1="11" y1="8" x2="11" y2="14"></line>
                     <line x1="8" y1="11" x2="14" y2="11"></line>
                   </svg>
-                  <span>Agrandir</span>
+                  <span>{{ 'Agrandir' | t }}</span>
                 </div>
               }
 
               @if (s.imageLoading) {
                 <div class="image-placeholder">
                   <div class="spinner"></div>
-                  <span>Chargement de l'image...</span>
+                  <span>{{ 'Chargement de l\'image...' | t }}</span>
                 </div>
               }
 
@@ -208,7 +208,7 @@
                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
                     <polyline points="21 15 16 10 5 21"></polyline>
                   </svg>
-                  <span>Aucun aperçu</span>
+                  <span>{{ 'Aucun aperçu' | t }}</span>
                 </div>
               }
 
@@ -225,7 +225,7 @@
               </h2>
 
               @if (s.description) {
-                <p class="card-description">{{ s.description }}</p>
+                <p class="card-description">{{ s.description | t }}</p>
               }
 
               <div class="card-footer-meta">
@@ -235,7 +235,7 @@
                   <line x1="8" y1="2" x2="8" y2="6"></line>
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <time>{{ s.Create_date | date: 'dd/MM/yyyy à HH:mm' }}</time>
+                <time>{{ s.Create_date | ldate: 'datetime' }}</time>
               </div>
 
               <app-submission-info [submission]="s.submission" />
@@ -246,48 +246,48 @@
                 type="button"
                 class="btn btn-danger-outline btn-sm"
                 (click)="confirmDelete(s)"
-                title="Supprimer le pré-enregistrement"
+                [title]="'Supprimer le pré-enregistrement' | t"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
-                Supprimer
+                {{ 'Supprimer' | t }}
               </button>
             </div>
           </article>
         }
       </div>
-      <app-show-more [list]="list" noun="pré-enregistrements" />
+      <app-show-more [list]="list" [noun]="'pré-enregistrements' | t" />
     }
 
     <!-- Modal Visualiseur (Lightbox) -->
     @if (previewSave(); as preview) {
       <div class="image-modal-overlay" (click)="closePreview()">
         <div class="image-modal-wrapper" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
-          <button type="button" class="image-modal-close" (click)="closePreview()" aria-label="Fermer la vue de l'image">&times;</button>
+          <button type="button" class="image-modal-close" (click)="closePreview()" [attr.aria-label]="'Fermer la vue de l\'image' | t">&times;</button>
 
           <div class="image-modal-header">
             <h3>{{ preview.prenom }} {{ preview.nom }}</h3>
             @if (preview.submission?.establishment) {
-              <p>Envoyé à {{ preview.submission?.establishment }}</p>
+              <p>{{ 'Envoyé à {0}' | t: [preview.submission?.establishment] }}</p>
             }
           </div>
 
           <div class="image-modal-body">
             @if (preview.imageUrl) {
-              <img [src]="preview.imageUrl" [alt]="'Document de ' + preview.prenom + ' ' + preview.nom" />
+              <img [src]="preview.imageUrl" [alt]="'Document de {0} {1}' | t: [preview.prenom, preview.nom]" />
             }
 
             @if (preview.imageLoading) {
               <div class="state-container">
-                <app-rohafya-loader label="Chargement du document haute résolution" />
+                <app-rohafya-loader [label]="'Chargement du document haute résolution' | t" />
               </div>
             }
 
             @if (!preview.imageLoading && (preview.imageError || !preview.imageUrl)) {
               <div class="error-banner">
-                <span>Aucune image lisible n'a pu être récupérée pour ce pré-enregistrement.</span>
+                <span>{{ 'Aucune image lisible n\'a pu être récupérée pour ce pré-enregistrement.' | t }}</span>
               </div>
             }
           </div>
@@ -309,24 +309,24 @@
               </svg>
             </div>
             <div>
-              <h2 id="delete-title">Supprimer le pré-enregistrement</h2>
-              <p class="delete-modal-subtitle">Cette action est irréversible</p>
+              <h2 id="delete-title">{{ 'Supprimer le pré-enregistrement' | t }}</h2>
+              <p class="delete-modal-subtitle">{{ 'Cette action est irréversible' | t }}</p>
             </div>
           </div>
 
           <div class="delete-modal-body">
-            <p>Êtes-vous sûr de vouloir supprimer le pré-enregistrement de <strong>{{ toDelete.prenom }} {{ toDelete.nom }}</strong> ?</p>
+            <p>{{ 'Êtes-vous sûr de vouloir supprimer le pré-enregistrement de' | t }} <strong>{{ toDelete.prenom }} {{ toDelete.nom }}</strong> ?</p>
           </div>
 
           <div class="delete-modal-footer">
             <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="deleting()">
-              Annuler
+              {{ 'Annuler' | t }}
             </button>
             <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="deleting()">
               @if (deleting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ deleting() ? 'Suppression...' : 'Supprimer définitivement' }}</span>
+              <span>{{ (deleting() ? 'Suppression...' : 'Supprimer définitivement') | t }}</span>
             </button>
           </div>
         </div>

@@ -1,24 +1,24 @@
 <div class="page">
-  <app-page-header title="Médecins" subtitle="Les médecins ROHAFYA rattachés à votre établissement (prescripteurs, correspondants)." />
+  <app-page-header [title]="'Médecins' | t" [subtitle]="'Les médecins ROHAFYA rattachés à votre établissement (prescripteurs, correspondants).' | t" />
 
   <section class="card" aria-labelledby="add-doctor-title">
     <h2 class="card-title" id="add-doctor-title">
       <svg [pIcon]="'user-plus'" [size]="18" aria-hidden="true"></svg>
-      Rattacher un médecin
+      {{ 'Rattacher un médecin' | t }}
     </h2>
     <form class="inline-form" [formRoot]="addForm" (submit)="add()">
       <div class="form-row grow">
-        <label for="doctor-id">Matricule ou e-mail du médecin</label>
+        <label for="doctor-id">{{ 'Matricule ou e-mail du médecin' | t }}</label>
         <input id="doctor-id" class="field" type="text" autocomplete="off" [formField]="addForm.identifier" />
       </div>
       <button type="submit" class="btn btn-primary" [disabled]="addForm().invalid() || adding()">
-        {{ adding() ? 'Ajout…' : 'Rattacher' }}
+        {{ (adding() ? 'Ajout…' : 'Rattacher') | t }}
       </button>
     </form>
     @if (addError()) {
       <div class="banner banner-error notice" role="alert">
         <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ addError() }}</span>
+        <span>{{ addError() | t }}</span>
       </div>
     }
   </section>
@@ -26,54 +26,54 @@
   <section class="card" aria-labelledby="doctors-title">
     <h2 class="card-title" id="doctors-title">
       <svg [pIcon]="'users'" [size]="18" aria-hidden="true"></svg>
-      Médecins rattachés
+      {{ 'Médecins rattachés' | t }}
       <span class="card-title-aside">{{ doctors()?.length ?? 0 }}</span>
     </h2>
 
     @if (error()) {
       <div class="banner banner-error" role="alert">
         <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ error() }}</span>
-        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+        <span>{{ error() | t }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
       </div>
     }
 
     @if (loading() && !doctors()) {
       <div class="state" role="status">
         <span class="spinner spinner-lg" aria-hidden="true"></span>
-        <span>Chargement…</span>
+        <span>{{ 'Chargement…' | t }}</span>
       </div>
     } @else if ((doctors() ?? []).length === 0) {
       <div class="state">
         <svg [pIcon]="'user-plus'" [size]="32" aria-hidden="true"></svg>
-        <strong>Aucun médecin rattaché</strong>
-        <span>Ajoutez vos médecins correspondants avec leur matricule ou leur e-mail.</span>
+        <strong>{{ 'Aucun médecin rattaché' | t }}</strong>
+        <span>{{ 'Ajoutez vos médecins correspondants avec leur matricule ou leur e-mail.' | t }}</span>
       </div>
     } @else {
       <div class="table-wrap">
         <table class="rtable">
-          <caption class="sr-only">Médecins rattachés à l'établissement</caption>
+          <caption class="sr-only">{{ 'Médecins rattachés à l\'établissement' | t }}</caption>
           <thead>
             <tr>
-              <th scope="col">Médecin</th>
-              <th scope="col">Spécialité</th>
-              <th scope="col">Matricule</th>
-              <th scope="col">E-mail</th>
-              <th scope="col">Depuis</th>
-              <th scope="col"><span class="sr-only">Actions</span></th>
+              <th scope="col">{{ 'Médecin' | t }}</th>
+              <th scope="col">{{ 'Spécialité' | t }}</th>
+              <th scope="col">{{ 'Matricule' | t }}</th>
+              <th scope="col">{{ 'E-mail' | t }}</th>
+              <th scope="col">{{ 'Depuis' | t }}</th>
+              <th scope="col"><span class="sr-only">{{ 'Actions' | t }}</span></th>
             </tr>
           </thead>
           <tbody>
             @for (doctor of doctors(); track doctor.id) {
               <tr>
-                <td data-label="Médecin" class="strong">{{ doctor.name || '—' }}</td>
-                <td data-label="Spécialité">{{ doctor.speciality || '—' }}</td>
-                <td data-label="Matricule" class="mono">{{ doctor.matricule || '—' }}</td>
-                <td data-label="E-mail">{{ doctor.email || '—' }}</td>
-                <td data-label="Depuis">{{ doctor.created_at | date: 'dd/MM/yyyy' }}</td>
+                <td [attr.data-label]="'Médecin' | t" class="strong">{{ doctor.name || '—' }}</td>
+                <td [attr.data-label]="'Spécialité' | t">{{ doctor.speciality || '—' }}</td>
+                <td [attr.data-label]="'Matricule' | t" class="mono">{{ doctor.matricule || '—' }}</td>
+                <td [attr.data-label]="'E-mail' | t">{{ doctor.email || '—' }}</td>
+                <td [attr.data-label]="'Depuis' | t">{{ doctor.created_at | date: 'dd/MM/yyyy' }}</td>
                 <td class="actions-cell">
                   <button type="button" class="btn btn-danger-ghost btn-sm" (click)="confirm.set(doctor)">
-                    Retirer<span class="sr-only"> {{ doctor.name }}</span>
+                    {{ 'Retirer' | t }}<span class="sr-only"> {{ doctor.name }}</span>
                   </button>
                 </td>
               </tr>
@@ -87,11 +87,11 @@
   @if (confirm(); as doctor) {
     <div class="overlay" (click)="confirm.set(null)">
       <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="remove-doctor-title" (click)="$event.stopPropagation()">
-        <h2 id="remove-doctor-title">Retirer {{ doctor.name }} ?</h2>
-        <p class="muted">Le médecin garde son compte ROHAFYA ; il n'apparaîtra simplement plus parmi les médecins de l'établissement.</p>
+        <h2 id="remove-doctor-title">{{ 'Retirer {0} ?' | t: [doctor.name] }}</h2>
+        <p class="muted">{{ 'Le médecin garde son compte ROHAFYA ; il n\'apparaîtra simplement plus parmi les médecins de l\'établissement.' | t }}</p>
         <div class="form-actions">
-          <button type="button" class="btn btn-ghost" (click)="confirm.set(null)">Annuler</button>
-          <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="removing()">{{ removing() ? 'Retrait…' : 'Retirer' }}</button>
+          <button type="button" class="btn btn-ghost" (click)="confirm.set(null)">{{ 'Annuler' | t }}</button>
+          <button type="button" class="btn btn-danger" (click)="remove()" [disabled]="removing()">{{ (removing() ? 'Retrait…' : 'Retirer') | t }}</button>
         </div>
       </div>
     </div>

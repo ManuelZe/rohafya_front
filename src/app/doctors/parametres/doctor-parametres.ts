@@ -11,6 +11,8 @@ import { DoctorUpdatePayload } from '../doctor.models';
 import { extractErrorMessage } from '../shared/api-resource';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { tr } from '../../shared/i18n/i18n';
 // Dans le formulaire, un champ vide vaut '' ; il est converti en null à l'envoi.
 type ProfileFormModel = Omit<DoctorUpdatePayload, 'DoctorPhone2'> & { DoctorPhone2: string };
 type FieldName = keyof ProfileFormModel;
@@ -53,7 +55,7 @@ const PHONE_PATTERN = /^\+?[0-9 ]{8,15}$/;
 
 @Component({
   selector: 'app-doctor-parametres',
-  imports: [RohafyaLoader, RouterLink, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, RohafyaLoader, RouterLink, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './doctor-parametres.html',
   styleUrls: ['../shared/doctor-ui.css', './doctor-parametres.css'],
 })
@@ -107,7 +109,7 @@ export class DoctorParametres {
   readonly readOnlyInfo = computed(() => {
     const p = this.profile();
     if (!p) return [];
-    const gender = p.DoctorGender === 'm' || p.DoctorGender === 'M' ? 'Masculin' : p.DoctorGender === 'f' || p.DoctorGender === 'F' ? 'Féminin' : '';
+    const gender = p.DoctorGender === 'm' || p.DoctorGender === 'M' ? tr('Masculin') : p.DoctorGender === 'f' || p.DoctorGender === 'F' ? tr('Féminin') : '';
     return [
       { label: 'Matricule', value: p.DoctorFederationID },
       { label: "N° d'ordre", value: p.DoctorNO },

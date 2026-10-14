@@ -9,6 +9,7 @@ import { AccountView } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
 import { AccountRightsDialog } from './account-rights/account-rights-dialog';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const PAGE_SIZE = 25;
 const ROLE_LABELS: Record<string, string> = {
   Patient: 'Patient',
@@ -20,7 +21,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-super-accounts',
-  imports: [PIcon, PageHeader, Pager, AccountRightsDialog],
+  imports: [TranslatePipe, PIcon, PageHeader, Pager, AccountRightsDialog],
   templateUrl: './super-accounts.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

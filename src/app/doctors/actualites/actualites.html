@@ -1,12 +1,12 @@
 <div class="page">
-  <app-page-header title="Actualités" subtitle="Les dernières informations publiées par PDMD Santé.">
+  <app-page-header [title]="'Actualités' | t" [subtitle]="'Les dernières informations publiées par PDMD Santé.' | t">
     <button actions type="button" class="btn btn-ghost" (click)="refresh()" [disabled]="articles.loading()">
       @if (articles.loading()) {
         <span class="spinner" aria-hidden="true"></span>
       } @else {
         <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
       }
-      <span>Actualiser</span>
+      <span>{{ 'Actualiser' | t }}</span>
     </button>
   </app-page-header>
 
@@ -19,15 +19,15 @@
   } @else if (articles.error()) {
     <div class="banner banner-error" role="alert">
       <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>{{ articles.error() }}</span>
-      <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+      <span>{{ articles.error() | t }}</span>
+      <button type="button" class="btn btn-ghost" (click)="refresh()">{{ 'Réessayer' | t }}</button>
     </div>
   } @else if (sorted().length === 0) {
     <section class="card">
       <div class="state">
         <svg [pIcon]="'sparkles'" [size]="32" aria-hidden="true"></svg>
-        <strong>Aucune actualité pour le moment</strong>
-        <span>Revenez bientôt : les nouveautés seront publiées ici.</span>
+        <strong>{{ 'Aucune actualité pour le moment' | t }}</strong>
+        <span>{{ 'Revenez bientôt : les nouveautés seront publiées ici.' | t }}</span>
       </div>
     </section>
   } @else {
@@ -47,17 +47,17 @@
             @if (a.date) {
               <time class="muted">{{ a.date | date: 'dd/MM/yyyy' }}</time>
             }
-            <h2 [id]="'article-' + a.id">{{ a.titre || 'Sans titre' }}</h2>
+            <h2 [id]="'article-' + a.id">{{ a.titre || 'Sans titre' | t }}</h2>
             <p [id]="'article-text-' + a.id">{{ text(a) }}</p>
             <div class="article-actions">
               @if (isLong(a)) {
                 <button type="button" class="link toggle" [attr.aria-expanded]="isExpanded(a.id)" [attr.aria-controls]="'article-text-' + a.id" (click)="toggle(a.id)">
-                  {{ isExpanded(a.id) ? 'Réduire' : 'Lire la suite' }}
+                  {{ (isExpanded(a.id) ? 'Réduire' : 'Lire la suite') | t }}
                 </button>
               }
               @if (safeUrl(a); as url) {
                 <a class="link" [href]="url" target="_blank" rel="noopener">
-                  En savoir plus<span class="sr-only"> sur « {{ a.titre }} » (nouvel onglet)</span>
+                  {{ 'En savoir plus' | t }}<span class="sr-only"> {{ 'sur « {0} » (nouvel onglet)' | t: [a.titre] }}</span>
                   <svg [pIcon]="'external-link'" [size]="12" aria-hidden="true"></svg>
                 </a>
               }

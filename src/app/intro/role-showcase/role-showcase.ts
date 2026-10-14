@@ -1,14 +1,16 @@
-import { Component, ElementRef, computed, inject, output, signal, viewChildren } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, ElementRef, computed, output, signal, viewChildren } from '@angular/core';
 import { PIcon } from '@primeicons/angular/p-icon';
-import { AuthService } from '../../connexion/auth-service';
 import { DemoSpace } from '../../demo/demo-token';
 import { ROLES } from '../intro.content';
 
-/** Onglets Patients / Médecins / Établissements : fonctionnalités de chaque espace et aperçu de son écran. */
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+/**
+ * Onglets Votre établissement / Vos patients / Vos médecins prescripteurs : ce que chacun y gagne,
+ * et ce que l'établissement en retire, avec un aperçu de l'écran.
+ */
 @Component({
   selector: 'app-role-showcase',
-  imports: [PIcon, RouterLink],
+  imports: [TranslatePipe, PIcon],
   templateUrl: './role-showcase.html',
   styleUrls: ['../intro-buttons.css', './role-showcase.css'],
 })
@@ -17,17 +19,10 @@ export class RoleShowcase {
   readonly selected = signal(0);
   readonly role = computed(() => this.roles[this.selected()]);
 
-  private readonly auth = inject(AuthService);
-
-  /** Bouton principal de l'onglet : un utilisateur déjà connecté va directement dans son espace. */
-  readonly cta = computed(() => {
-    const cta = this.role().cta;
-    if (cta.link !== '/connexion' || this.auth.loginLink() === '/connexion') return cta;
-    return { label: 'Accéder à mon espace', link: this.auth.loginLink() };
-  });
-
   /** Demande l'ouverture de la démo sur l'espace affiché. */
   readonly tryDemo = output<DemoSpace>();
+  /** Demande d'essai (onglet établissement) : le parent fait défiler jusqu'au formulaire. */
+  readonly askTrial = output<void>();
 
   private readonly tabs = viewChildren<ElementRef<HTMLButtonElement>>('tab');
 

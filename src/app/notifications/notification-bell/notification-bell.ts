@@ -5,9 +5,11 @@ import { Bell } from '@primeicons/angular/bell';
 import { AuthService } from '../../connexion/auth-service';
 import { NotificationsService } from '../notifications.service';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { tr } from '../../shared/i18n/i18n';
 @Component({
   selector: 'app-notification-bell',
-  imports: [RouterLink, Bell],
+  imports: [TranslatePipe, RouterLink, Bell],
   templateUrl: './notification-bell.html',
   styleUrl: './notification-bell.css',
 })
@@ -31,7 +33,8 @@ export class NotificationBell {
   /** Le nombre de non-lues est annoncé aux lecteurs d'écran (le badge seul ne l'est pas). */
   readonly ariaLabel = computed(() => {
     const count = this.unreadCount();
-    return count > 0 ? `Voir les notifications (${this.badgeLabel()} non lue${count > 1 ? 's' : ''})` : 'Voir les notifications';
+    if (count === 0) return tr('Voir les notifications');
+    return count > 1 ? tr('Voir les notifications ({n} non lues)', { n: this.badgeLabel() }) : tr('Voir les notifications ({n} non lue)', { n: this.badgeLabel() });
   });
 
   constructor() {

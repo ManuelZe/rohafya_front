@@ -1,5 +1,6 @@
 import { ExamResultDetail, ExamType } from '../../patients/resultats/resultats.models';
 import { parsePythonLiteral } from '../../doctors/resultats/result-fields';
+import { currentLang, tr } from '../i18n/i18n';
 
 /**
  * Compte rendu médical normalisé, commun aux trois types d'examens et aux espaces patient / médecin.
@@ -217,7 +218,7 @@ export function measuresFromSerializer(record: ExamResultDetail | undefined): Re
 export function toStudies(items: ExamResultDetail[]): ReportStudy[] {
   // Les champs de connexion au serveur d'imagerie (identifiants) ne sont jamais repris.
   return items.map((item) => ({
-    description: text(item['description']) || text(item['rec_name']) || 'Étude',
+    description: text(item['description']) || text(item['rec_name']) || tr('Étude'),
     date: text(item['date']) || null,
     institution: text(item['institution']),
     physician: text(item['ref_physician']) || text(item['req_physician']),
@@ -315,8 +316,8 @@ const LAYOUTS: Record<ExamType, Layout> = {
 
 function sexLabel(value: string): string {
   const v = value.trim().toLowerCase();
-  if (['f', 'female', 'féminin', 'feminin', 'femme'].includes(v)) return 'Féminin';
-  if (['m', 'male', 'masculin', 'homme'].includes(v)) return 'Masculin';
+  if (['f', 'female', 'féminin', 'feminin', 'femme'].includes(v)) return tr('Féminin');
+  if (['m', 'male', 'masculin', 'homme'].includes(v)) return tr('Masculin');
   return value;
 }
 
@@ -326,7 +327,7 @@ function ageOn(birthDate: string, reference: string | null): string {
   if (Number.isNaN(birth.getTime()) || Number.isNaN(at.getTime())) return '';
   let age = at.getFullYear() - birth.getFullYear();
   if (at.getMonth() < birth.getMonth() || (at.getMonth() === birth.getMonth() && at.getDate() < birth.getDate())) age--;
-  return age >= 0 ? `${age} ans` : '';
+  return age >= 0 ? tr('{n} ans', { n: age }) : '';
 }
 
 /**
@@ -452,5 +453,6 @@ export function formatDate(value: string | null | undefined, withTime = true): s
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   const midnight = date.getHours() === 0 && date.getMinutes() === 0;
-  return withTime && !midnight && /T|\d:\d/.test(value) ? DATE_FORMAT.format(date).replace(' ', ' à ') : DAY_FORMAT.format(date);
+  // « à » ou « at » : l'heure suit la langue de l'interface.
+  return withTime && !midnight && /T|\d:\d/.test(value) ? DATE_FORMAT.format(date).replace(' ', currentLang() === 'en' ? ' at ' : ' à ') : DAY_FORMAT.format(date);
 }

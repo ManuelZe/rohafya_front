@@ -1,11 +1,11 @@
 <div class="prescriptions-container">
-  <app-page-header title="Prescriptions" [subtitle]="subtitle()">
+  <app-page-header [title]="'Prescriptions' | t" [subtitle]="subtitle()">
     <button pButton type="button" actions (click)="toggleAddForm()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
-      <span>{{ showAddForm() ? 'Fermer le formulaire' : 'Nouvelle prescription' }}</span>
+      <span>{{ (showAddForm() ? 'Fermer le formulaire' : 'Nouvelle prescription') | t }}</span>
     </button>
   </app-page-header>
 
@@ -17,7 +17,7 @@
         <line x1="12" y1="8" x2="12" y2="12"></line>
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
       </svg>
-      <span>{{ errorMessage() }}</span>
+      <span>{{ errorMessage() | t }}</span>
     </div>
   }
 
@@ -25,16 +25,16 @@
   @if (showAddForm()) {
     <section class="add-form-wrapper">
       <div class="form-header">
-        <h2>Envoyer une prescription</h2>
-        <p>Choisissez l'établissement destinataire : ses administrateurs la traiteront et vous répondront ici.</p>
+        <h2>{{ 'Envoyer une prescription' | t }}</h2>
+        <p>{{ 'Choisissez l\'établissement destinataire : ses administrateurs la traiteront et vous répondront ici.' | t }}</p>
       </div>
 
       <form class="add-form" [formRoot]="prescriptionForm" (submit)="submitPrescription()">
         <div class="form-grid">
           <div class="form-row form-row-full">
-            <label for="tenantId">Établissement destinataire <span class="required">*</span></label>
+            <label for="tenantId">{{ 'Établissement destinataire' | t }} <span class="required">*</span></label>
             <select id="tenantId" [formField]="prescriptionForm.tenant_id" aria-describedby="tenantHint">
-              <option value="" disabled>{{ establishments.loading() ? 'Chargement…' : 'Choisir un établissement' }}</option>
+              <option value="" disabled>{{ (establishments.loading() ? 'Chargement…' : 'Choisir un établissement') | t }}</option>
               @for (e of establishments.list(); track e.id) {
                 <option [value]="e.id">{{ e.name }}</option>
               }
@@ -46,43 +46,43 @@
 
           @if (isDoctor()) {
             <div class="form-row form-row-full">
-              <label for="patientName">Patient concerné <span class="required">*</span></label>
-              <input id="patientName" type="text" [formField]="prescriptionForm.patient_name" placeholder="Nom et prénom du patient" />
+              <label for="patientName">{{ 'Patient concerné' | t }} <span class="required">*</span></label>
+              <input id="patientName" type="text" [formField]="prescriptionForm.patient_name" [placeholder]="'Nom et prénom du patient' | t" />
             </div>
           } @else {
             <div class="form-row">
-              <label for="nameDoctor">Médecin prescripteur <span class="required">*</span></label>
+              <label for="nameDoctor">{{ 'Médecin prescripteur' | t }} <span class="required">*</span></label>
               <input
                 id="nameDoctor"
                 type="text"
                 [formField]="prescriptionForm.NameDoctor"
-                placeholder="Dr. Jean Dupont"
+                [placeholder]="'Dr. Jean Dupont' | t"
               />
             </div>
 
             <div class="form-row">
-              <label for="ordreDoctor">Numéro d'ordre du médecin</label>
+              <label for="ordreDoctor">{{ 'Numéro d\'ordre du médecin' | t }}</label>
               <input
                 id="ordreDoctor"
                 type="text"
                 [formField]="prescriptionForm.OrdreDoctor"
-                placeholder="Ex: N° 123456"
+                [placeholder]="'Ex: N° 123456' | t"
               />
             </div>
           }
 
           <div class="form-row form-row-full">
-            <label for="description">Description & Consignes</label>
+            <label for="description">{{ 'Description & Consignes' | t }}</label>
             <textarea
               id="description"
               rows="3"
-              placeholder="Posologie, instructions particulières..."
+              [placeholder]="'Posologie, instructions particulières...' | t"
               [formField]="prescriptionForm.Description"
             ></textarea>
           </div>
 
           <div class="form-row form-row-full">
-            <label for="image">Document / Image de la prescription</label>
+            <label for="image">{{ 'Document / Image de la prescription' | t }}</label>
 
             <div class="file-input-wrapper" [class.has-file]="!!selectedFile()">
               <input id="image" type="file" accept="image/*" (change)="onFileSelected($event)" />
@@ -92,7 +92,7 @@
                   <polyline points="17 8 12 3 7 8"></polyline>
                   <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
-                <span>{{ selectedFile() ? selectedFile()!.name : 'Parcourir ou déposer une image' }}</span>
+                <span>{{ (selectedFile() ? selectedFile()!.name : 'Parcourir ou déposer une image') | t }}</span>
               </div>
             </div>
 
@@ -100,18 +100,18 @@
             @if (selectedFilePreviewUrl()) {
               <div class="selected-image-preview">
                 <div class="preview-thumbnail">
-                  <img [src]="selectedFilePreviewUrl()" alt="Aperçu du fichier" />
+                  <img [src]="selectedFilePreviewUrl()" [alt]="'Aperçu du fichier' | t" />
                 </div>
                 <div class="preview-info">
                   <span class="file-name">{{ selectedFile()?.name }}</span>
-                  <span class="file-size">{{ (selectedFile()?.size || 0) / 1024 | number:'1.0-1' }} Ko</span>
+                  <span class="file-size">{{ '{0} Ko' | t: [((selectedFile()?.size || 0) / 1024 | number:'1.0-1')] }}</span>
                 </div>
                 <button
                   type="button"
                   class="btn-remove-file"
                   (click)="clearSelectedFile()"
-                  title="Retirer l'image"
-                  aria-label="Retirer le fichier sélectionné"
+                  [title]="'Retirer l\'image' | t"
+                  [attr.aria-label]="'Retirer le fichier sélectionné' | t"
                 >
                   &times;
                 </button>
@@ -123,18 +123,18 @@
             <label class="checkbox-container">
               <input id="demandeDevis" type="checkbox" [formField]="prescriptionForm.demande_devis" />
               <span class="custom-checkbox"></span>
-              <span class="checkbox-label">Soumettre une demande de devis associée</span>
+              <span class="checkbox-label">{{ 'Soumettre une demande de devis associée' | t }}</span>
             </label>
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-tertiary" (click)="toggleAddForm()">Annuler</button>
+          <button type="button" class="btn btn-tertiary" (click)="toggleAddForm()">{{ 'Annuler' | t }}</button>
           <button type="submit" class="btn btn-primary" [disabled]="submitting()">
             @if (submitting()) {
               <span class="spinner"></span>
             }
-            <span>{{ submitting() ? 'Envoi en cours...' : 'Envoyer la prescription' }}</span>
+            <span>{{ (submitting() ? 'Envoi en cours...' : 'Envoyer la prescription') | t }}</span>
           </button>
         </div>
       </form>
@@ -144,7 +144,7 @@
   <!-- État Chargement -->
   @if (loading()) {
     <div class="state-container loading-state">
-      <app-rohafya-loader label="Chargement des prescriptions" />
+      <app-rohafya-loader [label]="'Chargement des prescriptions' | t" />
     </div>
   }
 
@@ -160,9 +160,9 @@
           <polyline points="10 9 9 9 8 9"></polyline>
         </svg>
       </div>
-      <h3>Aucune prescription disponible</h3>
-      <p>Aucune prescription n'a encore été envoyée à un établissement.</p>
-      <button class="btn btn-secondary" (click)="toggleAddForm()">Envoyer une prescription</button>
+      <h3>{{ 'Aucune prescription disponible' | t }}</h3>
+      <p>{{ 'Aucune prescription n\'a encore été envoyée à un établissement.' | t }}</p>
+      <button class="btn btn-secondary" (click)="toggleAddForm()">{{ 'Envoyer une prescription' | t }}</button>
     </div>
   }
 
@@ -171,21 +171,21 @@
     <app-list-toolbar
       class="list-toolbar-block"
       [(search)]="search"
-      [searchPlaceholder]="isDoctor() ? 'Patient, établissement, n°…' : 'Médecin, établissement, n°…'"
-      searchLabel="Rechercher une prescription"
+      [searchPlaceholder]="(isDoctor() ? 'Patient, établissement, n°…' : 'Médecin, établissement, n°…') | t"
+      [searchLabel]="'Rechercher une prescription' | t"
       [statusOptions]="statusOptions"
       [(status)]="statusFilter"
-      statusLabel="État de la prescription"
+      [statusLabel]="'État de la prescription' | t"
       [establishments]="establishmentNames()"
       [(establishment)]="establishmentFilter"
       [(sort)]="sort"
       [count]="filteredPrescriptions().length"
-      [noun]="filteredPrescriptions().length > 1 ? 'prescriptions' : 'prescription'"
+      [noun]="(filteredPrescriptions().length > 1 ? 'prescriptions' : 'prescription') | t"
     />
     @if (filteredPrescriptions().length === 0) {
       <div class="state-container empty-state">
-        <h3>Aucune prescription ne correspond à votre recherche</h3>
-        <p>Modifiez la recherche ou les filtres.</p>
+        <h3>{{ 'Aucune prescription ne correspond à votre recherche' | t }}</h3>
+        <p>{{ 'Modifiez la recherche ou les filtres.' | t }}</p>
       </div>
     }
     <div class="prescriptions-grid">
@@ -195,14 +195,14 @@
             class="card-image-container clickable"
             role="button"
             tabindex="0"
-            [attr.aria-label]="'Agrandir la prescription SEQ-' + p.Sequence"
+            [attr.aria-label]="'Agrandir la prescription SEQ-{0}' | t: [p.Sequence]"
             (click)="openImagePreview(p)"
             (keydown.enter)="openImagePreview(p)"
             (keydown.space)="$event.preventDefault(); openImagePreview(p)"
-            title="Cliquer pour agrandir la prescription"
+            [title]="'Cliquer pour agrandir la prescription' | t"
           >
             @if (p.imageUrl) {
-              <img [src]="p.imageUrl" [alt]="'Prescription ' + p.Sequence" loading="lazy" />
+              <img [src]="p.imageUrl" [alt]="'Prescription {0}' | t: [p.Sequence]" loading="lazy" />
 
               <div class="image-overlay-hint">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -211,14 +211,14 @@
                   <line x1="11" y1="8" x2="11" y2="14"></line>
                   <line x1="8" y1="11" x2="14" y2="11"></line>
                 </svg>
-                <span>Agrandir</span>
+                <span>{{ 'Agrandir' | t }}</span>
               </div>
             }
 
             @if (p.imageLoading) {
               <div class="image-placeholder">
                 <div class="spinner"></div>
-                <span>Chargement de l'image...</span>
+                <span>{{ 'Chargement de l\'image...' | t }}</span>
               </div>
             }
 
@@ -229,7 +229,7 @@
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
                   <polyline points="21 15 16 10 5 21"></polyline>
                 </svg>
-                <span>Aucun aperçu</span>
+                <span>{{ 'Aucun aperçu' | t }}</span>
               </div>
             }
 
@@ -243,21 +243,21 @@
           <div class="card-body">
             <div class="card-header-info">
               @if (isDoctor()) {
-                <span class="patient-tag">Patient : {{ p.submission?.patient_name || 'non précisé' }}</span>
+                <span class="patient-tag">{{ 'Patient : {0}' | t: [((p.submission?.patient_name || 'non précisé') | t)] }}</span>
               }
-              <span class="sequence-tag">SEQ-{{ p.Sequence }}</span>
+              <span class="sequence-tag">{{ 'SEQ-{0}' | t: [p.Sequence] }}</span>
             </div>
 
-            <h2 class="doctor-name" [title]="p.NameDoctor || 'Médecin non renseigné'">
-              {{ p.NameDoctor || 'Médecin non renseigné' }}
+            <h2 class="doctor-name" [title]="(p.NameDoctor || 'Médecin non renseigné') | t">
+              {{ p.NameDoctor || 'Médecin non renseigné' | t }}
             </h2>
 
             @if (p.OrdreDoctor) {
-              <p class="doctor-ordre">Ordre : <span>{{ p.OrdreDoctor }}</span></p>
+              <p class="doctor-ordre">{{ 'Ordre :' | t }} <span>{{ p.OrdreDoctor }}</span></p>
             }
 
             @if (p.Description) {
-              <p class="card-description">{{ p.Description }}</p>
+              <p class="card-description">{{ p.Description | t }}</p>
             }
 
             <div class="card-footer-meta">
@@ -267,7 +267,7 @@
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
-              <time>{{ p.Create_date | date: 'dd/MM/yyyy à HH:mm' }}</time>
+              <time>{{ p.Create_date | ldate: 'datetime' }}</time>
             </div>
 
             <app-submission-info [submission]="p.submission" />
@@ -280,53 +280,53 @@
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                Voir le devis
+                {{ 'Voir le devis' | t }}
               </button>
             }
             <button
               type="button"
               class="btn btn-danger-outline btn-sm"
               (click)="confirmDelete(p)"
-              title="Supprimer la prescription"
+              [title]="'Supprimer la prescription' | t"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
-              Supprimer
+              {{ 'Supprimer' | t }}
             </button>
           </div>
         </article>
       }
     </div>
-    <app-show-more [list]="list" noun="prescriptions" />
+    <app-show-more [list]="list" [noun]="'prescriptions' | t" />
   }
 
   <!-- Modal Visualiseur d'Image (Lightbox) -->
   @if (previewPrescription(); as preview) {
     <div class="image-modal-overlay" (click)="closeImagePreview()">
       <div class="image-modal-wrapper" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
-        <button type="button" class="image-modal-close" (click)="closeImagePreview()" aria-label="Fermer la vue de l'image">&times;</button>
+        <button type="button" class="image-modal-close" (click)="closeImagePreview()" [attr.aria-label]="'Fermer la vue de l\'image' | t">&times;</button>
 
         <div class="image-modal-header">
-          <h3>Prescription SEQ-{{ preview.Sequence }}</h3>
-          <p>{{ preview.NameDoctor || 'Médecin non renseigné' }}@if (preview.submission?.establishment) { — {{ preview.submission?.establishment }} }</p>
+          <h3>{{ 'Prescription SEQ-{0}' | t: [preview.Sequence] }}</h3>
+          <p>{{ preview.NameDoctor || 'Médecin non renseigné' | t }}@if (preview.submission?.establishment) { — {{ preview.submission?.establishment }} }</p>
         </div>
 
         <div class="image-modal-body">
           @if (preview.imageUrl) {
-            <img [src]="preview.imageUrl" [alt]="'Prescription ' + preview.Sequence" />
+            <img [src]="preview.imageUrl" [alt]="'Prescription {0}' | t: [preview.Sequence]" />
           }
 
           @if (preview.imageLoading) {
             <div class="state-container">
-              <app-rohafya-loader label="Chargement du document haute résolution" />
+              <app-rohafya-loader [label]="'Chargement du document haute résolution' | t" />
             </div>
           }
 
           @if (!preview.imageLoading && (preview.imageError || !preview.imageUrl)) {
             <div class="error-banner">
-              <span>Aucune image lisible n'a pu être récupérée pour cette prescription.</span>
+              <span>{{ 'Aucune image lisible n\'a pu être récupérée pour cette prescription.' | t }}</span>
             </div>
           }
         </div>
@@ -348,24 +348,24 @@
             </svg>
           </div>
           <div>
-            <h2 id="delete-title">Supprimer la prescription</h2>
-            <p class="delete-modal-subtitle">Cette action est irréversible</p>
+            <h2 id="delete-title">{{ 'Supprimer la prescription' | t }}</h2>
+            <p class="delete-modal-subtitle">{{ 'Cette action est irréversible' | t }}</p>
           </div>
         </div>
 
         <div class="delete-modal-body">
-          <p>Êtes-vous sûr de vouloir supprimer la prescription <strong>SEQ-{{ toDelete.Sequence }}</strong> du Dr. <strong>{{ toDelete.NameDoctor || 'non renseigné' }}</strong> ?</p>
+          <p>{{ 'Êtes-vous sûr de vouloir supprimer la prescription' | t }} <strong>{{ 'SEQ-{0}' | t: [toDelete.Sequence] }}</strong> {{ 'du Dr.' | t }} <strong>{{ toDelete.NameDoctor || 'non renseigné' | t }}</strong> ?</p>
         </div>
 
         <div class="delete-modal-footer">
           <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="deleting()">
-            Annuler
+            {{ 'Annuler' | t }}
           </button>
           <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="deleting()">
             @if (deleting()) {
               <span class="spinner"></span>
             }
-            <span>{{ deleting() ? 'Suppression...' : 'Supprimer définitivement' }}</span>
+            <span>{{ (deleting() ? 'Suppression...' : 'Supprimer définitivement') | t }}</span>
           </button>
         </div>
       </div>
@@ -378,24 +378,24 @@
       <div class="devis-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="devis-title">
         <header class="devis-header">
           <div>
-            <h2 id="devis-title">Devis de la prescription</h2>
-            <span class="devis-subtitle">SEQ-{{ devisP.Sequence }}@if (devisP.submission?.establishment) { · {{ devisP.submission?.establishment }} }</span>
+            <h2 id="devis-title">{{ 'Devis de la prescription' | t }}</h2>
+            <span class="devis-subtitle">{{ 'SEQ-{0}' | t: [devisP.Sequence] }}@if (devisP.submission?.establishment) { · {{ devisP.submission?.establishment }} }</span>
           </div>
-          <button type="button" class="btn-close" (click)="closeDevis()" aria-label="Fermer la fenêtre">&times;</button>
+          <button type="button" class="btn-close" (click)="closeDevis()" [attr.aria-label]="'Fermer la fenêtre' | t">&times;</button>
         </header>
 
         <div class="devis-body">
           <div class="devis-content">
             @if (quoteLabel(devisP)) {
               <div class="devis-price-box">
-                <span class="price-label">Montant du devis</span>
+                <span class="price-label">{{ 'Montant du devis' | t }}</span>
                 <span class="price-value">{{ quoteLabel(devisP) }}</span>
               </div>
             }
 
             @if (devisP.submission?.response) {
               <div class="devis-details-box">
-                <h3>Réponse de l'établissement</h3>
+                <h3>{{ 'Réponse de l\'établissement' | t }}</h3>
                 <p>{{ devisP.submission?.response }}</p>
               </div>
             }
@@ -404,9 +404,9 @@
               <div class="devis-details-box">
                 <p>
                   @if (devisP.submission) {
-                    Votre demande de devis a été envoyée à {{ devisP.submission.establishment }}. Le montant apparaîtra ici dès sa réponse.
+                    {{ 'Votre demande de devis a été envoyée à {0}. Le montant apparaîtra ici dès sa réponse.' | t: [devisP.submission.establishment] }}
                   } @else {
-                    Cette demande de devis a été envoyée avant le choix de l'établissement.
+                    {{ 'Cette demande de devis a été envoyée avant le choix de l\'établissement.' | t }}
                   }
                 </p>
               </div>
@@ -415,7 +415,7 @@
         </div>
 
         <footer class="devis-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeDevis()">Fermer</button>
+          <button type="button" class="btn btn-secondary" (click)="closeDevis()">{{ 'Fermer' | t }}</button>
         </footer>
       </div>
     </div>

@@ -9,12 +9,13 @@ import { RECORD_KIND_LABELS, RecordKind, RecordSummary } from '../../saas.models
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const PAGE_SIZE = 25;
 const SOURCE_LABELS: Record<string, string> = { api: 'API ROHAFYA', fhir: 'FHIR', admin: 'Saisie', pdf: 'PDF' };
 
 @Component({
   selector: 'app-admin-records',
-  imports: [DatePipe, RouterLink, PIcon, PageHeader, Pager],
+  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, Pager],
   templateUrl: './admin-records.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

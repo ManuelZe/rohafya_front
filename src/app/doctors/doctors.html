@@ -10,19 +10,19 @@
           <div class="profile-name">{{ userName() }}</div>
           <div class="profile-status" [class.status-inactive]="!isConfirmed()">
             <span class="status-dot" aria-hidden="true"></span>
-            <span>{{ isConfirmed() ? 'Compte confirmé' : 'Compte non confirmé' }}</span>
+            <span>{{ (isConfirmed() ? 'Compte confirmé' : 'Compte non confirmé') | t }}</span>
           </div>
         </div>
       </div>
       @if (cycleBalance(); as balance) {
         <a class="balance-pill" routerLink="/doctors" (click)="onNavigate('/doctors')">
-          <span class="balance-label">Solde du cycle</span>
+          <span class="balance-label">{{ 'Solde du cycle' | t }}</span>
           <strong class="balance-value">{{ balance.total | points }}</strong>
         </a>
       }
     </div>
 
-    <nav class="sidebar-nav" aria-label="Espace docteur">
+    <nav class="sidebar-nav" [attr.aria-label]="'Espace docteur' | t">
       @for (entry of visibleMenu(); track entry.label) {
         @if (isGroup(entry)) {
           <div class="menu-group">
@@ -36,7 +36,7 @@
               (click)="toggleGroup(entry.label)"
             >
               <svg [pIcon]="entry.icon" [size]="20" aria-hidden="true"></svg>
-              <span>{{ entry.label }}</span>
+              <span>{{ entry.label | t }}</span>
               <svg
                 class="chevron"
                 [class.chevron-open]="isExpanded(entry.label)"
@@ -59,7 +59,7 @@
                     (click)="onNavigate(item.link)"
                   >
                     <svg [pIcon]="item.icon" [size]="18" aria-hidden="true"></svg>
-                    <span>{{ item.label }}</span>
+                    <span>{{ item.label | t }}</span>
                   </a>
                 }
               </div>
@@ -77,10 +77,10 @@
             (click)="onNavigate(entry.link)"
           >
             <svg [pIcon]="entry.icon" [size]="20" aria-hidden="true"></svg>
-            <span>{{ entry.label }}</span>
+            <span>{{ entry.label | t }}</span>
             @if (sidebarLocked() && !isLocked(entry.link)) {
-              <span class="menu-item-alert" title="Action requise">!</span>
-              <span class="sr-only">Action requise</span>
+              <span class="menu-item-alert" [title]="'Action requise' | t">!</span>
+              <span class="sr-only">{{ 'Action requise' | t }}</span>
             }
           </a>
         }
@@ -90,27 +90,28 @@
     <div class="sidebar-footer">
       <div class="sidebar-date">
         <svg [pIcon]="'calendar'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ currentDate }}</span>
+        <span>{{ currentDate() }}</span>
       </div>
+      <div class="sidebar-lang"><app-lang-switch tone="dark" /></div>
       <div class="footer-actions">
         <button type="button" class="footer-btn" (click)="openSuggestion()">
           <svg [pIcon]="'lightbulb'" [size]="16" aria-hidden="true"></svg>
-          <span>Suggestion</span>
+          <span>{{ 'Suggestion' | t }}</span>
         </button>
         <button type="button" class="footer-btn" (click)="openHelp()">
           <svg [pIcon]="'question-circle'" [size]="16" aria-hidden="true"></svg>
-          <span>Aide</span>
+          <span>{{ 'Aide' | t }}</span>
         </button>
       </div>
       @if (canSwitchToPatient()) {
         <button type="button" class="footer-btn switch-btn" (click)="switchToPatient()">
           <svg [pIcon]="'arrow-right-arrow-left'" [size]="16" aria-hidden="true"></svg>
-          <span>Mon espace patient</span>
+          <span>{{ 'Mon espace patient' | t }}</span>
         </button>
       }
       <button type="button" class="logout-btn" (click)="logout()">
         <svg [pIcon]="'sign-out'" [size]="16" aria-hidden="true"></svg>
-        <span>Déconnexion</span>
+        <span>{{ 'Déconnexion' | t }}</span>
       </button>
     </div>
   </ng-template>
@@ -123,7 +124,7 @@
     [closable]="true"
     class="sidebar-mobile"
     styleClass="doctor-drawer"
-    ariaCloseLabel="Fermer le menu"
+    [ariaCloseLabel]="'Fermer le menu' | t"
   >
     <ng-container *ngTemplateOutlet="sidebarContent; context: { mobile: true }" />
   </p-drawer>
@@ -141,23 +142,23 @@
   @if (helpDialogOpen()) {
     <div class="dialog-overlay" (click)="closeHelp()">
       <div class="dialog-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="help-title">
-        <button type="button" class="dialog-close" (click)="closeHelp()" aria-label="Fermer">
+        <button type="button" class="dialog-close" (click)="closeHelp()" [attr.aria-label]="'Fermer' | t">
           <svg [pIcon]="'times'" [size]="16" aria-hidden="true"></svg>
         </button>
         <div class="dialog-header">
           <svg [pIcon]="'question-circle'" [size]="22" aria-hidden="true"></svg>
-          <h2 id="help-title">Service d'aide</h2>
+          <h2 id="help-title">{{ 'Service d\'aide' | t }}</h2>
         </div>
-        <p class="dialog-intro">{{ commissionsEnabled() ? 'Une question sur vos commissions ou votre compte ?' : 'Une question sur votre compte ?' }} Nos équipes vous répondent.</p>
+        <p class="dialog-intro">{{ '{0} Nos équipes vous répondent.' | t: [((commissionsEnabled() ? 'Une question sur vos commissions ou votre compte ?' : 'Une question sur votre compte ?') | t)] }}</p>
         @for (contact of helpContacts; track contact.label) {
           <div class="help-card">
-            <h3>{{ contact.label }}</h3>
+            <h3>{{ contact.label | t }}</h3>
             <a class="help-phone" [href]="'tel:' + contact.phone.replaceAll(' ', '')">
               <svg [pIcon]="'phone'" [size]="14" aria-hidden="true"></svg>
               {{ contact.phone }}
             </a>
             <a [href]="contact.whatsapp" target="_blank" rel="noopener" class="help-whatsapp">
-              WhatsApp<span class="sr-only"> (nouvel onglet)</span>
+              {{ 'WhatsApp' | t }}<span class="sr-only"> {{ '(nouvel onglet)' | t }}</span>
               <svg [pIcon]="'external-link'" [size]="12" aria-hidden="true"></svg>
             </a>
           </div>

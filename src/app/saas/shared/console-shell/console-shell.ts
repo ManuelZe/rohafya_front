@@ -6,6 +6,9 @@ import { PIcon } from '@primeicons/angular/p-icon';
 import { SidebarService } from '../../../patients/sidebar-service';
 import { tenantPalette } from '../../../shared/theme/tenant-theme';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { I18n } from '../../../shared/i18n/i18n';
+import { LangSwitch } from '../../../shared/i18n/lang-switch';
 export interface ConsoleMenuLink {
   label: string;
   icon: string;
@@ -28,7 +31,7 @@ export interface ConsoleTenantOption {
  */
 @Component({
   selector: 'app-console-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, DrawerModule, PIcon],
+  imports: [LangSwitch, TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, DrawerModule, PIcon],
   templateUrl: './console-shell.html',
   styleUrls: ['../../../doctors/doctors.css', './console-shell.css'],
   host: {
@@ -59,7 +62,9 @@ export class ConsoleShell {
   readonly tenantChange = output<number>();
   readonly logoutRequested = output<void>();
 
-  readonly currentDate = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  private readonly i18n = inject(I18n);
+  /** Date du jour, dans la langue de l'interface. */
+  readonly currentDate = computed(() => new Date().toLocaleDateString(this.i18n.locale(), { day: '2-digit', month: 'long', year: 'numeric' }));
   readonly tenantSelectId = 'console-tenant-select';
 
   onTenantChange(event: Event, mobile: boolean): void {

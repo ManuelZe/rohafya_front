@@ -1188,3 +1188,476 @@ main:focus,
     transform: none;
   }
 }
+
+/* ===================================================================
+   Site des établissements : segments, mise en service, tarifs, essai
+   =================================================================== */
+
+.header__lang {
+  flex-shrink: 0;
+}
+
+.section__head--sub {
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+}
+
+.section__subtitle {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--rohafya-navy);
+}
+
+/* ----- Par type d'établissement ----- */
+.segments-head {
+  margin: 3.5rem 0 1.5rem;
+}
+
+.segments-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--rohafya-navy);
+}
+
+.segments {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.segment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.4rem;
+  border: 1px solid var(--rohafya-navy-100);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.segment__icon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  color: var(--rohafya-navy);
+  background: var(--rohafya-navy-100);
+}
+
+.segment__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--rohafya-navy);
+}
+
+.segment__points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.segment__points li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.segment__points svg {
+  flex: none;
+  margin-top: 0.2rem;
+  color: var(--color-primary);
+}
+
+.segment__first {
+  margin: auto 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--rohafya-navy-200);
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+/* ----- Mise en service ----- */
+.onboarding {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.onboarding__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.4rem 1.2rem;
+  border-radius: var(--radius-lg);
+  background: var(--rohafya-navy-50);
+  border: 1px solid var(--rohafya-navy-100);
+}
+
+.onboarding__num {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--rohafya-navy-200);
+}
+
+.onboarding__icon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  color: #fff;
+  background: var(--color-primary);
+}
+
+.onboarding__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--rohafya-navy);
+}
+
+.onboarding__text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+/* ----- Tarifs ----- */
+.plans {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.6rem 1.4rem;
+  border: 1px solid var(--rohafya-navy-100);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.plan--highlight {
+  border: 2px solid var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.plan__badge {
+  position: absolute;
+  top: -0.8rem;
+  left: 1.4rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.plan__name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--rohafya-navy);
+}
+
+.plan__volume {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.plan__price {
+  margin: 0.4rem 0;
+  color: var(--rohafya-navy);
+}
+
+.plan__price strong {
+  display: block;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.plan__price span {
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.plan__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: auto 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--rohafya-navy-100);
+  font-size: 0.85rem;
+}
+
+.plan__facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.plan__facts dt {
+  color: #4b5563;
+}
+
+.plan__facts dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.plan-notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 1.5rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+
+.plan-notes li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.plan-notes svg {
+  flex: none;
+  margin-top: 0.2rem;
+  color: var(--color-primary);
+}
+
+.founders {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding: 2.5rem;
+  border-radius: 28px;
+  color: #e5eef3;
+  background:
+    radial-gradient(500px 260px at 0% 0%, rgba(16, 185, 129, 0.35), transparent 60%),
+    var(--rohafya-navy);
+}
+
+.founders .kicker {
+  color: var(--rohafya-green-400);
+}
+
+.founders__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.founders__text {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.founders__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.founders__list li {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+}
+
+.founders__list svg {
+  flex: none;
+  margin-top: 0.15rem;
+  color: var(--rohafya-green-400);
+}
+
+/* ----- Demande d'essai ----- */
+.trial-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.trial-pitch__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 600;
+  color: var(--rohafya-navy);
+}
+
+.trial-pitch__list li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.trial-pitch__list svg {
+  color: var(--color-primary);
+}
+
+.trial-pitch__alt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rohafya-navy-100);
+}
+
+.trial-pitch__alt p {
+  flex-basis: 100%;
+  margin: 0;
+  font-weight: 700;
+  color: var(--rohafya-navy);
+}
+
+.trial-card {
+  padding: 2rem;
+  border: 1px solid var(--rohafya-navy-100);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+/* ----- Patients et médecins déjà inscrits ----- */
+.members {
+  margin-bottom: 4rem;
+}
+
+.members__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  padding: 1.5rem 2rem;
+  border: 1px dashed var(--rohafya-navy-200);
+  border-radius: 20px;
+  background: var(--rohafya-navy-50);
+  color: var(--rohafya-navy);
+}
+
+.members__inner > div:first-of-type {
+  flex: 1 1 18rem;
+}
+
+.members__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.members__text {
+  margin: 0;
+  color: #374151;
+}
+
+.members__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.mobile-menu__actions app-lang-switch {
+  align-self: center;
+}
+
+@media (max-width: 1200px) {
+  .segments,
+  .plans {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .onboarding {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .founders {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .founders > .btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .trial-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .onboarding {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .segments,
+  .plans,
+  .onboarding,
+  .plan-notes,
+  .founders {
+    grid-template-columns: 1fr;
+  }
+
+  .founders {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .trial-card {
+    padding: 1.25rem;
+  }
+
+  .header__lang {
+    display: none;
+  }
+}

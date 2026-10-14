@@ -4,6 +4,7 @@ import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Rout
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RohafyaMark } from '../rohafya-mark/rohafya-mark';
 
+import { TranslatePipe } from '../i18n/t.pipe';
 /** En dessous de ce délai, la navigation est jugée instantanée : aucun indicateur (évite le clignotement). */
 const SHOW_DELAY_MS = 200;
 
@@ -13,14 +14,14 @@ const SHOW_DELAY_MS = 200;
  */
 @Component({
   selector: 'app-route-loader',
-  imports: [ProgressBarModule, RohafyaMark],
+  imports: [TranslatePipe, ProgressBarModule, RohafyaMark],
   template: `
     @if (visible()) {
       <div class="route-loader" role="status" aria-live="polite">
         <p-progressbar mode="indeterminate" styleClass="route-bar" [style]="{ height: '3px' }" />
         <div class="pill">
           <app-rohafya-mark [size]="22" />
-          <span>Chargement de la page…</span>
+          <span>{{ 'Chargement de la page…' | t }}</span>
         </div>
       </div>
     }

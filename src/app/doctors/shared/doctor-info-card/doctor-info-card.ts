@@ -6,15 +6,16 @@ import { StatusTag } from '../../../patients/shared/status-tag/status-tag';
 import { DoctorProfileService } from '../../doctor-profile.service';
 import { stripDoctorTitle } from '../doctor-name';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-doctor-info-card',
-  imports: [PIcon, NotificationBell, StatusTag],
+  imports: [TranslatePipe, PIcon, NotificationBell, StatusTag],
   template: `
-    <section class="info-card" aria-label="Votre profil">
+    <section class="info-card" [attr.aria-label]="'Votre profil' | t">
       <div class="avatar" aria-hidden="true">{{ initials() }}</div>
       <div class="identity">
         <div class="name-row">
-          <h2 class="name">Dr {{ fullName() }}</h2>
+          <h2 class="name">{{ 'Dr {0}' | t: [fullName()] }}</h2>
           <app-status-tag kind="account" [status]="isConfirmed() ? 'true' : 'false'" />
         </div>
         <p class="meta">
@@ -22,7 +23,7 @@ import { stripDoctorTitle } from '../doctor-name';
             <span class="meta-item"><svg [pIcon]="'briefcase'" [size]="14"></svg>{{ speciality() }}</span>
           }
           @if (matricule()) {
-            <span class="meta-item"><svg [pIcon]="'id-card'" [size]="14"></svg>Matricule {{ matricule() }}</span>
+            <span class="meta-item"><svg [pIcon]="'id-card'" [size]="14"></svg>{{ 'Matricule {0}' | t: [matricule()] }}</span>
           }
         </p>
       </div>

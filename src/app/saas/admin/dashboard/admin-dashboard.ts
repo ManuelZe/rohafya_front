@@ -9,9 +9,10 @@ import { RECORD_KIND_LABELS, RecordKind, SOURCE_LABELS, TenantDashboard, auditLa
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [DatePipe, RouterLink, PIcon, PageHeader, KpiTile],
+  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, KpiTile],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

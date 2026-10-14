@@ -1,18 +1,18 @@
 <div class="page">
-  <app-page-header title="Commissions par année" subtitle="Évolution mois par mois de vos prescriptions et réalisations." />
+  <app-page-header [title]="'Commissions par année' | t" [subtitle]="'Évolution mois par mois de vos prescriptions et réalisations.' | t" />
 
   <!-- Filtres : une seule ligne, au-dessus de tout ce qu'ils filtrent -->
   <div class="toolbar">
-    <label class="sr-only" for="year-select">Année</label>
+    <label class="sr-only" for="year-select">{{ 'Année' | t }}</label>
     <select id="year-select" class="field year-select" [value]="selectedYear()" (change)="onYearChange($event)">
       @for (y of years; track y) {
         <option [value]="y">{{ y }}</option>
       }
     </select>
 
-    <div class="segmented" role="group" aria-label="Statut de facturation">
-      <button type="button" [attr.aria-pressed]="type() === 'invoiced'" (click)="setType('invoiced')">Facturées</button>
-      <button type="button" [attr.aria-pressed]="type() === 'not_invoiced'" (click)="setType('not_invoiced')">Non facturées</button>
+    <div class="segmented" role="group" [attr.aria-label]="'Statut de facturation' | t">
+      <button type="button" [attr.aria-pressed]="type() === 'invoiced'" (click)="setType('invoiced')">{{ 'Facturées' | t }}</button>
+      <button type="button" [attr.aria-pressed]="type() === 'not_invoiced'" (click)="setType('not_invoiced')">{{ 'Non facturées' | t }}</button>
     </div>
 
     <button type="button" class="btn btn-ghost refresh" (click)="refresh()" [disabled]="yearResource.loading()">
@@ -21,49 +21,49 @@
       } @else {
         <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
       }
-      <span>Actualiser</span>
+      <span>{{ 'Actualiser' | t }}</span>
     </button>
   </div>
 
   @if (yearResource.error()) {
     <div class="banner banner-error" role="alert">
       <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>{{ yearResource.error() }}</span>
-      <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+      <span>{{ yearResource.error() | t }}</span>
+      <button type="button" class="btn btn-ghost" (click)="refresh()">{{ 'Réessayer' | t }}</button>
     </div>
   } @else {
-    <section class="kpis" aria-label="Synthèse de l'année" [class.is-refreshing]="yearResource.refreshing()">
-      <app-kpi-tile [label]="'Total ' + selectedYear()" icon="wallet" accent="#0c4562" [value]="totalValue()" [loading]="yearResource.loading() && !yearResource.data()" />
-      <app-kpi-tile label="Meilleur mois" icon="trophy" accent="#b45309" [value]="bestValue()" [hint]="bestHint()" [loading]="yearResource.loading() && !yearResource.data()" />
-      <app-kpi-tile label="Moyenne mensuelle" icon="chart-line" accent="#047857" [value]="averageValue()" [loading]="yearResource.loading() && !yearResource.data()" />
-      <app-kpi-tile label="Commissions" icon="list" accent="#1f6a8f" [value]="countValue()" [loading]="yearResource.loading() && !yearResource.data()" />
+    <section class="kpis" [attr.aria-label]="'Synthèse de l\'année' | t" [class.is-refreshing]="yearResource.refreshing()">
+      <app-kpi-tile [label]="'Total {0}' | t: [selectedYear()]" icon="wallet" accent="#0c4562" [value]="totalValue()" [loading]="yearResource.loading() && !yearResource.data()" />
+      <app-kpi-tile [label]="'Meilleur mois' | t" icon="trophy" accent="#b45309" [value]="bestValue()" [hint]="bestHint()" [loading]="yearResource.loading() && !yearResource.data()" />
+      <app-kpi-tile [label]="'Moyenne mensuelle' | t" icon="chart-line" accent="#047857" [value]="averageValue()" [loading]="yearResource.loading() && !yearResource.data()" />
+      <app-kpi-tile [label]="'Commissions' | t" icon="list" accent="#1f6a8f" [value]="countValue()" [loading]="yearResource.loading() && !yearResource.data()" />
     </section>
 
     <section class="card" aria-labelledby="chart-title" [class.is-refreshing]="yearResource.refreshing()">
       <div class="chart-head">
         <h2 id="chart-title" class="card-title">
           <svg [pIcon]="'chart-bar'" [size]="18" aria-hidden="true"></svg>
-          Commissions {{ type() === 'invoiced' ? 'facturées' : 'non facturées' }} en {{ selectedYear() }}
+          {{ (type() === 'invoiced' ? 'Commissions facturées en {0}' : 'Commissions non facturées en {0}') | t: [selectedYear()] }}
         </h2>
-        <div class="segmented" role="group" aria-label="Mode d'affichage">
+        <div class="segmented" role="group" [attr.aria-label]="'Mode d\'affichage' | t">
           <button type="button" [attr.aria-pressed]="view() === 'chart'" (click)="setView('chart')">
-            <svg [pIcon]="'chart-bar'" [size]="14" aria-hidden="true"></svg> Graphique
+            <svg [pIcon]="'chart-bar'" [size]="14" aria-hidden="true"></svg> {{ 'Graphique' | t }}
           </button>
           <button type="button" [attr.aria-pressed]="view() === 'table'" (click)="setView('table')">
-            <svg [pIcon]="'list'" [size]="14" aria-hidden="true"></svg> Tableau
+            <svg [pIcon]="'list'" [size]="14" aria-hidden="true"></svg> {{ 'Tableau' | t }}
           </button>
         </div>
       </div>
 
       @if (yearResource.loading() && !yearResource.data()) {
         <div class="skeleton chart-skeleton" aria-hidden="true"></div>
-        <span class="sr-only">Chargement…</span>
+        <span class="sr-only">{{ 'Chargement…' | t }}</span>
       } @else if (isEmpty()) {
         <div class="state">
           <svg [pIcon]="'chart-bar'" [size]="32" aria-hidden="true"></svg>
-          <strong>Aucune commission {{ type() === 'invoiced' ? 'facturée' : 'non facturée' }} en {{ selectedYear() }}</strong>
+          <strong>{{ (type() === 'invoiced' ? 'Aucune commission facturée en {0}' : 'Aucune commission non facturée en {0}') | t: [selectedYear()] }}</strong>
           @if (type() === 'invoiced') {
-            <button type="button" class="btn btn-ghost" (click)="setType('not_invoiced')">Voir les non facturées</button>
+            <button type="button" class="btn btn-ghost" (click)="setType('not_invoiced')">{{ 'Voir les non facturées' | t }}</button>
           }
         </div>
       } @else if (view() === 'chart') {
@@ -71,13 +71,13 @@
       } @else {
         <div class="table-wrap">
           <table class="ytable">
-            <caption class="sr-only">Commissions par mois en {{ selectedYear() }}</caption>
+            <caption class="sr-only">{{ 'Commissions par mois en {0}' | t: [selectedYear()] }}</caption>
             <thead>
               <tr>
-                <th scope="col">Mois</th>
-                <th scope="col" class="num">Prescriptions</th>
-                <th scope="col" class="num">Réalisations</th>
-                <th scope="col" class="num">Total</th>
+                <th scope="col">{{ 'Mois' | t }}</th>
+                <th scope="col" class="num">{{ 'Prescriptions' | t }}</th>
+                <th scope="col" class="num">{{ 'Réalisations' | t }}</th>
+                <th scope="col" class="num">{{ 'Total' | t }}</th>
               </tr>
             </thead>
             <tbody>
@@ -92,7 +92,7 @@
             </tbody>
             <tfoot>
               <tr>
-                <th scope="row">Total</th>
+                <th scope="row">{{ 'Total' | t }}</th>
                 <td class="num"></td>
                 <td class="num"></td>
                 <td class="num strong">{{ total() | points }}</td>

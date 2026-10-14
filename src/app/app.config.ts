@@ -1,5 +1,7 @@
 import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { TitleStrategy, provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { I18n } from './shared/i18n/i18n';
+import { I18nTitleStrategy } from './shared/i18n/i18n-title';
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -51,6 +53,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideAppInitializer(() => inject(DemoSession).closeObsoleteSession()),
+    // Langue retenue sur l'appareil : dictionnaire chargé avant le premier affichage (pas de texte qui change de langue).
+    provideAppInitializer(() => inject(I18n).init()),
+    { provide: TitleStrategy, useClass: I18nTitleStrategy },
     provideHttpClient(withInterceptors([demoInterceptor, authInterceptor])),
     // Sur mobile la page elle-même défile : chaque nouvelle page s'ouvre en haut, le retour arrière restaure la position.
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })), provideClientHydration(),

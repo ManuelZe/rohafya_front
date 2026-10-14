@@ -1,17 +1,17 @@
 <div class="resultats-container">
-  <app-page-header title="Résultats Partagés" subtitle="Partagez vos résultats d'examens avec vos médecins et consultez-les">
+  <app-page-header [title]="'Résultats Partagés' | t" [subtitle]="'Partagez vos résultats d\'examens avec vos médecins et consultez-les' | t">
     <button pButton type="button" actions (click)="toggleAddForm()" [disabled]="!showAddForm() && !canShare()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
-      <span>{{ showAddForm() ? 'Fermer le formulaire' : 'Partager un résultat' }}</span>
+      <span>{{ (showAddForm() ? 'Fermer le formulaire' : 'Partager un résultat') | t }}</span>
     </button>
   </app-page-header>
 
   @if (accessDenied()) {
     <div class="access-denied-message">
-      {{ accessDeniedMessage }}
+      {{ accessDeniedMessage | t }}
     </div>
   } @else {
     @if (errorMessage()) {
@@ -21,39 +21,39 @@
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-        <span>{{ errorMessage() }}</span>
+        <span>{{ errorMessage() | t }}</span>
       </div>
     }
 
     @if (shareMessage()) {
-      <p class="share-quota" [class.is-blocked]="!canShare()" role="note">{{ shareMessage() }}</p>
+      <p class="share-quota" [class.is-blocked]="!canShare()" role="note">{{ shareMessage() | t }}</p>
     }
 
     <!-- Formulaire de partage -->
     @if (showAddForm()) {
       <section class="add-form-wrapper">
         <div class="form-header">
-          <h2>Partager un résultat</h2>
-          <p>Indiquez le médecin destinataire ainsi que le type et le code de l'examen concerné.</p>
+          <h2>{{ 'Partager un résultat' | t }}</h2>
+          <p>{{ 'Indiquez le médecin destinataire ainsi que le type et le code de l\'examen concerné.' | t }}</p>
         </div>
 
         <form class="add-form" [formRoot]="sendForm" (submit)="submitSend()">
           <div class="form-grid">
             <div class="form-row form-row-full">
-              <label for="add_matricule">Matricule du médecin <span class="required">*</span></label>
+              <label for="add_matricule">{{ 'Matricule du médecin' | t }} <span class="required">*</span></label>
               <div class="doctor-search-row">
                 <input
                   id="add_matricule"
                   type="text"
                   [value]="addDoctorSearch.matricule()"
                   (input)="onAddMatriculeInput($event)"
-                  placeholder="Ex: DOC-2024-0012"
+                  [placeholder]="'Ex: DOC-2024-0012' | t"
                 />
                 <button type="button" class="btn btn-secondary" [disabled]="addDoctorSearch.searching() || !addDoctorSearch.matricule().trim()" (click)="addDoctorSearch.search()">
                   @if (addDoctorSearch.searching()) {
                     <span class="spinner"></span>
                   } @else {
-                    <span>Rechercher</span>
+                    <span>{{ 'Rechercher' | t }}</span>
                   }
                 </button>
               </div>
@@ -63,16 +63,16 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 6L9 17l-5-5"></path>
                   </svg>
-                  <span>Dr {{ doctor.DoctorName }} {{ doctor.DoctorLastname }}{{ doctor.Speciality ? ' — ' + doctor.Speciality : '' }}</span>
+                  <span>{{ 'Dr {0} {1}' | t: [doctor.DoctorName, doctor.DoctorLastname] }}{{ doctor.Speciality ? ' — ' + doctor.Speciality : '' }}</span>
                 </div>
               }
               @if (addDoctorSearch.error()) {
-                <div class="doctor-not-found">{{ addDoctorSearch.error() }}</div>
+                <div class="doctor-not-found">{{ addDoctorSearch.error() | t }}</div>
               }
             </div>
 
             <div class="form-row">
-              <label for="exam_type">Type d'examen <span class="required">*</span></label>
+              <label for="exam_type">{{ 'Type d\'examen' | t }} <span class="required">*</span></label>
               <select id="exam_type" [formField]="sendForm.exam_type" (change)="onAddExamTypeChange()">
                 @for (type of examTypes; track type) {
                   <option [value]="type">{{ type }}</option>
@@ -81,11 +81,11 @@
             </div>
 
             <div class="form-row">
-              <label for="exam_code">Résultat à partager <span class="required">*</span></label>
+              <label for="exam_code">{{ 'Résultat à partager' | t }} <span class="required">*</span></label>
               <select id="exam_code" [formField]="sendForm.exam_code">
-                <option value="">{{ examOptions.loading() ? 'Chargement...' : (addExamOptions().length === 0 ? 'Aucun résultat disponible' : 'Sélectionner...') }}</option>
+                <option value="">{{ (examOptions.loading() ? 'Chargement...' : (addExamOptions().length === 0 ? 'Aucun résultat disponible' : 'Sélectionner...')) | t }}</option>
                 @for (option of addExamOptions(); track option.code) {
-                  <option [value]="option.code">{{ option.label }}</option>
+                  <option [value]="option.code">{{ option.label | t }}</option>
                 }
               </select>
             </div>
@@ -93,18 +93,18 @@
             <div class="form-row form-row-full form-row-checkbox">
               <label class="checkbox-label">
                 <input type="checkbox" [formField]="sendForm.envoi_email" />
-                <span>Envoyer également une copie par email</span>
+                <span>{{ 'Envoyer également une copie par email' | t }}</span>
               </label>
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn btn-tertiary" (click)="toggleAddForm()">Annuler</button>
+            <button type="button" class="btn btn-tertiary" (click)="toggleAddForm()">{{ 'Annuler' | t }}</button>
             <button type="submit" class="btn btn-primary" [disabled]="submitting()">
               @if (submitting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ submitting() ? 'Envoi en cours...' : 'Partager' }}</span>
+              <span>{{ (submitting() ? 'Envoi en cours...' : 'Partager') | t }}</span>
             </button>
           </div>
         </form>
@@ -114,7 +114,7 @@
     <!-- État Chargement -->
     @if (loading()) {
       <div class="state-container loading-state">
-        <app-rohafya-loader label="Chargement des résultats partagés" />
+        <app-rohafya-loader [label]="'Chargement des résultats partagés' | t" />
       </div>
     }
 
@@ -128,9 +128,9 @@
             <circle cx="12" cy="12" r="9"></circle>
           </svg>
         </div>
-        <h3>Aucun résultat partagé</h3>
-        <p>Vous n'avez encore partagé aucun résultat d'examen avec un médecin.</p>
-        <button class="btn btn-secondary" (click)="toggleAddForm()" [disabled]="!canShare()">Partager un résultat</button>
+        <h3>{{ 'Aucun résultat partagé' | t }}</h3>
+        <p>{{ 'Vous n\'avez encore partagé aucun résultat d\'examen avec un médecin.' | t }}</p>
+        <button class="btn btn-secondary" (click)="toggleAddForm()" [disabled]="!canShare()">{{ 'Partager un résultat' | t }}</button>
       </div>
     }
 
@@ -141,7 +141,7 @@
           <article class="result-card">
             <div class="result-card-header">
               <app-status-tag kind="examType" [status]="r.exam_type" />
-              <span class="email-indicator" [class.sent]="r.envoi_email" [title]="r.envoi_email ? 'Copie envoyée par email' : 'Non envoyé par email'">
+              <span class="email-indicator" [class.sent]="r.envoi_email" [title]="(r.envoi_email ? 'Copie envoyée par email' : 'Non envoyé par email') | t">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4 4h16v16H4z" opacity="0"></path>
                   <path d="M22 6l-10 7L2 6"></path>
@@ -152,8 +152,8 @@
 
             <div class="card-body">
               <h2 class="result-code" [title]="r.exam_code">{{ r.exam_code }}</h2>
-              <p class="result-meta">Matricule patient : {{ r.patient_federation_id }}</p>
-              <p class="result-meta">Médecin destinataire : #{{ r.doctor_id }}</p>
+              <p class="result-meta">{{ 'Matricule patient : {0}' | t: [r.patient_federation_id] }}</p>
+              <p class="result-meta">{{ 'Médecin destinataire : #{0}' | t: [r.doctor_id] }}</p>
 
               <div class="card-footer-meta">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -162,31 +162,31 @@
                   <line x1="8" y1="2" x2="8" y2="6"></line>
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <time>{{ r.sended_at | date: 'dd/MM/yyyy à HH:mm' }}</time>
+                <time>{{ r.sended_at | ldate: 'datetime' }}</time>
               </div>
             </div>
 
             <div class="card-actions">
-              <button type="button" class="btn btn-secondary btn-sm" (click)="openViewer(r)" title="Voir le résultat">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="openViewer(r)" [title]="'Voir le résultat' | t">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                Voir
+                {{ 'Voir' | t }}
               </button>
-              <button type="button" class="btn btn-secondary btn-sm" (click)="openEdit(r)" title="Modifier le partage">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="openEdit(r)" [title]="'Modifier le partage' | t">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
-                Modifier
+                {{ 'Modifier' | t }}
               </button>
-              <button type="button" class="btn btn-danger-outline btn-sm" (click)="confirmDelete(r)" title="Supprimer le partage">
+              <button type="button" class="btn btn-danger-outline btn-sm" (click)="confirmDelete(r)" [title]="'Supprimer le partage' | t">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
-                Supprimer
+                {{ 'Supprimer' | t }}
               </button>
             </div>
           </article>
@@ -198,22 +198,22 @@
     @if (selectedResult(); as result) {
       <div class="viewer-modal-overlay" (click)="closeViewer()">
         <div class="viewer-modal-wrapper" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
-          <button type="button" class="viewer-modal-close" (click)="closeViewer()" aria-label="Fermer la vue du résultat">&times;</button>
+          <button type="button" class="viewer-modal-close" (click)="closeViewer()" [attr.aria-label]="'Fermer la vue du résultat' | t">&times;</button>
 
           <div class="viewer-modal-header">
             <h3>{{ result.exam_code }}</h3>
             <p>
               <app-status-tag kind="examType" [status]="result.exam_type" />
-              <span>&middot; Matricule {{ result.patient_federation_id }}</span>
+              <span>{{ '· Matricule {0}' | t: [result.patient_federation_id] }}</span>
             </p>
           </div>
 
           <div class="tab-switch">
             <button type="button" class="tab-btn" [class.active]="activeTab() === 'summary'" (click)="setActiveTab('summary')">
-              Résultat
+              {{ 'Résultat' | t }}
             </button>
             <button type="button" class="tab-btn" [class.active]="activeTab() === 'more'" (click)="setActiveTab('more')">
-              Plus d'informations
+              {{ 'Plus d\'informations' | t }}
             </button>
           </div>
 
@@ -221,15 +221,15 @@
             @if (activeTab() === 'summary') {
               @if (examDetailsLoading()) {
                 <div class="state-container">
-                  <app-rohafya-loader label="Chargement du résultat" />
+                  <app-rohafya-loader [label]="'Chargement du résultat' | t" />
                 </div>
               } @else if (examDetailsError()) {
                 <div class="error-banner">
-                  <span>{{ examDetailsError() }}</span>
+                  <span>{{ examDetailsError() | t }}</span>
                 </div>
               } @else if (!examDetails() || examDetails()!.length === 0) {
                 <div class="state-container">
-                  <p>Aucune donnée disponible pour ce résultat.</p>
+                  <p>{{ 'Aucune donnée disponible pour ce résultat.' | t }}</p>
                 </div>
               } @else {
                 @for (entry of examDetails(); track $index) {
@@ -237,7 +237,7 @@
                     <dl class="detail-list">
                       @for (item of detailEntries(entry); track item.label) {
                         <div class="detail-item">
-                          <dt>{{ item.label }}</dt>
+                          <dt>{{ item.label | t }}</dt>
                           <dd>{{ item.value }}</dd>
                         </div>
                       }
@@ -248,15 +248,15 @@
             } @else {
               @if (moreInfoLoading()) {
                 <div class="state-container">
-                  <app-rohafya-loader label="Chargement des informations complémentaires" />
+                  <app-rohafya-loader [label]="'Chargement des informations complémentaires' | t" />
                 </div>
               } @else if (moreInfoError()) {
                 <div class="error-banner">
-                  <span>{{ moreInfoError() }}</span>
+                  <span>{{ moreInfoError() | t }}</span>
                 </div>
               } @else if (!moreInfo() || moreInfo()!.length === 0) {
                 <div class="state-container">
-                  <p>Aucune information complémentaire disponible.</p>
+                  <p>{{ 'Aucune information complémentaire disponible.' | t }}</p>
                 </div>
               } @else {
                 @for (entry of moreInfo(); track $index) {
@@ -264,7 +264,7 @@
                     <dl class="detail-list">
                       @for (item of detailEntries(entry); track item.label) {
                         <div class="detail-item">
-                          <dt>{{ item.label }}</dt>
+                          <dt>{{ item.label | t }}</dt>
                           <dd>{{ item.value }}</dd>
                         </div>
                       }
@@ -283,27 +283,27 @@
       <div class="edit-modal-overlay" (click)="cancelEdit()">
         <div class="edit-modal-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
           <div class="form-header">
-            <h2>Modifier le partage</h2>
-            <p>Mettez à jour le médecin destinataire ou les informations de l'examen.</p>
+            <h2>{{ 'Modifier le partage' | t }}</h2>
+            <p>{{ 'Mettez à jour le médecin destinataire ou les informations de l\'examen.' | t }}</p>
           </div>
 
           <form class="add-form" [formRoot]="editForm" (submit)="submitEdit()">
             <div class="form-grid">
               <div class="form-row form-row-full">
-                <label for="edit_matricule">Matricule du médecin <span class="required">*</span></label>
+                <label for="edit_matricule">{{ 'Matricule du médecin' | t }} <span class="required">*</span></label>
                 <div class="doctor-search-row">
                   <input
                     id="edit_matricule"
                     type="text"
                     [value]="editDoctorSearch.matricule()"
                     (input)="onEditMatriculeInput($event)"
-                    placeholder="Ex: DOC-2024-0012"
+                    [placeholder]="'Ex: DOC-2024-0012' | t"
                   />
                   <button type="button" class="btn btn-secondary" [disabled]="editDoctorSearch.searching() || !editDoctorSearch.matricule().trim()" (click)="editDoctorSearch.search()">
                     @if (editDoctorSearch.searching()) {
                       <span class="spinner"></span>
                     } @else {
-                      <span>Rechercher</span>
+                      <span>{{ 'Rechercher' | t }}</span>
                     }
                   </button>
                 </div>
@@ -313,16 +313,16 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M20 6L9 17l-5-5"></path>
                     </svg>
-                    <span>Dr {{ doctor.DoctorName }} {{ doctor.DoctorLastname }}{{ doctor.Speciality ? ' — ' + doctor.Speciality : '' }}</span>
+                    <span>{{ 'Dr {0} {1}' | t: [doctor.DoctorName, doctor.DoctorLastname] }}{{ doctor.Speciality ? ' — ' + doctor.Speciality : '' }}</span>
                   </div>
                 }
                 @if (editDoctorSearch.error()) {
-                  <div class="doctor-not-found">{{ editDoctorSearch.error() }}</div>
+                  <div class="doctor-not-found">{{ editDoctorSearch.error() | t }}</div>
                 }
               </div>
 
               <div class="form-row">
-                <label for="edit_exam_type">Type d'examen <span class="required">*</span></label>
+                <label for="edit_exam_type">{{ 'Type d\'examen' | t }} <span class="required">*</span></label>
                 <select id="edit_exam_type" [formField]="editForm.exam_type" (change)="onEditExamTypeChange()">
                   @for (type of examTypes; track type) {
                     <option [value]="type">{{ type }}</option>
@@ -331,23 +331,23 @@
               </div>
 
               <div class="form-row">
-                <label for="edit_exam_code">Résultat à partager <span class="required">*</span></label>
+                <label for="edit_exam_code">{{ 'Résultat à partager' | t }} <span class="required">*</span></label>
                 <select id="edit_exam_code" [formField]="editForm.exam_code">
-                  <option value="">{{ examOptions.loading() ? 'Chargement...' : (editExamOptions().length === 0 ? 'Aucun résultat disponible' : 'Sélectionner...') }}</option>
+                  <option value="">{{ (examOptions.loading() ? 'Chargement...' : (editExamOptions().length === 0 ? 'Aucun résultat disponible' : 'Sélectionner...')) | t }}</option>
                   @for (option of editExamOptions(); track option.code) {
-                    <option [value]="option.code">{{ option.label }}</option>
+                    <option [value]="option.code">{{ option.label | t }}</option>
                   }
                 </select>
               </div>
             </div>
 
             <div class="form-actions">
-              <button type="button" class="btn btn-tertiary" (click)="cancelEdit()">Annuler</button>
+              <button type="button" class="btn btn-tertiary" (click)="cancelEdit()">{{ 'Annuler' | t }}</button>
               <button type="submit" class="btn btn-primary" [disabled]="savingEdit()">
                 @if (savingEdit()) {
                   <span class="spinner"></span>
                 }
-                <span>{{ savingEdit() ? 'Enregistrement...' : 'Enregistrer' }}</span>
+                <span>{{ (savingEdit() ? 'Enregistrement...' : 'Enregistrer') | t }}</span>
               </button>
             </div>
           </form>
@@ -369,24 +369,24 @@
               </svg>
             </div>
             <div>
-              <h2 id="delete-title">Supprimer le partage</h2>
-              <p class="delete-modal-subtitle">Cette action est irréversible</p>
+              <h2 id="delete-title">{{ 'Supprimer le partage' | t }}</h2>
+              <p class="delete-modal-subtitle">{{ 'Cette action est irréversible' | t }}</p>
             </div>
           </div>
 
           <div class="delete-modal-body">
-            <p>Êtes-vous sûr de vouloir supprimer le partage du résultat <strong>{{ toDelete.exam_code }}</strong> ?</p>
+            <p>{{ 'Êtes-vous sûr de vouloir supprimer le partage du résultat' | t }} <strong>{{ toDelete.exam_code }}</strong> ?</p>
           </div>
 
           <div class="delete-modal-footer">
             <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="deleting()">
-              Annuler
+              {{ 'Annuler' | t }}
             </button>
             <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="deleting()">
               @if (deleting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ deleting() ? 'Suppression...' : 'Supprimer définitivement' }}</span>
+              <span>{{ (deleting() ? 'Suppression...' : 'Supprimer définitivement') | t }}</span>
             </button>
           </div>
         </div>

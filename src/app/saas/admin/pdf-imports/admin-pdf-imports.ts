@@ -12,13 +12,14 @@ import { PDF_IMPORT_ENABLED } from '../../features';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const PAGE_SIZE = 25;
 const MAX_BYTES = 10 * 1024 * 1024;
 
 /** Dépôt de comptes rendus PDF et file de relecture de l'établissement. */
 @Component({
   selector: 'app-admin-pdf-imports',
-  imports: [DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader, Pager],
+  imports: [TranslatePipe, DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader, Pager],
   templateUrl: './admin-pdf-imports.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css', './admin-pdf-imports.css'],
 })

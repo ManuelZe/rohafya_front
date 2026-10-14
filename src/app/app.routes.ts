@@ -22,6 +22,7 @@ import { Devis } from './patients/devis/devis';
 import { patientConfirmedGuard } from './patients/patient-confirmed-guard';
 import { doctorGuard } from './doctors/doctor-guards';
 import { superAdminGuard, tenantAdminGuard } from './saas/saas-guards';
+import { frenchIntroGuard, introLang } from './intro/intro-lang';
 
 export const routes: Routes = [
     // L'adresse du site mène toujours à la page d'accueil, connecté ou non (le serveur répond déjà
@@ -29,7 +30,9 @@ export const routes: Routes = [
     // de l'utilisateur connecté : voir AuthService.loginLink.
     { path: '', pathMatch: 'full', redirectTo: 'intro' },
     { path: 'connexion', title: 'Connexion · ROHAFYA', component: Connexion },
-    { path: 'intro', component: Intro },
+    // Site de présentation : français sur /intro, anglais sur /en (deux pages pré-rendues).
+    { path: 'intro', component: Intro, canActivate: [frenchIntroGuard], resolve: { lang: introLang('fr') } },
+    { path: 'en', component: Intro, resolve: { lang: introLang('en') } },
     { path: 'matricule', title: 'Connexion par matricule · ROHAFYA', component: Matricule },
     { path: 'register', title: 'Créer un compte · ROHAFYA', component: Register },
     // Lien du QR code imprimé sur la facture : rattachement d'un dossier d'établissement au compte.

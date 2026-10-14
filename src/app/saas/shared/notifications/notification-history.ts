@@ -3,56 +3,57 @@ import { DatePipe } from '@angular/common';
 import { AUDIENCE_LABELS, NotificationCampaign } from '../../saas.models';
 import { Pager } from '../pager';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 /** Historique des notifications envoyées (consoles d'établissement et super-administrateur). */
 @Component({
   selector: 'app-notification-history',
-  imports: [DatePipe, Pager],
+  imports: [TranslatePipe, DatePipe, Pager],
   template: `
     @if (items().length === 0) {
       <div class="state">
-        <strong>Aucune notification envoyée</strong>
-        <span>Les envois apparaîtront ici, avec le nombre de destinataires et d'e-mails.</span>
+        <strong>{{ 'Aucune notification envoyée' | t }}</strong>
+        <span>{{ 'Les envois apparaîtront ici, avec le nombre de destinataires et d\\'e-mails.' | t }}</span>
       </div>
     } @else {
       <div class="table-wrap" [class.is-refreshing]="loading()">
         <table class="rtable">
-          <caption class="sr-only">Notifications envoyées</caption>
+          <caption class="sr-only">{{ 'Notifications envoyées' | t }}</caption>
           <thead>
             <tr>
-              <th scope="col">Date</th>
+              <th scope="col">{{ 'Date' | t }}</th>
               @if (showEstablishment()) {
-                <th scope="col">Établissement</th>
+                <th scope="col">{{ 'Établissement' | t }}</th>
               }
-              <th scope="col">Notification</th>
-              <th scope="col">Destinataires</th>
-              <th scope="col">E-mails</th>
-              <th scope="col">Expéditeur</th>
+              <th scope="col">{{ 'Notification' | t }}</th>
+              <th scope="col">{{ 'Destinataires' | t }}</th>
+              <th scope="col">{{ 'E-mails' | t }}</th>
+              <th scope="col">{{ 'Expéditeur' | t }}</th>
             </tr>
           </thead>
           <tbody>
             @for (c of items(); track c.id) {
               <tr>
-                <td data-label="Date">{{ c.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td [attr.data-label]="'Date' | t">{{ c.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
                 @if (showEstablishment()) {
-                  <td data-label="Établissement">{{ c.establishment || '—' }}</td>
+                  <td [attr.data-label]="'Établissement' | t">{{ c.establishment || '—' }}</td>
                 }
-                <td data-label="Notification">
+                <td [attr.data-label]="'Notification' | t">
                   <details class="history-message">
-                    <summary>{{ c.title }}</summary>
-                    <p>{{ c.message }}</p>
+                    <summary>{{ c.title | t }}</summary>
+                    <p>{{ c.message | t }}</p>
                   </details>
                 </td>
-                <td data-label="Destinataires">
+                <td [attr.data-label]="'Destinataires' | t">
                   {{ c.recipients_count }} · {{ c.selection === 'all' ? 'tous les ' + labels[c.audience].toLowerCase() : labels[c.audience].toLowerCase() + ' choisis' }}
                 </td>
-                <td data-label="E-mails">
+                <td [attr.data-label]="'E-mails' | t">
                   @if (c.emails_sent === null) {
-                    <span class="pill pill-pending">En cours ({{ c.emails_count }})</span>
+                    <span class="pill pill-pending">{{ 'En cours ({0})' | t: [c.emails_count] }}</span>
                   } @else {
                     <span [class]="'pill ' + (c.emails_sent < c.emails_count ? 'pill-danger' : 'pill-active')">{{ c.emails_sent }} / {{ c.emails_count }}</span>
                   }
                 </td>
-                <td data-label="Expéditeur">{{ c.sender_role === 'super_admin' ? 'ROHAFYA' : c.sender_name || '—' }}</td>
+                <td [attr.data-label]="'Expéditeur' | t">{{ (c.sender_role === 'super_admin' ? 'ROHAFYA' : c.sender_name || '—') | t }}</td>
               </tr>
             }
           </tbody>

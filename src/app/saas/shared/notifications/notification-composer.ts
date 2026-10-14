@@ -7,6 +7,8 @@ import { AUDIENCE_LABELS, NotificationAudience, NotificationCampaign, Notificati
 import { SuperAdminService } from '../../super-admin.service';
 import { TenantAdminService } from '../../tenant-admin.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { tr } from '../../../shared/i18n/i18n';
 export const TITLE_MAX = 150;
 export const MESSAGE_MAX = 2000;
 
@@ -19,8 +21,8 @@ interface ComposerModel {
 
 /** Libellé du groupe destinataire : « tous les patients (248) ». */
 export function groupLabel(audience: NotificationAudience, total: number | null): string {
-  const label = AUDIENCE_LABELS[audience].toLowerCase();
-  return total === null ? `Tous les ${label}` : `Tous les ${label} (${total})`;
+  const label = tr(AUDIENCE_LABELS[audience]).toLowerCase();
+  return total === null ? tr('Tous les {label}', { label }) : tr('Tous les {label} ({total})', { label, total });
 }
 
 let nextId = 0;
@@ -33,7 +35,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-notification-composer',
-  imports: [FormField, FormRoot],
+  imports: [TranslatePipe, FormField, FormRoot],
   templateUrl: './notification-composer.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../console-ui.css', './notifications.css'],
 })
@@ -69,9 +71,9 @@ export class NotificationComposer {
   protected readonly model = signal<ComposerModel>({ title: '', message: '' });
   protected readonly composerForm = form(this.model, (f) => {
     required(f.title, { message: "Indiquez l'objet." });
-    maxLength(f.title, TITLE_MAX, { message: `${TITLE_MAX} caractères au plus.` });
+    maxLength(f.title, TITLE_MAX, { message: tr('{n} caractères au plus.', { n: TITLE_MAX }) });
     required(f.message, { message: 'Écrivez le message.' });
-    maxLength(f.message, MESSAGE_MAX, { message: `${MESSAGE_MAX} caractères au plus.` });
+    maxLength(f.message, MESSAGE_MAX, { message: tr('{n} caractères au plus.', { n: MESSAGE_MAX }) });
   });
 
   protected readonly sending = signal(false);
@@ -82,8 +84,8 @@ export class NotificationComposer {
   protected readonly recipientCount = computed(() => (this.scope() === 'all' ? this.groupTotal() : this.selected().length));
   protected readonly submitLabel = computed(() => {
     const count = this.recipientCount();
-    if (count === null) return 'Envoyer';
-    return `Envoyer à ${count} destinataire${count > 1 ? 's' : ''}`;
+    if (count === null) return tr('Envoyer');
+    return count > 1 ? tr('Envoyer à {n} destinataires', { n: count }) : tr('Envoyer à {n} destinataire', { n: count });
   });
 
   private readonly search$ = new Subject<void>();
@@ -194,9 +196,11 @@ export class NotificationComposer {
       next: (campaign) => {
         this.sending.set(false);
         const n = campaign.recipients_count;
+        const mails = campaign.emails_count;
         this.success.set(
-          `Notification envoyée à ${n} destinataire${n > 1 ? 's' : ''}. ` +
-            (campaign.emails_count ? `${campaign.emails_count} e-mail${campaign.emails_count > 1 ? 's' : ''} en cours d’envoi.` : 'Aucune adresse e-mail connue.')
+          (n > 1 ? tr('Notification envoyée à {n} destinataires.', { n }) : tr('Notification envoyée à {n} destinataire.', { n })) +
+            ' ' +
+            (mails ? (mails > 1 ? tr('{n} e-mails en cours d’envoi.', { n: mails }) : tr('{n} e-mail en cours d’envoi.', { n: mails })) : tr('Aucune adresse e-mail connue.'))
         );
         this.model.set({ title: '', message: '' });
         this.composerForm().reset({ title: '', message: '' });

@@ -4,6 +4,8 @@ import { extractErrorMessage } from '../../doctors/shared/api-resource';
 import { AuthService } from '../auth-service';
 import { CurrentUser } from '../current-user.model';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { tr } from '../../shared/i18n/i18n';
 type Step = 'email' | 'code' | 'names';
 
 /**
@@ -12,7 +14,7 @@ type Step = 'email' | 'code' | 'names';
  */
 @Component({
   selector: 'app-email-code-login',
-  imports: [FormField, FormRoot],
+  imports: [TranslatePipe, FormField, FormRoot],
   templateUrl: './email-code-login.html',
   styleUrls: ['../connexion.css', './email-code-login.css'],
 })
@@ -84,8 +86,8 @@ export class EmailCodeLogin {
         this.step.set('code');
         this.info.set(
           res?.account_exists === false
-            ? `Aucun compte n'existe avec l'adresse ${this.email()}. Un code à 6 chiffres vous a été envoyé (valable 10 minutes) : saisissez-le pour créer votre compte patient, ou corrigez l'adresse.`
-            : `Un code à 6 chiffres a été envoyé à ${this.email()}. Il est valable 10 minutes.`
+            ? tr("Aucun compte n'existe avec l'adresse {email}. Un code à 6 chiffres vous a été envoyé (valable 10 minutes) : saisissez-le pour créer votre compte patient, ou corrigez l'adresse.", { email: this.email() })
+            : tr('Un code à 6 chiffres a été envoyé à {email}. Il est valable 10 minutes.', { email: this.email() })
         );
       },
       error: (err: unknown) => {

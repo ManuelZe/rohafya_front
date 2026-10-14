@@ -5,11 +5,12 @@ import { PageHeader } from '../../patients/shared/page-header/page-header';
 import { dateValue } from '../commissions/commissions.models';
 import { ActualitesService, Article } from './actualites.service';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 const EXCERPT_LENGTH = 220;
 
 @Component({
   selector: 'app-actualites',
-  imports: [DatePipe, PIcon, PageHeader],
+  imports: [TranslatePipe, DatePipe, PIcon, PageHeader],
   templateUrl: './actualites.html',
   styleUrls: ['../shared/doctor-ui.css', './actualites.css'],
 })

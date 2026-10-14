@@ -1,7 +1,7 @@
 @if (open()) {
   <div class="suggestion-dialog-overlay" (click)="close()">
     <div class="suggestion-dialog-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="suggestion-dialog-title">
-      <button type="button" class="suggestion-dialog-close" (click)="close()" aria-label="Fermer">&times;</button>
+      <button type="button" class="suggestion-dialog-close" (click)="close()" [attr.aria-label]="'Fermer' | t">&times;</button>
 
       <div class="suggestion-dialog-header">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -9,28 +9,28 @@
           <path d="M10 22h4"></path>
           <path d="M12 2a6 6 0 0 0-4 10.472V16a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3.528A6 6 0 0 0 12 2z"></path>
         </svg>
-        <h2 id="suggestion-dialog-title">Boîte à suggestions</h2>
+        <h2 id="suggestion-dialog-title">{{ 'Boîte à suggestions' | t }}</h2>
       </div>
 
       @if (errorMessage()) {
         <div class="error-banner" role="alert">
-          <span>{{ errorMessage() }}</span>
+          <span>{{ errorMessage() | t }}</span>
         </div>
       }
 
       <form class="suggestion-form" [formRoot]="suggestionForm" (submit)="submit()">
         <div class="form-row">
-          <label for="suggestion-content">{{ editingId() !== null ? 'Modifier ma suggestion' : 'Votre suggestion' }}</label>
+          <label for="suggestion-content">{{ (editingId() !== null ? 'Modifier ma suggestion' : 'Votre suggestion') | t }}</label>
           <textarea
             id="suggestion-content"
             rows="3"
-            placeholder="Partagez vos idées ou remarques pour améliorer votre espace patient..."
+            [placeholder]="'Partagez vos idées ou remarques pour améliorer votre espace patient...' | t"
             [formField]="suggestionForm.content"
           ></textarea>
         </div>
 
         <div class="form-row">
-          <label>Note (optionnelle)</label>
+          <label>{{ 'Note (optionnelle)' | t }}</label>
           <div class="star-rating">
             @for (star of stars; track star) {
               <button
@@ -38,7 +38,7 @@
                 class="star-btn"
                 [class.filled]="(rating() ?? 0) >= star"
                 (click)="setRating(star)"
-                [attr.aria-label]="'Noter ' + star + ' sur 5'"
+                [attr.aria-label]="'Noter {0} sur 5' | t: [star]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" [attr.fill]="(rating() ?? 0) >= star ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.5">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -50,28 +50,28 @@
 
         <div class="form-actions">
           @if (editingId() !== null) {
-            <button type="button" class="btn btn-tertiary" (click)="resetForm()">Annuler</button>
+            <button type="button" class="btn btn-tertiary" (click)="resetForm()">{{ 'Annuler' | t }}</button>
           }
           <button type="submit" class="btn btn-primary" [disabled]="submitting()">
             @if (submitting()) {
               <span class="spinner"></span>
             }
             <span>
-              {{ submitting() ? 'Envoi en cours...' : (editingId() !== null ? 'Enregistrer' : 'Envoyer') }}
+              {{ (submitting() ? 'Envoi en cours...' : (editingId() !== null ? 'Enregistrer' : 'Envoyer')) | t }}
             </span>
           </button>
         </div>
       </form>
 
-      <div class="suggestion-list-header">Mes suggestions</div>
+      <div class="suggestion-list-header">{{ 'Mes suggestions' | t }}</div>
 
       @if (loading()) {
         <div class="state-container">
-          <app-rohafya-loader label="Chargement de vos suggestions" />
+          <app-rohafya-loader [label]="'Chargement de vos suggestions' | t" />
         </div>
       } @else if (suggestions().length === 0) {
         <div class="state-container">
-          <p>Vous n'avez pas encore envoyé de suggestion.</p>
+          <p>{{ 'Vous n\'avez pas encore envoyé de suggestion.' | t }}</p>
         </div>
       } @else {
         <ul class="suggestion-list">
@@ -89,17 +89,17 @@
                       }
                     </span>
                   }
-                  <time>{{ s.CreatedAt | date: 'dd/MM/yyyy à HH:mm' }}</time>
+                  <time>{{ s.CreatedAt | ldate: 'datetime' }}</time>
                 </div>
               </div>
               <div class="suggestion-item-actions">
-                <button type="button" class="icon-btn" (click)="startEdit(s)" title="Modifier" aria-label="Modifier cette suggestion">
+                <button type="button" class="icon-btn" (click)="startEdit(s)" [title]="'Modifier' | t" [attr.aria-label]="'Modifier cette suggestion' | t">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
                 </button>
-                <button type="button" class="icon-btn icon-btn-danger" (click)="confirmDelete(s)" title="Supprimer" aria-label="Supprimer cette suggestion">
+                <button type="button" class="icon-btn icon-btn-danger" (click)="confirmDelete(s)" [title]="'Supprimer' | t" [attr.aria-label]="'Supprimer cette suggestion' | t">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -116,13 +116,13 @@
         <div class="delete-modal-overlay" (click)="cancelDelete()">
           <div class="delete-modal-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
             <div class="delete-modal-body">
-              <p>Supprimer cette suggestion ?</p>
+              <p>{{ 'Supprimer cette suggestion ?' | t }}</p>
               <p class="delete-modal-excerpt">« {{ toDelete.content }} »</p>
             </div>
             <div class="delete-modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="deleting()">Annuler</button>
+              <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="deleting()">{{ 'Annuler' | t }}</button>
               <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="deleting()">
-                {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+                {{ (deleting() ? 'Suppression...' : 'Supprimer') | t }}
               </button>
             </div>
           </div>

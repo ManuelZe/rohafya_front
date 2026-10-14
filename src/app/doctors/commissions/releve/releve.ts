@@ -10,6 +10,7 @@ import { PointsPipe, formatPoints } from '../../shared/points';
 import { CommissionKind, StatementRow } from '../commissions.models';
 import { CommissionsService } from '../commissions.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 type KindFilter = 'all' | CommissionKind;
 type StateFilter = 'all' | 'waiting' | 'invoiced';
 
@@ -17,7 +18,7 @@ const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-releve',
-  imports: [DatePipe, PIcon, PageHeader, StatusTag, KpiTile, PointsPipe],
+  imports: [TranslatePipe, DatePipe, PIcon, PageHeader, StatusTag, KpiTile, PointsPipe],
   templateUrl: './releve.html',
   styleUrls: ['../../shared/doctor-ui.css', './releve.css'],
 })

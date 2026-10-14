@@ -2,20 +2,20 @@
   <header class="page-header">
     <div class="page-heading">
       @if (!embedded()) {
-      <a [routerLink]="backLink()" class="back-link" aria-label="Retour au tableau de bord">
+      <a [routerLink]="backLink()" class="back-link" [attr.aria-label]="'Retour au tableau de bord' | t">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        <span>Retour</span>
+        <span>{{ 'Retour' | t }}</span>
       </a>
-      <h1>Notifications</h1>
+      <h1>{{ 'Notifications' | t }}</h1>
       }
       <p class="page-subtitle">
         @if (unreadCount() > 0) {
-          {{ unreadCount() }} notification(s) non lue(s)
+          {{ '{0} notification(s) non lue(s)' | t: [unreadCount()] }}
         } @else {
-          Vous êtes à jour.
+          {{ 'Vous êtes à jour.' | t }}
         }
       </p>
     </div>
@@ -28,7 +28,7 @@
           [class.active]="filter() === 'all'"
           (click)="setFilter('all')"
         >
-          Toutes
+          {{ 'Toutes' | t }}
         </button>
         <button
           type="button"
@@ -36,7 +36,7 @@
           [class.active]="filter() === 'unread'"
           (click)="setFilter('unread')"
         >
-          Non lues
+          {{ 'Non lues' | t }}
         </button>
       </div>
 
@@ -49,7 +49,7 @@
           [disabled]="deletingAll()"
           (click)="deleteAll()"
         >
-          {{ deletingAll() ? 'Suppression...' : 'Tout supprimer' }}
+          {{ (deletingAll() ? 'Suppression...' : 'Tout supprimer') | t }}
         </button>
       }
     </div>
@@ -57,14 +57,14 @@
 
   @if (errorMessage()) {
     <div class="error-banner" role="alert">
-      <span>{{ errorMessage() }}</span>
+      <span>{{ errorMessage() | t }}</span>
     </div>
   }
 
   @if (loading()) {
     <div class="state-container">
       <div class="spinner"></div>
-      <p>Chargement des notifications...</p>
+      <p>{{ 'Chargement des notifications...' | t }}</p>
     </div>
   } @else if (filteredNotifications().length === 0) {
     <div class="state-container empty-state">
@@ -72,8 +72,8 @@
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
       </svg>
-      <h3>Aucune notification</h3>
-      <p>{{ filter() === 'unread' ? 'Vous avez tout lu.' : 'Rien à afficher pour le moment.' }}</p>
+      <h3>{{ 'Aucune notification' | t }}</h3>
+      <p>{{ (filter() === 'unread' ? 'Vous avez tout lu.' : 'Rien à afficher pour le moment.') | t }}</p>
     </div>
   } @else {
     <ul class="notifications-list">
@@ -87,18 +87,18 @@
 
           <div class="notification-content">
             @if (n.title) {
-              <span class="notification-title">{{ n.title }}</span>
+              <span class="notification-title">{{ n.title | t }}</span>
             }
-            <span class="notification-message">{{ n.message }}</span>
-            <span class="notification-date">{{ n.created_at | date: 'dd/MM/yyyy à HH:mm' }}</span>
+            <span class="notification-message">{{ n.message | t }}</span>
+            <span class="notification-date">{{ n.created_at | ldate: 'datetime' }}</span>
           </div>
 
           <button
             type="button"
             class="notification-delete"
             (click)="deleteNotification(n, $event)"
-            aria-label="Supprimer cette notification"
-            title="Supprimer"
+            [attr.aria-label]="'Supprimer cette notification' | t"
+            [title]="'Supprimer' | t"
           >
             &times;
           </button>

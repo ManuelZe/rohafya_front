@@ -1,4 +1,5 @@
 import type { SubmissionAuthorRole, SubmissionInfo, SubmissionKind, SubmissionStatus } from '../shared/submission/submission.models';
+import { tr } from '../shared/i18n/i18n';
 
 /** Modèles des endpoints SaaS de l'API (/saas, /ingest, /fhir). */
 
@@ -242,8 +243,8 @@ export interface PdfImportList extends Paged<PdfImport> {
 
 /** « 10 fichiers par jour », « 30 fichiers tous les 7 jours ». */
 export function quotaLabel(files: number, days: number): string {
-  const fichiers = `${files} fichier${files > 1 ? 's' : ''}`;
-  return days === 1 ? `${fichiers} par jour` : `${fichiers} tous les ${days} jours`;
+  if (days === 1) return files > 1 ? tr('{n} fichiers par jour', { n: files }) : tr('{n} fichier par jour', { n: files });
+  return files > 1 ? tr('{n} fichiers tous les {d} jours', { n: files, d: days }) : tr('{n} fichier tous les {d} jours', { n: files, d: days });
 }
 
 export const PDF_STATUS_LABELS: Record<PdfImportStatus, string> = {
@@ -288,6 +289,8 @@ export interface SaasMe {
   patient_federation_id: string | null;
   /** Absent (API plus ancienne, démo) : tout est disponible. */
   rights?: AccountRights;
+  /** Langue de l'interface choisie par le compte. */
+  locale?: 'fr' | 'en';
 }
 
 /** Configuration des droits d'un compte (console du super-administrateur). */
@@ -373,8 +376,48 @@ export const LINK_STATUS_LABELS: Record<LinkStatus | 'none', string> = {
   none: 'Non rattaché',
 };
 
+// =====================================================================
+// Demandes d'essai (formulaire du site de présentation)
+// =====================================================================
+
+export type TrialStatus = 'nouvelle' | 'contactee' | 'essai' | 'close';
+
+export const TRIAL_STATUS_LABELS: Record<TrialStatus, string> = {
+  nouvelle: 'Nouvelle',
+  contactee: 'Contactée',
+  essai: 'En essai',
+  close: 'Close',
+};
+
+/** Demande d'essai envoyée par un établissement depuis /intro ou /en. */
+export interface TrialRequest {
+  id: number;
+  contact_name: string;
+  job_title: string | null;
+  establishment: string;
+  city: string;
+  phone: string;
+  email: string;
+  kind: string;
+  monthly_volume: string | null;
+  software: string | null;
+  pain_points: string | null;
+  preferred_slot: string | null;
+  locale: string;
+  status: TrialStatus;
+  note: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface TrialRequestList extends Paged<TrialRequest> {
+  /** Nombre de demandes par statut (toutes pages confondues). */
+  counts: Partial<Record<TrialStatus, number>>;
+}
+
 /** Libellés lisibles des actions du journal d'audit. */
 export const AUDIT_LABELS: Record<string, string> = {
+  'trial.updated': 'Demande d’essai mise à jour',
   'account.created': 'Compte créé',
   'link_token.issued': 'QR code généré',
   'link_token.revoked': 'QR code annulé',
@@ -428,7 +471,7 @@ export function auditLabel(action: string): string {
   if (submission) {
     const kind = SUBMISSION_AUDIT_KINDS[submission[1]];
     const state = SUBMISSION_AUDIT_STATES[submission[2]];
-    if (kind && state) return `${kind.label} ${state[kind.feminine ? 1 : 0]}`;
+    if (kind && state) return `${tr(kind.label)} ${tr(state[kind.feminine ? 1 : 0])}`;
   }
   return AUDIT_LABELS[action] ?? action;
 }

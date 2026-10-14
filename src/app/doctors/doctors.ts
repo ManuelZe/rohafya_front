@@ -15,6 +15,9 @@ import { PointsPipe } from './shared/points';
 import { stripDoctorTitle } from './shared/doctor-name';
 import { SaasAccountService } from '../saas/saas-account.service';
 
+import { TranslatePipe } from '../shared/i18n/t.pipe';
+import { I18n } from '../shared/i18n/i18n';
+import { LangSwitch } from '../shared/i18n/lang-switch';
 interface MenuLink {
   label: string;
   icon: string;
@@ -39,7 +42,7 @@ const SETTINGS_LINK = '/doctors/parametres';
 
 @Component({
   selector: 'app-doctors',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, DrawerModule, PIcon, DoctorInfoCard, SuggestionDialog, PointsPipe],
+  imports: [LangSwitch, TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, DrawerModule, PIcon, DoctorInfoCard, SuggestionDialog, PointsPipe],
   templateUrl: './doctors.html',
   styleUrl: './doctors.css',
   host: {
@@ -106,7 +109,9 @@ export class Doctors {
     return this.authService.isPatient() && !!user && user.patient_id !== null;
   });
 
-  readonly currentDate = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  private readonly i18n = inject(I18n);
+  /** Date du jour, dans la langue de l'interface. */
+  readonly currentDate = computed(() => new Date().toLocaleDateString(this.i18n.locale(), { day: '2-digit', month: 'long', year: 'numeric' }));
 
   constructor() {
     effect(() => {

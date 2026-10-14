@@ -1,6 +1,7 @@
 import { Component, computed, input, model, signal } from '@angular/core';
 import { FilterOption, SortOrder } from './list-filters';
 
+import { TranslatePipe } from '../i18n/t.pipe';
 let nextId = 0;
 
 /**
@@ -8,6 +9,7 @@ let nextId = 0;
  * Sur téléphone, seuls la recherche et le bouton « Filtres » restent visibles ; les filtres se déplient au besoin.
  */
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-list-toolbar',
   templateUrl: './list-toolbar.html',
   styleUrl: './list-toolbar.css',

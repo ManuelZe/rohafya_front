@@ -5,6 +5,7 @@ import { ConsoleMenuLink, ConsoleShell } from '../shared/console-shell/console-s
 import { PDF_IMPORT_ENABLED } from '../features';
 import { TenantContext } from './tenant-context.service';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 const MENU: ConsoleMenuLink[] = [
   { label: 'Tableau de bord', icon: 'home', link: '/admin', exact: true },
   { label: 'Demandes', icon: 'inbox', link: '/admin/demandes' },
@@ -23,10 +24,10 @@ const MENU: ConsoleMenuLink[] = [
 /** Espace administrateur d'établissement : /admin. */
 @Component({
   selector: 'app-admin-shell',
-  imports: [ConsoleShell],
+  imports: [TranslatePipe, ConsoleShell],
   template: `
     <app-console-shell
-      navLabel="Administration de l'établissement"
+      [navLabel]="'Administration de l\\'établissement' | t"
       [menu]="menu"
       [userName]="userName()"
       [roleLabel]="roleLabel()"

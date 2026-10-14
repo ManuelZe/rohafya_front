@@ -1,31 +1,31 @@
 <div class="exam-container">
-  <app-page-header title="Laboratoire" subtitle="Consultez vos résultats d'examens de laboratoire"></app-page-header>
+  <app-page-header [title]="'Laboratoire' | t" [subtitle]="'Consultez vos résultats d\'examens de laboratoire' | t"></app-page-header>
 
   @if (accessDenied()) {
     <div class="access-denied-message">
-      {{ accessDeniedMessage }}
+      {{ accessDeniedMessage | t }}
     </div>
   } @else {
     @if (errorMessage()) {
       <div class="error-banner" role="alert">
-        <span>{{ errorMessage() }}</span>
+        <span>{{ errorMessage() | t }}</span>
       </div>
     }
 
     @if (loading()) {
       <div class="state-container loading-state">
-        <app-rohafya-loader label="Chargement des résultats de laboratoire" />
+        <app-rohafya-loader [label]="'Chargement des résultats de laboratoire' | t" />
       </div>
     }
 
     @if (!loading() && results().length > 0) {
       <app-list-toolbar
         [(search)]="search"
-        searchPlaceholder="Examen, code, établissement…"
-        searchLabel="Rechercher un résultat"
+        [searchPlaceholder]="'Examen, code, établissement…' | t"
+        [searchLabel]="'Rechercher un résultat' | t"
         [statusOptions]="statusOptions"
         [(status)]="expirationFilter"
-        statusLabel="Disponibilité"
+        [statusLabel]="'Disponibilité' | t"
         [establishments]="establishments()"
         [(establishment)]="establishment"
         [showDates]="true"
@@ -33,12 +33,12 @@
         [(dateTo)]="dateTo"
         [(sort)]="sort"
         [count]="filteredResults().length"
-        [noun]="filteredResults().length > 1 ? 'résultats' : 'résultat'"
+        [noun]="(filteredResults().length > 1 ? 'résultats' : 'résultat') | t"
       />
       @if (shareMessage()) {
         <p class="share-quota" [class.is-blocked]="!canShare()" role="note">
           <svg [pIcon]="canShare() ? 'share-alt' : 'lock'" [size]="14" aria-hidden="true"></svg>
-          {{ shareMessage() }}
+          {{ shareMessage() | t }}
         </p>
       }
     }
@@ -52,16 +52,16 @@
             <path d="M7 15h10"></path>
           </svg>
         </div>
-        <h3>Aucun résultat de laboratoire</h3>
-        <p>Vous n'avez encore aucun résultat de laboratoire disponible.</p>
+        <h3>{{ 'Aucun résultat de laboratoire' | t }}</h3>
+        <p>{{ 'Vous n\'avez encore aucun résultat de laboratoire disponible.' | t }}</p>
       </div>
     }
 
     @if (!loading() && results().length > 0 && filteredResults().length === 0) {
       <div class="state-container empty-state">
-        <h3>Aucun résultat ne correspond aux filtres</h3>
-        <p>Essayez une autre recherche, un autre établissement ou une période plus large.</p>
-        <button type="button" class="btn btn-secondary" (click)="resetFilters()">Réinitialiser les filtres</button>
+        <h3>{{ 'Aucun résultat ne correspond aux filtres' | t }}</h3>
+        <p>{{ 'Essayez une autre recherche, un autre établissement ou une période plus large.' | t }}</p>
+        <button type="button" class="btn btn-secondary" (click)="resetFilters()">{{ 'Réinitialiser les filtres' | t }}</button>
       </div>
     }
 
@@ -78,14 +78,14 @@
               <h2 class="exam-title" [title]="r.test">{{ r.test }}</h2>
               <p class="exam-establishment" [class.is-missing]="!r.establishment">
                 <svg [pIcon]="'building'" [size]="14" aria-hidden="true"></svg>
-                <span class="sr-only">Établissement : </span>{{ r.establishment || 'Établissement non communiqué' }}
+                <span class="sr-only">{{ 'Établissement :' | t }} </span>{{ r.establishment || 'Établissement non communiqué' | t }}
               </p>
 
               @if (r.requestor) {
-                <p class="exam-meta">Prescripteur : {{ r.requestor }}</p>
+                <p class="exam-meta">{{ 'Prescripteur : {0}' | t: [r.requestor] }}</p>
               }
               @if (r.validated_by) {
-                <p class="exam-meta">Validé par : {{ r.validated_by }}</p>
+                <p class="exam-meta">{{ 'Validé par : {0}' | t: [r.validated_by] }}</p>
               }
 
               <div class="card-footer-meta">
@@ -95,7 +95,7 @@
                   <line x1="8" y1="2" x2="8" y2="6"></line>
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <time>{{ r.validation_date | date: 'dd/MM/yyyy à HH:mm' }}</time>
+                <time>{{ r.validation_date | ldate: 'datetime' }}</time>
               </div>
             </div>
 
@@ -105,8 +105,8 @@
                 class="icon-btn-share"
                 [disabled]="r.statut_expiration || !canShare()"
                 (click)="openShare(r, $event)"
-                [attr.aria-label]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : !canShare() ? 'Partage indisponible : ' + shareMessage() : 'Partager ce résultat'"
-                [attr.title]="r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : !canShare() ? shareMessage() : 'Partager'"
+                [attr.aria-label]="(r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : !canShare() ? 'Partage indisponible : {0}' : 'Partager ce résultat') | t: [(shareMessage() | t)]"
+                [attr.title]="(r.statut_expiration ? 'Partage indisponible pour un résultat expiré' : !canShare() ? shareMessage() : 'Partager') | t"
               >
                 <svg [pIcon]="canShare() ? 'share-alt' : 'lock'" [size]="16" aria-hidden="true"></svg>
               </button>
@@ -115,13 +115,13 @@
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                Voir le détail
+                {{ 'Voir le détail' | t }}
               </button>
             </div>
           </article>
         }
       </div>
-      <app-show-more [list]="list" noun="résultats" />
+      <app-show-more [list]="list" [noun]="'résultats' | t" />
     }
 
     <!-- Compte rendu du résultat -->
@@ -132,28 +132,28 @@
           (click)="$event.stopPropagation()"
           role="dialog"
           aria-modal="true"
-          [attr.aria-label]="'Compte rendu : ' + result.test"
+          [attr.aria-label]="'Compte rendu : {0}' | t: [result.test]"
           cdkTrapFocus
           [cdkTrapFocusAutoCapture]="true"
         >
           <div class="viewer-modal-header report-bar">
             <p>
-              <strong>Compte rendu</strong>
+              <strong>{{ 'Compte rendu' | t }}</strong>
               <app-status-tag kind="expiration" [status]="result.statut_expiration ? 'true' : 'false'" />
             </p>
-            <button type="button" class="viewer-modal-close" (click)="closeViewer()" aria-label="Fermer le compte rendu">&times;</button>
+            <button type="button" class="viewer-modal-close" (click)="closeViewer()" [attr.aria-label]="'Fermer le compte rendu' | t">&times;</button>
           </div>
 
           <div class="viewer-modal-body">
             @if (moreInfoLoading()) {
               <div class="state-container">
-                <app-rohafya-loader label="Chargement du compte rendu" />
+                <app-rohafya-loader [label]="'Chargement du compte rendu' | t" />
               </div>
             } @else if (moreInfoBlockedMessage()) {
               <h3 class="blocked-title">{{ result.test }} <span>· {{ result.name }}</span></h3>
               <div class="blocked-banner" role="status">
                 <svg [pIcon]="'lock'" [size]="18" aria-hidden="true"></svg>
-                <span>{{ moreInfoBlockedMessage() }}</span>
+                <span>{{ moreInfoBlockedMessage() | t }}</span>
               </div>
             } @else if (report(); as report) {
               <app-medical-report [report]="report" audience="patient" />

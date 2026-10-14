@@ -8,6 +8,7 @@ import { PatientsService } from '../../patients/patients-service';
 import { PublicTokenInfo, SaasAccountService } from '../saas-account.service';
 import { PatientLinkView } from '../saas.models';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 const STATUS_MESSAGES: Record<Exclude<PublicTokenInfo['status'], 'active'>, string> = {
   used: 'Ce QR code a déjà été utilisé. Si votre dossier est déjà rattaché, connectez-vous pour voir vos résultats.',
   expired: "Ce QR code a expiré. Demandez-en un nouveau à l'accueil de l'établissement.",
@@ -17,7 +18,7 @@ const STATUS_MESSAGES: Record<Exclude<PublicTokenInfo['status'], 'active'>, stri
 /** Page ouverte par le QR code de la facture : connexion (ou création de compte) puis rattachement du dossier. */
 @Component({
   selector: 'app-link-redeem',
-  imports: [RouterLink, EmailCodeLogin],
+  imports: [TranslatePipe, RouterLink, EmailCodeLogin],
   templateUrl: './link-redeem.html',
   styleUrls: ['../../connexion/connexion.css', './link-redeem.css'],
 })

@@ -1,25 +1,25 @@
 <div class="page">
-  <app-page-header title="Commissions par période" subtitle="Analysez vos commissions sur la période de votre choix." />
+  <app-page-header [title]="'Commissions par période' | t" [subtitle]="'Analysez vos commissions sur la période de votre choix.' | t" />
 
-  <section class="card filters" aria-label="Choix de la période">
-    <div class="presets" role="group" aria-label="Périodes prédéfinies">
+  <section class="card filters" [attr.aria-label]="'Choix de la période' | t">
+    <div class="presets" role="group" [attr.aria-label]="'Périodes prédéfinies' | t">
       @for (p of presets; track p.id) {
         <button type="button" class="preset" [attr.aria-pressed]="activePreset() === p.id" (click)="applyPreset(p)">
           @if (activePreset() === p.id) {
             <svg [pIcon]="'check'" [size]="14" aria-hidden="true"></svg>
           }
-          {{ p.label }}
+          {{ p.label | t }}
         </button>
       }
     </div>
 
     <form class="custom" (submit)="submitCustom($event)" novalidate>
       <div class="date-field">
-        <label for="start-date">Du</label>
+        <label for="start-date">{{ 'Du' | t }}</label>
         <input id="start-date" type="date" class="field" [min]="minDate" [max]="maxDate" [value]="startInput()" (input)="onStartInput($event)" />
       </div>
       <div class="date-field">
-        <label for="end-date">Au</label>
+        <label for="end-date">{{ 'Au' | t }}</label>
         <input id="end-date" type="date" class="field" [min]="minDate" [max]="maxDate" [value]="endInput()" (input)="onEndInput($event)" />
       </div>
       <button type="submit" class="btn btn-primary" [disabled]="period.loading()">
@@ -28,32 +28,32 @@
         } @else {
           <svg [pIcon]="'search'" [size]="16" aria-hidden="true"></svg>
         }
-        <span>Rechercher</span>
+        <span>{{ 'Rechercher' | t }}</span>
       </button>
     </form>
 
     @if (formError()) {
-      <p class="form-error" role="alert">{{ formError() }}</p>
+      <p class="form-error" role="alert">{{ formError() | t }}</p>
     }
   </section>
 
   @if (appliedRange(); as range) {
     <p class="applied" aria-live="polite">
-      Résultats du <strong>{{ range.start | date: 'dd/MM/yyyy' }}</strong> au <strong>{{ range.end | date: 'dd/MM/yyyy' }}</strong>
+      {{ 'Résultats du' | t }} <strong>{{ range.start | date: 'dd/MM/yyyy' }}</strong> {{ 'au' | t }} <strong>{{ range.end | date: 'dd/MM/yyyy' }}</strong>
     </p>
   }
 
   @if (period.error()) {
     <div class="banner banner-error" role="alert">
       <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>{{ period.error() }}</span>
+      <span>{{ period.error() | t }}</span>
     </div>
   } @else {
-    <section class="kpis" aria-label="Synthèse de la période" [class.is-refreshing]="period.refreshing()">
-      <app-kpi-tile label="Total" icon="wallet" accent="#0c4562" [value]="totalValue()" [loading]="period.loading() && !period.data()" />
-      <app-kpi-tile label="Commissions" icon="list" accent="#047857" [value]="countValue()" [loading]="period.loading() && !period.data()" />
-      <app-kpi-tile label="Patients" icon="users" accent="#b45309" [value]="patientsValue()" [loading]="period.loading() && !period.data()" />
-      <app-kpi-tile label="Moyenne / commission" icon="calculator" accent="#1f6a8f" [value]="averageValue()" [loading]="period.loading() && !period.data()" />
+    <section class="kpis" [attr.aria-label]="'Synthèse de la période' | t" [class.is-refreshing]="period.refreshing()">
+      <app-kpi-tile [label]="'Total' | t" icon="wallet" accent="#0c4562" [value]="totalValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile [label]="'Commissions' | t" icon="list" accent="#047857" [value]="countValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile [label]="'Patients' | t" icon="users" accent="#b45309" [value]="patientsValue()" [loading]="period.loading() && !period.data()" />
+      <app-kpi-tile [label]="'Moyenne / commission' | t" icon="calculator" accent="#1f6a8f" [value]="averageValue()" [loading]="period.loading() && !period.data()" />
     </section>
 
     @if (period.data()) {
@@ -61,8 +61,8 @@
         <section class="card">
           <div class="state">
             <svg [pIcon]="'calendar-times'" [size]="32" aria-hidden="true"></svg>
-            <strong>Aucune commission sur cette période</strong>
-            <span>Essayez une période plus large, par exemple le cycle en cours.</span>
+            <strong>{{ 'Aucune commission sur cette période' | t }}</strong>
+            <span>{{ 'Essayez une période plus large, par exemple le cycle en cours.' | t }}</span>
           </div>
         </section>
       } @else {
@@ -70,8 +70,8 @@
           <section class="card" aria-labelledby="period-lines">
             <h2 id="period-lines" class="card-title">
               <svg [pIcon]="'list'" [size]="18" aria-hidden="true"></svg>
-              Commissions
-              <span class="card-title-aside">{{ lines().length }} ligne(s)</span>
+              {{ 'Commissions' | t }}
+              <span class="card-title-aside">{{ '{0} ligne(s)' | t: [lines().length] }}</span>
             </h2>
             <ul class="lines">
               @for (line of lines(); track $index) {
@@ -94,7 +94,7 @@
           <section class="card" aria-labelledby="period-patients">
             <h2 id="period-patients" class="card-title">
               <svg [pIcon]="'users'" [size]="18" aria-hidden="true"></svg>
-              Par patient
+              {{ 'Par patient' | t }}
             </h2>
             <ul class="patients">
               @for (p of byPatient(); track p.patient) {
@@ -104,7 +104,7 @@
                     <strong>{{ p.points | points }}</strong>
                   </div>
                   <span class="bar" aria-hidden="true"><span [style.width.%]="p.pct"></span></span>
-                  <span class="line-sub">{{ p.count }} commission(s)</span>
+                  <span class="line-sub">{{ '{0} commission(s)' | t: [p.count] }}</span>
                 </li>
               }
             </ul>

@@ -1,23 +1,25 @@
 import { Component, ElementRef, Injector, afterNextRender, computed, inject, input, viewChild } from '@angular/core';
 import { ListWindow } from './list-window';
 
+import { TranslatePipe } from '../i18n/t.pipe';
 /**
  * Pied de liste : « 10 sur 48 affichés », « Afficher 10 de plus », « Tout afficher ».
  * Quand tout est affiché, le focus passe sur le compteur (le bouton disparaît).
  */
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-show-more',
   template: `
     @if (list().total() > list().pageSize) {
       <div class="show-more">
         <p #status class="show-more-status" tabindex="-1" aria-live="polite">
-          {{ list().shown() }} sur {{ list().total() }} {{ noun() }} affiché{{ list().shown() > 1 ? 's' : '' }}
+          {{ (list().shown() > 1 ? '{0} sur {1} {2} affichés' : '{0} sur {1} {2} affiché') | t: [list().shown(), list().total(), noun()] }}
         </p>
         @if (list().remaining() > 0) {
           <div class="show-more-actions">
-            <button type="button" class="show-more-btn" (click)="more()">Afficher {{ nextCount() }} de plus</button>
+            <button type="button" class="show-more-btn" (click)="more()">{{ 'Afficher {0} de plus' | t: [nextCount()] }}</button>
             @if (list().remaining() > list().pageSize) {
-              <button type="button" class="show-more-link" (click)="all()">Tout afficher</button>
+              <button type="button" class="show-more-link" (click)="all()">{{ 'Tout afficher' | t }}</button>
             }
           </div>
         }

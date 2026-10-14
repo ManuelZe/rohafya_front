@@ -7,22 +7,23 @@ import { NotificationComposer } from '../../shared/notifications/notification-co
 import { NotificationHistory } from '../../shared/notifications/notification-history';
 import { SuperAdminService } from '../../super-admin.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 /**
  * Notifications du super-administrateur : aux administrateurs, à tous les patients ou à tous les médecins
  * d'un établissement (ou à une sélection). Chaque destinataire reçoit une notification et un e-mail.
  */
 @Component({
   selector: 'app-super-notifications',
-  imports: [PageHeader, NotificationComposer, NotificationHistory],
+  imports: [TranslatePipe, PageHeader, NotificationComposer, NotificationHistory],
   template: `
     <div class="page">
-      <app-page-header title="Notifications" subtitle="Écrivez aux administrateurs, aux patients ou aux médecins d'un établissement." />
+      <app-page-header [title]="'Notifications' | t" [subtitle]="'Écrivez aux administrateurs, aux patients ou aux médecins d\\'un établissement.' | t" />
 
       <section class="card">
         <div class="form-row tenant-row">
-          <label for="notif-tenant">Établissement *</label>
+          <label for="notif-tenant">{{ 'Établissement *' | t }}</label>
           <select id="notif-tenant" class="field" (change)="onTenant($event)" [disabled]="tenantsLoading()">
-            <option value="" [selected]="tenantId() === null">Choisissez un établissement</option>
+            <option value="" [selected]="tenantId() === null">{{ 'Choisissez un établissement' | t }}</option>
             @for (t of activeTenants(); track t.id) {
               <option [value]="t.id" [selected]="t.id === tenantId()">{{ t.display_name }}</option>
             }
@@ -31,14 +32,14 @@ import { SuperAdminService } from '../../super-admin.service';
         @if (tenantId() !== null) {
           <app-notification-composer mode="super" [tenantId]="tenantId()" (sent)="onSent()" />
         } @else {
-          <p class="form-hint">Choisissez d'abord l'établissement dont vous voulez joindre les administrateurs, les patients ou les médecins.</p>
+          <p class="form-hint">{{ 'Choisissez d\\'abord l\\'établissement dont vous voulez joindre les administrateurs, les patients ou les médecins.' | t }}</p>
         }
       </section>
 
       <section class="card" aria-labelledby="history-title">
-        <h2 class="card-title" id="history-title">Notifications envoyées</h2>
+        <h2 class="card-title" id="history-title">{{ 'Notifications envoyées' | t }}</h2>
         @if (error()) {
-          <div class="banner banner-error" role="alert"><span>{{ error() }}</span></div>
+          <div class="banner banner-error" role="alert"><span>{{ error() | t }}</span></div>
         }
         <app-notification-history
           [items]="history()"

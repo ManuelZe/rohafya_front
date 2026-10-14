@@ -9,6 +9,7 @@ import { NotificationHistory } from '../../shared/notifications/notification-his
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 type Tab = 'recues' | 'envoyer' | 'envoyees';
 
 /**
@@ -17,20 +18,20 @@ type Tab = 'recues' | 'envoyer' | 'envoyees';
  */
 @Component({
   selector: 'app-admin-notifications',
-  imports: [PageHeader, Notifications, NotificationComposer, NotificationHistory],
+  imports: [TranslatePipe, PageHeader, Notifications, NotificationComposer, NotificationHistory],
   template: `
     <div class="page">
-      <app-page-header title="Notifications" subtitle="Écrivez à vos patients et médecins : notification dans leur espace et e-mail." />
+      <app-page-header [title]="'Notifications' | t" [subtitle]="'Écrivez à vos patients et médecins : notification dans leur espace et e-mail.' | t" />
 
-      <div class="segmented tabs" role="group" aria-label="Rubrique">
-        <button type="button" [attr.aria-pressed]="tab() === 'recues'" (click)="tab.set('recues')">Reçues</button>
-        <button type="button" [attr.aria-pressed]="tab() === 'envoyer'" (click)="tab.set('envoyer')">Envoyer</button>
-        <button type="button" [attr.aria-pressed]="tab() === 'envoyees'" (click)="openHistory()">Envoyées</button>
+      <div class="segmented tabs" role="group" [attr.aria-label]="'Rubrique' | t">
+        <button type="button" [attr.aria-pressed]="tab() === 'recues'" (click)="tab.set('recues')">{{ 'Reçues' | t }}</button>
+        <button type="button" [attr.aria-pressed]="tab() === 'envoyer'" (click)="tab.set('envoyer')">{{ 'Envoyer' | t }}</button>
+        <button type="button" [attr.aria-pressed]="tab() === 'envoyees'" (click)="openHistory()">{{ 'Envoyées' | t }}</button>
       </div>
 
       @switch (tab()) {
         @case ('recues') {
-          <section class="card" aria-label="Notifications reçues">
+          <section class="card" [attr.aria-label]="'Notifications reçues' | t">
             <app-notifications [embedded]="true" />
           </section>
         }
@@ -40,9 +41,9 @@ type Tab = 'recues' | 'envoyer' | 'envoyees';
           </section>
         }
         @case ('envoyees') {
-          <section class="card" aria-label="Notifications envoyées">
+          <section class="card" [attr.aria-label]="'Notifications envoyées' | t">
             @if (error()) {
-              <div class="banner banner-error" role="alert"><span>{{ error() }}</span></div>
+              <div class="banner banner-error" role="alert"><span>{{ error() | t }}</span></div>
             }
             <app-notification-history
               [items]="history()"

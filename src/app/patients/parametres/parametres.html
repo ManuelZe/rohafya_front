@@ -1,9 +1,9 @@
 <div class="parametres-container">
-  <app-page-header title="Paramètres" subtitle="Gérez vos informations personnelles"></app-page-header>
+  <app-page-header [title]="'Paramètres' | t" [subtitle]="'Gérez vos informations personnelles' | t"></app-page-header>
 
   @if (accessDenied()) {
     <div class="access-denied-message">
-      {{ accessDeniedMessage }}
+      {{ accessDeniedMessage | t }}
     </div>
   } @else {
     @if (!isConfirmed()) {
@@ -14,84 +14,84 @@
           <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
         <div>
-          <strong>Votre profil est incomplet.</strong>
-          <span>Merci de compléter les informations ci-dessous : votre accès complet à l'espace patient sera débloqué une fois votre profil confirmé.</span>
+          <strong>{{ 'Votre profil est incomplet.' | t }}</strong>
+          <span>{{ 'Merci de compléter les informations ci-dessous : votre accès complet à l\'espace patient sera débloqué une fois votre profil confirmé.' | t }}</span>
         </div>
       </div>
     }
 
     @if (errorMessage()) {
       <div #errorBanner class="error-banner" role="alert" tabindex="-1">
-        <span>{{ errorMessage() }}</span>
+        <span>{{ errorMessage() | t }}</span>
       </div>
     }
 
     @if (successMessage()) {
       <div class="success-banner" role="status">
-        <span>{{ successMessage() }}</span>
+        <span>{{ successMessage() | t }}</span>
       </div>
     }
 
     @if (loading()) {
       <div class="state-container">
-        <app-rohafya-loader label="Chargement de vos informations" />
+        <app-rohafya-loader [label]="'Chargement de vos informations' | t" />
       </div>
     } @else {
       <section class="form-wrapper">
         <form class="profile-form" [formRoot]="profileForm" (submit)="submit()">
           <div class="form-grid">
             <div class="form-row">
-              <label for="PatientLastname">Nom <span class="required">*</span></label>
-              <input id="PatientLastname" type="text" [formField]="profileForm.PatientLastname" placeholder="Votre nom" />
+              <label for="PatientLastname">{{ 'Nom' | t }} <span class="required">*</span></label>
+              <input id="PatientLastname" type="text" [formField]="profileForm.PatientLastname" [placeholder]="'Votre nom' | t" />
             </div>
 
             <div class="form-row">
-              <label for="PatientName">Prénom <span class="required">*</span></label>
-              <input id="PatientName" type="text" [formField]="profileForm.PatientName" placeholder="Votre prénom" />
+              <label for="PatientName">{{ 'Prénom' | t }} <span class="required">*</span></label>
+              <input id="PatientName" type="text" [formField]="profileForm.PatientName" [placeholder]="'Votre prénom' | t" />
             </div>
 
             <div class="form-row">
-              <label for="PatientDOB">Date de naissance <span class="required">*</span></label>
+              <label for="PatientDOB">{{ 'Date de naissance' | t }} <span class="required">*</span></label>
               <input id="PatientDOB" type="date" [formField]="profileForm.PatientDOB" />
             </div>
 
             <div class="form-row">
-              <label for="PatientGender">Genre <span class="required">*</span></label>
+              <label for="PatientGender">{{ 'Genre' | t }} <span class="required">*</span></label>
               <select id="PatientGender" [formField]="profileForm.PatientGender">
-                <option value="">Sélectionner...</option>
-                <option value="M">Masculin</option>
-                <option value="F">Féminin</option>
+                <option value="">{{ 'Sélectionner...' | t }}</option>
+                <option value="M">{{ 'Masculin' | t }}</option>
+                <option value="F">{{ 'Féminin' | t }}</option>
               </select>
             </div>
 
             <div class="form-row">
-              <label for="PatientPOB">Lieu de naissance <span class="required">*</span></label>
-              <input id="PatientPOB" type="text" [formField]="profileForm.PatientPOB" placeholder="Ville de naissance" />
+              <label for="PatientPOB">{{ 'Lieu de naissance' | t }} <span class="required">*</span></label>
+              <input id="PatientPOB" type="text" [formField]="profileForm.PatientPOB" [placeholder]="'Ville de naissance' | t" />
             </div>
 
             <div class="form-row">
-              <label for="PatientNat">Nationalité <span class="required">*</span></label>
-              <input id="PatientNat" type="text" [formField]="profileForm.PatientNat" placeholder="Ex: Camerounaise" />
+              <label for="PatientNat">{{ 'Nationalité' | t }} <span class="required">*</span></label>
+              <input id="PatientNat" type="text" [formField]="profileForm.PatientNat" [placeholder]="'Ex: Camerounaise' | t" />
             </div>
 
             <div class="form-row">
-              <label for="PatientCNI">Numéro CNI <span class="required">*</span></label>
-              <input id="PatientCNI" type="text" [formField]="profileForm.PatientCNI" placeholder="Numéro de carte d'identité" />
+              <label for="PatientCNI">{{ 'Numéro CNI' | t }} <span class="required">*</span></label>
+              <input id="PatientCNI" type="text" [formField]="profileForm.PatientCNI" [placeholder]="'Numéro de carte d\'identité' | t" />
             </div>
 
             <div class="form-row">
-              <label for="PatientPhone">Téléphone <span class="required">*</span></label>
-              <input id="PatientPhone" type="text" [formField]="profileForm.PatientPhone" placeholder="Ex: 675478110" />
+              <label for="PatientPhone">{{ 'Téléphone' | t }} <span class="required">*</span></label>
+              <input id="PatientPhone" type="text" [formField]="profileForm.PatientPhone" [placeholder]="'Ex: 675478110' | t" />
             </div>
 
             <div class="form-row">
-              <label for="PatientPhone2">Téléphone secondaire</label>
-              <input id="PatientPhone2" type="text" [formField]="profileForm.PatientPhone2" placeholder="Optionnel" />
+              <label for="PatientPhone2">{{ 'Téléphone secondaire' | t }}</label>
+              <input id="PatientPhone2" type="text" [formField]="profileForm.PatientPhone2" [placeholder]="'Optionnel' | t" />
             </div>
 
             <div class="form-row">
-              <label for="PatientEmail">Email <span class="required">*</span></label>
-              <input id="PatientEmail" type="email" [formField]="profileForm.PatientEmail" placeholder="vous@exemple.com" />
+              <label for="PatientEmail">{{ 'Email' | t }} <span class="required">*</span></label>
+              <input id="PatientEmail" type="email" [formField]="profileForm.PatientEmail" [placeholder]="'vous@exemple.com' | t" />
             </div>
           </div>
 
@@ -100,7 +100,7 @@
               @if (submitting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ submitting() ? 'Enregistrement...' : 'Enregistrer les modifications' }}</span>
+              <span>{{ (submitting() ? 'Enregistrement...' : 'Enregistrer les modifications') | t }}</span>
             </button>
           </div>
         </form>

@@ -10,6 +10,8 @@ import { SaasAccountService } from '../../saas-account.service';
 import { SOURCE_LABELS, SourceType, TenantAdminView, TenantWithStats, quotaLabel } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { tr } from '../../../shared/i18n/i18n';
 interface TenantModel {
   name: string;
   slug: string;
@@ -23,7 +25,7 @@ interface TenantModel {
 
 @Component({
   selector: 'app-super-tenant-detail',
-  imports: [DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './super-tenant-detail.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })
@@ -199,8 +201,8 @@ export class SuperTenantDetail {
           this.adminForm().reset({ email: '', first_name: '', last_name: '' });
           this.adminNotice.set(
             admin.email_sent
-              ? `${admin.email} peut maintenant se connecter avec un code envoyé par e-mail. Une invitation lui a été envoyée.`
-              : `${admin.email} est administrateur, mais l'e-mail d'invitation n'a pas pu partir : prévenez-le directement.`
+              ? tr('{email} peut maintenant se connecter avec un code envoyé par e-mail. Une invitation lui a été envoyée.', { email: admin.email })
+              : tr("{email} est administrateur, mais l'e-mail d'invitation n'a pas pu partir : prévenez-le directement.", { email: admin.email })
           );
           this.loadAdmins(this.tenantId());
         },

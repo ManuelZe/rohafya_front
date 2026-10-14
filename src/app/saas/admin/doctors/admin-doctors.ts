@@ -8,9 +8,10 @@ import { DoctorLinkView } from '../../saas.models';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-admin-doctors',
-  imports: [DatePipe, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, DatePipe, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './admin-doctors.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

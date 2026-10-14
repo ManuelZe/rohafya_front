@@ -15,11 +15,13 @@ import { ShowMore } from '../../shared/list/show-more';
 import { ListWindow } from '../../shared/list/list-window';
 import { distinctValues, matchesText } from '../../shared/list/list-filters';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../shared/i18n/ldate.pipe';
 type TypeFilter = 'all' | ExamType;
 
 @Component({
   selector: 'app-doctor-resultats',
-  imports: [RohafyaLoader, DatePipe, PIcon, PageHeader, StatusTag, MedicalReportView, ShowMore],
+  imports: [LocalDatePipe, TranslatePipe, RohafyaLoader, DatePipe, PIcon, PageHeader, StatusTag, MedicalReportView, ShowMore],
   templateUrl: './doctor-resultats.html',
   styleUrls: ['../shared/doctor-ui.css', './doctor-resultats.css'],
   host: {

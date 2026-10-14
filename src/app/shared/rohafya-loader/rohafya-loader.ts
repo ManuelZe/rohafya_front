@@ -1,10 +1,11 @@
 import { Component, computed, input } from '@angular/core';
 import { RohafyaMark } from '../rohafya-mark/rohafya-mark';
 
+import { TranslatePipe } from '../i18n/t.pipe';
 /** Indicateur de chargement ROHAFYA : emblème animé, anneau en orbite et message. */
 @Component({
   selector: 'app-rohafya-loader',
-  imports: [RohafyaMark],
+  imports: [TranslatePipe, RohafyaMark],
   template: `
     <div class="loader" [class]="'loader-' + size()" role="status" aria-live="polite">
       <div class="visual rohafya-animated">
@@ -17,7 +18,7 @@ import { RohafyaMark } from '../rohafya-mark/rohafya-mark';
       </div>
       @if (label()) {
         <p class="label">
-          {{ label() }}<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+          {{ label() | t }}<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
         </p>
       }
     </div>

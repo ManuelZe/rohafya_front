@@ -10,11 +10,12 @@ import { InvoiceFilter } from '../commissions.models';
 import { CommissionsService } from '../commissions.service';
 import { YearChart } from './year-chart';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 type ViewMode = 'chart' | 'table';
 
 @Component({
   selector: 'app-annuel',
-  imports: [PIcon, PageHeader, KpiTile, PointsPipe, YearChart],
+  imports: [TranslatePipe, PIcon, PageHeader, KpiTile, PointsPipe, YearChart],
   templateUrl: './annuel.html',
   styleUrls: ['../../shared/doctor-ui.css', './annuel.css'],
 })

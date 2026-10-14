@@ -1,40 +1,41 @@
 import { Component, computed, input } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { TagModule } from 'primeng/tag';
 import { SUBMISSION_STATUS_SEVERITY, SubmissionInfo, formatFcfa } from './submission.models';
 
+import { TranslatePipe } from '../i18n/t.pipe';
+import { LocalDatePipe } from '../i18n/ldate.pipe';
 /** Suivi d'un élément envoyé à un établissement : destinataire, statut, réponse et devis. */
 @Component({
   selector: 'app-submission-info',
-  imports: [DatePipe, TagModule],
+  imports: [LocalDatePipe, TranslatePipe, TagModule],
   template: `
     @if (submission(); as s) {
       <div class="submission-info">
         <div class="submission-head">
           <span class="submission-target">
-            <span class="sr-only">Envoyé à </span>
+            <span class="sr-only">{{ 'Envoyé à' | t }} </span>
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6" />
             </svg>
-            {{ s.establishment || 'Établissement' }}
+            {{ s.establishment || 'Établissement' | t }}
           </span>
-          <p-tag [severity]="severity()" [value]="s.status_label" />
+          <p-tag [severity]="severity()" [value]="s.status_label | t" />
         </div>
         @if (s.quote_amount !== null) {
-          <p class="submission-quote">Devis : <strong>{{ quote() }}</strong></p>
+          <p class="submission-quote">{{ 'Devis :' | t }} <strong>{{ quote() }}</strong></p>
         }
         @if (s.response) {
           <blockquote class="submission-response">
-            <span class="submission-response-label">Réponse de l'établissement</span>
+            <span class="submission-response-label">{{ 'Réponse de l\\'établissement' | t }}</span>
             {{ s.response }}
             @if (s.responded_at) {
-              <time class="submission-response-date">{{ s.responded_at | date: 'dd/MM/yyyy à HH:mm' }}</time>
+              <time class="submission-response-date">{{ s.responded_at | ldate: 'datetime' }}</time>
             }
           </blockquote>
         }
       </div>
     } @else if (showLegacy()) {
-      <p class="submission-legacy">Envoyé avant le choix de l'établissement.</p>
+      <p class="submission-legacy">{{ 'Envoyé avant le choix de l\\'établissement.' | t }}</p>
     }
   `,
   styles: `

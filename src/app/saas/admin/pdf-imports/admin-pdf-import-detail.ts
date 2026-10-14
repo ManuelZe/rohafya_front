@@ -13,6 +13,9 @@ import { PDF_IMPORT_ENABLED } from '../../features';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../../shared/i18n/ldate.pipe';
+import { tr } from '../../../shared/i18n/i18n';
 interface ValueRow {
   code: string;
   name: string;
@@ -62,7 +65,7 @@ function ligneVide(): ValueRow {
 /** Relecture d'un compte rendu PDF : le document d'origine à côté des valeurs extraites, modifiables. */
 @Component({
   selector: 'app-admin-pdf-import-detail',
-  imports: [DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, LocalDatePipe, DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader],
   templateUrl: './admin-pdf-import-detail.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css', './admin-pdf-import-detail.css'],
 })
@@ -101,7 +104,7 @@ export class AdminPdfImportDetail {
     if (!ex) return [];
     return [
       ...ex.anomalies.map((a) => (a.name ? `${a.name} : ${a.probleme}` : a.probleme)),
-      ...ex.a_relire.map((ligne) => `Ligne non reconnue : « ${ligne} »`),
+      ...ex.a_relire.map((ligne) => tr('Ligne non reconnue : « {line} »', { line: ligne })),
     ];
   });
 

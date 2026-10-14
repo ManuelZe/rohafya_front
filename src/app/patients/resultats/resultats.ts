@@ -17,6 +17,8 @@ import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 import { extractErrorMessage } from '../../shared/api-error';
 import { SaasAccountService } from '../../saas/saas-account.service';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../shared/i18n/ldate.pipe';
 interface SendResultFormModel {
   exam_type: ExamType;
   exam_code: string;
@@ -168,7 +170,7 @@ type DetailTab = 'summary' | 'more';
 
 @Component({
   selector: 'app-resultats',
-  imports: [RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
+  imports: [LocalDatePipe, TranslatePipe, RohafyaLoader, CommonModule, ButtonModule, FormField, FormRoot, PageHeader, StatusTag],
   templateUrl: './resultats.html',
   styleUrl: './resultats.css',
   host: {

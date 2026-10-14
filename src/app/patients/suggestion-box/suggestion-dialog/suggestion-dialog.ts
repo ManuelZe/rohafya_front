@@ -5,6 +5,8 @@ import { SuggestionBoxService } from '../suggestion-box.service';
 import { Suggestion } from '../suggestion-box.models';
 import { RohafyaLoader } from '../../../shared/rohafya-loader/rohafya-loader';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { LocalDatePipe } from '../../../shared/i18n/ldate.pipe';
 interface SuggestionFormModel {
   content: string;
 }
@@ -15,7 +17,7 @@ function emptyFormModel(): SuggestionFormModel {
 
 @Component({
   selector: 'app-suggestion-dialog',
-  imports: [RohafyaLoader, CommonModule, FormField, FormRoot],
+  imports: [LocalDatePipe, TranslatePipe, RohafyaLoader, CommonModule, FormField, FormRoot],
   templateUrl: './suggestion-dialog.html',
   styleUrl: './suggestion-dialog.css',
   host: {

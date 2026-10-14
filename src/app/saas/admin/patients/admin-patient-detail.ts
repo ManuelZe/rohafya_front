@@ -9,6 +9,7 @@ import { TenantAdminService } from '../../tenant-admin.service';
 import { QrTicket } from '../shared/qr-ticket';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const TOKEN_STATUS_LABELS: Record<string, string> = {
   active: 'Actif',
   used: 'Utilisé',
@@ -18,7 +19,7 @@ const TOKEN_STATUS_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-admin-patient-detail',
-  imports: [DatePipe, RouterLink, PIcon, PageHeader, QrTicket],
+  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, QrTicket],
   templateUrl: './admin-patient-detail.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

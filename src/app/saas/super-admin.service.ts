@@ -17,6 +17,9 @@ import {
   TenantAdminView,
   TenantSettings,
   TenantWithStats,
+  TrialRequest,
+  TrialRequestList,
+  TrialStatus,
 } from './saas.models';
 
 export interface TenantPayload {
@@ -127,5 +130,17 @@ export class SuperAdminService {
   notificationRecipients(tenantId: number, audience: NotificationAudience, q = ''): Observable<{ items: NotificationRecipient[]; total: number }> {
     const params = new HttpParams().set('audience', audience).set('q', q);
     return this.http.get<{ items: NotificationRecipient[]; total: number }>(`${this.baseUrl}/tenants/${tenantId}/notification-recipients`, { params });
+  }
+
+  /** Demandes d'essai reçues depuis le site de présentation (filtre facultatif par statut). */
+  trialRequests(query: { status?: TrialStatus | ''; page?: number }): Observable<TrialRequestList> {
+    let params = new HttpParams();
+    if (query.status) params = params.set('status', query.status);
+    if (query.page) params = params.set('page', query.page);
+    return this.http.get<TrialRequestList>(`${this.baseUrl}/trial-requests`, { params });
+  }
+
+  updateTrialRequest(id: number, payload: { status?: TrialStatus; note?: string }): Observable<TrialRequest> {
+    return this.http.put<TrialRequest>(`${this.baseUrl}/trial-requests/${id}`, payload);
   }
 }

@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../connexion/auth-service';
 import { ConsoleMenuLink, ConsoleShell } from '../shared/console-shell/console-shell';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 const MENU: ConsoleMenuLink[] = [
   { label: "Vue d'ensemble", icon: 'chart-line', link: '/super-admin', exact: true },
   { label: 'Établissements', icon: 'building', link: '/super-admin/etablissements' },
   { label: 'Comptes', icon: 'users', link: '/super-admin/comptes' },
+  { label: "Demandes d'essai", icon: 'inbox', link: '/super-admin/demandes-essai' },
   { label: 'Notifications', icon: 'send', link: '/super-admin/notifications' },
   { label: 'Journal', icon: 'history', link: '/super-admin/journal' },
 ];
@@ -14,10 +16,10 @@ const MENU: ConsoleMenuLink[] = [
 /** Console du super-administrateur : /super-admin. */
 @Component({
   selector: 'app-super-admin-shell',
-  imports: [ConsoleShell],
+  imports: [TranslatePipe, ConsoleShell],
   template: `
     <app-console-shell
-      navLabel="Console super-administrateur"
+      [navLabel]="'Console super-administrateur' | t"
       [menu]="menu"
       [userName]="userName()"
       roleLabel="Super-administrateur"

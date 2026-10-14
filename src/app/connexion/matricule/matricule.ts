@@ -4,13 +4,15 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth-service';
 import { extractErrorMessage } from '../../shared/api-error';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { LangSwitch } from '../../shared/i18n/lang-switch';
 interface MatriculeFormModel {
   federation_id: string;
 }
 
 @Component({
   selector: 'app-matricule',
-  imports: [RouterLink, FormField, FormRoot],
+  imports: [LangSwitch, TranslatePipe, RouterLink, FormField, FormRoot],
   templateUrl: './matricule.html',
   styleUrl: './matricule.css',
 })

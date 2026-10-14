@@ -13,6 +13,8 @@ import { KpiTile } from '../../shared/kpi-tile/kpi-tile';
 import { RohafyaMark } from '../../shared/rohafya-mark/rohafya-mark';
 import { SaasAccountService } from '../../saas/saas-account.service';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { I18n, tr } from '../../shared/i18n/i18n';
 type ExamKind = 'Laboratoire' | 'Imagerie' | 'Exploration';
 
 interface TimelineItem {
@@ -53,7 +55,7 @@ export function formatFcfa(value: unknown): string {
 
 @Component({
   selector: 'app-overview',
-  imports: [DatePipe, RouterLink, ButtonModule, SkeletonModule, PIcon, PageHeader, StatusTag, KpiTile, RohafyaMark],
+  imports: [TranslatePipe, DatePipe, RouterLink, ButtonModule, SkeletonModule, PIcon, PageHeader, StatusTag, KpiTile, RohafyaMark],
   templateUrl: './overview.html',
   styleUrl: './overview.css',
 })
@@ -87,7 +89,9 @@ export class Overview {
     return hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
   });
 
-  readonly today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  private readonly i18n = inject(I18n);
+  /** Date du jour, dans la langue de l'interface. */
+  readonly today = computed(() => new Date().toLocaleDateString(this.i18n.locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
 
   // ===================== Données =====================
 
@@ -188,7 +192,7 @@ export class Overview {
       accent: '#b45309',
       link: '/patients/factures',
       value: String(this.factures().length),
-      hint: this.unpaid().length ? `${this.unpaid().length} à régler` : 'Toutes réglées',
+      hint: this.unpaid().length ? tr('{n} à régler', { n: this.unpaid().length }) : 'Toutes réglées',
       loading: this.facturesLoading() && this.factures().length === 0,
     },
     this.examTile('Laboratoire', 'filter', '#047857', '/patients/laboratoire', this.lab(), this.labLoading()),
@@ -214,9 +218,9 @@ export class Overview {
   }
 
   expiryLabel(item: TimelineItem): string | null {
-    if (item.expired) return 'Expiré';
+    if (item.expired) return tr('Expiré');
     if (item.daysLeft !== null && item.daysLeft <= EXPIRY_WARNING_DAYS) {
-      return item.daysLeft <= 0 ? "Expire aujourd'hui" : `Expire dans ${item.daysLeft} j`;
+      return item.daysLeft <= 0 ? tr("Expire aujourd'hui") : tr('Expire dans {n} j', { n: item.daysLeft });
     }
     return null;
   }
@@ -240,7 +244,7 @@ export class Overview {
       accent,
       link,
       value: String(list.length),
-      hint: list.length ? `${available} disponible${available > 1 ? 's' : ''}` : 'Aucun examen',
+      hint: list.length ? tr(available > 1 ? '{n} disponibles' : '{n} disponible', { n: available }) : 'Aucun examen',
       loading: loading && list.length === 0,
     };
   }

@@ -1,7 +1,7 @@
 @if (open()) {
   <div class="share-dialog-overlay" (click)="close()">
     <div class="share-dialog-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
-      <button type="button" class="share-dialog-close" (click)="close()" aria-label="Fermer">&times;</button>
+      <button type="button" class="share-dialog-close" (click)="close()" [attr.aria-label]="'Fermer' | t">&times;</button>
 
       <div class="share-dialog-header">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -12,9 +12,9 @@
           <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
         </svg>
         <div>
-          <h2 id="share-dialog-title">Partager ce résultat</h2>
+          <h2 id="share-dialog-title">{{ 'Partager ce résultat' | t }}</h2>
           @if (examLabel()) {
-            <p class="share-dialog-subtitle">{{ examLabel() }}</p>
+            <p class="share-dialog-subtitle">{{ examLabel() | t }}</p>
           }
         </div>
       </div>
@@ -25,17 +25,17 @@
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          <p>Résultat partagé avec succès{{ doctor() ? ' avec Dr ' + doctor()!.DoctorName + ' ' + doctor()!.DoctorLastname : '' }}.</p>
-          <button type="button" class="btn btn-primary" (click)="close()">Fermer</button>
+          <p>{{ (doctor() ? 'Résultat partagé avec succès avec Dr {0} {1}.' : 'Résultat partagé avec succès.') | t: [doctor()?.DoctorName, doctor()?.DoctorLastname] }}</p>
+          <button type="button" class="btn btn-primary" (click)="close()">{{ 'Fermer' | t }}</button>
         </div>
       } @else {
         <div class="form-row">
-          <label for="share-matricule">Matricule du médecin destinataire</label>
+          <label for="share-matricule">{{ 'Matricule du médecin destinataire' | t }}</label>
           <div class="doctor-search-row">
             <input
               id="share-matricule"
               type="text"
-              placeholder="Ex : DOC-00123"
+              [placeholder]="'Ex : DOC-00123' | t"
               [value]="matricule()"
               (input)="onMatriculeInput($event)"
               (keydown.enter)="$event.preventDefault(); search()"
@@ -44,7 +44,7 @@
               @if (searching()) {
                 <span class="spinner"></span>
               } @else {
-                Rechercher
+                {{ 'Rechercher' | t }}
               }
             </button>
           </div>
@@ -55,30 +55,30 @@
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <span>Dr {{ d.DoctorName }} {{ d.DoctorLastname }} @if (d.Speciality) {<span>· {{ d.Speciality }}</span>}</span>
+              <span>{{ 'Dr {0} {1}' | t: [d.DoctorName, d.DoctorLastname] }} @if (d.Speciality) {<span>· {{ d.Speciality }}</span>}</span>
             </div>
           }
           @if (searchError()) {
-            <div class="doctor-not-found">{{ searchError() }}</div>
+            <div class="doctor-not-found">{{ searchError() | t }}</div>
           }
         </div>
 
         <label class="checkbox-row">
           <input type="checkbox" [checked]="envoiEmail()" (change)="toggleEnvoiEmail()" />
-          <span>Envoyer également une copie par email au médecin</span>
+          <span>{{ 'Envoyer également une copie par email au médecin' | t }}</span>
         </label>
 
         @if (submitError()) {
-          <div class="error-banner" role="alert">{{ submitError() }}</div>
+          <div class="error-banner" role="alert">{{ submitError() | t }}</div>
         }
 
         <div class="form-actions">
-          <button type="button" class="btn btn-tertiary" (click)="close()">Annuler</button>
+          <button type="button" class="btn btn-tertiary" (click)="close()">{{ 'Annuler' | t }}</button>
           <button type="button" class="btn btn-primary" [disabled]="submitting() || !doctor()" (click)="submit()">
             @if (submitting()) {
               <span class="spinner"></span>
             }
-            <span>{{ submitting() ? 'Partage en cours...' : 'Partager' }}</span>
+            <span>{{ (submitting() ? 'Partage en cours...' : 'Partager') | t }}</span>
           </button>
         </div>
       }

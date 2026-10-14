@@ -11,6 +11,10 @@ export interface PageSeo {
   path: string;
   /** Données structurées schema.org, insérées en JSON-LD. */
   jsonLd?: object;
+  /** Langue de la page (og:locale) ; français par défaut. */
+  locale?: 'fr_FR' | 'en_GB';
+  /** Versions de la page dans chaque langue (balises hreflang) : { fr: '/intro', en: '/en' }. */
+  alternates?: Record<string, string>;
 }
 
 const JSON_LD_ID = 'seo-json-ld';
@@ -35,7 +39,7 @@ export class SeoService {
 
     this.setProperty('og:type', 'website');
     this.setProperty('og:site_name', SITE_NAME);
-    this.setProperty('og:locale', 'fr_FR');
+    this.setProperty('og:locale', page.locale ?? 'fr_FR');
     this.setProperty('og:title', page.title);
     this.setProperty('og:description', page.description);
     this.setProperty('og:url', url);
@@ -51,12 +55,29 @@ export class SeoService {
     this.setName('twitter:image:alt', SOCIAL_IMAGE.alt);
 
     this.setCanonical(url);
+    this.setAlternates(page.alternates);
     this.setJsonLd(page.jsonLd);
+  }
+
+  /** Balises hreflang : chaque version de la page connaît les autres (et la version par défaut). */
+  private setAlternates(alternates: Record<string, string> | undefined): void {
+    this.document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((link) => link.remove());
+    if (!alternates) return;
+    const entries = Object.entries(alternates);
+    const fallback = alternates['fr'];
+    for (const [lang, path] of [...entries, ...(fallback ? [['x-default', fallback] as [string, string]] : [])]) {
+      const link = this.document.createElement('link');
+      link.setAttribute('rel', 'alternate');
+      link.setAttribute('hreflang', lang);
+      link.setAttribute('href', SITE_URL + path);
+      this.document.head.appendChild(link);
+    }
   }
 
   /** Retire ce qui ne vaut que pour la page quittée (URL canonique, données structurées). */
   clear(): void {
     this.document.head.querySelector('link[rel="canonical"]')?.remove();
+    this.document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((link) => link.remove());
     this.document.getElementById(JSON_LD_ID)?.remove();
   }
 

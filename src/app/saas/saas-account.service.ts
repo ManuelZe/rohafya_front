@@ -3,6 +3,7 @@ import { Service, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { PatientLinkView, SaasMe } from './saas.models';
+import { AccountLang } from '../shared/i18n/account-lang';
 
 export interface RedeemResponse {
   message: string;
@@ -20,6 +21,7 @@ export interface PublicTokenInfo {
 export class SaasAccountService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
+  private readonly accountLang = inject(AccountLang);
 
   private readonly _me = signal<SaasMe | null>(null);
   private readonly _settled = signal(false);
@@ -50,6 +52,8 @@ export class SaasAccountService {
       tap((me) => {
         this._me.set(me);
         this._settled.set(true);
+        // Langue choisie sur le compte (autre appareil) : appliquée ici aussi.
+        this.accountLang.apply(me?.locale);
       }),
       catchError(() => {
         this._settled.set(true);

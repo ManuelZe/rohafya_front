@@ -1,4 +1,5 @@
 import { FLAG_LABELS, FLAG_SYMBOLS, MedicalReport, ReportFact, formatDate, isOutOfRange } from './medical-report';
+import { currentLang, tr } from '../i18n/i18n';
 
 /** Lecteur du compte rendu : la mention de prudence n'est destinée qu'au patient. */
 export type ReportAudience = 'patient' | 'doctor';
@@ -12,20 +13,20 @@ function esc(value: string | null | undefined): string {
 }
 
 function factRows(facts: ReportFact[]): string {
-  return facts.map((f) => `<tr><th>${esc(f.label)}</th><td>${esc(f.date ? formatDate(f.value) : f.value)}</td></tr>`).join('');
+  return facts.map((f) => `<tr><th>${esc(tr(f.label))}</th><td>${esc(f.date ? formatDate(f.value) : f.value)}</td></tr>`).join('');
 }
 
 /** Document HTML autonome du compte rendu, mis en page pour une feuille A4. */
 export function reportDocument(report: MedicalReport, audience: ReportAudience, origin: string, editedAt = new Date()): string {
   const p = report.patient;
   const patientFacts: ReportFact[] = [
-    { label: 'Nom', value: p.name },
+    { label: 'Nom complet', value: p.name },
     { label: 'Identifiant', value: p.identifier },
     { label: 'Date de naissance', value: p.birthDate ? `${formatDate(p.birthDate, false)}${p.age ? ` (${p.age})` : ''}` : '' },
     { label: 'Âge', value: p.birthDate ? '' : p.age },
     { label: 'Sexe', value: p.sex },
   ].filter((f) => f.value);
-  const establishment = report.establishment || 'Établissement non communiqué';
+  const establishment = report.establishment || tr('Établissement non communiqué');
   const examFacts: ReportFact[] = [{ label: 'Établissement', value: establishment }, { label: 'N° d’examen', value: report.code }, ...report.people.filter((f) => f.label === 'Prescripteur'), ...report.dates].filter(
     (f) => f.value
   );
@@ -33,10 +34,10 @@ export function reportDocument(report: MedicalReport, audience: ReportAudience, 
 
   const measures = report.measures.length
     ? `<section class="block">
-        <h2>${esc(report.measuresTitle)}</h2>
-        ${report.measuresFromReport ? '<p class="note">Valeurs reprises du compte rendu validé ; les valeurs de référence ne sont pas communiquées pour cet examen.</p>' : ''}
+        <h2>${esc(tr(report.measuresTitle))}</h2>
+        ${report.measuresFromReport ? `<p class="note">${esc(tr('Valeurs reprises du compte rendu validé ; les valeurs de référence ne sont pas communiquées pour cet examen.'))}</p>` : ''}
         <table class="results">
-          <thead><tr><th>Paramètre</th><th class="num">Résultat</th><th>Unité</th><th>Valeurs de référence</th><th>Interprétation</th></tr></thead>
+          <thead><tr><th>${tr('Paramètre')}</th><th class="num">${tr('Résultat')}</th><th>${tr('Unité')}</th><th>${tr('Valeurs de référence')}</th><th>${tr('Interprétation')}</th></tr></thead>
           <tbody>
             ${report.measures
               .map((m) => {
@@ -46,7 +47,7 @@ export function reportDocument(report: MedicalReport, audience: ReportAudience, 
                   <td class="num value">${esc(m.value)}${out ? ` <span class="sym">${FLAG_SYMBOLS[m.flag]}</span>` : ''}</td>
                   <td>${esc(m.unit)}</td>
                   <td>${esc(m.range)}</td>
-                  <td>${out ? `<strong>${FLAG_LABELS[m.flag]}</strong>` : m.flag === 'normal' ? 'Normal' : ''}</td>
+                  <td>${out ? `<strong>${esc(tr(FLAG_LABELS[m.flag]))}</strong>` : m.flag === 'normal' ? esc(tr('Normal')) : ''}</td>
                 </tr>`;
               })
               .join('')}
@@ -54,14 +55,18 @@ export function reportDocument(report: MedicalReport, audience: ReportAudience, 
         </table>
         <p class="legend">${
           outOfRange
-            ? `${outOfRange} valeur${outOfRange > 1 ? 's' : ''} en dehors des valeurs de référence (en gras). ↑ élevé · ↓ bas · ! signalé par l’établissement.`
-            : 'Valeurs à comparer aux valeurs de référence indiquées.'
+            ? esc(
+                outOfRange > 1
+                  ? tr('{n} valeurs en dehors des valeurs de référence (en gras). ↑ élevé · ↓ bas · ! signalé par l’établissement.', { n: outOfRange })
+                  : tr('{n} valeur en dehors des valeurs de référence (en gras). ↑ élevé · ↓ bas · ! signalé par l’établissement.', { n: outOfRange })
+              )
+            : esc(tr('Valeurs à comparer aux valeurs de référence indiquées.'))
         }</p>
       </section>`
     : '';
 
   const studies = report.studies.length
-    ? `<section class="block"><h2>Images de l'examen</h2><ul class="studies">${report.studies
+    ? `<section class="block"><h2>${esc(tr("Images de l'examen"))}</h2><ul class="studies">${report.studies
         .map(
           (s) =>
             `<li><strong>${esc(s.description)}</strong>${[s.date ? formatDate(s.date) : '', s.institution, s.physician]
@@ -72,18 +77,24 @@ export function reportDocument(report: MedicalReport, audience: ReportAudience, 
         .join('')}</ul></section>`
     : '';
 
-  const sections = report.sections.map((s) => `<section class="block"><h2>${esc(s.title)}</h2><p class="text">${esc(s.text)}</p></section>`).join('');
+  const sections = report.sections.map((s) => `<section class="block"><h2>${esc(tr(s.title))}</h2><p class="text">${esc(s.text)}</p></section>`).join('');
   const validation = report.validatedBy || report.validatedAt
-    ? `Compte rendu validé${report.validatedBy ? ` par <strong>${esc(report.validatedBy)}</strong>` : ''}${report.validatedAt ? ` le ${esc(formatDate(report.validatedAt))}` : ''}.`
+    ? esc(
+        report.validatedBy && report.validatedAt
+          ? tr('Compte rendu validé par {name} le {date}.', { name: '@@NAME@@', date: formatDate(report.validatedAt) })
+          : report.validatedBy
+            ? tr('Compte rendu validé par {name}.', { name: '@@NAME@@' })
+            : tr('Compte rendu validé le {date}.', { date: formatDate(report.validatedAt) })
+      ).replace('@@NAME@@', `<strong>${esc(report.validatedBy)}</strong>`)
     : '';
   // Le validateur est déjà nommé dans la phrase de validation.
   const others = report.people.filter((f) => f.label !== 'Prescripteur' && f.value !== report.validatedBy);
 
   return `<!doctype html>
-<html lang="fr">
+<html lang="${currentLang()}">
 <head>
 <meta charset="utf-8">
-<title>${esc(`${report.documentTitle} — ${report.code}${p.name ? ` — ${p.name}` : ''}`)}</title>
+<title>${esc(`${tr(report.documentTitle)} — ${report.code}${p.name ? ` — ${p.name}` : ''}`)}</title>
 <style>
   @page { size: A4; margin: 12mm 13mm 13mm; }
   * { box-sizing: border-box; }
@@ -134,34 +145,34 @@ export function reportDocument(report: MedicalReport, audience: ReportAudience, 
   <header class="top">
     <div class="brand"><img src="${esc(origin)}/rohafya-emblem.png" alt="ROHAFYA"></div>
     <div class="establishment">
-      <span class="label">Établissement</span>
+      <span class="label">${esc(tr('Établissement'))}</span>
       <strong>${esc(establishment)}</strong>
-      <span>${esc(report.discipline)}</span>
+      <span>${esc(tr(report.discipline))}</span>
     </div>
   </header>
 
-  <h1>${esc(report.documentTitle)}</h1>
-  <p class="exam"><strong>${esc(report.title)}</strong>${report.code ? ` <span>· N° ${esc(report.code)}</span>` : ''}</p>
+  <h1>${esc(tr(report.documentTitle))}</h1>
+  <p class="exam"><strong>${esc(report.title)}</strong>${report.code ? ` <span>· ${esc(tr('N° {code}', { code: report.code }))}</span>` : ''}</p>
 
   <div class="ids">
-    <section class="card"><h2>Patient</h2><table class="facts">${factRows(patientFacts)}</table></section>
-    <section class="card"><h2>Examen</h2><table class="facts">${factRows(examFacts)}</table></section>
+    <section class="card"><h2>${esc(tr('Patient'))}</h2><table class="facts">${factRows(patientFacts)}</table></section>
+    <section class="card"><h2>${esc(tr('Examen'))}</h2><table class="facts">${factRows(examFacts)}</table></section>
   </div>
 
-  ${report.conclusion ? `<section class="conclusion"><h2>${esc(report.conclusion.title)}</h2><p>${esc(report.conclusion.text)}</p></section>` : ''}
+  ${report.conclusion ? `<section class="conclusion"><h2>${esc(tr(report.conclusion.title))}</h2><p>${esc(report.conclusion.text)}</p></section>` : ''}
   ${measures}
   ${studies}
   ${sections}
 
   <section class="validation">
     ${validation ? `<p>${validation}</p>` : ''}
-    ${others.length ? `<p>${others.map((f) => `${esc(f.label)} : ${esc(f.value)}`).join(' · ')}</p>` : ''}
+    ${others.length ? `<p>${others.map((f) => esc(tr('{label} : {value}', { label: tr(f.label), value: f.value }))).join(' · ')}</p>` : ''}
   </section>
 
-  ${audience === 'patient' ? `<p class="notice">${PATIENT_NOTICE}</p>` : ''}
+  ${audience === 'patient' ? `<p class="notice">${esc(tr(PATIENT_NOTICE))}</p>` : ''}
 
   <footer>
-    <span>Édité le ${esc(formatDate(editedAt.toISOString()))} depuis ROHAFYA, à partir du compte rendu validé par ${esc(report.establishment || "l'établissement")}.</span>
+    <span>${esc(tr('Édité le {date} depuis ROHAFYA, à partir du compte rendu validé par {establishment}.', { date: formatDate(editedAt.toISOString()), establishment: report.establishment || tr("l'établissement") }))}</span>
     <span>${esc(report.code)}</span>
   </footer>
 </body>

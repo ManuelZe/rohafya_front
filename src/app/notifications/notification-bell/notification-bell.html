@@ -1,6 +1,6 @@
 <a [routerLink]="link()" class="notification-bell" [attr.aria-label]="ariaLabel()">
   <svg data-p-icon="bell" size="20"></svg>
   @if (hasUnread()) {
-    <span class="notification-bell-badge">{{ badgeLabel() }}</span>
+    <span class="notification-bell-badge">{{ badgeLabel() | t }}</span>
   }
 </a>

@@ -8,6 +8,7 @@ import { PageHeader } from '../shared/page-header/page-header';
 import { RohafyaLoader } from '../../shared/rohafya-loader/rohafya-loader';
 import { extractErrorMessage } from '../../shared/api-error';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 interface ParametresFormModel {
   PatientName: string;
   PatientLastname: string;
@@ -64,7 +65,7 @@ const ACCESS_DENIED_MESSAGE = 'L’UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CES D
 
 @Component({
   selector: 'app-parametres',
-  imports: [RohafyaLoader, CommonModule, FormField, FormRoot, PageHeader],
+  imports: [TranslatePipe, RohafyaLoader, CommonModule, FormField, FormRoot, PageHeader],
   templateUrl: './parametres.html',
   styleUrl: './parametres.css',
 })

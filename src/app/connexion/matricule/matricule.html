@@ -1,7 +1,7 @@
 <div class="login-container">
   <div class="login-visual">
     <div class="future-medical">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Médecine numérique futuriste">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" [attr.aria-label]="'Médecine numérique futuriste' | t">
         <circle cx="100" cy="100" r="90" class="circle-bg" />
         <g class="medical-elements">
           <path
@@ -20,34 +20,35 @@
           <line x1="100" y1="150" x2="100" y2="100" class="connection-line" />
         </g>
       </svg>
-      <h2 class="medical-title">Médecine Numérique</h2>
-      <p class="medical-subtitle">Plateforme de santé digitale</p>
+      <h2 class="medical-title">{{ 'Médecine Numérique' | t }}</h2>
+      <p class="medical-subtitle">{{ 'Plateforme de santé digitale' | t }}</p>
     </div>
   </div>
 
   <div class="login-form">
+    <div class="auth-lang"><app-lang-switch /></div>
     <div class="form-content">
-      <h1 class="form-title">Réinitialisation</h1>
-      <p class="form-description">Entrez votre matricule pour recevoir votre identifiant</p>
+      <h1 class="form-title">{{ 'Réinitialisation' | t }}</h1>
+      <p class="form-description">{{ 'Entrez votre matricule pour recevoir votre identifiant' | t }}</p>
 
       <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">
         <div class="form-group">
-          <label for="matricule" class="form-label">Matricule</label>
+          <label for="matricule" class="form-label">{{ 'Matricule' | t }}</label>
           <input
             id="matricule"
             type="text"
             class="form-input"
             [formField]="form.federation_id"
-            placeholder="Entrez votre matricule"
-            aria-label="Matricule"
+            [placeholder]="'Entrez votre matricule' | t"
+            [attr.aria-label]="'Matricule' | t"
           />
           @if (form.federation_id().touched() && form.federation_id().invalid()) {
-            <span class="form-error">{{ form.federation_id().errors()[0]?.message }}</span>
+            <span class="form-error">{{ (form.federation_id().errors()[0]?.message) | t }}</span>
           }
         </div>
 
-        <button type="submit" class="submit-btn" [disabled]="form().invalid()" aria-label="Envoyez">
-          Envoyez
+        <button type="submit" class="submit-btn" [disabled]="form().invalid()" [attr.aria-label]="'Envoyez' | t">
+          {{ 'Envoyez' | t }}
         </button>
       </form>
 
@@ -57,32 +58,32 @@
             <svg class="error-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
-            <span class="error-text">{{ errorMessage() }}</span>
+            <span class="error-text">{{ errorMessage() | t }}</span>
           </div>
         </div>
       }
 
       <div class="register-section">
         <p class="register-text">
-          Identifiant reçu ?
+          {{ 'Identifiant reçu ?' | t }}
           <button
             type="button"
             class="register-link"
             (click)="navigateToConnexion()"
-            aria-label="Revenir à la page de connexion"
+            [attr.aria-label]="'Revenir à la page de connexion' | t"
           >
-            Veuillez vous connecter
+            {{ 'Veuillez vous connecter' | t }}
           </button>
         </p>
         <p class="register-text register-note">
-          Pas encore de compte ?
+          {{ 'Pas encore de compte ?' | t }}
           <button
             type="button"
             class="register-link"
             routerLink="/register"
-            aria-label="Aller à la page d'enregistrement"
+            [attr.aria-label]="'Aller à la page d\'enregistrement' | t"
           >
-            Demande d'enregistrement
+            {{ 'Demande d\'enregistrement' | t }}
           </button>
         </p>
       </div>

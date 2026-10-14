@@ -2,16 +2,16 @@
 <article class="mr" [attr.aria-labelledby]="titleId">
   <header class="mr-head">
     <div class="mr-head-text">
-      <p class="mr-kicker">{{ r.discipline }}</p>
-      <h2 class="mr-title" [id]="titleId">{{ r.title }}</h2>
+      <p class="mr-kicker">{{ r.discipline | t }}</p>
+      <h2 class="mr-title" [id]="titleId">{{ r.title | t }}</h2>
       <p class="mr-establishment" [class.is-missing]="!r.establishment">
         <svg [pIcon]="'building'" [size]="16" aria-hidden="true"></svg>
-        <span class="sr-only">Établissement : </span>
-        <span>{{ r.establishment || 'Établissement non communiqué' }}</span>
+        <span class="sr-only">{{ 'Établissement :' | t }} </span>
+        <span>{{ r.establishment || 'Établissement non communiqué' | t }}</span>
       </p>
       <p class="mr-meta">
         @if (r.code) {
-          <span>N° {{ r.code }}</span>
+          <span>{{ 'N° {0}' | t: [r.code] }}</span>
         }
         @if (validation()) {
           <span class="mr-validated">
@@ -26,43 +26,56 @@
         @if (!touchDevice) {
           <button type="button" class="mr-print" (click)="print()" [disabled]="!canPrint()" [attr.aria-describedby]="printMessage() ? printNoteId : null">
             <svg [pIcon]="'print'" [size]="16" aria-hidden="true"></svg>
-            <span>Imprimer</span>
+            <span>{{ 'Imprimer' | t }}</span>
           </button>
         }
-        <button
-          type="button"
-          class="mr-print mr-pdf"
-          (click)="downloadPdf()"
-          [disabled]="!canPrint() || pdfBusy()"
-          [attr.aria-busy]="pdfBusy()"
-          [attr.aria-describedby]="printMessage() ? printNoteId : null"
-        >
-          @if (pdfBusy()) {
-            <span class="mr-spinner" aria-hidden="true"></span>
-            <span>Préparation du PDF…</span>
-          } @else {
+        @if (pdfLink(); as pdf) {
+          <a
+            class="mr-print mr-pdf"
+            [href]="pdf.url"
+            [attr.download]="pdf.name"
+            type="application/pdf"
+            [attr.aria-describedby]="printMessage() ? printNoteId : null"
+          >
             <svg [pIcon]="'download'" [size]="16" aria-hidden="true"></svg>
-            <span>Télécharger le PDF</span>
-          }
-        </button>
+            <span>{{ 'Télécharger le PDF' | t }}</span>
+          </a>
+        } @else {
+          <button
+            type="button"
+            class="mr-print mr-pdf"
+            (click)="downloadPdf()"
+            [disabled]="!canPrint() || pdfBusy() || pdfPreparing()"
+            [attr.aria-busy]="pdfBusy() || pdfPreparing()"
+            [attr.aria-describedby]="printMessage() ? printNoteId : null"
+          >
+            @if (pdfBusy() || pdfPreparing()) {
+              <span class="mr-spinner" aria-hidden="true"></span>
+              <span>{{ 'Préparation du PDF…' | t }}</span>
+            } @else {
+              <svg [pIcon]="'download'" [size]="16" aria-hidden="true"></svg>
+              <span>{{ 'Télécharger le PDF' | t }}</span>
+            }
+          </button>
+        }
       </div>
       @if (printMessage()) {
         <p class="mr-print-note" [class.is-blocked]="!canPrint()" [id]="printNoteId">
           <svg [pIcon]="canPrint() ? 'clock' : 'lock'" [size]="13" aria-hidden="true"></svg>
-          {{ printMessage() }}
+          {{ printMessage() | t }}
         </p>
       }
       @if (pdfError()) {
-        <p class="mr-print-note is-blocked" role="alert">{{ pdfError() }}</p>
+        <p class="mr-print-note is-blocked" role="alert">{{ pdfError() | t }}</p>
       }
     </div>
   </header>
 
   @if (identity().length) {
-    <dl class="mr-identity" aria-label="Identification du patient">
+    <dl class="mr-identity" [attr.aria-label]="'Identification du patient' | t">
       @for (f of identity(); track f.label) {
         <div>
-          <dt>{{ f.label }}</dt>
+          <dt>{{ f.label | t }}</dt>
           <dd>{{ f.value }}</dd>
         </div>
       }
@@ -71,25 +84,25 @@
 
   @if (r.conclusion; as conclusion) {
     <section class="mr-conclusion" [attr.aria-labelledby]="titleId + '-conclusion'">
-      <h3 [id]="titleId + '-conclusion'">{{ conclusion.title }}</h3>
-      <p>{{ conclusion.text }}</p>
+      <h3 [id]="titleId + '-conclusion'">{{ conclusion.title | t }}</h3>
+      <p>{{ conclusion.text | t }}</p>
     </section>
   }
 
   @if (r.measures.length) {
     <section class="mr-block" [attr.aria-labelledby]="titleId + '-results'">
       <div class="mr-block-head">
-        <h3 [id]="titleId + '-results'">{{ r.measuresTitle }}</h3>
+        <h3 [id]="titleId + '-results'">{{ r.measuresTitle | t }}</h3>
         @if (hasRanges()) {
           @if (outOfRange()) {
             <p class="mr-pill is-out">
               <svg [pIcon]="'exclamation-triangle'" [size]="14" aria-hidden="true"></svg>
-              {{ outOfRange() }} sur {{ r.measures.length }} en dehors des valeurs de référence
+              {{ '{0} sur {1} en dehors des valeurs de référence' | t: [outOfRange(), r.measures.length] }}
             </p>
           } @else {
             <p class="mr-pill is-normal">
               <svg [pIcon]="'check-circle'" [size]="14" aria-hidden="true"></svg>
-              {{ r.measures.length }} valeur{{ r.measures.length > 1 ? 's' : '' }} dans les valeurs de référence
+              {{ (r.measures.length > 1 ? '{0} valeurs dans les valeurs de référence' : '{0} valeur dans les valeurs de référence') | t: [r.measures.length] }}
             </p>
           }
         }
@@ -98,18 +111,18 @@
       @if (r.measuresFromReport) {
         <p class="mr-note">
           <svg [pIcon]="'info-circle'" [size]="14" aria-hidden="true"></svg>
-          Valeurs reprises du compte rendu validé : les valeurs de référence ne sont pas communiquées pour cet examen.
+          {{ 'Valeurs reprises du compte rendu validé : les valeurs de référence ne sont pas communiquées pour cet examen.' | t }}
         </p>
       }
 
       <table class="mr-table">
-        <caption class="sr-only">Résultats de {{ r.title }}</caption>
+        <caption class="sr-only">{{ 'Résultats de {0}' | t: [r.title] }}</caption>
         <thead>
           <tr>
-            <th scope="col">Paramètre</th>
-            <th scope="col">Résultat</th>
-            <th scope="col">Valeurs de référence</th>
-            <th scope="col"><span class="sr-only">Position dans les valeurs de référence</span></th>
+            <th scope="col">{{ 'Paramètre' | t }}</th>
+            <th scope="col">{{ 'Résultat' | t }}</th>
+            <th scope="col">{{ 'Valeurs de référence' | t }}</th>
+            <th scope="col"><span class="sr-only">{{ 'Position dans les valeurs de référence' | t }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -122,18 +135,18 @@
                   <span class="mr-remark">{{ m.remarks }}</span>
                 }
               </th>
-              <td class="mr-value" data-label="Résultat">
+              <td class="mr-value" [attr.data-label]="'Résultat' | t">
                 <strong>{{ m.value }}</strong>
                 @if (m.unit) {
                   <span class="mr-unit">{{ m.unit }}</span>
                 }
                 @if (isOutOfRange(m)) {
-                  <span class="mr-flag is-out"><span aria-hidden="true">{{ flagSymbols[m.flag] }}</span> {{ flagLabels[m.flag] }}</span>
+                  <span class="mr-flag is-out"><span aria-hidden="true">{{ flagSymbols[m.flag] }}</span> {{ flagLabels[m.flag] | t }}</span>
                 } @else if (m.flag === 'normal') {
-                  <span class="mr-flag is-normal">Normal</span>
+                  <span class="mr-flag is-normal">{{ 'Normal' | t }}</span>
                 }
               </td>
-              <td class="mr-range" data-label="Valeurs de référence">{{ m.range || '—' }}</td>
+              <td class="mr-range" [attr.data-label]="'Valeurs de référence :' | t">{{ m.range || '—' }}</td>
               <td class="mr-gauge-cell" aria-hidden="true">
                 @if (g) {
                   <span class="mr-gauge">
@@ -148,7 +161,7 @@
       </table>
       @if (hasRanges()) {
         <p class="mr-legend">
-          La bande verte représente les valeurs de référence de l'établissement ; le repère situe {{ audience() === 'patient' ? 'votre' : 'le' }} résultat.
+          {{ (audience() === 'patient' ? 'La bande verte représente les valeurs de référence de l\'établissement ; le repère situe votre résultat.' : 'La bande verte représente les valeurs de référence de l\'établissement ; le repère situe le résultat.') | t }}
         </p>
       }
     </section>
@@ -156,18 +169,18 @@
 
   @if (r.studies.length) {
     <section class="mr-block" [attr.aria-labelledby]="titleId + '-studies'">
-      <h3 [id]="titleId + '-studies'">Images de l'examen</h3>
+      <h3 [id]="titleId + '-studies'">{{ 'Images de l\'examen' | t }}</h3>
       <ul class="mr-studies">
         @for (s of r.studies; track $index) {
           <li>
             <span class="mr-study-icon" aria-hidden="true"><svg [pIcon]="'images'" [size]="18"></svg></span>
             <span class="mr-study-text">
-              <strong>{{ s.description }}</strong>
+              <strong>{{ s.description | t }}</strong>
               <span>{{ studyMeta(s) }}</span>
             </span>
             @if (s.link) {
               <a class="mr-link" [href]="s.link" target="_blank" rel="noopener">
-                Voir les images<span class="sr-only"> (nouvel onglet)</span>
+                {{ 'Voir les images' | t }}<span class="sr-only"> {{ '(nouvel onglet)' | t }}</span>
               </a>
             }
           </li>
@@ -178,24 +191,24 @@
 
   @for (s of r.sections; track s.title) {
     <section class="mr-block mr-text">
-      <h3>{{ s.title }}</h3>
-      <p>{{ s.text }}</p>
+      <h3>{{ s.title | t }}</h3>
+      <p>{{ s.text | t }}</p>
     </section>
   }
 
   @if (r.dates.length || r.people.length) {
     <section class="mr-block" [attr.aria-labelledby]="titleId + '-facts'">
-      <h3 [id]="titleId + '-facts'">Dates et intervenants</h3>
+      <h3 [id]="titleId + '-facts'">{{ 'Dates et intervenants' | t }}</h3>
       <dl class="mr-facts">
         @for (f of r.dates; track f.label) {
           <div>
-            <dt>{{ f.label }}</dt>
+            <dt>{{ f.label | t }}</dt>
             <dd>{{ formatDate(f.value) }}</dd>
           </div>
         }
         @for (f of r.people; track f.label) {
           <div>
-            <dt>{{ f.label }}</dt>
+            <dt>{{ f.label | t }}</dt>
             <dd>{{ f.value }}</dd>
           </div>
         }
@@ -206,7 +219,7 @@
   @if (audience() === 'patient' && (r.measures.length || r.conclusion)) {
     <p class="mr-notice">
       <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>{{ notice }}</span>
+      <span>{{ notice | t }}</span>
     </p>
   }
 </article>

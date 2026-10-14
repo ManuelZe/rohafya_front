@@ -6,9 +6,11 @@ import { extractErrorMessage } from '../../shared/api-error';
 import { RegistrationFormData } from '../register.model';
 import { EstablishmentsService } from '../../shared/submission/establishments.service';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
+import { LangSwitch } from '../../shared/i18n/lang-switch';
 @Component({
   selector: 'app-register',
-  imports: [RouterLink, FormField, FormRoot],
+  imports: [LangSwitch, TranslatePipe, RouterLink, FormField, FormRoot],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })

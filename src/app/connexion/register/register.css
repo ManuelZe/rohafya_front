@@ -75,6 +75,7 @@
 }
 
 .login-form {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -328,5 +329,24 @@
   .form-description,
   .info-note {
     font-size: 0.85rem;
+  }
+}
+
+/* Choix de la langue, en haut à droite du formulaire */
+.auth-lang {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    flex-direction: column;
+  }
+
+  .auth-lang {
+    position: static;
+    align-self: flex-end;
+    margin-bottom: 0.5rem;
   }
 }

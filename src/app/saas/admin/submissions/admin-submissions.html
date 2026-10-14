@@ -1,17 +1,17 @@
 <div class="page">
   <app-page-header
-    title="Demandes"
-    subtitle="Prescriptions, pré-enregistrements et requêtes envoyés à votre établissement par les patients, les médecins et les visiteurs. Répondez : l'auteur est prévenu."
+    [title]="'Demandes' | t"
+    [subtitle]="'Prescriptions, pré-enregistrements et requêtes envoyés à votre établissement par les patients, les médecins et les visiteurs. Répondez : l\'auteur est prévenu.' | t"
   />
 
   <section class="card">
     <div class="toolbar">
-      <div class="segmented" role="group" aria-label="Filtrer par type">
+      <div class="segmented" role="group" [attr.aria-label]="'Filtrer par type' | t">
         @for (k of kinds; track k.value) {
           <button type="button" [attr.aria-pressed]="kind() === k.value" (click)="setKind(k.value)">
-            {{ k.label }}
+            {{ k.label | t }}
             @if (pending()[k.value]) {
-              <span class="count-badge">{{ pending()[k.value] }}<span class="sr-only"> à traiter</span></span>
+              <span class="count-badge">{{ pending()[k.value] }}<span class="sr-only"> {{ 'à traiter' | t }}</span></span>
             }
           </button>
         }
@@ -19,67 +19,67 @@
     </div>
 
     <div class="toolbar">
-      <div class="segmented" role="group" aria-label="Filtrer par statut">
+      <div class="segmented" role="group" [attr.aria-label]="'Filtrer par statut' | t">
         @for (st of statuses; track st.value) {
-          <button type="button" [attr.aria-pressed]="status() === st.value" (click)="setStatus(st.value)">{{ st.label }}</button>
+          <button type="button" [attr.aria-pressed]="status() === st.value" (click)="setStatus(st.value)">{{ st.label | t }}</button>
         }
       </div>
       <form class="search-form" role="search" (submit)="search($event)">
-        <label class="sr-only" for="submission-q">Rechercher un auteur ou un patient</label>
-        <input id="submission-q" class="field" type="search" placeholder="Auteur, e-mail, patient…" [value]="query()" (input)="onQuery($event)" />
-        <button type="submit" class="btn btn-ghost">Rechercher</button>
+        <label class="sr-only" for="submission-q">{{ 'Rechercher un auteur ou un patient' | t }}</label>
+        <input id="submission-q" class="field" type="search" [placeholder]="'Auteur, e-mail, patient…' | t" [value]="query()" (input)="onQuery($event)" />
+        <button type="submit" class="btn btn-ghost">{{ 'Rechercher' | t }}</button>
       </form>
-      <span class="muted total" aria-live="polite">{{ total() }} demande(s)</span>
+      <span class="muted total" aria-live="polite">{{ '{0} demande(s)' | t: [total()] }}</span>
     </div>
 
     @if (error()) {
       <div class="banner banner-error notice" role="alert">
         <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-        <span>{{ error() }}</span>
-        <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+        <span>{{ error() | t }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
       </div>
     }
 
     @if (loading() && !loaded()) {
       <div class="state" role="status">
         <span class="spinner spinner-lg" aria-hidden="true"></span>
-        <span>Chargement…</span>
+        <span>{{ 'Chargement…' | t }}</span>
       </div>
     } @else if (items().length === 0) {
       <div class="state">
         <svg [pIcon]="'inbox'" [size]="32" aria-hidden="true"></svg>
-        <strong>{{ status() === 'recue' ? 'Aucune nouvelle demande' : 'Aucune demande' }}</strong>
-        <span>Les patients, les médecins et les visiteurs choisissent votre établissement quand ils envoient une demande.</span>
+        <strong>{{ (status() === 'recue' ? 'Aucune nouvelle demande' : 'Aucune demande') | t }}</strong>
+        <span>{{ 'Les patients, les médecins et les visiteurs choisissent votre établissement quand ils envoient une demande.' | t }}</span>
       </div>
     } @else {
       <div class="table-wrap" [class.is-refreshing]="loading()">
         <table class="rtable">
-          <caption class="sr-only">Demandes reçues par l'établissement</caption>
+          <caption class="sr-only">{{ 'Demandes reçues par l\'établissement' | t }}</caption>
           <thead>
             <tr>
-              <th scope="col">Date</th>
-              <th scope="col">Type</th>
-              <th scope="col">Auteur</th>
-              <th scope="col">Objet</th>
-              <th scope="col">Statut</th>
-              <th scope="col"><span class="sr-only">Actions</span></th>
+              <th scope="col">{{ 'Date' | t }}</th>
+              <th scope="col">{{ 'Type' | t }}</th>
+              <th scope="col">{{ 'Auteur' | t }}</th>
+              <th scope="col">{{ 'Objet' | t }}</th>
+              <th scope="col">{{ 'Statut' | t }}</th>
+              <th scope="col"><span class="sr-only">{{ 'Actions' | t }}</span></th>
             </tr>
           </thead>
           <tbody>
             @for (s of items(); track s.id) {
               <tr>
-                <td data-label="Date">{{ s.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
-                <td data-label="Type">{{ kindLabels[s.kind] }}</td>
-                <td data-label="Auteur">
+                <td [attr.data-label]="'Date' | t">{{ s.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td [attr.data-label]="'Type' | t">{{ kindLabels[s.kind] | t }}</td>
+                <td [attr.data-label]="'Auteur' | t">
                   <span class="strong">{{ s.author.name }}</span>
-                  <span class="author-meta">{{ authorLabels[s.author.role] }}@if (s.author.email) { · {{ s.author.email }} }</span>
+                  <span class="author-meta">{{ authorLabels[s.author.role] | t }}@if (s.author.email) { · {{ s.author.email }} }</span>
                 </td>
-                <td data-label="Objet" class="summary-cell">{{ summary(s) }}</td>
-                <td data-label="Statut"><span [class]="'pill pill-sub-' + s.status">{{ statusLabels[s.status] }}</span></td>
+                <td [attr.data-label]="'Objet' | t" class="summary-cell">{{ summary(s) }}</td>
+                <td [attr.data-label]="'Statut' | t"><span [class]="'pill pill-sub-' + s.status">{{ statusLabels[s.status] | t }}</span></td>
                 <td class="actions-cell">
                   <span class="cell-actions">
                     <button type="button" class="btn btn-primary btn-sm" (click)="open(s)">
-                      {{ s.status === 'recue' || s.status === 'en_cours' ? 'Traiter' : 'Voir' }}<span class="sr-only"> la demande de {{ s.author.name }}</span>
+                      {{ (s.status === 'recue' || s.status === 'en_cours' ? 'Traiter' : 'Voir') | t }}<span class="sr-only"> {{ 'la demande de {0}' | t: [s.author.name] }}</span>
                     </button>
                   </span>
                 </td>
@@ -104,37 +104,37 @@
         (click)="$event.stopPropagation()"
       >
         <div class="dialog-head">
-          <h2 id="submission-title">{{ kindLabels[s.kind] }} de {{ s.author.name }}</h2>
-          <button type="button" class="btn btn-ghost btn-sm" (click)="close()" aria-label="Fermer">&times;</button>
+          <h2 id="submission-title">{{ '{0} de {1}' | t: [(kindLabels[s.kind] | t), s.author.name] }}</h2>
+          <button type="button" class="btn btn-ghost btn-sm" (click)="close()" [attr.aria-label]="'Fermer' | t">&times;</button>
         </div>
 
         <dl class="facts">
-          <div><dt>Reçue le</dt><dd>{{ s.created_at | date: 'dd/MM/yyyy à HH:mm' }}</dd></div>
-          <div><dt>Auteur</dt><dd>{{ authorLabels[s.author.role] }}@if (s.author.email) { · <a class="link" [href]="'mailto:' + s.author.email">{{ s.author.email }}</a> }</dd></div>
+          <div><dt>{{ 'Reçue le' | t }}</dt><dd>{{ s.created_at | ldate: 'datetime' }}</dd></div>
+          <div><dt>{{ 'Auteur' | t }}</dt><dd>{{ authorLabels[s.author.role] | t }}@if (s.author.email) { · <a class="link" [href]="'mailto:' + s.author.email">{{ s.author.email }}</a> }</dd></div>
           @if (s.patient_name) {
-            <div><dt>Patient concerné</dt><dd>{{ s.patient_name }}</dd></div>
+            <div><dt>{{ 'Patient concerné' | t }}</dt><dd>{{ s.patient_name }}</dd></div>
           }
           @switch (s.kind) {
             @case ('prescription') {
-              <div><dt>Médecin prescripteur</dt><dd>{{ field(s, 'NameDoctor') || '—' }}@if (field(s, 'OrdreDoctor')) { (ordre {{ field(s, 'OrdreDoctor') }}) }</dd></div>
-              <div><dt>Référence</dt><dd class="mono">{{ field(s, 'Sequence') || '—' }}</dd></div>
-              <div><dt>Devis demandé</dt><dd>{{ quoteRequested() ? 'Oui' : 'Non' }}</dd></div>
+              <div><dt>{{ 'Médecin prescripteur' | t }}</dt><dd>{{ field(s, 'NameDoctor') || '—' | t }}@if (field(s, 'OrdreDoctor')) { {{ '(ordre {0})' | t: [field(s, 'OrdreDoctor')] }} }</dd></div>
+              <div><dt>{{ 'Référence' | t }}</dt><dd class="mono">{{ field(s, 'Sequence') || '—' | t }}</dd></div>
+              <div><dt>{{ 'Devis demandé' | t }}</dt><dd>{{ (quoteRequested() ? 'Oui' : 'Non') | t }}</dd></div>
               @if (field(s, 'Description')) {
-                <div class="facts-full"><dt>Description</dt><dd class="pre">{{ field(s, 'Description') }}</dd></div>
+                <div class="facts-full"><dt>{{ 'Description' | t }}</dt><dd class="pre">{{ field(s, 'Description') | t }}</dd></div>
               }
             }
             @case ('pre_enregistrement') {
-              <div><dt>Personne</dt><dd>{{ field(s, 'prenom') }} {{ field(s, 'nom') }}</dd></div>
+              <div><dt>{{ 'Personne' | t }}</dt><dd>{{ field(s, 'prenom') }} {{ field(s, 'nom') }}</dd></div>
               @if (field(s, 'description')) {
-                <div class="facts-full"><dt>Description</dt><dd class="pre">{{ field(s, 'description') }}</dd></div>
+                <div class="facts-full"><dt>{{ 'Description' | t }}</dt><dd class="pre">{{ field(s, 'description') | t }}</dd></div>
               }
             }
             @case ('requete') {
-              <div><dt>Demandeur</dt><dd>{{ field(s, 'first_name') }} {{ field(s, 'last_name') }}</dd></div>
+              <div><dt>{{ 'Demandeur' | t }}</dt><dd>{{ field(s, 'first_name') }} {{ field(s, 'last_name') }}</dd></div>
               @if (categories(s).length) {
-                <div><dt>Catégories</dt><dd>{{ categories(s).join(', ') }}</dd></div>
+                <div><dt>{{ 'Catégories' | t }}</dt><dd>{{ categories(s).join(', ') }}</dd></div>
               }
-              <div class="facts-full"><dt>Message</dt><dd class="pre">{{ field(s, 'message') }}</dd></div>
+              <div class="facts-full"><dt>{{ 'Message' | t }}</dt><dd class="pre">{{ field(s, 'message') | t }}</dd></div>
             }
           }
         </dl>
@@ -143,59 +143,59 @@
           <figure class="attachment">
             @if (imageUrl(); as url) {
               <a [href]="url" target="_blank" rel="noopener">
-                <img [src]="url" [alt]="'Document joint par ' + s.author.name" />
+                <img [src]="url" [alt]="'Document joint par {0}' | t: [s.author.name]" />
               </a>
-              <figcaption class="muted">Document joint — cliquer pour l'ouvrir en grand.</figcaption>
+              <figcaption class="muted">{{ 'Document joint — cliquer pour l\'ouvrir en grand.' | t }}</figcaption>
             } @else if (imageError()) {
-              <figcaption class="muted">Le document joint n'a pas pu être chargé.</figcaption>
+              <figcaption class="muted">{{ 'Le document joint n\'a pas pu être chargé.' | t }}</figcaption>
             } @else {
-              <span class="spinner" role="status" aria-label="Chargement du document joint"></span>
+              <span class="spinner" role="status" [attr.aria-label]="'Chargement du document joint' | t"></span>
             }
           </figure>
         }
 
         <form class="answer-form" [formRoot]="answerForm" (submit)="submitAnswer()">
-          <h3>Réponse</h3>
+          <h3>{{ 'Réponse' | t }}</h3>
           <div class="form-row">
-            <label for="answer-status">Statut</label>
+            <label for="answer-status">{{ 'Statut' | t }}</label>
             <select id="answer-status" class="field" [formField]="answerForm.status">
               @for (st of answerStatuses; track st) {
-                <option [value]="st">{{ statusLabels[st] }}</option>
+                <option [value]="st">{{ statusLabels[st] | t }}</option>
               }
             </select>
           </div>
           @if (quoteRequested()) {
             <div class="form-row">
-              <label for="answer-quote">Montant du devis (FCFA)</label>
-              <input id="answer-quote" class="field" type="text" inputmode="decimal" placeholder="Ex. 15000" [formField]="answerForm.quote_amount" />
+              <label for="answer-quote">{{ 'Montant du devis (FCFA)' | t }}</label>
+              <input id="answer-quote" class="field" type="text" inputmode="decimal" [placeholder]="'Ex. 15000' | t" [formField]="answerForm.quote_amount" />
               @if (s.quote_amount !== null) {
-                <span class="form-hint">Actuellement : {{ quote(s.quote_amount) }}</span>
+                <span class="form-hint">{{ 'Actuellement : {0}' | t: [quote(s.quote_amount)] }}</span>
               }
             </div>
           }
           <div class="form-row">
-            <label for="answer-text">Message à l'auteur</label>
+            <label for="answer-text">{{ 'Message à l\'auteur' | t }}</label>
             <textarea id="answer-text" class="field" rows="4" [formField]="answerForm.response"
-              placeholder="Ex. Votre pré-enregistrement est validé : présentez-vous à l'accueil avec votre pièce d'identité."></textarea>
-            <span class="form-hint">L'auteur voit ce message dans son espace{{ s.author.email ? ' et le reçoit par e-mail' : '' }}.</span>
+              [placeholder]="'Ex. Votre pré-enregistrement est validé : présentez-vous à l\'accueil avec votre pièce d\'identité.' | t"></textarea>
+            <span class="form-hint">{{ (s.author.email ? 'L\'auteur voit ce message dans son espace et le reçoit par e-mail.' : 'L\'auteur voit ce message dans son espace.') | t }}</span>
           </div>
 
           @if (saveError()) {
             <div class="banner banner-error notice" role="alert">
               <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-              <span>{{ saveError() }}</span>
+              <span>{{ saveError() | t }}</span>
             </div>
           }
           @if (saved()) {
             <div class="banner banner-success notice" role="status">
               <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
-              <span>Réponse enregistrée{{ s.author.email ? ' et envoyée à ' + s.author.email : '' }}.</span>
+              <span>{{ (s.author.email ? 'Réponse enregistrée et envoyée à {0}.' : 'Réponse enregistrée.') | t: [s.author.email] }}</span>
             </div>
           }
 
           <div class="form-actions">
-            <button type="button" class="btn btn-ghost" (click)="close()">Fermer</button>
-            <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Enregistrement…' : 'Enregistrer la réponse' }}</button>
+            <button type="button" class="btn btn-ghost" (click)="close()">{{ 'Fermer' | t }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ (saving() ? 'Enregistrement…' : 'Enregistrer la réponse') | t }}</button>
           </div>
         </form>
       </div>

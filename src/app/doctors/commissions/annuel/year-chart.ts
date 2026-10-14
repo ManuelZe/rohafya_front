@@ -3,6 +3,8 @@ import { MONTH_LABELS, MONTH_SHORT_LABELS } from '../../shared/commission-cycle'
 import { PointsPipe, formatPoints } from '../../shared/points';
 import { YearMonthPoint } from '../commissions.models';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
+import { tr } from '../../../shared/i18n/i18n';
 interface Column {
   month: number;
   short: string;
@@ -34,17 +36,17 @@ function niceMax(value: number): number {
  */
 @Component({
   selector: 'app-year-chart',
-  imports: [PointsPipe],
+  imports: [TranslatePipe, PointsPipe],
   template: `
-    <ul class="legend" aria-label="Légende">
-      <li><span class="key key-p" aria-hidden="true"></span>Prescriptions</li>
-      <li><span class="key key-r" aria-hidden="true"></span>Réalisations</li>
+    <ul class="legend" [attr.aria-label]="'Légende' | t">
+      <li><span class="key key-p" aria-hidden="true"></span>{{ 'Prescriptions' | t }}</li>
+      <li><span class="key key-r" aria-hidden="true"></span>{{ 'Réalisations' | t }}</li>
     </ul>
 
     <div class="chart">
       <div class="y-axis" aria-hidden="true">
         @for (tick of ticks(); track tick.value) {
-          <span class="y-tick" [style.bottom.%]="tick.pct">{{ tick.label }}</span>
+          <span class="y-tick" [style.bottom.%]="tick.pct">{{ tick.label | t }}</span>
         }
       </div>
 
@@ -85,9 +87,9 @@ function niceMax(value: number): number {
               @if (active() === i) {
                 <div class="tooltip" [class.tooltip-left]="i > columns().length / 2" role="presentation">
                   <strong class="tt-value">{{ col.total | points }}</strong>
-                  <span class="tt-title">{{ col.label }}</span>
-                  <span class="tt-row"><span class="tt-key key-p"></span>{{ col.prescription | points }} · Prescriptions</span>
-                  <span class="tt-row"><span class="tt-key key-r"></span>{{ col.realisation | points }} · Réalisations</span>
+                  <span class="tt-title">{{ col.label | t }}</span>
+                  <span class="tt-row"><span class="tt-key key-p"></span>{{ '{0} · Prescriptions' | t: [(col.prescription | points)] }}</span>
+                  <span class="tt-row"><span class="tt-key key-r"></span>{{ '{0} · Réalisations' | t: [(col.realisation | points)] }}</span>
                 </div>
               }
             </div>
@@ -137,7 +139,12 @@ export class YearChart {
         barRealisation: pos(m.realisation),
         total,
         totalPct: ((pos(m.prescription) + pos(m.realisation)) / max) * 100,
-        ariaLabel: `${MONTH_LABELS[m.month - 1]} : ${formatPoints(total)}, dont ${formatPoints(m.prescription)} de prescriptions et ${formatPoints(m.realisation)} de réalisations`,
+        ariaLabel: tr('{month} : {total}, dont {p} de prescriptions et {r} de réalisations', {
+          month: tr(MONTH_LABELS[m.month - 1]),
+          total: formatPoints(total),
+          p: formatPoints(m.prescription),
+          r: formatPoints(m.realisation),
+        }),
       };
     });
   });

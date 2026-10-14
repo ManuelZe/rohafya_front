@@ -1,34 +1,34 @@
 <dialog #dialog class="dialog rights-dialog" [attr.aria-labelledby]="id + '-title'" (close)="onClosed()">
   <form [formRoot]="rightsForm" (submit)="save()">
-    <h2 [id]="id + '-title'">Droits du compte</h2>
+    <h2 [id]="id + '-title'">{{ 'Droits du compte' | t }}</h2>
     <p class="rights-who">{{ name() }} <span>· {{ account().email }}</span></p>
-    <p class="rights-intro">Sans configuration, tout est disponible pour ce compte. Une règle ne concerne que l'action choisie : le bouton correspondant devient inactif quand elle s'applique.</p>
+    <p class="rights-intro">{{ 'Sans configuration, tout est disponible pour ce compte. Une règle ne concerne que l\'action choisie : le bouton correspondant devient inactif quand elle s\'applique.' | t }}</p>
 
     @if (loading()) {
       <div class="state" role="status">
         <span class="spinner" aria-hidden="true"></span>
-        <span>Chargement…</span>
+        <span>{{ 'Chargement…' | t }}</span>
       </div>
     } @else {
       <fieldset class="rights-block">
-        <legend>Impression des comptes rendus (PDF)</legend>
+        <legend>{{ 'Impression des comptes rendus (PDF)' | t }}</legend>
         @if (print(); as p) {
           <p class="rights-state" [class.is-blocked]="!p.allowed">{{ p.allowed ? (p.configured ? 'Autorisée actuellement.' : 'Disponible (aucune règle).') : 'Indisponible actuellement.' }} {{ p.message }}</p>
         }
-        <div class="rights-options" role="radiogroup" [attr.aria-label]="'Impression'">
-          <label class="check-row"><input type="radio" [name]="id + '-print'" [checked]="model().printMode === 'none'" (change)="setPrintMode('none')" /> Aucune restriction</label>
-          <label class="check-row"><input type="radio" [name]="id + '-print'" [checked]="model().printMode === 'window'" (change)="setPrintMode('window')" /> Autorisée pendant une période précise</label>
-          <label class="check-row"><input type="radio" [name]="id + '-print'" [checked]="model().printMode === 'blocked'" (change)="setPrintMode('blocked')" /> Bloquée</label>
+        <div class="rights-options" role="radiogroup" [attr.aria-label]="('Impression') | t">
+          <label class="check-row"><input type="radio" [name]="id + '-print'" [checked]="model().printMode === 'none'" (change)="setPrintMode('none')" /> {{ 'Aucune restriction' | t }}</label>
+          <label class="check-row"><input type="radio" [name]="id + '-print'" [checked]="model().printMode === 'window'" (change)="setPrintMode('window')" /> {{ 'Autorisée pendant une période précise' | t }}</label>
+          <label class="check-row"><input type="radio" [name]="id + '-print'" [checked]="model().printMode === 'blocked'" (change)="setPrintMode('blocked')" /> {{ 'Bloquée' | t }}</label>
         </div>
         @if (model().printMode === 'window') {
           <div class="form-grid">
             <div class="form-row">
-              <label [for]="id + '-from'">Début</label>
+              <label [for]="id + '-from'">{{ 'Début' | t }}</label>
               <input [id]="id + '-from'" class="field" type="datetime-local" [formField]="rightsForm.printFrom" [attr.aria-describedby]="id + '-from-hint'" />
-              <span class="form-hint" [id]="id + '-from-hint'">Vide : dès l'enregistrement.</span>
+              <span class="form-hint" [id]="id + '-from-hint'">{{ 'Vide : dès l\'enregistrement.' | t }}</span>
             </div>
             <div class="form-row">
-              <label [for]="id + '-until'">Fin *</label>
+              <label [for]="id + '-until'">{{ 'Fin *' | t }}</label>
               <input
                 [id]="id + '-until'"
                 class="field"
@@ -39,7 +39,7 @@
               />
               <span class="form-error" [id]="id + '-until-error'">
                 @if (rightsForm.printUntil().touched() && rightsForm.printUntil().invalid()) {
-                  {{ rightsForm.printUntil().errors()[0]?.message }}
+                  {{ (rightsForm.printUntil().errors()[0]?.message) | t }}
                 }
               </span>
             </div>
@@ -48,27 +48,27 @@
       </fieldset>
 
       <fieldset class="rights-block">
-        <legend>Partage des résultats</legend>
+        <legend>{{ 'Partage des résultats' | t }}</legend>
         @if (!isPatient()) {
-          <p class="form-hint">Ce compte n'a pas de profil patient : la règle ne s'appliquera que s'il en obtient un.</p>
+          <p class="form-hint">{{ 'Ce compte n\'a pas de profil patient : la règle ne s\'appliquera que s\'il en obtient un.' | t }}</p>
         }
         @if (share(); as s) {
           <p class="rights-state" [class.is-blocked]="!s.allowed">
             @if (s.configured) {
-              {{ s.used }} partage{{ (s.used ?? 0) > 1 ? 's' : '' }} utilisé{{ (s.used ?? 0) > 1 ? 's' : '' }} sur {{ s.limit }}.
+              {{ ((s.used ?? 0) > 1 ? '{0} partages utilisés sur {1}.' : '{0} partage utilisé sur {1}.') | t: [s.used, s.limit] }}
             } @else {
-              Partages illimités (aucune règle).
+              {{ 'Partages illimités (aucune règle).' | t }}
             }
           </p>
         }
-        <div class="rights-options" role="radiogroup" [attr.aria-label]="'Partage'">
-          <label class="check-row"><input type="radio" [name]="id + '-share'" [checked]="model().shareMode === 'unlimited'" (change)="setShareMode('unlimited')" /> Illimité</label>
-          <label class="check-row"><input type="radio" [name]="id + '-share'" [checked]="model().shareMode === 'limited'" (change)="setShareMode('limited')" /> Limité à un nombre de partages</label>
+        <div class="rights-options" role="radiogroup" [attr.aria-label]="('Partage') | t">
+          <label class="check-row"><input type="radio" [name]="id + '-share'" [checked]="model().shareMode === 'unlimited'" (change)="setShareMode('unlimited')" /> {{ 'Illimité' | t }}</label>
+          <label class="check-row"><input type="radio" [name]="id + '-share'" [checked]="model().shareMode === 'limited'" (change)="setShareMode('limited')" /> {{ 'Limité à un nombre de partages' | t }}</label>
         </div>
         @if (model().shareMode === 'limited') {
           <div class="form-grid">
             <div class="form-row">
-              <label [for]="id + '-limit'">Nombre de partages autorisés *</label>
+              <label [for]="id + '-limit'">{{ 'Nombre de partages autorisés *' | t }}</label>
               <input
                 [id]="id + '-limit'"
                 class="field"
@@ -77,16 +77,16 @@
                 [attr.aria-invalid]="rightsForm.shareLimit().touched() && rightsForm.shareLimit().invalid()"
                 [attr.aria-describedby]="id + '-limit-hint ' + id + '-limit-error'"
               />
-              <span class="form-hint" [id]="id + '-limit-hint'">0 : partage désactivé.</span>
+              <span class="form-hint" [id]="id + '-limit-hint'">{{ '0 : partage désactivé.' | t }}</span>
               <span class="form-error" [id]="id + '-limit-error'">
                 @if (rightsForm.shareLimit().touched() && rightsForm.shareLimit().invalid()) {
-                  {{ rightsForm.shareLimit().errors()[0]?.message }}
+                  {{ (rightsForm.shareLimit().errors()[0]?.message) | t }}
                 }
               </span>
             </div>
           </div>
           @if (share()?.configured) {
-            <label class="check-row"><input type="checkbox" [formField]="rightsForm.resetCount" /> Remettre le compteur à zéro (les partages déjà faits ne comptent plus)</label>
+            <label class="check-row"><input type="checkbox" [formField]="rightsForm.resetCount" /> {{ 'Remettre le compteur à zéro (les partages déjà faits ne comptent plus)' | t }}</label>
           }
         }
       </fieldset>
@@ -94,21 +94,21 @@
 
     @if (error()) {
       <div class="banner banner-error" role="alert">
-        <span>{{ error() }}</span>
+        <span>{{ error() | t }}</span>
       </div>
     }
 
     <div class="rights-actions">
       @if (current()?.configured) {
-        <button type="button" class="btn btn-danger-ghost" (click)="clear()" [disabled]="saving() || loading()">Tout rendre disponible</button>
+        <button type="button" class="btn btn-danger-ghost" (click)="clear()" [disabled]="saving() || loading()">{{ 'Tout rendre disponible' | t }}</button>
       }
       <span class="rights-spacer"></span>
-      <button type="button" class="btn btn-ghost" (click)="close()">Annuler</button>
+      <button type="button" class="btn btn-ghost" (click)="close()">{{ 'Annuler' | t }}</button>
       <button type="submit" class="btn btn-primary" [disabled]="saving() || loading()">
         @if (saving()) {
           <span class="spinner" aria-hidden="true"></span>
         }
-        Enregistrer
+        {{ 'Enregistrer' | t }}
       </button>
     </div>
   </form>

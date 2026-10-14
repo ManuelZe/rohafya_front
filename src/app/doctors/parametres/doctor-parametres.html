@@ -1,14 +1,13 @@
 <div class="page">
-  <app-page-header title="Paramètres" subtitle="Gérez vos informations personnelles et vos coordonnées." />
+  <app-page-header [title]="'Paramètres' | t" [subtitle]="'Gérez vos informations personnelles et vos coordonnées.' | t" />
 
   @if (!isConfirmed()) {
     <div class="banner banner-info" role="status">
       <svg [pIcon]="'exclamation-triangle'" [size]="18" aria-hidden="true"></svg>
       <div>
-        <strong>Confirmez votre profil pour accéder à votre espace.</strong>
+        <strong>{{ 'Confirmez votre profil pour accéder à votre espace.' | t }}</strong>
         <span class="block">
-          Certaines coordonnées ont été générées automatiquement lors de la création de votre compte. Vérifiez-les,
-          corrigez-les si besoin puis enregistrez : {{ commissionsEnabled() ? 'vos commissions et résultats seront' : 'vos résultats seront' }} immédiatement accessibles.
+          {{ 'Certaines coordonnées ont été générées automatiquement lors de la création de votre compte. Vérifiez-les, corrigez-les si besoin puis enregistrez : {0} immédiatement accessibles.' | t: [((commissionsEnabled() ? 'vos commissions et résultats seront' : 'vos résultats seront') | t)] }}
         </span>
       </div>
     </div>
@@ -17,90 +16,90 @@
   @if (errorMessage()) {
     <div #errorBanner class="banner banner-error" role="alert" tabindex="-1">
       <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>{{ errorMessage() }}</span>
+      <span>{{ errorMessage() | t }}</span>
     </div>
   }
 
   @if (successMessage()) {
     <div class="banner banner-success" role="status">
       <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
-      <span>{{ successMessage() }}</span>
+      <span>{{ successMessage() | t }}</span>
       @if (justConfirmed()) {
-        <a class="btn btn-primary" routerLink="/doctors">Aller au tableau de bord</a>
+        <a class="btn btn-primary" routerLink="/doctors">{{ 'Aller au tableau de bord' | t }}</a>
       }
     </div>
   }
 
   @if (loading() && !profile()) {
-    <app-rohafya-loader label="Chargement de vos informations" />
+    <app-rohafya-loader [label]="'Chargement de vos informations' | t" />
   } @else {
     <div class="layout">
       <section class="card" aria-labelledby="form-title">
         <h2 id="form-title" class="card-title">
           <svg [pIcon]="'user-edit'" [size]="18" aria-hidden="true"></svg>
-          Informations personnelles
+          {{ 'Informations personnelles' | t }}
         </h2>
 
         <form [formRoot]="profileForm" (submit)="submit()" novalidate>
           <div class="grid">
             <div class="form-row">
-              <label for="DoctorLastname">Nom <span class="req" aria-hidden="true">*</span></label>
+              <label for="DoctorLastname">{{ 'Nom' | t }} <span class="req" aria-hidden="true">*</span></label>
               <input id="DoctorLastname" class="field" type="text" autocomplete="family-name" [formField]="profileForm.DoctorLastname"
                 [attr.aria-invalid]="!!errorOf('DoctorLastname')" aria-describedby="err-DoctorLastname" />
-              <span id="err-DoctorLastname" class="field-error">{{ errorOf('DoctorLastname') }}</span>
+              <span id="err-DoctorLastname" class="field-error">{{ errorOf('DoctorLastname') | t }}</span>
             </div>
 
             <div class="form-row">
-              <label for="DoctorName">Prénom <span class="req" aria-hidden="true">*</span></label>
+              <label for="DoctorName">{{ 'Prénom' | t }} <span class="req" aria-hidden="true">*</span></label>
               <input id="DoctorName" class="field" type="text" autocomplete="given-name" [formField]="profileForm.DoctorName"
                 [attr.aria-invalid]="!!errorOf('DoctorName')" aria-describedby="err-DoctorName" />
-              <span id="err-DoctorName" class="field-error">{{ errorOf('DoctorName') }}</span>
+              <span id="err-DoctorName" class="field-error">{{ errorOf('DoctorName') | t }}</span>
             </div>
 
             <div class="form-row">
-              <label for="DoctorDOB">Date de naissance <span class="req" aria-hidden="true">*</span></label>
+              <label for="DoctorDOB">{{ 'Date de naissance' | t }} <span class="req" aria-hidden="true">*</span></label>
               <input id="DoctorDOB" class="field" type="date" autocomplete="bday" [formField]="profileForm.DoctorDOB"
                 [attr.aria-invalid]="!!errorOf('DoctorDOB')" aria-describedby="err-DoctorDOB" />
-              <span id="err-DoctorDOB" class="field-error">{{ errorOf('DoctorDOB') }}</span>
+              <span id="err-DoctorDOB" class="field-error">{{ errorOf('DoctorDOB') | t }}</span>
             </div>
 
             <div class="form-row">
-              <label for="DoctorPOB">Lieu de naissance <span class="req" aria-hidden="true">*</span></label>
+              <label for="DoctorPOB">{{ 'Lieu de naissance' | t }} <span class="req" aria-hidden="true">*</span></label>
               <input id="DoctorPOB" class="field" type="text" [formField]="profileForm.DoctorPOB"
                 [attr.aria-invalid]="!!errorOf('DoctorPOB')" aria-describedby="err-DoctorPOB" />
-              <span id="err-DoctorPOB" class="field-error">{{ errorOf('DoctorPOB') }}</span>
+              <span id="err-DoctorPOB" class="field-error">{{ errorOf('DoctorPOB') | t }}</span>
             </div>
 
             <div class="form-row">
-              <label for="DoctorCNI">Numéro CNI <span class="req" aria-hidden="true">*</span></label>
+              <label for="DoctorCNI">{{ 'Numéro CNI' | t }} <span class="req" aria-hidden="true">*</span></label>
               <input id="DoctorCNI" class="field" type="text" [formField]="profileForm.DoctorCNI"
                 [attr.aria-invalid]="!!errorOf('DoctorCNI')" aria-describedby="err-DoctorCNI" />
-              <span id="err-DoctorCNI" class="field-error">{{ errorOf('DoctorCNI') }}</span>
+              <span id="err-DoctorCNI" class="field-error">{{ errorOf('DoctorCNI') | t }}</span>
             </div>
 
             <div class="form-row">
-              <label for="DoctorEmail">Email <span class="req" aria-hidden="true">*</span></label>
+              <label for="DoctorEmail">{{ 'Email' | t }} <span class="req" aria-hidden="true">*</span></label>
               <input id="DoctorEmail" class="field" type="email" autocomplete="email" [formField]="profileForm.DoctorEmail"
                 [attr.aria-invalid]="!!errorOf('DoctorEmail')" aria-describedby="err-DoctorEmail" />
-              <span id="err-DoctorEmail" class="field-error">{{ errorOf('DoctorEmail') }}</span>
+              <span id="err-DoctorEmail" class="field-error">{{ errorOf('DoctorEmail') | t }}</span>
             </div>
 
             <div class="form-row">
-              <label for="DoctorPhone">Téléphone <span class="req" aria-hidden="true">*</span></label>
-              <input id="DoctorPhone" class="field" type="tel" autocomplete="tel" placeholder="Ex : 675478110" [formField]="profileForm.DoctorPhone"
+              <label for="DoctorPhone">{{ 'Téléphone' | t }} <span class="req" aria-hidden="true">*</span></label>
+              <input id="DoctorPhone" class="field" type="tel" autocomplete="tel" [placeholder]="'Ex : 675478110' | t" [formField]="profileForm.DoctorPhone"
                 [attr.aria-invalid]="!!errorOf('DoctorPhone')" aria-describedby="err-DoctorPhone" />
-              <span id="err-DoctorPhone" class="field-error">{{ errorOf('DoctorPhone') }}</span>
+              <span id="err-DoctorPhone" class="field-error">{{ errorOf('DoctorPhone') | t }}</span>
             </div>
 
             <div class="form-row">
-              <label for="DoctorPhone2">Téléphone secondaire</label>
-              <input id="DoctorPhone2" class="field" type="tel" placeholder="Optionnel" [formField]="profileForm.DoctorPhone2"
+              <label for="DoctorPhone2">{{ 'Téléphone secondaire' | t }}</label>
+              <input id="DoctorPhone2" class="field" type="tel" [placeholder]="'Optionnel' | t" [formField]="profileForm.DoctorPhone2"
                 [attr.aria-invalid]="!!errorOf('DoctorPhone2')" aria-describedby="err-DoctorPhone2" />
-              <span id="err-DoctorPhone2" class="field-error">{{ errorOf('DoctorPhone2') }}</span>
+              <span id="err-DoctorPhone2" class="field-error">{{ errorOf('DoctorPhone2') | t }}</span>
             </div>
           </div>
 
-          <p class="muted legend"><span aria-hidden="true">*</span> Champs obligatoires</p>
+          <p class="muted legend"><span aria-hidden="true">*</span> {{ 'Champs obligatoires' | t }}</p>
 
           <div class="actions">
             <button type="submit" class="btn btn-primary" [disabled]="submitting()">
@@ -109,7 +108,7 @@
               } @else {
                 <svg [pIcon]="'save'" [size]="16" aria-hidden="true"></svg>
               }
-              <span>{{ submitting() ? 'Enregistrement…' : isConfirmed() ? 'Enregistrer les modifications' : 'Enregistrer et confirmer mon profil' }}</span>
+              <span>{{ (submitting() ? 'Enregistrement…' : isConfirmed() ? 'Enregistrer les modifications' : 'Enregistrer et confirmer mon profil') | t }}</span>
             </button>
           </div>
         </form>
@@ -119,33 +118,33 @@
         <section class="card" aria-labelledby="pro-title">
           <h2 id="pro-title" class="card-title">
             <svg [pIcon]="'id-card'" [size]="18" aria-hidden="true"></svg>
-            Identité professionnelle
+            {{ 'Identité professionnelle' | t }}
           </h2>
           <dl class="info">
             @for (item of readOnlyInfo(); track item.label) {
               <div>
-                <dt>{{ item.label }}</dt>
+                <dt>{{ item.label | t }}</dt>
                 <dd>{{ item.value }}</dd>
               </div>
             }
           </dl>
-          <p class="muted hint">Ces informations proviennent du dossier de l'établissement. Pour les corriger, envoyez une requête à l'administration.</p>
+          <p class="muted hint">{{ 'Ces informations proviennent du dossier de l\'établissement. Pour les corriger, envoyez une requête à l\'administration.' | t }}</p>
           <a class="link" routerLink="/doctors/requests">
-            Envoyer une requête <svg [pIcon]="'arrow-right'" [size]="12" aria-hidden="true"></svg>
+            {{ 'Envoyer une requête' | t }} <svg [pIcon]="'arrow-right'" [size]="12" aria-hidden="true"></svg>
           </a>
         </section>
 
         <section class="card" aria-labelledby="sig-title">
           <h2 id="sig-title" class="card-title">
             <svg [pIcon]="'signature'" [size]="18" aria-hidden="true"></svg>
-            Signature
+            {{ 'Signature' | t }}
           </h2>
           @if (signatureUrl(); as src) {
-            <img class="signature" [src]="src" alt="Votre signature enregistrée" />
+            <img class="signature" [src]="src" [alt]="'Votre signature enregistrée' | t" />
           } @else if (signatureState() === 'loading') {
             <span class="skeleton sig-skeleton" aria-hidden="true"></span>
           } @else {
-            <p class="muted hint">Aucune signature enregistrée pour votre compte.</p>
+            <p class="muted hint">{{ 'Aucune signature enregistrée pour votre compte.' | t }}</p>
           }
         </section>
       </aside>

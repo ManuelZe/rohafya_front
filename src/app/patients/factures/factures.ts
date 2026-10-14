@@ -18,9 +18,10 @@ import { InputIconModule } from 'primeng/inputicon';
 import { PageHeader } from '../shared/page-header/page-header';
 import { StatusTag } from '../shared/status-tag/status-tag';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-factures',
-  imports: [
+  imports: [TranslatePipe, 
     CommonModule,
     FormField,
     TableModule,

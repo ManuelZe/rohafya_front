@@ -1,9 +1,16 @@
 import { DemoSpace } from '../demo/demo-token';
 
 /**
- * Contenu de la page d'accueil. Les fonctionnalités citées sont celles des espaces réels
- * (patients, médecins, établissements) ; le discours suit le document de vente :
- * pas de promesse sur ce que ROHAFYA ne fait pas (rendez-vous, téléconsultation, interprétation).
+ * Contenu du site de présentation, écrit pour les décideurs des établissements de santé
+ * (laboratoires, centres d'imagerie, centres médicaux, cliniques, hôpitaux) : ce sont eux qui achètent.
+ * Les patients et les médecins y figurent comme des bénéfices pour l'établissement.
+ *
+ * Source : le document de vente (Documentation/ROHAFYA_Document_de_Vente.docx) : message central,
+ * arguments, bénéfices par type d'établissement, mise en service à distance, tarifs, objections.
+ * Règle : aucune promesse sur ce que ROHAFYA ne fait pas (rendez-vous, téléconsultation, interprétation,
+ * images d'imagerie, conformité légale « clé en main »).
+ *
+ * Les textes sont en français (langue source) ; leur traduction anglaise est dans shared/i18n/en/.
  */
 
 export interface NavLink {
@@ -12,12 +19,15 @@ export interface NavLink {
 }
 
 export const NAV_LINKS: NavLink[] = [
-  { id: 'pourquoi', label: 'Pourquoi ROHAFYA' },
-  { id: 'espaces', label: 'Fonctionnalités' },
-  { id: 'comment', label: 'Comment ça marche' },
-  { id: 'confiance', label: 'Sécurité' },
+  { id: 'constat', label: 'Le constat' },
+  { id: 'solution', label: 'La solution' },
+  { id: 'mise-en-service', label: 'Mise en service' },
+  { id: 'tarifs', label: 'Tarifs' },
   { id: 'faq', label: 'Questions' },
 ];
+
+/** Section du formulaire de demande d'essai (ancre). */
+export const TRIAL_ANCHOR = 'essai';
 
 export interface SocialLink {
   label: string;
@@ -31,13 +41,26 @@ export const SOCIAL_LINKS: SocialLink[] = [
   { label: 'X', icon: 'twitter', url: 'https://x.com/Rohafya_237' },
 ];
 
+/** WhatsApp de l'équipe commerciale (même numéro que l'assistance). */
+export const WHATSAPP_NUMBER = '237695995842';
+export const WHATSAPP_DISPLAY = '+237 695 995 842';
+
 export interface Highlight {
   icon: string;
   title: string;
   text: string;
 }
 
-/** Comparatif « Avant / Avec ROHAFYA » : mêmes lignes, deux états. */
+/** Types d'établissements visés (bandeau sous le héros). */
+export const AUDIENCES: { icon: string; label: string }[] = [
+  { icon: 'filter', label: 'Laboratoires d’analyses' },
+  { icon: 'image', label: 'Centres d’imagerie' },
+  { icon: 'heart', label: 'Centres médicaux' },
+  { icon: 'building', label: 'Cliniques et hôpitaux' },
+  { icon: 'sitemap', label: 'Réseaux multi-sites' },
+];
+
+/** Comparatif « Sans / Avec ROHAFYA », vu par l'établissement. */
 export interface CompareRow {
   icon: string;
   before: string;
@@ -46,24 +69,34 @@ export interface CompareRow {
 
 export const COMPARE_ROWS: CompareRow[] = [
   {
-    icon: 'car',
-    before: 'Deux déplacements par examen : un pour le prélèvement, un second pour retirer le résultat.',
-    after: 'Un seul déplacement : le résultat arrive sur le téléphone du patient dès sa validation.',
-  },
-  {
-    icon: 'file',
-    before: 'Des résultats non retirés qui restent dans une armoire, et des examens à refaire.',
-    after: 'Laboratoire, imagerie, exploration et factures réunis dans un seul compte, consultables à tout moment.',
+    icon: 'inbox',
+    before: 'Des résultats validés qui ne sont jamais retirés : l’examen est fait, mais le patient n’a pas sa réponse.',
+    after: 'Le résultat part dans le compte du patient dès sa validation : moins de résultats non retirés, moins de sachets à classer.',
   },
   {
     icon: 'phone',
-    before: 'Un accueil occupé à classer, chercher et répondre au téléphone.',
-    after: 'Moins d’appels : le patient suit lui-même l’état de ses demandes et reçoit une notification.',
+    before: 'Un accueil qui passe ses journées au téléphone à répondre « Est-ce que c’est prêt ? ».',
+    after: 'Le patient suit son résultat en ligne : l’accueil se consacre aux patients présents.',
   },
   {
-    icon: 'history',
-    before: 'Des résultats envoyés par messagerie, sans aucune trace de qui a reçu quoi.',
-    after: 'Une remise tracée : chaque opération sensible est inscrite au journal de l’établissement.',
+    icon: 'comments',
+    before: 'Des résultats envoyés par WhatsApp, sans trace, parfois au mauvais destinataire.',
+    after: 'Une remise tracée : qui a remis quoi, à qui et quand, et quel médecin a consulté le résultat.',
+  },
+  {
+    icon: 'id-card',
+    before: 'Des médecins prescripteurs qui relancent pour obtenir un compte rendu.',
+    after: 'Vos prescripteurs reçoivent dans un seul écran les résultats que leurs patients leur partagent.',
+  },
+  {
+    icon: 'send',
+    before: 'Des demandes de prix et des ordonnances qui arrivent au guichet, ou chez un concurrent.',
+    after: 'Prescriptions, pré-enregistrements et demandes de devis reçus en ligne, avant la venue du patient.',
+  },
+  {
+    icon: 'wallet',
+    before: 'Un résultat remis avant le règlement de la facture, et un conflit au guichet.',
+    after: 'Avec l’option « résultats après règlement », le détail reste masqué tant que la facture n’est pas réglée.',
   },
 ];
 
@@ -100,24 +133,58 @@ export interface RoleShowcase {
     listTitle: string;
     rows: MockRow[];
   };
-  cta: { label: string; link: string };
+  /** Vrai : le bouton principal mène au formulaire de demande d'essai. */
+  trialCta: boolean;
   demoLabel: string;
 }
 
+/** Trois bénéficiaires, un seul acheteur : l'établissement. */
 export const ROLES: RoleShowcase[] = [
   {
-    space: 'patient',
-    tab: 'Patients',
-    icon: 'user',
-    headline: 'Tous vos résultats, sur votre téléphone, quel que soit l’établissement.',
-    pitch: 'Gratuit et sans application à installer : un navigateur suffit. Vous seul décidez qui voit vos résultats.',
+    space: 'admin',
+    tab: 'Votre établissement',
+    icon: 'building',
+    headline: 'Une console pour remettre, suivre et tracer chaque résultat.',
+    pitch: 'Rien à changer dans votre logiciel : ROHAFYA s’y branche, et vous gardez la main sur chaque règle de remise.',
     features: [
-      { icon: 'file', title: 'Résultats d’examens', text: 'Laboratoire, imagerie et exploration fonctionnelle, avec valeurs et normes affichées telles que validées.' },
-      { icon: 'money-bill', title: 'Factures et devis', text: 'Retrouvez vos factures et leur état de règlement, établissement par établissement.' },
-      { icon: 'share-alt', title: 'Partage avec un médecin', text: 'Partagez un résultat avec le médecin de votre choix ; modifiez ou retirez ce partage à tout moment.' },
-      { icon: 'building', title: 'Mes établissements', text: 'Rattachez votre dossier en scannant le QR code de votre facture : un seul compte pour tous.' },
-      { icon: 'list-check', title: 'Prescriptions et pré-enregistrements', text: 'Préparez votre venue et transmettez vos prescriptions avant le jour de l’examen.' },
-      { icon: 'send', title: 'Requêtes et notifications', text: 'Posez une question à l’établissement et soyez prévenu dès qu’un résultat est prêt.' },
+      { icon: 'qrcode', title: 'QR code sur la facture', text: 'Le patient rattache son dossier en un scan, ou avec un code court dicté au téléphone.' },
+      { icon: 'server', title: 'Publication par votre logiciel', text: 'Résultats et factures validés envoyés sans saisie, par API ROHAFYA ou HL7 FHIR R4.' },
+      { icon: 'inbox', title: 'Demandes reçues en ligne', text: 'Prescriptions, pré-enregistrements, requêtes et devis : une file de travail claire, traitée en ligne.' },
+      { icon: 'send', title: 'Médecins et notifications', text: 'Rattachez vos prescripteurs et écrivez à vos patients et médecins, à tous ou à une sélection.' },
+      { icon: 'sliders-h', title: 'Vos règles de remise', text: 'Durée d’accès, validité des QR codes, résultats après règlement, nom et couleur de l’établissement.' },
+      { icon: 'history', title: 'Journal et tableau de bord', text: 'Qui a fait quoi, quand : une preuve en cas de litige, et les chiffres de votre remise.' },
+    ],
+    mock: {
+      title: 'Administration',
+      nav: ['Tableau de bord', 'Demandes', 'Patients', 'QR codes', 'Journal'],
+      kpis: [
+        { label: 'Résultats publiés', value: '1 284' },
+        { label: 'Demandes en attente', value: '7' },
+        { label: 'Dossiers rattachés', value: '312' },
+      ],
+      listTitle: 'Demandes reçues',
+      rows: [
+        { title: 'Pré-enregistrement · Bilan prénatal', meta: 'Envoyé par un médecin', status: 'À traiter', tone: 'wait' },
+        { title: 'Demande de devis · IRM du genou', meta: 'Envoyée par un patient', status: 'Devis envoyé', tone: 'info' },
+        { title: 'Rattachement de dossier', meta: 'QR code scanné', status: 'Validé', tone: 'ok' },
+      ],
+    },
+    trialCta: true,
+    demoLabel: 'Visiter l’espace établissement',
+  },
+  {
+    space: 'patient',
+    tab: 'Vos patients',
+    icon: 'user',
+    headline: 'Vos patients reçoivent leurs résultats sans revenir, et reviennent chez vous.',
+    pitch: 'Gratuit pour eux, sans application à installer : le QR code de la facture suffit. Chaque gain du patient soulage votre accueil.',
+    features: [
+      { icon: 'car', title: 'Un seul déplacement par examen', text: 'Le résultat arrive sur son téléphone dès sa validation. Pour vous : moins de résultats non retirés et d’appels.' },
+      { icon: 'key', title: 'Rien à installer', text: 'Connexion par un code reçu par e-mail. Pour vous : une adoption sans formation, une seule phrase à dire à l’accueil.' },
+      { icon: 'file', title: 'Le compte rendu tel que validé', text: 'Valeurs et normes affichées telles que votre biologiste les a validées, imprimables en PDF.' },
+      { icon: 'history', title: 'Son historique chez vous', text: 'Ses analyses précédentes restent consultables : le patient suivi au long cours revient là où se trouve son historique.' },
+      { icon: 'share-alt', title: 'Partage avec son médecin', text: 'Le patient choisit qui voit son résultat ; le prescripteur le reçoit sans relance.' },
+      { icon: 'list-check', title: 'Demandes avant la venue', text: 'Prescription en photo, demande de devis, pré-enregistrement : la venue est préparée, la demande ne part pas ailleurs.' },
     ],
     mock: {
       title: 'Espace patient',
@@ -134,25 +201,25 @@ export const ROLES: RoleShowcase[] = [
         { title: 'Bilan lipidique', meta: 'Laboratoire · Douala', status: 'En cours', tone: 'wait' },
       ],
     },
-    cta: { label: 'Créer mon compte patient', link: '/register' },
-    demoLabel: 'Essayer l’espace patient',
+    trialCta: false,
+    demoLabel: 'Voir ce que voit votre patient',
   },
   {
     space: 'doctor',
-    tab: 'Médecins',
+    tab: 'Vos médecins prescripteurs',
     icon: 'id-card',
-    headline: 'Les résultats de vos patients, au même endroit, présentés de la même façon.',
-    pitch: 'Quel que soit le laboratoire ou le centre d’imagerie, les comptes rendus que vos patients vous partagent arrivent dans un seul écran.',
+    headline: 'L’établissement équipé devient le plus simple à prescrire.',
+    pitch: 'Vos prescripteurs reçoivent dans un seul écran les résultats que leurs patients leur partagent, sans relance. Ils ne paient rien.',
     features: [
-      { icon: 'share-alt', title: 'Résultats reçus', text: 'Consultez les résultats partagés par vos patients, triés et filtrables, sans relance par téléphone.' },
-      { icon: 'list-check', title: 'Prescriptions', text: 'Adressez une prescription à l’établissement pour le compte de votre patient.' },
-      { icon: 'check-circle', title: 'Pré-enregistrements', text: 'Pré-enregistrez vos patients pour accélérer leur prise en charge à l’accueil.' },
-      { icon: 'send', title: 'Requêtes', text: 'Échangez avec les établissements partenaires et suivez chaque demande jusqu’à sa réponse.' },
-      { icon: 'megaphone', title: 'Actualités', text: 'Restez informé des nouveautés publiées par les établissements avec lesquels vous travaillez.' },
-      { icon: 'bell', title: 'Notifications', text: 'Soyez prévenu dès qu’un patient vous partage un résultat ou qu’un établissement vous répond.' },
+      { icon: 'share-alt', title: 'Résultats reçus, au même endroit', text: 'Triés et filtrables, tous établissements confondus : vos comptes rendus sont lus sans délai.' },
+      { icon: 'list-check', title: 'Prescriptions adressées chez vous', text: 'Le médecin adresse la prescription de son patient à votre établissement, avec son nom.' },
+      { icon: 'check-circle', title: 'Pré-enregistrements', text: 'Le médecin pré-enregistre son patient : votre accueil est préparé, le patient attend moins.' },
+      { icon: 'send', title: 'Requêtes suivies', text: 'Une question posée par écrit, une réponse tracée : moins d’appels de médecins à l’accueil.' },
+      { icon: 'bell', title: 'Un canal direct', text: 'Annoncez nouveaux examens, appareils ou horaires à vos prescripteurs, sans tournée.' },
+      { icon: 'file', title: 'Des comptes rendus homogènes', text: 'Vos résultats se lisent aussi clairement que ceux des autres établissements : la régularité fait votre réputation.' },
     ],
     mock: {
-      title: 'Espace docteur',
+      title: 'Espace médecin',
       nav: ['Tableau de bord', 'Résultats reçus', 'Prescriptions', 'Requêtes', 'Actualités'],
       kpis: [
         { label: 'Résultats reçus', value: '48' },
@@ -166,65 +233,125 @@ export const ROLES: RoleShowcase[] = [
         { title: 'Ionogramme · M. Fouda', meta: 'Partagé il y a 3 jours', status: 'Consulté', tone: 'wait' },
       ],
     },
-    cta: { label: 'Accéder à mon espace', link: '/connexion' },
-    demoLabel: 'Essayer l’espace médecin',
-  },
-  {
-    space: 'admin',
-    tab: 'Établissements',
-    icon: 'building',
-    headline: 'Moins de résultats non retirés, moins d’appels, une remise tracée.',
-    pitch: 'Rien à changer dans votre logiciel : ROHAFYA s’y branche et vous gardez la main sur chaque règle de remise.',
-    features: [
-      { icon: 'inbox', title: 'Demandes reçues', text: 'Requêtes, prescriptions et pré-enregistrements des patients et médecins : répondez ou envoyez un devis.' },
-      { icon: 'qrcode', title: 'QR codes sur la facture', text: 'Le patient rattache son dossier en un scan ; vous fixez la validité des codes.' },
-      { icon: 'users', title: 'Patients et rattachements', text: 'Retrouvez chaque dossier et validez un rattachement en cas de doute sur l’identité.' },
-      { icon: 'id-card', title: 'Médecins', text: 'Gérez les médecins prescripteurs liés à votre établissement.' },
-      { icon: 'lock', title: 'Résultats après règlement', text: 'Masquez le détail d’un résultat tant que la facture n’est pas réglée, et réglez la durée d’accès.' },
-      { icon: 'history', title: 'Journal des opérations', text: 'Qui a remis quoi, à qui, quand : chaque opération sensible est tracée.' },
-    ],
-    mock: {
-      title: 'Administration',
-      nav: ['Tableau de bord', 'Demandes', 'Patients', 'QR codes', 'Journal'],
-      kpis: [
-        { label: 'Résultats publiés', value: '1 284' },
-        { label: 'Demandes en attente', value: '7' },
-        { label: 'Rattachements', value: '312' },
-      ],
-      listTitle: 'Demandes reçues',
-      rows: [
-        { title: 'Pré-enregistrement · Bilan prénatal', meta: 'Envoyé par un médecin', status: 'À traiter', tone: 'wait' },
-        { title: 'Demande de devis · IRM du genou', meta: 'Envoyée par un patient', status: 'Devis envoyé', tone: 'info' },
-        { title: 'Rattachement de dossier', meta: 'QR code scanné', status: 'Validé', tone: 'ok' },
-      ],
-    },
-    cta: { label: 'Se connecter à l’administration', link: '/connexion' },
-    demoLabel: 'Essayer l’espace établissement',
+    trialCta: false,
+    demoLabel: 'Voir ce que voit votre prescripteur',
   },
 ];
 
-/** Parcours du patient, repris de l'affiche d'accueil du kit d'information. */
+/** Ce que l'on met en avant selon le type d'établissement (document de vente, 4.4). */
+export interface Segment {
+  icon: string;
+  title: string;
+  points: string[];
+  first: string;
+}
+
+export const SEGMENTS: Segment[] = [
+  {
+    icon: 'filter',
+    title: 'Laboratoires d’analyses',
+    points: [
+      'Moins de résultats non retirés',
+      'Moins d’appels « c’est prêt ? » à l’accueil',
+      'Des patients suivis au long cours fidélisés par leur historique',
+    ],
+    first: 'Le QR code sur la facture, puis le tableau de bord.',
+  },
+  {
+    icon: 'image',
+    title: 'Centres d’imagerie et centres médicaux',
+    points: [
+      'Le compte rendu chez le prescripteur le jour même',
+      'Des demandes de prix converties en venues',
+      'Laboratoire, imagerie et factures dans un seul espace',
+    ],
+    first: 'Le circuit prescription, devis, résultat.',
+  },
+  {
+    icon: 'building',
+    title: 'Cliniques et hôpitaux',
+    points: [
+      'Un portail unique pour tous les services',
+      'Le recouvrement, avec les résultats après règlement',
+      'La traçabilité et l’identification des patients',
+    ],
+    first: 'Les résultats après règlement, les rattachements, le journal.',
+  },
+  {
+    icon: 'sitemap',
+    title: 'Réseaux multi-sites',
+    points: [
+      'Plusieurs établissements pilotés depuis une même console',
+      'Plusieurs administrateurs, des responsabilités claires',
+      'Des règles communes, en commençant par un site pilote',
+    ],
+    first: 'Le changement d’établissement dans la console, puis les réglages.',
+  },
+];
+
+/** Mise en service, entièrement à distance (document de vente, 10.2). */
 export interface Step {
   icon: string;
   title: string;
   text: string;
 }
 
+export const ONBOARDING: Step[] = [
+  { icon: 'video', title: 'Une démonstration de 20 minutes', text: 'En visioconférence : vous manipulez la démonstration sur votre propre téléphone, avec vos questions.' },
+  { icon: 'building', title: 'Votre espace créé', text: 'Vos administrateurs sont invités par e-mail et se connectent avec un code reçu par e-mail.' },
+  { icon: 'server', title: 'Votre logiciel branché', text: 'Votre informaticien reçoit la clé d’API et la documentation, et teste les envois avec des données fictives.' },
+  { icon: 'users', title: 'Votre accueil formé', text: '30 minutes en visioconférence : générer un QR code, valider un rattachement, traiter une demande.' },
+  { icon: 'check-circle', title: 'Vos premiers résultats publiés', text: 'Sur un périmètre limité d’abord, avec un point de contrôle en visioconférence une semaine après.' },
+];
+
+/** Parcours du patient : ce que l'accueil explique en une phrase. */
 export const STEPS: Step[] = [
-  { icon: 'qrcode', title: 'Scannez le code', text: 'Le QR code imprimé en bas de votre facture ouvre ROHAFYA sur votre téléphone.' },
-  { icon: 'envelope', title: 'Saisissez votre e-mail', text: 'Pas de mot de passe à retenir : votre adresse e-mail suffit pour vous identifier.' },
-  { icon: 'key', title: 'Entrez le code reçu', text: 'Un code à 6 chiffres, à usage unique, vous est envoyé par e-mail.' },
-  { icon: 'file', title: 'Consultez vos résultats', text: 'Ils apparaissent dès qu’ils sont validés par l’établissement. Le papier reste disponible.' },
+  { icon: 'qrcode', title: 'Il scanne le code', text: 'Le QR code imprimé sur la facture ouvre ROHAFYA sur son téléphone.' },
+  { icon: 'envelope', title: 'Il saisit son e-mail', text: 'Pas de mot de passe à retenir : son adresse e-mail suffit pour l’identifier.' },
+  { icon: 'key', title: 'Il entre le code reçu', text: 'Un code à 6 chiffres, à usage unique, lui est envoyé par e-mail.' },
+  { icon: 'file', title: 'Il consulte ses résultats', text: 'Ils apparaissent dès que vous les validez. Le papier reste disponible.' },
 ];
 
 /** Ce que le produit apporte déjà en matière de protection des données (sans promesse de conformité). */
 export const TRUST_POINTS: Highlight[] = [
-  { icon: 'objects-column', title: 'Données cloisonnées', text: 'Chaque établissement a son espace, ses données et sa clé. Seul le patient voit l’ensemble de ses résultats.' },
-  { icon: 'key', title: 'Connexion par code unique', text: 'Connexion nominative par code à usage unique, et aucun lien public vers un résultat.' },
-  { icon: 'user-edit', title: 'Rattachement volontaire', text: 'C’est le patient qui rattache son dossier ; une validation humaine intervient en cas de doute.' },
-  { icon: 'share-alt', title: 'Partage décidé par le patient', text: 'Le partage avec un médecin est choisi par le patient, modifiable et révocable.' },
-  { icon: 'history', title: 'Journal des opérations', text: 'Les opérations sensibles sont tracées, établissement par établissement.' },
-  { icon: 'sync', title: 'Clé d’API renouvelable', text: 'Affichée une seule fois, elle peut être renouvelée à tout moment par l’établissement.' },
+  { icon: 'objects-column', title: 'Données cloisonnées', text: 'Chaque établissement a son espace, ses données et sa clé. Aucun concurrent ne voit vos patients.' },
+  { icon: 'key', title: 'Connexion par code unique', text: 'Accès nominatifs par code à usage unique ; aucun lien public vers un résultat.' },
+  { icon: 'user-edit', title: 'Rattachement maîtrisé', text: 'Le patient rattache son dossier ; votre équipe valide en cas de doute sur l’identité.' },
+  { icon: 'share-alt', title: 'Partage décidé par le patient', text: 'Le partage avec un médecin est choisi par le patient, et chaque consultation est inscrite au journal.' },
+  { icon: 'history', title: 'Journal des opérations', text: 'Les opérations sensibles sont tracées : une preuve en cas de litige, un appui à votre démarche qualité.' },
+  { icon: 'sync', title: 'Clé d’API renouvelable', text: 'Affichée une seule fois, elle se remplace en un clic si elle est compromise.' },
+];
+
+/** Grille tarifaire (document de vente, 6.2) : prix publics, identiques dans tout le pays. */
+export interface Plan {
+  name: string;
+  volume: string;
+  setup: string;
+  monthly: string;
+  yearly: string;
+  highlight?: boolean;
+}
+
+export const PLANS: Plan[] = [
+  { name: 'Essentiel', volume: 'Jusqu’à 500 résultats par mois', setup: '75 000 FCFA', monthly: '25 000 FCFA', yearly: '250 000 FCFA' },
+  { name: 'Standard', volume: 'De 501 à 2 000 résultats par mois', setup: '150 000 FCFA', monthly: '50 000 FCFA', yearly: '500 000 FCFA', highlight: true },
+  { name: 'Avancé', volume: 'De 2 001 à 6 000 résultats par mois', setup: '300 000 FCFA', monthly: '100 000 FCFA', yearly: '1 000 000 FCFA' },
+  { name: 'Réseau ou hôpital', volume: 'Au-delà, ou plusieurs sites', setup: 'À partir de 500 000 FCFA', monthly: 'À partir de 200 000 FCFA', yearly: 'Sur devis' },
+];
+
+export const PRICING_NOTES: string[] = [
+  'Le prix suit le nombre de résultats publiés par mois, compté dans votre tableau de bord.',
+  'Mêmes prix partout au Cameroun : la mise en service se fait à distance.',
+  'Aucune licence par poste, aucun matériel ; formation des nouvelles recrues comprise.',
+  'Paiement en FCFA par Mobile Money, virement ou chèque.',
+];
+
+/** Programme « établissements fondateurs » (document de vente, 6.4). */
+export const FOUNDERS: string[] = [
+  'Mise en service offerte, entièrement à distance',
+  '60 jours d’essai accompagné, sans engagement',
+  '50 % de réduction sur l’abonnement la première année si vous poursuivez',
+  'Une influence directe sur les évolutions du produit',
 ];
 
 export interface FaqItem {
@@ -232,33 +359,66 @@ export interface FaqItem {
   answer: string;
 }
 
+/** Questions des directeurs d'établissement (document de vente, 9 : objections). */
 export const FAQ: FaqItem[] = [
   {
-    question: 'Dois-je installer une application ?',
-    answer: 'Non. ROHAFYA s’ouvre dans le navigateur de votre téléphone ou de votre ordinateur. Pour l’établissement non plus, aucun nouveau logiciel : ROHAFYA se branche sur celui qu’il utilise déjà.',
+    question: 'Faut-il changer de logiciel ou installer quelque chose ?',
+    answer: 'Non. ROHAFYA se branche sur le logiciel que vous utilisez déjà, par API (format ROHAFYA ou HL7 FHIR R4). Vos patients n’installent rien non plus : un navigateur suffit. Les données d’origine restent dans votre logiciel : vous ne dépendez pas de ROHAFYA pour travailler.',
   },
   {
-    question: 'Je n’ai pas d’adresse e-mail. Comment faire ?',
-    answer: 'Sur un téléphone Android, une adresse Gmail existe déjà : ouvrez Paramètres, puis Comptes. Sinon, un proche peut recevoir vos résultats pour vous, et le résultat papier reste disponible à l’accueil.',
+    question: 'Notre logiciel n’exporte rien. Que faire ?',
+    answer: 'Donnez-nous le nom de votre éditeur ou de votre informaticien : beaucoup de logiciels exportent plus qu’on ne le croit, et nous l’accompagnons avec la documentation et un établissement de test. L’import de comptes rendus PDF, qui permettra de démarrer sans informaticien, n’est pas encore ouvert.',
   },
   {
-    question: 'Qui peut voir mes résultats ?',
-    answer: 'Vous seul. Un médecin ne les voit que si vous les lui partagez, et vous pouvez retirer ce partage à tout moment. Un établissement ne voit que les dossiers qui le concernent.',
+    question: 'Nos patients n’ont pas d’adresse e-mail.',
+    answer: 'Tout téléphone Android est relié à un compte Google, donc à une adresse Gmail : votre accueil la retrouve en trente secondes dans les paramètres. Pour les autres, un proche peut recevoir les résultats, et le papier reste disponible.',
   },
   {
-    question: 'Je n’ai pas reçu le code de connexion.',
-    answer: 'Vérifiez le dossier des courriers indésirables, puis touchez « Renvoyer le code ». Le code est valable une seule fois.',
+    question: 'Nous envoyons déjà les résultats par WhatsApp.',
+    answer: 'Continuez à prévenir par WhatsApp si vous le souhaitez. Mais le résultat lui-même gagne à rester dans un compte protégé : pas de mauvais destinataire, une trace de chaque accès, une preuve en cas de litige.',
   },
   {
-    question: 'Je ne vois pas mon résultat.',
-    answer: 'Vérifiez que votre dossier est bien rattaché à l’établissement et que le résultat a été validé. L’établissement peut aussi appliquer une règle, par exemple une facture à régler ou une durée d’accès.',
+    question: 'Nous remettons les résultats contre paiement.',
+    answer: 'L’option « résultats après règlement » reprend cette règle : le détail d’un résultat reste masqué tant que la facture n’est pas réglée.',
   },
   {
-    question: 'Peut-on prendre rendez-vous ou consulter en ligne ?',
-    answer: 'Non. ROHAFYA se consacre à la remise des résultats et des factures, et au lien entre patients, médecins et établissements. Il ne fait ni prise de rendez-vous, ni téléconsultation, ni interprétation médicale.',
+    question: 'Nos concurrents verront-ils nos patients ?',
+    answer: 'Non. Chaque établissement a son espace, ses données et sa clé d’API. Seul le patient voit l’ensemble de ses propres résultats.',
   },
   {
-    question: 'Comment un établissement se branche-t-il à ROHAFYA ?',
-    answer: 'Par une API, au format ROHAFYA ou HL7 FHIR R4, testable avec des données fictives. Les données d’origine restent dans le logiciel de l’établissement, qui ne dépend pas de ROHAFYA pour travailler.',
+    question: 'Où sont hébergées nos données ?',
+    answer: 'Nous vous répondons par écrit, avant tout engagement : lieu d’hébergement, personnes habilitées, accord sur les données. ROHAFYA a été conçu avec la protection des données en tête ; votre mise en conformité relève de vous, et nous vous y aidons.',
+  },
+  {
+    question: 'Et si la connexion ou le courant sautent ?',
+    answer: 'Les résultats déjà publiés restent consultables par les patients. Les envois reprennent au retour du réseau, sans doublon. La console d’administration fonctionne aussi sur téléphone.',
+  },
+  {
+    question: 'Vous êtes loin. Qui intervient en cas de problème ?',
+    answer: 'Rien n’est installé chez vous : l’assistance se fait par téléphone, WhatsApp et partage d’écran, sous 24 heures ouvrées, où que vous soyez au Cameroun.',
+  },
+  {
+    question: 'Que ne fait pas ROHAFYA ?',
+    answer: 'Ni téléconsultation, ni prise de rendez-vous, ni gestion du laboratoire, ni interprétation médicale. Pour l’imagerie, seuls les comptes rendus sont publiés, pas les images. ROHAFYA s’ajoute à vos outils sans les remplacer.',
   },
 ];
+
+/** Formulaire de demande d'essai : listes de choix (document de vente, D.7). */
+export const TRIAL_KINDS: { value: string; label: string }[] = [
+  { value: 'laboratoire', label: 'Laboratoire d’analyses' },
+  { value: 'imagerie', label: 'Centre d’imagerie' },
+  { value: 'centre_medical', label: 'Centre médical' },
+  { value: 'clinique', label: 'Clinique' },
+  { value: 'hopital', label: 'Hôpital' },
+  { value: 'reseau', label: 'Réseau multi-sites' },
+  { value: 'autre', label: 'Autre' },
+];
+
+export const TRIAL_VOLUMES: { value: string; label: string }[] = [
+  { value: 'moins_200', label: 'Moins de 200' },
+  { value: '200_500', label: '200 à 500' },
+  { value: '500_2000', label: '500 à 2 000' },
+  { value: 'plus_2000', label: 'Plus de 2 000' },
+];
+
+export const TRIAL_SLOTS: string[] = ['Mardi matin', 'Mardi après-midi', 'Jeudi matin', 'Jeudi après-midi', 'Autre moment'];

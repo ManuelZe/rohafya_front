@@ -1,20 +1,21 @@
 import { Component, computed, input, output } from '@angular/core';
 import { PIcon } from '@primeicons/angular/p-icon';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 /** Pagination simple « précédent / suivant » avec le rang des éléments affichés. */
 @Component({
   selector: 'app-pager',
-  imports: [PIcon],
+  imports: [TranslatePipe, PIcon],
   template: `
     @if (total() > pageSize()) {
-      <nav class="pager" aria-label="Pagination">
+      <nav class="pager" [attr.aria-label]="'Pagination' | t">
         <button type="button" class="pager-btn" (click)="pageChange.emit(page() - 1)" [disabled]="page() <= 1">
           <svg [pIcon]="'chevron-left'" [size]="14" aria-hidden="true"></svg>
-          <span>Précédent</span>
+          <span>{{ 'Précédent' | t }}</span>
         </button>
-        <span class="pager-info" aria-live="polite">{{ from() }}–{{ to() }} sur {{ total() }}</span>
+        <span class="pager-info" aria-live="polite">{{ '{0}–{1} sur {2}' | t: [from(), to(), total()] }}</span>
         <button type="button" class="pager-btn" (click)="pageChange.emit(page() + 1)" [disabled]="page() >= pages()">
-          <span>Suivant</span>
+          <span>{{ 'Suivant' | t }}</span>
           <svg [pIcon]="'chevron-right'" [size]="14" aria-hidden="true"></svg>
         </button>
       </nav>

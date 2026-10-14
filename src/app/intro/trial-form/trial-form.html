@@ -1,0 +1,108 @@
+@if (sent(); as message) {
+  <div #confirmation class="trial-done" role="status" tabindex="-1">
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+    <p class="trial-done__title">{{ 'Demande envoyée' | t }}</p>
+    <p>{{ message | t }}</p>
+  </div>
+} @else {
+  <form class="trial" [formRoot]="trialForm" (submit)="submit()" novalidate>
+    <p class="trial__required">{{ 'Les champs marqués * sont obligatoires.' | t }}</p>
+
+    <div class="trial__grid">
+      <div class="field">
+        <label for="trial-name">{{ 'Votre nom' | t }} *</label>
+        <input id="trial-name" type="text" autocomplete="name" [formField]="trialForm.contact_name"
+          [attr.aria-invalid]="!!errorOf('contact_name')" aria-describedby="trial-name-error" />
+        <span id="trial-name-error" class="field__error">{{ errorOf('contact_name') | t }}</span>
+      </div>
+      <div class="field">
+        <label for="trial-job">{{ 'Votre fonction' | t }}</label>
+        <input id="trial-job" type="text" autocomplete="organization-title" [formField]="trialForm.job_title" />
+      </div>
+      <div class="field">
+        <label for="trial-establishment">{{ 'Établissement' | t }} *</label>
+        <input id="trial-establishment" type="text" autocomplete="organization" [formField]="trialForm.establishment"
+          [attr.aria-invalid]="!!errorOf('establishment')" aria-describedby="trial-establishment-error" />
+        <span id="trial-establishment-error" class="field__error">{{ errorOf('establishment') | t }}</span>
+      </div>
+      <div class="field">
+        <label for="trial-city">{{ 'Ville' | t }} *</label>
+        <input id="trial-city" type="text" autocomplete="address-level2" [formField]="trialForm.city"
+          [attr.aria-invalid]="!!errorOf('city')" aria-describedby="trial-city-error" />
+        <span id="trial-city-error" class="field__error">{{ errorOf('city') | t }}</span>
+      </div>
+      <div class="field">
+        <label for="trial-phone">{{ 'WhatsApp ou téléphone' | t }} *</label>
+        <input id="trial-phone" type="tel" autocomplete="tel" [formField]="trialForm.phone"
+          [attr.aria-invalid]="!!errorOf('phone')" aria-describedby="trial-phone-error" />
+        <span id="trial-phone-error" class="field__error">{{ errorOf('phone') | t }}</span>
+      </div>
+      <div class="field">
+        <label for="trial-email">{{ 'E-mail professionnel' | t }} *</label>
+        <input id="trial-email" type="email" autocomplete="email" [formField]="trialForm.email"
+          [attr.aria-invalid]="!!errorOf('email')" aria-describedby="trial-email-error" />
+        <span id="trial-email-error" class="field__error">{{ errorOf('email') | t }}</span>
+      </div>
+      <div class="field">
+        <label for="trial-kind">{{ 'Type d’établissement' | t }} *</label>
+        <select id="trial-kind" [formField]="trialForm.kind" [attr.aria-invalid]="!!errorOf('kind')" aria-describedby="trial-kind-error">
+          <option value="">{{ 'Choisir…' | t }}</option>
+          @for (k of kinds; track k.value) {
+            <option [value]="k.value">{{ k.label | t }}</option>
+          }
+        </select>
+        <span id="trial-kind-error" class="field__error">{{ errorOf('kind') | t }}</span>
+      </div>
+      <div class="field">
+        <label for="trial-volume">{{ 'Résultats remis par mois, environ' | t }}</label>
+        <select id="trial-volume" [formField]="trialForm.monthly_volume">
+          <option value="">{{ 'Je ne sais pas' | t }}</option>
+          @for (v of volumes; track v.value) {
+            <option [value]="v.value">{{ v.label | t }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label for="trial-software">{{ 'Logiciel utilisé, et qui le maintient' | t }}</label>
+        <input id="trial-software" type="text" [formField]="trialForm.software" />
+      </div>
+      <div class="field">
+        <label for="trial-slot">{{ 'Créneau préféré pour 20 minutes en visioconférence' | t }}</label>
+        <select id="trial-slot" [formField]="trialForm.preferred_slot">
+          <option value="">{{ 'Indifférent' | t }}</option>
+          @for (s of slots; track s) {
+            <option [value]="s">{{ s | t }}</option>
+          }
+        </select>
+      </div>
+      <div class="field field--full">
+        <label for="trial-pain">{{ 'Ce qui vous gêne le plus dans la remise des résultats' | t }}</label>
+        <textarea id="trial-pain" rows="4" [formField]="trialForm.pain_points" aria-describedby="trial-pain-error"></textarea>
+        <span id="trial-pain-error" class="field__error">{{ errorOf('pain_points') | t }}</span>
+      </div>
+    </div>
+
+    <!-- Champ piège : invisible et ignoré par les personnes, rempli par les robots. -->
+    <div class="trial__trap" aria-hidden="true">
+      <label for="trial-website">{{ 'Website' | t }}</label>
+      <input id="trial-website" type="text" tabindex="-1" autocomplete="off" [formField]="trialForm.website" />
+    </div>
+
+    <label class="trial__consent">
+      <input type="checkbox" [formField]="trialForm.consent" [attr.aria-invalid]="!!errorOf('consent')" aria-describedby="trial-consent-error" />
+      <span>{{ 'J’accepte d’être recontacté au sujet de ma demande. Vos coordonnées servent uniquement à vous répondre.' | t }} *</span>
+    </label>
+    <span id="trial-consent-error" class="field__error">{{ errorOf('consent') | t }}</span>
+
+    @if (error()) {
+      <div #errorBox class="trial__alert" role="alert" tabindex="-1">{{ error() | t }}</div>
+    }
+
+    <button type="submit" class="btn btn--primary btn--lg trial__submit" [disabled]="sending()">
+      {{ (sending() ? 'Envoi…' : 'Demander mon essai gratuit') | t }}
+    </button>
+  </form>
+}

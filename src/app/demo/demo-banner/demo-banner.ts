@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { DemoSession } from '../demo-session';
 import { DEMO_SPACES, DemoSpace } from '../demo-token';
 
+import { TranslatePipe } from '../../shared/i18n/t.pipe';
 const SPACE_LABELS: Record<DemoSpace, string> = {
   patient: 'Patient',
   doctor: 'Médecin',
@@ -13,11 +14,12 @@ const SPACE_LABELS: Record<DemoSpace, string> = {
  * d'un profil à l'autre (les données sont partagées), de remettre la démo à zéro et d'en sortir.
  */
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-demo-banner',
   template: `
     @if (demoSession.space(); as current) {
-      <aside class="demo-banner" [class.is-open]="open()" aria-label="Mode démonstration : données fictives" [attr.aria-busy]="busy()">
-        <span class="demo-banner__badge">DÉMO</span>
+      <aside class="demo-banner" [class.is-open]="open()" [attr.aria-label]="'Mode démonstration : données fictives' | t" [attr.aria-busy]="busy()">
+        <span class="demo-banner__badge">{{ 'DÉMO' | t }}</span>
         <!-- Téléphone : pastille repliée pour ne pas masquer le contenu. -->
         <button
           type="button"
@@ -26,17 +28,17 @@ const SPACE_LABELS: Record<DemoSpace, string> = {
           aria-controls="demo-banner-controls"
           (click)="open.set(!open())"
         >
-          {{ open() ? 'Masquer' : labels[current] }}
+          {{ (open() ? 'Masquer' : labels[current]) | t }}
         </button>
         <span class="demo-banner__controls" id="demo-banner-controls">
-        <label class="demo-banner__label" for="demo-profile">Profil</label>
+        <label class="demo-banner__label" for="demo-profile">{{ 'Profil' | t }}</label>
         <select id="demo-profile" class="demo-banner__select" [disabled]="busy()" (change)="switchTo($event)">
           @for (space of spaces; track space) {
             <option [value]="space" [selected]="space === current">{{ labels[space] }}</option>
           }
         </select>
-        <button type="button" class="demo-banner__ghost" [disabled]="busy()" (click)="reset()">Réinitialiser</button>
-        <button type="button" class="demo-banner__quit" [disabled]="busy()" (click)="stop()">Quitter la démo</button>
+        <button type="button" class="demo-banner__ghost" [disabled]="busy()" (click)="reset()">{{ 'Réinitialiser' | t }}</button>
+        <button type="button" class="demo-banner__quit" [disabled]="busy()" (click)="stop()">{{ 'Quitter la démo' | t }}</button>
         </span>
       </aside>
     }

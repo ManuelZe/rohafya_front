@@ -9,29 +9,30 @@ import { AuditEntry } from '../../saas.models';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
 
+import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const PAGE_SIZE = 30;
 
 @Component({
   selector: 'app-admin-audit',
-  imports: [PIcon, PageHeader, AuditTable, Pager],
+  imports: [TranslatePipe, PIcon, PageHeader, AuditTable, Pager],
   template: `
     <div class="page">
-      <app-page-header title="Journal" subtitle="Qui a fait quoi sur les données de l'établissement, et quand." />
+      <app-page-header [title]="'Journal' | t" [subtitle]="'Qui a fait quoi sur les données de l\\'établissement, et quand.' | t" />
       <section class="card">
         @if (error()) {
           <div class="banner banner-error" role="alert">
             <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-            <span>{{ error() }}</span>
-            <button type="button" class="btn btn-ghost" (click)="load()">Réessayer</button>
+            <span>{{ error() | t }}</span>
+            <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
           </div>
         }
         @if (loading() && entries().length === 0) {
           <div class="state" role="status">
             <span class="spinner spinner-lg" aria-hidden="true"></span>
-            <span>Chargement…</span>
+            <span>{{ 'Chargement…' | t }}</span>
           </div>
         } @else if (entries().length === 0) {
-          <div class="state"><span>Aucune activité enregistrée.</span></div>
+          <div class="state"><span>{{ 'Aucune activité enregistrée.' | t }}</span></div>
         } @else {
           <app-audit-table [entries]="entries()" [class.is-refreshing]="loading()" />
           <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />

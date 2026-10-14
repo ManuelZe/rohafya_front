@@ -1,0 +1,173 @@
+<div class="page">
+  <app-page-header
+    [title]="'Demandes d\'essai' | t"
+    [subtitle]="'Établissements qui ont demandé une démonstration depuis le site de présentation. Recontactez-les sous 24 heures ouvrées.' | t"
+  />
+
+  <section class="card">
+    <div class="toolbar">
+      <div class="segmented" role="group" [attr.aria-label]="'Filtrer par statut' | t">
+        @for (st of statuses; track st) {
+          <button type="button" [attr.aria-pressed]="status() === st" (click)="setStatus(st)">
+            {{ statusLabels[st] | t }}
+            @if (counts()[st]) {
+              <span class="count-badge">{{ counts()[st] }}</span>
+            }
+          </button>
+        }
+        <button type="button" [attr.aria-pressed]="status() === ''" (click)="setStatus('')">
+          {{ 'Toutes' | t }}
+          @if (countAll()) {
+            <span class="count-badge count-badge-muted">{{ countAll() }}</span>
+          }
+        </button>
+      </div>
+      <span class="muted total" aria-live="polite">{{ '{0} demande(s)' | t: [total()] }}</span>
+    </div>
+
+    @if (error()) {
+      <div class="banner banner-error notice" role="alert">
+        <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ error() | t }}</span>
+        <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
+      </div>
+    }
+
+    @if (loading() && !list()) {
+      <div class="state" role="status">
+        <span class="spinner spinner-lg" aria-hidden="true"></span>
+        <span>{{ 'Chargement…' | t }}</span>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="state">
+        <svg [pIcon]="'inbox'" [size]="32" aria-hidden="true"></svg>
+        <strong>{{ (status() === 'nouvelle' ? 'Aucune nouvelle demande' : 'Aucune demande') | t }}</strong>
+        <span>{{ 'Les demandes envoyées depuis le formulaire « Demander un essai » du site apparaissent ici.' | t }}</span>
+      </div>
+    } @else {
+      <div class="table-wrap" [class.is-refreshing]="loading()">
+        <table class="rtable">
+          <caption class="sr-only">{{ 'Demandes d\'essai reçues' | t }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'Date' | t }}</th>
+              <th scope="col">{{ 'Établissement' | t }}</th>
+              <th scope="col">{{ 'Contact' | t }}</th>
+              <th scope="col">{{ 'Volume mensuel' | t }}</th>
+              <th scope="col">{{ 'Statut' | t }}</th>
+              <th scope="col"><span class="sr-only">{{ 'Actions' | t }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (trial of items(); track trial.id) {
+              <tr>
+                <td [attr.data-label]="'Date' | t">{{ trial.created_at | ldate: 'datetime' }}</td>
+                <td [attr.data-label]="'Établissement' | t">
+                  <span class="strong">{{ trial.establishment }}</span>
+                  <span class="author-meta">{{ (kindLabels[trial.kind] || trial.kind) | t }} · {{ trial.city }}</span>
+                </td>
+                <td [attr.data-label]="'Contact' | t">
+                  <span class="strong">{{ trial.contact_name }}</span>
+                  <span class="author-meta">{{ trial.phone }} · {{ trial.email }}</span>
+                </td>
+                <td [attr.data-label]="'Volume mensuel' | t">{{ (trial.monthly_volume ? volumeLabels[trial.monthly_volume] || trial.monthly_volume : '—') | t }}</td>
+                <td [attr.data-label]="'Statut' | t"><span [class]="'pill pill-trial-' + trial.status">{{ statusLabels[trial.status] | t }}</span></td>
+                <td class="actions-cell">
+                  <span class="cell-actions">
+                    <button type="button" class="btn btn-primary btn-sm" (click)="open(trial)">
+                      {{ (trial.status === 'nouvelle' ? 'Traiter' : 'Voir') | t }}<span class="sr-only"> {{ 'la demande de {0}' | t: [trial.establishment] }}</span>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pager [page]="page()" [pageSize]="pageSize" [total]="total()" (pageChange)="goTo($event)" />
+    }
+  </section>
+
+  @if (selected(); as trial) {
+    <div class="overlay" (click)="close()">
+      <div
+        class="dialog dialog-wide"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="trial-title"
+        cdkTrapFocus
+        [cdkTrapFocusAutoCapture]="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="dialog-head">
+          <h2 id="trial-title">{{ trial.establishment }}</h2>
+          <button type="button" class="btn btn-ghost btn-sm" (click)="close()" [attr.aria-label]="'Fermer' | t">&times;</button>
+        </div>
+
+        <dl class="facts">
+          <div><dt>{{ 'Reçue le' | t }}</dt><dd>{{ trial.created_at | ldate: 'datetime' }}</dd></div>
+          <div><dt>{{ 'Type d\'établissement' | t }}</dt><dd>{{ (kindLabels[trial.kind] || trial.kind) | t }}</dd></div>
+          <div><dt>{{ 'Ville' | t }}</dt><dd>{{ trial.city }}</dd></div>
+          <div>
+            <dt>{{ 'Contact' | t }}</dt>
+            <dd>{{ trial.contact_name }}@if (trial.job_title) { · {{ trial.job_title }} }</dd>
+          </div>
+          <div><dt>{{ 'Téléphone' | t }}</dt><dd><a class="link" [href]="'tel:' + trial.phone">{{ trial.phone }}</a></dd></div>
+          <div><dt>{{ 'E-mail' | t }}</dt><dd><a class="link" [href]="'mailto:' + trial.email">{{ trial.email }}</a></dd></div>
+          <div><dt>{{ 'Volume mensuel' | t }}</dt><dd>{{ (trial.monthly_volume ? volumeLabels[trial.monthly_volume] || trial.monthly_volume : '—') | t }}</dd></div>
+          <div><dt>{{ 'Créneau souhaité' | t }}</dt><dd>{{ (trial.preferred_slot || '—') | t }}</dd></div>
+          <div><dt>{{ 'Logiciel actuel' | t }}</dt><dd>{{ trial.software || '—' }}</dd></div>
+          <div><dt>{{ 'Langue' | t }}</dt><dd>{{ (trial.locale === 'en' ? 'Anglais' : 'Français') | t }}</dd></div>
+          @if (trial.pain_points) {
+            <div class="facts-full"><dt>{{ 'Difficultés actuelles' | t }}</dt><dd class="pre">{{ trial.pain_points }}</dd></div>
+          }
+        </dl>
+
+        <form class="answer-form" [formRoot]="followUpForm" (submit)="save()">
+          <h3>{{ 'Suivi' | t }}</h3>
+          <div class="form-row">
+            <label for="trial-status">{{ 'Statut' | t }}</label>
+            <select id="trial-status" class="field" [formField]="followUpForm.status">
+              @for (st of statuses; track st) {
+                <option [value]="st">{{ statusLabels[st] | t }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="trial-note">{{ 'Note interne' | t }}</label>
+            <textarea
+              id="trial-note"
+              class="field"
+              rows="4"
+              aria-describedby="trial-note-hint"
+              [formField]="followUpForm.note"
+              [placeholder]="'Ex. Démonstration fixée jeudi à 10 h avec le directeur.' | t"
+            ></textarea>
+            @if (followUpForm.note().invalid()) {
+              <span class="form-error">{{ (followUpForm.note().errors()[0]?.message) | t }}</span>
+            }
+            <span class="form-hint" id="trial-note-hint">{{ 'Visible seulement par les super-administrateurs.' | t }}</span>
+          </div>
+
+          @if (saveError()) {
+            <div class="banner banner-error notice" role="alert">
+              <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+              <span>{{ saveError() | t }}</span>
+            </div>
+          }
+          @if (saved()) {
+            <div class="banner banner-success notice" role="status">
+              <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+              <span>{{ 'Suivi enregistré.' | t }}</span>
+            </div>
+          }
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" (click)="close()">{{ 'Fermer' | t }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ (saving() ? 'Enregistrement…' : 'Enregistrer le suivi') | t }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

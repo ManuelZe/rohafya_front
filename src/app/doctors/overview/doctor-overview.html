@@ -1,12 +1,12 @@
 <div class="page">
-  <app-page-header title="Tableau de bord" [subtitle]="commissionsEnabled() ? 'Cycle de commissions en cours : ' + cycleLabel : 'Les résultats partagés par vos patients.'">
+  <app-page-header [title]="'Tableau de bord' | t" [subtitle]="(commissionsEnabled() ? 'Cycle de commissions en cours : {0}' : 'Les résultats partagés par vos patients.') | t: [cycleLabel]">
     <button actions type="button" class="btn btn-ghost" (click)="refresh()" [disabled]="isRefreshing()">
       @if (isRefreshing()) {
         <span class="spinner" aria-hidden="true"></span>
       } @else {
         <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
       }
-      <span>Actualiser</span>
+      <span>{{ 'Actualiser' | t }}</span>
     </button>
   </app-page-header>
 
@@ -16,26 +16,26 @@
     <div class="hero-main">
       <h2 id="hero-title" class="hero-label">
         <svg [pIcon]="'wallet'" [size]="18" aria-hidden="true"></svg>
-        Solde du cycle en cours
+        {{ 'Solde du cycle en cours' | t }}
       </h2>
 
       @if (actual.loading() && !actual.data()) {
         <span class="skeleton hero-skeleton" aria-hidden="true"></span>
-        <span class="sr-only">Chargement du solde…</span>
+        <span class="sr-only">{{ 'Chargement du solde…' | t }}</span>
       } @else if (actual.error()) {
         <div class="banner banner-error" role="alert">
           <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
-          <span>{{ actual.error() }}</span>
-          <button type="button" class="btn btn-ghost" (click)="refresh()">Réessayer</button>
+          <span>{{ actual.error() | t }}</span>
+          <button type="button" class="btn btn-ghost" (click)="refresh()">{{ 'Réessayer' | t }}</button>
         </div>
       } @else if (actual.data(); as solde) {
-        <p class="hero-value">{{ solde.total | points: false }}<span class="hero-unit">pts</span></p>
+        <p class="hero-value">{{ solde.total | points: false }}<span class="hero-unit">{{ 'pts' | t }}</span></p>
         <p class="hero-sub">
           <span class="chip">
             <svg [pIcon]="'clock'" [size]="12" aria-hidden="true"></svg>
-            {{ closingLabel() }}
+            {{ closingLabel() | t }}
           </span>
-          <span class="muted">Commissions non encore facturées {{ cycleLabel }}</span>
+          <span class="muted">{{ 'Commissions non encore facturées {0}' | t: [cycleLabel] }}</span>
         </p>
         <app-stacked-meter [prescription]="solde.prescription" [realisation]="solde.realisation" />
       }
@@ -45,16 +45,16 @@
       <div class="hero-facts">
         <dl>
         <div>
-          <dt>Commissions</dt>
+          <dt>{{ 'Commissions' | t }}</dt>
           <dd>{{ solde.commissions }}</dd>
         </div>
         <div>
-          <dt>Patients</dt>
+          <dt>{{ 'Patients' | t }}</dt>
           <dd>{{ solde.patients }}</dd>
         </div>
         </dl>
         <a class="btn btn-primary hero-cta" routerLink="/doctors/commissions">
-          Voir mon relevé
+          {{ 'Voir mon relevé' | t }}
           <svg [pIcon]="'arrow-right'" [size]="14" aria-hidden="true"></svg>
         </a>
       </div>
@@ -64,10 +64,10 @@
   }
 
   <!-- ===== Indicateurs ===== -->
-  <section class="kpis" [class.kpis-single]="!commissionsEnabled()" aria-label="Indicateurs clés">
+  <section class="kpis" [class.kpis-single]="!commissionsEnabled()" [attr.aria-label]="'Indicateurs clés' | t">
     @if (commissionsEnabled()) {
     <app-kpi-tile
-      label="Aujourd'hui"
+      [label]="'Aujourd\'hui' | t"
       icon="bolt"
       accent="#0c4562"
       [value]="todayValue()"
@@ -76,30 +76,30 @@
       [error]="!!today.error()"
     />
     <app-kpi-tile
-      label="Cumul facturé"
+      [label]="'Cumul facturé' | t"
       icon="verified"
       accent="#137a36"
       [value]="generalValue()"
-      hint="Depuis le 21 octobre 2025"
+      [hint]="'Depuis le 21 octobre 2025' | t"
       [loading]="general.loading() && !general.data()"
       [error]="!!general.error()"
     />
     <app-kpi-tile
-      label="Patients du cycle"
+      [label]="'Patients du cycle' | t"
       icon="users"
       accent="#b45309"
       [value]="patientsValue()"
-      hint="Patients enregistrés"
+      [hint]="'Patients enregistrés' | t"
       [loading]="actual.loading() && !actual.data()"
       [error]="!!actual.error()"
     />
     }
     <app-kpi-tile
-      label="Résultats reçus"
+      [label]="'Résultats reçus' | t"
       icon="inbox"
       accent="#047857"
       [value]="receivedValue()"
-      hint="Partagés par vos patients"
+      [hint]="'Partagés par vos patients' | t"
       [loading]="received.loading() && !received.data()"
       [error]="!!received.error()"
     />
@@ -111,19 +111,19 @@
     <section class="card" aria-labelledby="top-title">
       <h2 id="top-title" class="card-title">
         <svg [pIcon]="'trophy'" [size]="18" aria-hidden="true"></svg>
-        Examens les plus fréquents du cycle
+        {{ 'Examens les plus fréquents du cycle' | t }}
       </h2>
       @if (detail.loading() && !detail.data()) {
         @for (i of [1, 2, 3]; track i) {
           <span class="skeleton row-skeleton" aria-hidden="true"></span>
         }
       } @else if (detail.error()) {
-        <p class="state">{{ detail.error() }}</p>
+        <p class="state">{{ detail.error() | t }}</p>
       } @else if (topExams().length === 0) {
         <div class="state">
           <svg [pIcon]="'chart-bar'" [size]="28" aria-hidden="true"></svg>
-          <strong>Pas encore d'examen sur ce cycle</strong>
-          <span>Vos examens prescrits apparaîtront ici.</span>
+          <strong>{{ 'Pas encore d\'examen sur ce cycle' | t }}</strong>
+          <span>{{ 'Vos examens prescrits apparaîtront ici.' | t }}</span>
         </div>
       } @else {
         <ol class="ranking">
@@ -132,7 +132,7 @@
               <span class="rank" aria-hidden="true">{{ i + 1 }}</span>
               <div class="rank-body">
                 <div class="rank-head">
-                  <span class="rank-label">{{ exam.label }}</span>
+                  <span class="rank-label">{{ exam.label | t }}</span>
                   <strong>{{ exam.count }}×</strong>
                 </div>
                 <span class="rank-bar" aria-hidden="true"><span [style.width.%]="exam.pct"></span></span>
@@ -147,7 +147,7 @@
     <section class="card" aria-labelledby="today-title">
       <h2 id="today-title" class="card-title">
         <svg [pIcon]="'bolt'" [size]="18" aria-hidden="true"></svg>
-        Activité du jour
+        {{ 'Activité du jour' | t }}
         @if (today.data(); as t) {
           <span class="card-title-aside">{{ t.total | points }}</span>
         }
@@ -157,12 +157,12 @@
           <span class="skeleton row-skeleton" aria-hidden="true"></span>
         }
       } @else if (today.error()) {
-        <p class="state">{{ today.error() }}</p>
+        <p class="state">{{ today.error() | t }}</p>
       } @else if (todayLines().length === 0) {
         <div class="state">
           <svg [pIcon]="'calendar-clock'" [size]="28" aria-hidden="true"></svg>
-          <strong>Aucune commission aujourd'hui</strong>
-          <span>Les commissions générées dans la journée s'afficheront ici.</span>
+          <strong>{{ 'Aucune commission aujourd\'hui' | t }}</strong>
+          <span>{{ 'Les commissions générées dans la journée s\'afficheront ici.' | t }}</span>
         </div>
       } @else {
         <ul class="lines">
@@ -178,7 +178,7 @@
         </ul>
         @if ((today.data()?.count ?? 0) > todayLines().length) {
           <a class="link" routerLink="/doctors/commissions/periode" [queryParams]="{ preset: 'today' }">
-            Voir toute la journée <svg [pIcon]="'arrow-right'" [size]="12" aria-hidden="true"></svg>
+            {{ 'Voir toute la journée' | t }} <svg [pIcon]="'arrow-right'" [size]="12" aria-hidden="true"></svg>
           </a>
         }
       }
@@ -191,18 +191,18 @@
   <section class="card" aria-labelledby="results-title">
     <h2 id="results-title" class="card-title">
       <svg [pIcon]="'inbox'" [size]="18" aria-hidden="true"></svg>
-      Derniers résultats reçus
-      <a class="link card-title-aside" routerLink="/doctors/resultats">Tout voir</a>
+      {{ 'Derniers résultats reçus' | t }}
+      <a class="link card-title-aside" routerLink="/doctors/resultats">{{ 'Tout voir' | t }}</a>
     </h2>
     @if (received.loading() && !received.data()) {
       <span class="skeleton row-skeleton" aria-hidden="true"></span>
     } @else if (received.error()) {
-      <p class="state">{{ received.error() }}</p>
+      <p class="state">{{ received.error() | t }}</p>
     } @else if (latestResults().length === 0) {
       <div class="state">
         <svg [pIcon]="'inbox'" [size]="28" aria-hidden="true"></svg>
-        <strong>Aucun résultat partagé pour l'instant</strong>
-        <span>Vos patients peuvent vous partager leurs résultats depuis leur espace, avec votre matricule.</span>
+        <strong>{{ 'Aucun résultat partagé pour l\'instant' | t }}</strong>
+        <span>{{ 'Vos patients peuvent vous partager leurs résultats depuis leur espace, avec votre matricule.' | t }}</span>
       </div>
     } @else {
       <ul class="results">
@@ -211,7 +211,7 @@
             <a class="result" routerLink="/doctors/resultats" [queryParams]="{ ouvrir: r.id }">
               <app-status-tag kind="examType" [status]="r.exam_type" />
               <span class="result-code">{{ r.exam_code }}</span>
-              <span class="line-sub">Patient {{ r.patient_federation_id }}</span>
+              <span class="line-sub">{{ 'Patient {0}' | t: [r.patient_federation_id] }}</span>
               <time class="line-sub">{{ r.sended_at | date: 'dd/MM/yyyy' }}</time>
             </a>
           </li>

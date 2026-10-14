@@ -2,7 +2,7 @@
   <section class="page-heading">
     <div class="page-heading-top">
       <app-sidebar-toggle-button />
-      <h1>{{ title() }}</h1>
+      <h1>{{ title() | t }}</h1>
       @if (bell(); as bell) {
         <span class="page-bell" [class.mobile-only]="bell.mobileOnly">
           <app-notification-bell [link]="bell.link" />
@@ -10,7 +10,7 @@
       }
     </div>
     @if (subtitle()) {
-      <p class="page-subtitle">{{ subtitle() }}</p>
+      <p class="page-subtitle">{{ subtitle() | t }}</p>
     }
   </section>
 
