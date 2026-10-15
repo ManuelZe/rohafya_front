@@ -34,6 +34,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
+      // Administrateur sans double authentification : la console s'ouvre sur sa page « Sécurité ».
+      if (error.status === 403 && (error.error as { code?: string } | null)?.code === 'mfa_setup_required') {
+        void router.navigateByUrl(req.url.includes('saas/super/') ? '/super-admin/securite' : '/admin/securite');
+      }
       if (error.status === 401 && token && !isLogoutRequest && !isLoginRequest) {
         // logout() renvoie un Observable "cold" : sans souscription, la requête de
         // déconnexion ne part jamais et la session locale n'est jamais effacée.

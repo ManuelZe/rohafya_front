@@ -9,7 +9,10 @@ const MENU: ConsoleMenuLink[] = [
   { label: 'Établissements', icon: 'building', link: '/super-admin/etablissements' },
   { label: 'Comptes', icon: 'users', link: '/super-admin/comptes' },
   { label: "Demandes d'essai", icon: 'inbox', link: '/super-admin/demandes-essai' },
+  { label: 'Facturation', icon: 'credit-card', link: '/super-admin/facturation' },
   { label: 'Notifications', icon: 'send', link: '/super-admin/notifications' },
+  { label: 'Données personnelles', icon: 'lock', link: '/super-admin/donnees-personnelles' },
+  { label: 'Sécurité', icon: 'shield', link: '/super-admin/securite' },
   { label: 'Journal', icon: 'history', link: '/super-admin/journal' },
 ];
 

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { mfaSetupGuard } from '../saas-guards';
 import { SuperAdminShell } from './super-admin-shell';
 
 const TITLE_SUFFIX = ' · Super-administration';
@@ -8,6 +9,7 @@ export const SUPER_ADMIN_ROUTES: Routes = [
   {
     path: '',
     component: SuperAdminShell,
+    canActivateChild: [mfaSetupGuard('/super-admin/securite')],
     children: [
       {
         path: '',
@@ -35,6 +37,11 @@ export const SUPER_ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./trials/super-trials').then((m) => m.SuperTrials),
       },
       {
+        path: 'facturation',
+        title: 'Facturation' + TITLE_SUFFIX,
+        loadComponent: () => import('./billing/super-billing').then((m) => m.SuperBilling),
+      },
+      {
         path: 'notifications',
         title: 'Notifications' + TITLE_SUFFIX,
         loadComponent: () => import('./notifications/super-notifications').then((m) => m.SuperNotifications),
@@ -43,6 +50,16 @@ export const SUPER_ADMIN_ROUTES: Routes = [
         path: 'journal',
         title: 'Journal' + TITLE_SUFFIX,
         loadComponent: () => import('./audit/super-audit').then((m) => m.SuperAudit),
+      },
+      {
+        path: 'donnees-personnelles',
+        title: 'Données personnelles' + TITLE_SUFFIX,
+        loadComponent: () => import('./privacy/super-privacy').then((m) => m.SuperPrivacy),
+      },
+      {
+        path: 'securite',
+        title: 'Sécurité' + TITLE_SUFFIX,
+        loadComponent: () => import('../shared/security-page').then((m) => m.ConsoleSecurity),
       },
     ],
   },

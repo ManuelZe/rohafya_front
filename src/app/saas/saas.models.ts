@@ -1,5 +1,6 @@
 import type { SubmissionAuthorRole, SubmissionInfo, SubmissionKind, SubmissionStatus } from '../shared/submission/submission.models';
 import { tr } from '../shared/i18n/i18n';
+import type { DashboardUsage } from './billing.models';
 
 /** Modèles des endpoints SaaS de l'API (/saas, /ingest, /fhir). */
 
@@ -72,6 +73,8 @@ export interface AuditEntry {
 export interface TenantDashboard extends TenantStats {
   tenant: Tenant;
   recent_activity: AuditEntry[];
+  /** Volume du mois et formule (absent des anciennes versions de l'API). */
+  usage?: DashboardUsage;
 }
 
 export interface Paged<T> {
@@ -291,6 +294,18 @@ export interface SaasMe {
   rights?: AccountRights;
   /** Langue de l'interface choisie par le compte. */
   locale?: 'fr' | 'en';
+  /** Double authentification (absent : API plus ancienne, démo). */
+  security?: SecurityStatus;
+  /** Demande de suppression du compte en cours. */
+  deletion_requested?: boolean;
+}
+
+export interface SecurityStatus {
+  enabled: boolean;
+  /** Obligatoire : super-administrateurs et administrateurs d'établissement. */
+  required: boolean;
+  enabled_at: string | null;
+  recovery_codes_left: number;
 }
 
 /** Configuration des droits d'un compte (console du super-administrateur). */
@@ -353,6 +368,8 @@ export interface AccountView {
   doctor_id: number | null;
   /** Résumé des droits configurés (« Impression bloquée », « Partages 2/5 »), vide sans configuration. */
   rights?: string[];
+  /** Double authentification activée. */
+  mfa_enabled?: boolean;
 }
 
 export const SOURCE_LABELS: Record<SourceType, string> = {
@@ -418,6 +435,11 @@ export interface TrialRequestList extends Paged<TrialRequest> {
 /** Libellés lisibles des actions du journal d'audit. */
 export const AUDIT_LABELS: Record<string, string> = {
   'trial.updated': 'Demande d’essai mise à jour',
+  'subscription.updated': 'Abonnement modifié',
+  'invoice.issued': 'Facture émise',
+  'invoice.payee': 'Facture payée',
+  'invoice.annulee': 'Facture annulée',
+  'invoice.emise': 'Facture remise à régler',
   'account.created': 'Compte créé',
   'link_token.issued': 'QR code généré',
   'link_token.revoked': 'QR code annulé',

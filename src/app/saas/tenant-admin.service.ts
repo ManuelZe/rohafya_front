@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { InvoiceDetail, UsageSummary } from './billing.models';
 import {
   AuditEntry,
   DoctorLinkView,
@@ -83,6 +84,15 @@ export class TenantAdminService {
 
   dashboard(tenantId: number): Observable<TenantDashboard> {
     return this.http.get<TenantDashboard>(this.url(tenantId, '/dashboard'));
+  }
+
+  /** Formule, volume publié (12 derniers mois) et factures de l'établissement. */
+  subscription(tenantId: number): Observable<UsageSummary> {
+    return this.http.get<UsageSummary>(this.url(tenantId, '/subscription'));
+  }
+
+  invoice(tenantId: number, invoiceId: number): Observable<InvoiceDetail> {
+    return this.http.get<InvoiceDetail>(this.url(tenantId, `/invoices/${invoiceId}`));
   }
 
   updateSettings(tenantId: number, settings: Partial<TenantSettings>): Observable<Tenant> {

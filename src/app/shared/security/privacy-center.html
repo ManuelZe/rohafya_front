@@ -1,0 +1,91 @@
+<div class="privacy">
+  <app-page-header [title]="'Confidentialité' | t" [subtitle]="'Vos données personnelles : qui y a accédé, les récupérer, protéger ou supprimer votre compte.' | t" />
+
+  @if (showAccessLog()) {
+    <section class="pc-card" aria-labelledby="access-title">
+      <h2 id="access-title"><svg [pIcon]="'eye'" [size]="18" aria-hidden="true"></svg>{{ 'Historique des accès à votre dossier' | t }}</h2>
+      <p class="pc-muted">{{ 'Consultations de votre dossier par vos établissements, consultations des résultats que vous avez partagés, rattachements. Les médecins sont nommés ; le personnel d’un établissement est désigné par l’établissement.' | t }}</p>
+      @if (logError()) {
+        <p class="pc-error" role="alert">{{ logError() | t }}</p>
+      } @else if (log() === null) {
+        <p class="pc-muted" role="status">{{ 'Chargement…' | t }}</p>
+      } @else if (log()!.length === 0) {
+        <p>{{ 'Aucun accès enregistré pour le moment.' | t }}</p>
+      } @else {
+        <ul class="pc-log">
+          @for (entry of visibleLog(); track entry.id) {
+            <li [class.is-alert]="entry.action === 'link.conflict'">
+              <svg [pIcon]="icons[entry.action] ?? 'history'" [size]="16" aria-hidden="true"></svg>
+              <div>
+                <strong>{{ (labels[entry.action] ?? entry.action) | t }}</strong>
+                <span class="pc-muted">
+                  {{ entry.created_at | ldate: 'datetime' }}
+                  @if (entry.establishment) { · {{ entry.establishment }} }
+                  @if (entry.actor_role === 'doctor' && entry.actor_name) { · {{ 'Dr {0}' | t: [entry.actor_name] }} }
+                  @if (entry.target) { · {{ entry.target }} }
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+        @if ((log()?.length ?? 0) > 10) {
+          <button type="button" class="pc-link" (click)="showAll.set(!showAll())" [attr.aria-expanded]="showAll()">
+            {{ (showAll() ? 'Afficher moins' : 'Afficher tout l’historique ({0})') | t: [log()!.length] }}
+          </button>
+        }
+      }
+    </section>
+  }
+
+  <section class="pc-card" aria-labelledby="export-title">
+    <h2 id="export-title"><svg [pIcon]="'download'" [size]="18" aria-hidden="true"></svg>{{ 'Récupérer vos données' | t }}</h2>
+    <p class="pc-muted">{{ 'Un fichier JSON avec votre compte, vos établissements, la liste de vos résultats et factures, vos partages, vos demandes et l’historique des accès.' | t }}</p>
+    <div class="pc-actions">
+      <button type="button" class="pc-btn pc-btn-ghost" (click)="prepareExport()" [disabled]="exporting()">
+        {{ (exporting() ? 'Préparation…' : 'Préparer l’export') | t }}
+      </button>
+      @if (exportUrl(); as url) {
+        <a class="pc-btn" [href]="url" download="rohafya-mes-donnees.json">{{ 'Télécharger le fichier' | t }}</a>
+      }
+    </div>
+    @if (exportError()) {
+      <p class="pc-error" role="alert">{{ exportError() | t }}</p>
+    }
+  </section>
+
+  <section class="pc-card">
+    <app-mfa-settings />
+  </section>
+
+  <section class="pc-card pc-danger" aria-labelledby="delete-title">
+    <h2 id="delete-title"><svg [pIcon]="'trash'" [size]="18" aria-hidden="true"></svg>{{ 'Supprimer votre compte' | t }}</h2>
+    @if (deletion(); as d) {
+      <p role="status">{{ 'Demande envoyée le {0} : elle sera traitée sous 30 jours.' | t: [(d.created_at | ldate)] }}</p>
+      <button type="button" class="pc-btn pc-btn-ghost" (click)="cancelDeletion()" [disabled]="deletionBusy()">{{ 'Annuler la demande' | t }}</button>
+    } @else if (!confirmDeletion()) {
+      <p class="pc-muted">{{ 'Votre compte sera désactivé et vos informations personnelles effacées de ROHAFYA. Vos résultats et factures restent conservés par les établissements qui les ont produits.' | t }}</p>
+      <button type="button" class="pc-btn pc-btn-danger" (click)="confirmDeletion.set(true)">{{ 'Demander la suppression' | t }}</button>
+    } @else {
+      <form [formRoot]="deletionForm" (submit)="requestDeletion()" class="pc-form">
+        <label for="deletion-reason">{{ 'Motif (facultatif)' | t }}</label>
+        <textarea id="deletion-reason" rows="3" [formField]="deletionForm.reason"></textarea>
+        <label class="pc-check" for="deletion-confirm">
+          <input id="deletion-confirm" type="checkbox" [formField]="deletionForm.confirmed" />
+          <span>{{ 'Je comprends que la suppression est définitive une fois la demande traitée.' | t }}</span>
+        </label>
+        <div class="pc-actions">
+          <button type="button" class="pc-btn pc-btn-ghost" (click)="confirmDeletion.set(false)">{{ 'Annuler' | t }}</button>
+          <button type="submit" class="pc-btn pc-btn-danger" [disabled]="deletionBusy() || !deletionModel().confirmed">{{ 'Envoyer la demande' | t }}</button>
+        </div>
+      </form>
+    }
+    @if (deletionError()) {
+      <p class="pc-error" role="alert">{{ deletionError() | t }}</p>
+    }
+  </section>
+
+  <p class="pc-muted pc-footer">
+    {{ 'Loi n° 2024/017 du 23 décembre 2024 relative à la protection des données à caractère personnel.' | t }}
+    <a routerLink="/confidentialite">{{ 'Politique de confidentialité' | t }}</a>
+  </p>
+</div>

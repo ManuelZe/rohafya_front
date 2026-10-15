@@ -43,6 +43,11 @@ export class SaasAccountService {
   /** Partage des résultats : illimité sauf configuration contraire du super-administrateur. */
   readonly shareRight = computed(() => this._me()?.rights?.share ?? null);
   readonly canShare = computed(() => this.shareRight()?.allowed ?? true);
+  /** Administrateur sans double authentification : les consoles restent fermées jusqu'à son activation. */
+  readonly mfaSetupNeeded = computed(() => {
+    const security = this._me()?.security;
+    return !!security && security.required && !security.enabled;
+  });
 
   /** GET /saas/me — mis en cache jusqu'à la déconnexion. */
   load(force = false): Observable<SaasMe | null> {

@@ -2,6 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import type { DeletionRequestView } from '../shared/security/security.service';
+import { BillingOverview, Invoice, InvoiceDetail, InvoiceStatus, SubscriptionUpdate, UsageSummary } from './billing.models';
 import {
   AccountRightsUpdate,
   AccountView,
@@ -142,5 +144,55 @@ export class SuperAdminService {
 
   updateTrialRequest(id: number, payload: { status?: TrialStatus; note?: string }): Observable<TrialRequest> {
     return this.http.put<TrialRequest>(`${this.baseUrl}/trial-requests/${id}`, payload);
+  }
+
+  /** Facturation : formule, volume du mois et impayés de chaque établissement. */
+  billing(): Observable<BillingOverview> {
+    return this.http.get<BillingOverview>(`${this.baseUrl}/billing`);
+  }
+
+  subscription(tenantId: number): Observable<UsageSummary> {
+    return this.http.get<UsageSummary>(`${this.baseUrl}/tenants/${tenantId}/subscription`);
+  }
+
+  updateSubscription(tenantId: number, payload: SubscriptionUpdate): Observable<UsageSummary> {
+    return this.http.put<UsageSummary>(`${this.baseUrl}/tenants/${tenantId}/subscription`, payload);
+  }
+
+  invoices(query: { status?: InvoiceStatus | 'overdue' | ''; tenant_id?: number; page?: number }): Observable<Paged<Invoice>> {
+    let params = new HttpParams();
+    if (query.status) params = params.set('status', query.status);
+    if (query.tenant_id) params = params.set('tenant_id', query.tenant_id);
+    if (query.page) params = params.set('page', query.page);
+    return this.http.get<Paged<Invoice>>(`${this.baseUrl}/invoices`, { params });
+  }
+
+  invoice(invoiceId: number): Observable<InvoiceDetail> {
+    return this.http.get<InvoiceDetail>(`${this.baseUrl}/invoices/${invoiceId}`);
+  }
+
+  updateInvoice(invoiceId: number, payload: { status: InvoiceStatus; payment_reference?: string; paid_on?: string; note?: string }): Observable<Invoice> {
+    return this.http.put<Invoice>(`${this.baseUrl}/invoices/${invoiceId}`, payload);
+  }
+
+  /** Émet les factures arrivées à échéance (toutes, ou celles d'un établissement). */
+  issueInvoices(tenantId?: number): Observable<{ issued: Invoice[]; count: number }> {
+    return this.http.post<{ issued: Invoice[]; count: number }>(`${this.baseUrl}/invoices/issue`, tenantId ? { tenant_id: tenantId } : {});
+  }
+
+  /** Téléphone perdu : supprime la double authentification du compte (à reconfigurer à la connexion). */
+  resetMfa(userId: number): Observable<{ message: string; mfa_enabled: boolean }> {
+    return this.http.put<{ message: string; mfa_enabled: boolean }>(`${this.baseUrl}/users/${userId}/mfa-reset`, {});
+  }
+
+  deletionRequests(query: { status?: string; page?: number }): Observable<Paged<DeletionRequestView>> {
+    let params = new HttpParams();
+    if (query.status) params = params.set('status', query.status);
+    if (query.page) params = params.set('page', query.page);
+    return this.http.get<Paged<DeletionRequestView>>(`${this.baseUrl}/deletion-requests`, { params });
+  }
+
+  processDeletion(requestId: number, decision: 'anonymize' | 'refuse', note: string): Observable<DeletionRequestView> {
+    return this.http.post<DeletionRequestView>(`${this.baseUrl}/deletion-requests/${requestId}`, { decision, note });
   }
 }

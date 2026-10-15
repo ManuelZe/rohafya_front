@@ -92,12 +92,20 @@ app.get('/healthz', (_req, res) => {
 
 /**
  * Serve static files from /browser
+ * Le service worker, le manifeste et la page hors connexion sont revérifiés à chaque visite :
+ * une nouvelle version de l'application installée est ainsi prise en compte sans attendre un an.
  */
+const ALWAYS_REVALIDATE = new Set(['/sw.js', '/manifest.webmanifest', '/offline.html']);
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
     index: false,
     redirect: false,
+    setHeaders: (res, filePath) => {
+      const name = '/' + filePath.split(/[\\/]/).pop();
+      if (ALWAYS_REVALIDATE.has(name)) res.setHeader('Cache-Control', 'no-cache');
+      if (name === '/manifest.webmanifest') res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+    },
   }),
 );
 

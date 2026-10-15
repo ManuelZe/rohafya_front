@@ -5,6 +5,7 @@ import { PIcon } from '@primeicons/angular/p-icon';
 import { extractErrorMessage } from '../../../doctors/shared/api-resource';
 import { PageHeader } from '../../../patients/shared/page-header/page-header';
 import { KpiTile } from '../../../shared/kpi-tile/kpi-tile';
+import { UsageMeter } from '../../shared/billing/usage-meter';
 import { RECORD_KIND_LABELS, RecordKind, SOURCE_LABELS, TenantDashboard, auditLabel } from '../../saas.models';
 import { TenantAdminService } from '../../tenant-admin.service';
 import { TenantContext } from '../tenant-context.service';
@@ -12,9 +13,18 @@ import { TenantContext } from '../tenant-context.service';
 import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, KpiTile],
+  imports: [TranslatePipe, DatePipe, RouterLink, PIcon, PageHeader, KpiTile, UsageMeter],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
+  styles: `
+    .usage-card {
+      margin: 1rem 0;
+    }
+    .usage-link {
+      display: inline-block;
+      margin-top: 0.75rem;
+    }
+  `,
 })
 export class AdminDashboard {
   private readonly service = inject(TenantAdminService);

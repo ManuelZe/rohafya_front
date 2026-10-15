@@ -96,6 +96,7 @@
       <span>{{ 'J’accepte d’être recontacté au sujet de ma demande. Vos coordonnées servent uniquement à vous répondre.' | t }} *</span>
     </label>
     <span id="trial-consent-error" class="field__error">{{ errorOf('consent') | t }}</span>
+    <p class="trial__privacy"><a routerLink="/confidentialite">{{ 'Politique de confidentialité' | t }}</a></p>
 
     @if (error()) {
       <div #errorBox class="trial__alert" role="alert" tabindex="-1">{{ error() | t }}</div>

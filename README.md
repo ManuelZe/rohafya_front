@@ -47,6 +47,27 @@ L'interface est écrite en français ; l'anglais est une traduction, choisie par
 - **Règle** : une phrase complète par clé. Ne pas coller des morceaux (« résultat » + « s ») : écrire une clé par variante, par exemple `(n > 1 ? '{0} résultats' : '{0} résultat') | t: [n]`.
 - Les messages de l'API (en français) passent aussi par le dictionnaire (`en/api.ts`). Les données saisies (noms, examens, messages) ne sont pas traduites.
 - Le dictionnaire anglais n'est chargé que si l'anglais est choisi. `src/app/shared/i18n/i18n.spec.ts` vérifie notamment que chaque traduction garde les paramètres `{…}` du texte français.
+- Chaque appel à l'API porte `Accept-Language: fr | en` (`shared/i18n/lang-interceptor.ts`) : l'API envoie ainsi les e-mails dans la langue de l'interface quand le destinataire n'a pas encore de préférence enregistrée.
+
+## Abonnement des établissements
+
+- **Établissement** : page « Abonnement » (`/admin/abonnement`) : formule et conditions, essai restant, volume publié du mois (jauge) et des 12 derniers mois (histogramme), recommandation de formule, factures téléchargeables en PDF. Le tableau de bord affiche le volume du mois.
+- **Super-administrateur** : page « Facturation » (`/super-admin/facturation`) : revenu mensuel récurrent, essais, reste à encaisser, volume de chaque établissement, factures à encaisser ou annuler, bouton « Émettre les factures dues » ; section « Abonnement » de la fiche d'un établissement (formule, statut, rythme, conditions particulières, mise en service offerte, mois offerts).
+- Code : `saas/billing.models.ts` (types et libellés), `saas/shared/billing/` (jauge, histogramme, PDF de facture), `shared/pdf/` (pdfmake partagé et bouton de téléchargement : sur téléphone, le PDF est préparé puis proposé par un vrai lien).
+
+## Sécurité et données personnelles
+
+- **Double authentification** : étape « code » à la connexion (`connexion/mfa-step`), réglages dans `shared/security/mfa-settings` (QR code, codes de secours). Obligatoire pour les administrateurs : la garde `mfaSetupGuard` ouvre les consoles sur leur page « Sécurité » tant qu'elle n'est pas activée, et l'intercepteur y renvoie si l'API répond `mfa_setup_required`.
+- **Confidentialité** (`/patients/confidentialite`, `/doctors/confidentialite`) : historique des accès au dossier (patient), export des données en JSON, double authentification facultative, demande de suppression du compte. Côté super-administrateur : « Données personnelles » (`/super-admin/donnees-personnelles`) pour traiter les demandes, et réinitialisation de la double authentification depuis « Comptes ».
+- **Politique de confidentialité** publique : `/confidentialite` (pré-rendue, liens dans le pied du site et le formulaire d'essai). Texte dans `src/app/legal/privacy-policy.ts`, à faire valider par un juriste.
+
+## Application installable
+
+ROHAFYA s'installe sur l'écran d'accueil du téléphone, sans store :
+
+- `public/manifest.webmanifest` (nom, icônes 192 et 512 px dont des icônes « maskable », couleur, raccourcis « Mes résultats » et « Mes factures ») ; entrée de l'application : `/app`, qui ouvre l'espace de l'utilisateur connecté, sinon la connexion ;
+- `public/sw.js`, service worker minimal enregistré en production seulement (`shared/pwa/pwa.service.ts`) : il ne met **aucune donnée médicale ni réponse de l'API** en cache, seulement la page `public/offline.html` affichée sans connexion ; le serveur Node le sert avec `Cache-Control: no-cache` ;
+- bouton « Installer l'application » (`shared/pwa/install-app.ts`) dans les barres latérales patient et médecin et dans le pied du site : invitation du navigateur (Chrome, Edge, Samsung Internet), ou marche à suivre sur iPhone (Safari, « Sur l'écran d'accueil ») ; masqué quand l'application est déjà installée.
 
 ## Mode démonstration
 
@@ -67,7 +88,7 @@ Les trois profils partagent les mêmes données, et une information circule du p
 - **établissement → patients et médecins** : depuis « Notifications », l'administrateur écrit à un patient ou un médecin précis, à une sélection ou à tout le groupe ; la notification apparaît dans l'espace du destinataire (en démo, aucun e-mail ne part) ;
 - **dans l'établissement** : toutes ces actions sont inscrites au journal, et le tableau de bord suit.
 
-La console super-administrateur (dont l'envoi de notifications aux établissements, les droits des comptes et les demandes d'essai) n'a pas de profil de démo.
+La console super-administrateur (dont l'envoi de notifications aux établissements, les droits des comptes, les demandes d'essai, la facturation et les demandes de suppression) n'a pas de profil de démo. L'administrateur de démonstration voit un abonnement fictif (`demo/demo-billing.ts` : formule Standard, trois factures pour le premier établissement, essai pour les autres) ; le patient voit l'historique des accès à son dossier et peut préparer l'export ; la double authentification et la suppression de compte ne sont pas disponibles en démo.
 
 Le bandeau « Démo » permet de changer de profil sans perdre les données, de les remettre à zéro ou de quitter la démo. Les données sont gardées dans l'onglet (`sessionStorage`) : elles survivent à un rechargement, mais pas à la fermeture de l'onglet. Les fichiers joints restent en mémoire et sont remplacés par une image générée après un rechargement.
 
@@ -102,6 +123,7 @@ Le message `getBoundingClientRect is not a function` pendant le pré-rendu est c
 | `rohafya-emblem.png` | Croix + « RH » (fond transparent) | En-tête de la page d'accueil (`src/app/intro`) |
 | `favicon.ico` | Croix + « RH », 16 à 64 px | Onglet du navigateur |
 | `icon-192.png`, `apple-touch-icon.png` | Croix + « RH » | Android, iOS (écran d'accueil) |
+| `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png` | Croix + « RH » sur fond blanc (marge de sécurité pour les icônes rondes) | Application installée (`manifest.webmanifest`) |
 
 L'emblème animé des chargements (`src/app/shared/rohafya-mark`) reprend la croix du logo en SVG : une croix verte traversée d'un tracé de pouls blanc.
 

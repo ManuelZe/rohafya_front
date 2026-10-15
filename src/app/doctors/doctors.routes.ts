@@ -75,6 +75,11 @@ export const DOCTOR_ROUTES: Routes = [
         loadComponent: () => import('../notifications/notifications').then((m) => m.Notifications),
       },
       {
+        path: 'confidentialite',
+        title: 'Confidentialité' + TITLE_SUFFIX,
+        loadComponent: () => import('./privacy/doctor-privacy').then((m) => m.DoctorPrivacy),
+      },
+      {
         path: 'parametres',
         title: 'Paramètres' + TITLE_SUFFIX,
         loadComponent: () => import('./parametres/doctor-parametres').then((m) => m.DoctorParametres),

@@ -1,0 +1,187 @@
+<div class="page">
+  <app-page-header [title]="'Facturation' | t" [subtitle]="'Abonnements des établissements, volume du mois et paiements.' | t">
+    <button actions type="button" class="btn btn-primary" (click)="issue()" [disabled]="issuing()">
+      @if (issuing()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'file'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span>{{ 'Émettre les factures dues' | t }}</span>
+    </button>
+  </app-page-header>
+
+  @if (notice(); as n) {
+    <div class="banner banner-info" role="status">
+      <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ n.text | t: [n.count] }}</span>
+    </div>
+  }
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() | t }}</span>
+      <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
+    </div>
+  }
+
+  <div class="kpis">
+    <app-kpi-tile [label]="'Revenu mensuel récurrent' | t" icon="wallet" accent="#137a36" [value]="money(overview()?.totals?.monthly_recurring ?? 0)" [hint]="'Abonnements actifs facturés' | t" [loading]="loading() && !overview()" />
+    <app-kpi-tile [label]="'Essais en cours' | t" icon="clock" accent="#1f6a8f" [value]="(overview()?.totals?.trials ?? 0).toString()" [hint]="'{0} se terminent sous 7 jours' | t: [overview()?.totals?.trials_ending ?? 0]" [loading]="loading() && !overview()" />
+    <app-kpi-tile [label]="'Reste à encaisser' | t" icon="file" accent="#b45309" [value]="money(overview()?.totals?.unpaid_amount ?? 0)" [hint]="'{0} facture(s) en retard' | t: [overview()?.totals?.overdue ?? 0]" [loading]="loading() && !overview()" />
+  </div>
+
+  @if (overview(); as o) {
+    <section class="card" aria-labelledby="tenants-billing-title">
+      <h2 class="card-title" id="tenants-billing-title">
+        <svg [pIcon]="'building'" [size]="18" aria-hidden="true"></svg>
+        {{ 'Établissements' | t }}
+      </h2>
+      <div class="table-wrap">
+        <table class="rtable">
+          <caption class="sr-only">{{ 'Abonnement et volume du mois de chaque établissement' | t }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'Établissement' | t }}</th>
+              <th scope="col">{{ 'Formule' | t }}</th>
+              <th scope="col">{{ 'Volume du mois' | t }}</th>
+              <th scope="col">{{ 'Prochaine facture' | t }}</th>
+              <th scope="col">{{ 'Impayés' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of o.tenants; track row.tenant_id) {
+              <tr>
+                <td [attr.data-label]="'Établissement' | t">
+                  <a class="link strong" [routerLink]="['/super-admin/etablissements', row.tenant_id]" fragment="abonnement">{{ row.establishment }}</a>
+                </td>
+                <td [attr.data-label]="'Formule' | t">
+                  {{ row.subscription.plan_label | t }}
+                  <span [class]="'pill pill-sub-' + row.subscription.status">{{ statusLabels[row.subscription.status] | t }}</span>
+                  @if (row.subscription.status === 'essai' && row.subscription.trial_days_left !== null) {
+                    <span class="muted small">{{ (row.subscription.trial_days_left > 0 ? '{0} j restants' : 'essai terminé') | t: [row.subscription.trial_days_left] }}</span>
+                  }
+                  @if (!row.subscription.billed) {
+                    <span class="muted small">{{ 'non facturé' | t }}</span>
+                  }
+                </td>
+                <td [attr.data-label]="'Volume du mois' | t" class="usage-cell">
+                  <app-usage-meter [count]="row.usage.count" [quota]="row.usage.quota" [percent]="row.usage.percent" [label]="'Volume du mois de {0}' | t: [row.establishment]" />
+                </td>
+                <td [attr.data-label]="'Prochaine facture' | t">{{ row.subscription.status === 'actif' && row.subscription.next_invoice_on ? (row.subscription.next_invoice_on | ldate) : '—' }}</td>
+                <td [attr.data-label]="'Impayés' | t">
+                  @if (row.unpaid.count) {
+                    {{ money(row.unpaid.amount) }}
+                    @if (row.unpaid.overdue) {
+                      <span class="pill pill-invoice-retard">{{ '{0} en retard' | t: [row.unpaid.overdue] }}</span>
+                    }
+                  } @else {
+                    —
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <section class="card" aria-labelledby="invoices-title">
+    <h2 class="card-title" id="invoices-title">
+      <svg [pIcon]="'file'" [size]="18" aria-hidden="true"></svg>
+      {{ 'Factures' | t }}
+    </h2>
+    <div class="toolbar">
+      <div class="segmented" role="group" [attr.aria-label]="'Filtrer par statut' | t">
+        @for (f of filters; track f.value) {
+          <button type="button" [attr.aria-pressed]="filter() === f.value" (click)="setFilter(f.value)">{{ f.label | t }}</button>
+        }
+      </div>
+      <span class="muted total" aria-live="polite">{{ '{0} facture(s)' | t: [invoices()?.total ?? 0] }}</span>
+    </div>
+    @if (invoices(); as list) {
+      @if (list.items.length === 0) {
+        <div class="state"><span>{{ 'Aucune facture.' | t }}</span></div>
+      } @else {
+        <div class="table-wrap">
+          <table class="rtable">
+            <caption class="sr-only">{{ 'Factures des établissements' | t }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'Numéro' | t }}</th>
+                <th scope="col">{{ 'Établissement' | t }}</th>
+                <th scope="col">{{ 'Montant' | t }}</th>
+                <th scope="col">{{ 'Échéance' | t }}</th>
+                <th scope="col">{{ 'Statut' | t }}</th>
+                <th scope="col"><span class="sr-only">{{ 'Actions' | t }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invoice of list.items; track invoice.id) {
+                <tr>
+                  <td [attr.data-label]="'Numéro' | t" class="mono">{{ invoice.number }}</td>
+                  <td [attr.data-label]="'Établissement' | t">{{ invoice.establishment }}</td>
+                  <td [attr.data-label]="'Montant' | t" class="strong">{{ money(invoice.total) }}</td>
+                  <td [attr.data-label]="'Échéance' | t">{{ invoice.due_on | ldate }}</td>
+                  <td [attr.data-label]="'Statut' | t">
+                    <span [class]="'pill pill-invoice-' + (invoice.overdue ? 'retard' : invoice.status)">{{ (invoice.overdue ? 'En retard' : invoiceLabels[invoice.status]) | t }}</span>
+                    @if (invoice.paid_on) {
+                      <span class="muted small">{{ invoice.paid_on | ldate }}@if (invoice.payment_reference) { · {{ invoice.payment_reference }} }</span>
+                    }
+                  </td>
+                  <td class="actions-cell">
+                    <span class="cell-actions">
+                      <app-pdf-button [source]="pdf(invoice)" [srLabel]="invoice.number" />
+                      @if (invoice.status === 'emise') {
+                        <button type="button" class="btn btn-primary btn-sm" (click)="openPayment(invoice)">
+                          {{ 'Encaisser' | t }}<span class="sr-only"> {{ invoice.number }}</span>
+                        </button>
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="cancel(invoice)">
+                          {{ 'Annuler' | t }}<span class="sr-only"> {{ invoice.number }}</span>
+                        </button>
+                      }
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-pager [page]="page()" [pageSize]="pageSize" [total]="list.total" (pageChange)="goTo($event)" />
+      }
+    }
+  </section>
+
+  @if (paying(); as invoice) {
+    <div class="overlay" (click)="closePayment()">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pay-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (click)="$event.stopPropagation()">
+        <h2 id="pay-title">{{ 'Encaisser la facture {0}' | t: [invoice.number] }}</h2>
+        <p>{{ '{0} · {1}' | t: [invoice.establishment, money(invoice.total)] }}</p>
+        <form [formRoot]="payForm" (submit)="markPaid()">
+          <div class="form-row">
+            <label for="pay-date">{{ 'Date du paiement' | t }}</label>
+            <input id="pay-date" class="field" type="date" [formField]="payForm.paid_on" />
+          </div>
+          <div class="form-row">
+            <label for="pay-ref">{{ 'Référence (Mobile Money, virement…)' | t }}</label>
+            <input id="pay-ref" class="field" type="text" [formField]="payForm.payment_reference" />
+            @if (payForm.payment_reference().invalid()) {
+              <span class="form-error">{{ (payForm.payment_reference().errors()[0]?.message) | t }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="pay-note">{{ 'Note' | t }}</label>
+            <textarea id="pay-note" class="field" rows="2" [formField]="payForm.note"></textarea>
+          </div>
+          @if (payError()) {
+            <div class="banner banner-error notice" role="alert"><span>{{ payError() | t }}</span></div>
+          }
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" (click)="closePayment()">{{ 'Fermer' | t }}</button>
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ (saving() ? 'Enregistrement…' : 'Marquer comme payée') | t }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

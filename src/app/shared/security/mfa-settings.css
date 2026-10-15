@@ -1,0 +1,160 @@
+.mfa-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  color: var(--rohafya-navy, #0c4562);
+}
+.mfa-badge {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.mfa-badge.is-on {
+  background: #ecf8f0;
+  color: #1f6b3a;
+}
+.mfa-badge.is-off {
+  background: #fff6e5;
+  color: #8a5a00;
+}
+.mfa p {
+  line-height: 1.55;
+}
+.mfa-muted {
+  display: block;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+.mfa-required {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #fff6e5;
+  color: #8a5a00;
+  font-size: 0.9rem;
+}
+.mfa-notice {
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #ecf8f0;
+  color: #1f6b3a;
+}
+.mfa-error {
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #fdf0f0;
+  color: #9b1c1c;
+}
+.mfa-steps {
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+.mfa-steps li + li {
+  margin-top: 0.75rem;
+}
+.mfa-qr {
+  display: block;
+  margin: 0.75rem 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+.mfa-secret {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.4rem;
+  background: #f3f4f6;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+}
+.mfa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 22rem;
+  margin-top: 0.75rem;
+}
+.mfa-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.mfa-input {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #9ca3af;
+  border-radius: 0.5rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.25em;
+}
+.mfa-input:focus-visible,
+.mfa-btn:focus-visible {
+  outline: 3px solid var(--rohafya-green-600, #059669);
+  outline-offset: 2px;
+}
+.mfa-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.mfa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--rohafya-green-700, #047857);
+  border-radius: 0.5rem;
+  background: var(--rohafya-green-700, #047857);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.mfa-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.mfa-btn-ghost {
+  background: #ffffff;
+  color: var(--rohafya-green-700, #047857);
+}
+.mfa-code-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+.mfa-code-list code {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  background: #f3f4f6;
+  font-size: 1rem;
+  text-align: center;
+}
+.mfa-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0;
+}
+.mfa-facts dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+.mfa-facts dd {
+  margin: 0;
+  font-weight: 600;
+}

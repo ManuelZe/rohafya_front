@@ -1015,6 +1015,10 @@
 /* Choix de la langue, sous la date */
 .sidebar-lang {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  display: flex;
   justify-content: center;
   margin: 0.25rem 0 0.5rem;
 }

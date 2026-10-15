@@ -1,0 +1,91 @@
+<section class="mfa" aria-labelledby="mfa-settings-title">
+  <h2 class="mfa-heading" id="mfa-settings-title">
+    <svg [pIcon]="'shield'" [size]="18" aria-hidden="true"></svg>
+    {{ 'Double authentification' | t }}
+    @if (status(); as s) {
+      <span [class]="'mfa-badge ' + (s.enabled ? 'is-on' : 'is-off')">{{ (s.enabled ? 'Activée' : 'Désactivée') | t }}</span>
+    }
+  </h2>
+
+  @if (notice()) {
+    <p class="mfa-notice" role="status">{{ notice() | t }}</p>
+  }
+  @if (error()) {
+    <p class="mfa-error" role="alert">{{ error() | t }}</p>
+  }
+
+  @if (status(); as s) {
+    @if (step() === 'codes') {
+      <div class="mfa-codes" role="region" [attr.aria-label]="'Codes de secours' | t">
+        <p><strong>{{ 'Notez ces codes de secours maintenant : ils ne seront plus affichés.' | t }}</strong></p>
+        <p class="mfa-muted">{{ 'Chacun permet une connexion si votre téléphone n’est pas disponible. Gardez-les hors du téléphone (papier, coffre de mots de passe).' | t }}</p>
+        <ul class="mfa-code-list">
+          @for (code of codes(); track code) {
+            <li><code>{{ code }}</code></li>
+          }
+        </ul>
+        <div class="mfa-actions">
+          @if (codesFile(); as file) {
+            <a class="mfa-btn mfa-btn-ghost" [href]="file" download="rohafya-codes-de-secours.txt">{{ 'Télécharger les codes' | t }}</a>
+          }
+          <button type="button" class="mfa-btn" (click)="done()">{{ 'J’ai noté mes codes' | t }}</button>
+        </div>
+      </div>
+    } @else if (step() === 'setup' && setup(); as st) {
+      <ol class="mfa-steps">
+        <li>{{ 'Installez une application d’authentification sur votre téléphone : Google Authenticator, Microsoft Authenticator ou 2FAS (gratuites).' | t }}</li>
+        <li>
+          {{ 'Scannez ce QR code avec l’application.' | t }}
+          <img class="mfa-qr" [src]="'data:image/png;base64,' + st.qr_png" width="180" height="180" [alt]="'QR code de configuration de la double authentification' | t" />
+          <span class="mfa-muted">{{ 'Impossible de scanner ? Saisissez cette clé dans l’application :' | t }}</span>
+          <code class="mfa-secret">{{ secretGroups() }}</code>
+        </li>
+        <li>{{ 'Saisissez le code à 6 chiffres affiché par l’application.' | t }}</li>
+      </ol>
+      <form class="mfa-form" [formRoot]="codeForm" (submit)="confirm()">
+        <label for="mfa-setup-code">{{ 'Code à 6 chiffres' | t }}</label>
+        <input id="mfa-setup-code" class="mfa-input" type="text" inputmode="numeric" autocomplete="one-time-code" [formField]="codeForm.code" />
+        <button type="submit" class="mfa-btn" [disabled]="busy() || codeForm().invalid()">{{ (busy() ? 'Vérification…' : 'Activer') | t }}</button>
+      </form>
+    } @else if (!s.enabled) {
+      <p>{{ 'Protégez votre compte : en plus du mot de passe ou du code e-mail, chaque connexion demandera un code à 6 chiffres affiché par une application de votre téléphone.' | t }}</p>
+      @if (s.required) {
+        <p class="mfa-required" role="status">
+          <svg [pIcon]="'exclamation-triangle'" [size]="16" aria-hidden="true"></svg>
+          {{ 'Obligatoire pour les administrateurs : la console reste fermée tant qu’elle n’est pas activée.' | t }}
+        </p>
+      }
+      <button type="button" class="mfa-btn" (click)="start()" [disabled]="busy()">{{ 'Activer la double authentification' | t }}</button>
+    } @else {
+      <dl class="mfa-facts">
+        <div><dt>{{ 'Activée le' | t }}</dt><dd>{{ s.enabled_at | ldate: 'datetime' }}</dd></div>
+        <div><dt>{{ 'Codes de secours restants' | t }}</dt><dd>{{ s.recovery_codes_left }}</dd></div>
+      </dl>
+      @if (s.recovery_codes_left <= 3) {
+        <p class="mfa-required" role="status">{{ 'Il vous reste peu de codes de secours : générez-en de nouveaux.' | t }}</p>
+      }
+      @if (action(); as a) {
+        <form class="mfa-form" [formRoot]="codeForm" (submit)="submitAction()">
+          <label for="mfa-action-code">{{ (a === 'renew' ? 'Code de l’application, pour générer de nouveaux codes de secours' : 'Code de l’application, pour désactiver') | t }}</label>
+          <input id="mfa-action-code" class="mfa-input" type="text" inputmode="numeric" autocomplete="one-time-code" [formField]="codeForm.code" />
+          <div class="mfa-actions">
+            <button type="button" class="mfa-btn mfa-btn-ghost" (click)="startAction(null)">{{ 'Annuler' | t }}</button>
+            <button type="submit" class="mfa-btn" [disabled]="busy() || codeForm().invalid()">{{ (a === 'renew' ? 'Générer' : 'Désactiver') | t }}</button>
+          </div>
+        </form>
+      } @else {
+        <div class="mfa-actions">
+          <button type="button" class="mfa-btn mfa-btn-ghost" (click)="startAction('renew')">{{ 'Nouveaux codes de secours' | t }}</button>
+          @if (!s.required) {
+            <button type="button" class="mfa-btn mfa-btn-ghost" (click)="startAction('disable')">{{ 'Désactiver' | t }}</button>
+          }
+        </div>
+        @if (s.required) {
+          <p class="mfa-muted">{{ 'Téléphone perdu ? Un super-administrateur peut réinitialiser votre double authentification.' | t }}</p>
+        }
+      }
+    }
+  } @else if (!error()) {
+    <p class="mfa-muted" role="status">{{ 'Chargement…' | t }}</p>
+  }
+</section>

@@ -4,6 +4,7 @@ import { FormField, FormRoot, email, form, maxLength, required, validate } from 
 import { environment } from '../../../environments/environment';
 import { extractErrorMessage } from '../../shared/api-error';
 import { I18n } from '../../shared/i18n/i18n';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/i18n/t.pipe';
 import { TRIAL_KINDS, TRIAL_SLOTS, TRIAL_VOLUMES } from '../intro.content';
 
@@ -50,7 +51,7 @@ type FieldName = keyof Omit<TrialModel, 'website'>;
  */
 @Component({
   selector: 'app-trial-form',
-  imports: [FormField, FormRoot, TranslatePipe],
+  imports: [FormField, FormRoot, TranslatePipe, RouterLink],
   templateUrl: './trial-form.html',
   styleUrls: ['../intro-buttons.css', './trial-form.css'],
 })

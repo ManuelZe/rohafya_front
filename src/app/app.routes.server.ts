@@ -5,6 +5,9 @@ export const serverRoutes: ServerRoute[] = [
   { path: '', renderMode: RenderMode.Server },
   { path: 'intro', renderMode: RenderMode.Prerender },
   { path: 'en', renderMode: RenderMode.Prerender },
+  { path: 'confidentialite', renderMode: RenderMode.Prerender },
+  // Session lue dans le stockage du navigateur : rendu côté client.
+  { path: 'app', renderMode: RenderMode.Client },
   { path: 'connexion', renderMode: RenderMode.Prerender },
   { path: 'matricule', renderMode: RenderMode.Prerender },
   { path: 'register', renderMode: RenderMode.Prerender },

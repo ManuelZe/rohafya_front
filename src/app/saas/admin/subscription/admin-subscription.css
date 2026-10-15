@@ -1,0 +1,79 @@
+/* Abonnement : compléments (le reste vient de doctor-ui.css et console-ui.css). */
+.small {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.card + .card,
+.two-cols + .card {
+  margin-top: 1rem;
+}
+
+.card app-usage-history {
+  display: block;
+  margin-top: 1.25rem;
+}
+
+.pill-sub-essai,
+.pill-invoice-emise {
+  background: #e5eef3;
+  color: #0c4562;
+}
+
+.pill-sub-actif,
+.pill-invoice-payee {
+  background: #ecf8f0;
+  color: #1f6b3a;
+}
+
+.pill-sub-suspendu,
+.pill-invoice-retard {
+  background: #fdf0f0;
+  color: #9b1c1c;
+}
+
+.pill-sub-resilie,
+.pill-invoice-annulee {
+  background: #eef0f3;
+  color: #3d4654;
+}
+
+.history-toggle {
+  margin: 1rem 0;
+}
+
+.history-toggle summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--rohafya-navy, #0c4562);
+  margin-bottom: 0.75rem;
+}
+
+.sub-title {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1rem;
+  color: var(--rohafya-navy, #0c4562);
+}
+
+.invoice-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.invoice-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.usage-cell {
+  min-width: 12rem;
+}
+
+.kpis + .card {
+  margin-top: 1rem;
+}

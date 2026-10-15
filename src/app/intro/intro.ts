@@ -28,6 +28,7 @@ import {
 } from './intro.content';
 import { introSeo } from './intro.seo';
 import { I18n, Lang } from '../shared/i18n/i18n';
+import { InstallApp } from '../shared/pwa/install-app';
 import { LangSwitch } from '../shared/i18n/lang-switch';
 import { TranslatePipe } from '../shared/i18n/t.pipe';
 import { TrialForm } from './trial-form/trial-form';
@@ -42,7 +43,7 @@ const SCROLLED_AT = 12;
  */
 @Component({
   selector: 'app-intro',
-  imports: [PIcon, NgOptimizedImage, RouterLink, DemoLauncher, RohafyaMark, BeforeAfter, RoleShowcase, HowItWorks, Reveal, LangSwitch, TranslatePipe, TrialForm],
+  imports: [InstallApp, PIcon, NgOptimizedImage, RouterLink, DemoLauncher, RohafyaMark, BeforeAfter, RoleShowcase, HowItWorks, Reveal, LangSwitch, TranslatePipe, TrialForm],
   templateUrl: './intro.html',
   styleUrls: ['./intro-buttons.css', './intro.css'],
   host: {

@@ -65,6 +65,9 @@
                 <td [attr.data-label]="'Administre' | t">{{ account.admin_of.length ? account.admin_of.join(', ') : '—' }}</td>
                 <td [attr.data-label]="'État' | t">
                   <span [class]="'pill ' + (account.active ? 'pill-active' : 'pill-danger')">{{ (account.active ? 'Actif' : 'Désactivé') | t }}</span>
+                  @if (account.mfa_enabled) {
+                    <span class="pill pill-active">{{ 'Double authentification' | t }}</span>
+                  }
                 </td>
                 <td [attr.data-label]="'Droits' | t">
                   @if (account.rights?.length) {
@@ -85,6 +88,11 @@
                       </button>
                     }
                   @if (account.id !== currentUserId()) {
+                      @if (account.mfa_enabled) {
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="resetMfa(account)" [disabled]="busyId() === account.id">
+                          {{ 'Réinitialiser la double authentification' | t }}<span class="sr-only"> : {{ account.email }}</span>
+                        </button>
+                      }
                       @if (!account.roles.includes('Admin')) {
                         <button type="button" class="btn btn-ghost btn-sm" (click)="toggleSuperAdmin(account)" [disabled]="busyId() === account.id">
                           {{ (account.roles.includes('SuperAdmin') ? 'Retirer super-admin' : 'Nommer super-admin') | t }}<span class="sr-only"> : {{ account.email }}</span>

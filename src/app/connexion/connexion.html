@@ -87,8 +87,10 @@
         <button type="button" [attr.aria-pressed]="mode() === 'email'" (click)="mode.set('email')">{{ 'Code par e-mail' | t }}</button>
       </div>
 
-      @if (mode() === 'email') {
-        <app-email-code-login (loggedIn)="onLoggedIn()" />
+      @if (mfaToken(); as token) {
+        <app-mfa-step [token]="token" (verified)="onLoggedIn()" (cancelled)="mfaToken.set(null)" />
+      } @else if (mode() === 'email') {
+        <app-email-code-login (loggedIn)="onLoggedIn()" (mfaRequired)="mfaToken.set($event)" />
       } @else {
       <!-- Formulaire -->
       <form [formRoot]="form" (submit)="handleSubmit()" class="credentials-form">

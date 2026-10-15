@@ -9,6 +9,7 @@ import { AccountView } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
 import { AccountRightsDialog } from './account-rights/account-rights-dialog';
 
+import { tr } from '../../../shared/i18n/i18n';
 import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 const PAGE_SIZE = 25;
 const ROLE_LABELS: Record<string, string> = {
@@ -116,6 +117,21 @@ export class SuperAccounts {
 
   toggleActive(account: AccountView): void {
     this.update(account, this.service.setActive(account.id, !account.active));
+  }
+
+  resetMfa(account: AccountView): void {
+    if (this.busyId() || !confirm(tr('Réinitialiser la double authentification de {email} ? Le compte devra la reconfigurer à sa prochaine connexion.', { email: account.email }))) return;
+    this.busyId.set(account.id);
+    this.service.resetMfa(account.id).subscribe({
+      next: () => {
+        this.busyId.set(null);
+        this.items.update((list) => list.map((item) => (item.id === account.id ? { ...item, mfa_enabled: false } : item)));
+      },
+      error: (err: unknown) => {
+        this.busyId.set(null);
+        this.error.set(extractErrorMessage(err, "L'opération a échoué."));
+      },
+    });
   }
 
   toggleSuperAdmin(account: AccountView): void {

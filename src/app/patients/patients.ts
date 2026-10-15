@@ -13,6 +13,7 @@ import { SaasAccountService } from '../saas/saas-account.service';
 
 import { TranslatePipe } from '../shared/i18n/t.pipe';
 import { I18n } from '../shared/i18n/i18n';
+import { InstallApp } from '../shared/pwa/install-app';
 import { LangSwitch } from '../shared/i18n/lang-switch';
 const HELP_CONTACTS = [
   {
@@ -26,7 +27,7 @@ const ACCESS_DENIED_MESSAGE = 'L\u2019UTILISATEUR NE PEUT PAS AVOIR ACCÈS À CE
 
 @Component({
   selector: 'app-patients',
-  imports: [LangSwitch, TranslatePipe, 
+  imports: [InstallApp, LangSwitch, TranslatePipe, 
     CommonModule,
     PRIMENG_MODULES,
     PIcon,
@@ -134,6 +135,7 @@ export class Patients {
     { label: 'Requêtes', icon: 'send', link: '/patients/requests' },
     { label: 'Pré-enregistrements', icon: 'check-circle', link: '/patients/enregistrement' },
     { label: 'Notifications', icon: 'bell', link: '/notifications' },
+    { label: 'Confidentialité', icon: 'lock', link: '/patients/confidentialite' },
     { label: 'Paramètres', icon: 'cog', link: '/patients/parametres' },
   ];
 

@@ -26,6 +26,17 @@
   </div>
 
   @if (data(); as d) {
+    @if (d.usage; as u) {
+      <section class="card usage-card" aria-labelledby="usage-title">
+        <h2 class="card-title" id="usage-title">
+          <svg [pIcon]="'chart-bar'" [size]="18" aria-hidden="true"></svg>
+          {{ 'Résultats publiés ce mois-ci' | t }}
+          <span class="card-title-aside">{{ 'Formule {0}' | t: [(u.subscription.plan_label | t)] }}@if (u.subscription.status === 'essai' && (u.subscription.trial_days_left ?? 0) > 0) { · {{ 'essai : {0} j restants' | t: [u.subscription.trial_days_left] }}}</span>
+        </h2>
+        <app-usage-meter [count]="u.count" [quota]="u.quota" [percent]="u.percent" />
+        <a class="link usage-link" routerLink="/admin/abonnement">{{ 'Voir l’abonnement et les factures' | t }}</a>
+      </section>
+    }
     @if (d.links_pending > 0) {
       <div class="banner banner-info" role="status">
         <svg [pIcon]="'info-circle'" [size]="16" aria-hidden="true"></svg>

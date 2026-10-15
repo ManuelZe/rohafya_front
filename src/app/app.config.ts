@@ -11,6 +11,8 @@ import { definePreset } from '@primeuix/themes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './connexion/auth-interceptor';
 import { demoInterceptor } from './demo/demo-interceptor';
+import { langInterceptor } from './shared/i18n/lang-interceptor';
+import { PwaService } from './shared/pwa/pwa.service';
 import { DemoSession } from './demo/demo-session';
 
 /** Thème aux couleurs du logo : vert (primary, foncé en 700 pour le contraste AA) et marine. */
@@ -55,8 +57,10 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(DemoSession).closeObsoleteSession()),
     // Langue retenue sur l'appareil : dictionnaire chargé avant le premier affichage (pas de texte qui change de langue).
     provideAppInitializer(() => inject(I18n).init()),
+    // Application installable : service worker (production) et invitation d'installation.
+    provideAppInitializer(() => inject(PwaService).init()),
     { provide: TitleStrategy, useClass: I18nTitleStrategy },
-    provideHttpClient(withInterceptors([demoInterceptor, authInterceptor])),
+    provideHttpClient(withInterceptors([demoInterceptor, langInterceptor, authInterceptor])),
     // Sur mobile la page elle-même défile : chaque nouvelle page s'ouvre en haut, le retour arrière restaure la position.
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })), provideClientHydration(),
     providePrimeNG({

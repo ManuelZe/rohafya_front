@@ -11,6 +11,12 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
   <!-- ?v= : à incrémenter à chaque changement d'icône ou de logo (fichiers statiques gardés un an en cache, voir server.ts). -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+  <!-- Application installable (écran d'accueil du téléphone) : voir public/manifest.webmanifest et public/sw.js -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ROHAFYA">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <!-- Configuration d'exécution (URL de l'API, version) servie par le conteneur : voir src/server.ts -->
   <script src="env.js"></script>
   <style>

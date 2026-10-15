@@ -1,0 +1,163 @@
+<section class="card" id="abonnement" aria-labelledby="subscription-title">
+  <h2 class="card-title" id="subscription-title">
+    <svg [pIcon]="'credit-card'" [size]="18" aria-hidden="true"></svg>
+    {{ 'Abonnement' | t }}
+    @if (data(); as d) {
+      <span [class]="'pill card-title-aside pill-sub-' + d.subscription.status">{{ statusLabels[d.subscription.status] | t }}</span>
+    }
+  </h2>
+
+  @if (error()) {
+    <div class="banner banner-error notice" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() | t }}</span>
+      <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
+    </div>
+  }
+  @if (loading() && !data()) {
+    <div class="state" role="status"><span class="spinner" aria-hidden="true"></span><span>{{ 'Chargement…' | t }}</span></div>
+  }
+
+  @if (data(); as d) {
+    <app-usage-meter [count]="d.current.count" [quota]="d.current.quota" [percent]="d.current.percent" />
+    @if (d.recommendation; as reco) {
+      <div class="banner banner-info notice" role="status">
+        <svg [pIcon]="reco.direction === 'up' ? 'arrow-up' : 'arrow-down'" [size]="16" aria-hidden="true"></svg>
+        <span>{{ 'Trois mois consécutifs : formule {0} recommandée, à appliquer à partir du {1}.' | t: [(reco.plan_label | t), (reco.applies_from | ldate)] }}</span>
+      </div>
+    }
+    <details class="history-toggle">
+      <summary>{{ 'Volume des douze derniers mois' | t }}</summary>
+      <app-usage-history [history]="d.history" [quota]="d.current.quota" />
+    </details>
+
+    <form [formRoot]="subForm" (submit)="save()">
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="s-plan">{{ 'Formule' | t }}</label>
+          <select id="s-plan" class="field" [formField]="subForm.plan">
+            @for (plan of plans; track plan) {
+              <option [value]="plan">{{ planLabels[plan] | t }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="s-status">{{ 'Statut' | t }}</label>
+          <select id="s-status" class="field" [formField]="subForm.status">
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ statusLabels[status] | t }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="s-cycle">{{ 'Rythme de paiement' | t }}</label>
+          <select id="s-cycle" class="field" [formField]="subForm.billing_cycle">
+            @for (cycle of cycles; track cycle) {
+              <option [value]="cycle">{{ cycleLabels[cycle] | t }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="s-trial">{{ 'Fin de l’essai' | t }}</label>
+          <input id="s-trial" class="field" type="date" [formField]="subForm.trial_ends_at" />
+        </div>
+        <div class="form-row">
+          <label for="s-next">{{ 'Prochaine facture' | t }}</label>
+          <input id="s-next" class="field" type="date" aria-describedby="s-next-hint" [formField]="subForm.next_invoice_on" />
+          <span class="form-hint" id="s-next-hint">{{ 'Vide : fixée au jour du passage en « Abonné ».' | t }}</span>
+        </div>
+        <div class="form-row">
+          <label for="s-free">{{ 'Mois offerts (parrainage)' | t }}</label>
+          <input id="s-free" class="field" type="text" inputmode="numeric" [formField]="subForm.free_months" />
+          @if (subForm.free_months().invalid()) {
+            <span class="form-error">{{ (subForm.free_months().errors()[0]?.message) | t }}</span>
+          }
+        </div>
+        <fieldset class="quota full">
+          <legend>{{ 'Conditions particulières (vide : grille publique)' | t }}</legend>
+          <div class="form-row">
+            <label for="s-quota">{{ isNetwork() ? ('Volume mensuel convenu *' | t) : ('Volume mensuel' | t) }}</label>
+            <input id="s-quota" class="field" type="text" inputmode="numeric" [formField]="subForm.custom_quota" />
+            @if (subForm.custom_quota().invalid()) {
+              <span class="form-error">{{ (subForm.custom_quota().errors()[0]?.message) | t }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="s-price">{{ 'Prix mensuel (FCFA)' | t }}</label>
+            <input id="s-price" class="field" type="text" inputmode="numeric" [formField]="subForm.custom_monthly_price" />
+            @if (subForm.custom_monthly_price().invalid()) {
+              <span class="form-error">{{ (subForm.custom_monthly_price().errors()[0]?.message) | t }}</span>
+            }
+          </div>
+          <div class="form-row">
+            <label for="s-setup">{{ 'Mise en service (FCFA)' | t }}</label>
+            <input id="s-setup" class="field" type="text" inputmode="numeric" [formField]="subForm.custom_setup_fee" />
+            @if (subForm.custom_setup_fee().invalid()) {
+              <span class="form-error">{{ (subForm.custom_setup_fee().errors()[0]?.message) | t }}</span>
+            }
+          </div>
+        </fieldset>
+        <label class="check-row full" for="s-waived">
+          <input id="s-waived" type="checkbox" [formField]="subForm.setup_fee_waived" />
+          <span>
+            <strong>{{ 'Mise en service offerte' | t }}</strong><br />
+            <span class="muted">{{ 'Programme « établissements fondateurs ».' | t }}</span>
+          </span>
+        </label>
+        <label class="check-row full" for="s-billed">
+          <input id="s-billed" type="checkbox" [formField]="subForm.billed" />
+          <span>
+            <strong>{{ 'Établissement facturé' | t }}</strong><br />
+            <span class="muted">{{ 'Décoché : aucune facture ni alerte de volume (établissement interne ou partenaire).' | t }}</span>
+          </span>
+        </label>
+        <div class="form-row full">
+          <label for="s-note">{{ 'Note interne' | t }}</label>
+          <textarea id="s-note" class="field" rows="2" [formField]="subForm.note"></textarea>
+        </div>
+      </div>
+      <p class="form-hint">
+        {{ 'Conditions appliquées : {0} résultats par mois, {1} par mois, mise en service {2}.' | t: [d.subscription.quota ?? '—', money(d.subscription.monthly_price), money(d.subscription.setup_fee)] }}
+      </p>
+      @if (saveError()) {
+        <div class="banner banner-error notice" role="alert">
+          <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ saveError() | t }}</span>
+        </div>
+      }
+      @if (saved()) {
+        <div class="banner banner-success notice" role="status">
+          <svg [pIcon]="'check-circle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ 'Abonnement enregistré.' | t }}</span>
+        </div>
+      }
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" (click)="issue()" [disabled]="issuing()">
+          {{ (issuing() ? 'Émission…' : 'Émettre les factures dues') | t }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="subForm().invalid() || saving()">
+          {{ (saving() ? 'Enregistrement…' : 'Enregistrer l’abonnement') | t }}
+        </button>
+      </div>
+      @if (issueNotice(); as n) {
+        <p class="form-hint" role="status">{{ n.text | t: [n.count] }}</p>
+      }
+    </form>
+
+    <h3 class="sub-title">{{ 'Factures' | t }}</h3>
+    @if (d.invoices.length === 0) {
+      <p class="muted">{{ 'Aucune facture pour le moment.' | t }}</p>
+    } @else {
+      <ul class="invoice-list">
+        @for (invoice of d.invoices; track invoice.id) {
+          <li>
+            <span class="mono">{{ invoice.number }}</span>
+            <span>{{ money(invoice.total) }}</span>
+            <span [class]="'pill pill-invoice-' + (invoice.overdue ? 'retard' : invoice.status)">{{ (invoice.overdue ? 'En retard' : invoiceLabels[invoice.status]) | t }}</span>
+            <app-pdf-button [source]="pdf(invoice)" [srLabel]="invoice.number" />
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>

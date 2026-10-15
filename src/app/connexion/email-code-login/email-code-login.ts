@@ -22,6 +22,8 @@ export class EmailCodeLogin {
   private readonly authService = inject(AuthService);
 
   readonly loggedIn = output<CurrentUser>();
+  /** Le compte a la double authentification : jeton de la deuxième étape. */
+  readonly mfaRequired = output<string>();
 
   readonly step = signal<Step>('email');
   readonly busy = signal(false);
@@ -106,6 +108,10 @@ export class EmailCodeLogin {
         if (result.kind === 'needs-registration') {
           this.step.set('names');
           this.info.set("Aucun compte n'utilise encore cette adresse : indiquez votre nom pour créer votre compte patient.");
+          return;
+        }
+        if (result.kind === 'mfa') {
+          this.mfaRequired.emit(result.token);
           return;
         }
         this.loggedIn.emit(result.user);

@@ -1,3 +1,4 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { Connexion } from './connexion/connexion';
 import { Intro } from './intro/intro';
@@ -41,6 +42,20 @@ export const routes: Routes = [
         title: 'Rattacher mon dossier',
         loadComponent: () => import('./saas/link-redeem/link-redeem').then((m) => m.LinkRedeem),
     },
+    {
+        // Point d'entrée de l'application installée (manifest.webmanifest) : l'espace de l'utilisateur.
+        path: 'app',
+        redirectTo: () => {
+            const auth = inject(AuthService);
+            const home = auth.isLoggedIn() ? auth.homeUrl() : '/connexion';
+            return home === '/intro' ? '/connexion' : home;
+        },
+    },
+    {
+        path: 'confidentialite',
+        title: 'Politique de confidentialité',
+        loadComponent: () => import('./legal/privacy-policy').then((m) => m.PrivacyPolicy),
+    },
     { path: 'requests', component: Requests },
     { path: 'notifications', component: Notifications, canActivate: [authGuard] },
     {
@@ -63,7 +78,12 @@ export const routes: Routes = [
                 path: 'etablissements',
                 loadComponent: () => import('./patients/etablissements/etablissements').then((m) => m.Etablissements),
             },
-            { path: 'parametres', component: Parametres }
+            { path: 'parametres', component: Parametres },
+            {
+                path: 'confidentialite',
+                title: 'Confidentialité',
+                loadComponent: () => import('./patients/privacy/patient-privacy').then((m) => m.PatientPrivacy),
+            }
         ]
     },
     {

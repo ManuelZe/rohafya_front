@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { mfaSetupGuard } from '../saas-guards';
 import { AdminShell } from './admin-shell';
 
 const TITLE_SUFFIX = ' · Administration';
@@ -8,6 +9,7 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: '',
     component: AdminShell,
+    canActivateChild: [mfaSetupGuard('/admin/securite')],
     children: [
       {
         path: '',
@@ -70,6 +72,11 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () => import('./integration/admin-integration').then((m) => m.AdminIntegration),
       },
       {
+        path: 'abonnement',
+        title: 'Abonnement' + TITLE_SUFFIX,
+        loadComponent: () => import('./subscription/admin-subscription').then((m) => m.AdminSubscription),
+      },
+      {
         path: 'parametres',
         title: 'Paramètres' + TITLE_SUFFIX,
         loadComponent: () => import('./settings/admin-settings').then((m) => m.AdminSettings),
@@ -78,6 +85,11 @@ export const ADMIN_ROUTES: Routes = [
         path: 'journal',
         title: 'Journal' + TITLE_SUFFIX,
         loadComponent: () => import('./audit/admin-audit').then((m) => m.AdminAudit),
+      },
+      {
+        path: 'securite',
+        title: 'Sécurité' + TITLE_SUFFIX,
+        loadComponent: () => import('../shared/security-page').then((m) => m.ConsoleSecurity),
       },
     ],
   },

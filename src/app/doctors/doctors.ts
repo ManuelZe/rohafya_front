@@ -17,6 +17,7 @@ import { SaasAccountService } from '../saas/saas-account.service';
 
 import { TranslatePipe } from '../shared/i18n/t.pipe';
 import { I18n } from '../shared/i18n/i18n';
+import { InstallApp } from '../shared/pwa/install-app';
 import { LangSwitch } from '../shared/i18n/lang-switch';
 interface MenuLink {
   label: string;
@@ -42,7 +43,7 @@ const SETTINGS_LINK = '/doctors/parametres';
 
 @Component({
   selector: 'app-doctors',
-  imports: [LangSwitch, TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, DrawerModule, PIcon, DoctorInfoCard, SuggestionDialog, PointsPipe],
+  imports: [InstallApp, LangSwitch, TranslatePipe, RouterOutlet, RouterLink, RouterLinkActive, NgTemplateOutlet, DrawerModule, PIcon, DoctorInfoCard, SuggestionDialog, PointsPipe],
   templateUrl: './doctors.html',
   styleUrl: './doctors.css',
   host: {
@@ -79,6 +80,7 @@ export class Doctors {
     { label: 'Pré-enregistrements', icon: 'check-circle', link: '/doctors/enregistrement' },
     { label: 'Requêtes', icon: 'send', link: '/doctors/requests' },
     { label: 'Notifications', icon: 'bell', link: '/doctors/notifications' },
+    { label: 'Confidentialité', icon: 'lock', link: '/doctors/confidentialite' },
     { label: 'Paramètres', icon: 'cog', link: SETTINGS_LINK },
   ];
 

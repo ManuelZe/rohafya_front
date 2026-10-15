@@ -10,8 +10,18 @@ import { RegistrationFormData, RegistrationRequest } from './register.model';
 import { Router } from "@angular/router";
 import { SaasAccountService } from '../saas/saas-account.service';
 
-/** Réponse de /saas/auth/otp/verify : une session, ou la demande de compléter nom et prénom. */
-export type EmailCodeResult = { kind: 'logged-in'; user: CurrentUser } | { kind: 'needs-registration' };
+/** Première étape réussie, mais le compte a la double authentification : il faut encore le code. */
+export interface MfaChallenge {
+  mfa_required: true;
+  mfa_token: string;
+  message?: string;
+}
+
+/** Résultat d'une connexion : une session, ou l'étape « code de double authentification ». */
+export type LoginResult = { kind: 'logged-in'; user: CurrentUser } | { kind: 'mfa'; token: string };
+
+/** Réponse de /saas/auth/otp/verify : une session, la double authentification, ou nom et prénom à compléter. */
+export type EmailCodeResult = LoginResult | { kind: 'needs-registration' };
 
 export type PreferredSpace = 'patient' | 'doctor' | null;
 
@@ -43,13 +53,31 @@ export class AuthService {
     return user ? `${user.prenom} ${user.nom}` : '';
   });
 
-  login(username: string, password: string, remember_me: boolean = true) {
+  login(username: string, password: string, remember_me: boolean = true): Observable<LoginResult> {
     return this.httpClient
-      .post<LoginApiResponse>(`${this.baseUrl}user/login`, { username, password, remember_me })
-      .pipe(
-        map((response) => this.mapToCurrentUser(response)),
-        tap((currentUser) => this.setCurrentUser(currentUser))
-      );
+      .post<LoginApiResponse | MfaChallenge>(`${this.baseUrl}user/login`, { username, password, remember_me })
+      .pipe(map((response) => this.toLoginResult(response)));
+  }
+
+  /** Deuxième étape : code à 6 chiffres de l'application d'authentification, ou code de secours. */
+  verifyMfa(token: string, code: string): Observable<CurrentUser> {
+    return this.httpClient.post<LoginApiResponse>(`${this.baseUrl}saas/auth/mfa/verify`, { mfa_token: token, code }).pipe(
+      map((response) => this.mapToCurrentUser(response)),
+      tap((user) => this.setCurrentUser(user))
+    );
+  }
+
+  /** Nouvelle session renvoyée par l'API (ex. après activation de la double authentification). */
+  replaceToken(token: string): void {
+    const user = this.currentUser();
+    if (user) this.setCurrentUser({ ...user, token });
+  }
+
+  private toLoginResult(response: LoginApiResponse | MfaChallenge): LoginResult {
+    if ('mfa_required' in response) return { kind: 'mfa', token: response.mfa_token };
+    const user = this.mapToCurrentUser(response);
+    this.setCurrentUser(user);
+    return { kind: 'logged-in', user };
   }
 
   /** Envoie un code de connexion à usage unique à cette adresse. */
@@ -60,15 +88,13 @@ export class AuthService {
   /** Vérifie le code ; crée le compte patient si `names` est fourni et qu'aucun compte n'existe. */
   verifyEmailCode(email: string, code: string, names?: { first_name: string; last_name: string }): Observable<EmailCodeResult> {
     return this.httpClient
-      .post<LoginApiResponse | { needs_registration: true }>(`${this.baseUrl}saas/auth/otp/verify`, { email, code, ...names })
+      .post<LoginApiResponse | MfaChallenge | { needs_registration: true }>(`${this.baseUrl}saas/auth/otp/verify`, { email, code, ...names })
       .pipe(
         map((response): EmailCodeResult => {
           if ('needs_registration' in response) {
             return { kind: 'needs-registration' };
           }
-          const user = this.mapToCurrentUser(response);
-          this.setCurrentUser(user);
-          return { kind: 'logged-in', user };
+          return this.toLoginResult(response);
         })
       );
   }

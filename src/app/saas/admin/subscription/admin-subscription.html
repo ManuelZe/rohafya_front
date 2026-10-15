@@ -1,0 +1,163 @@
+<div class="page">
+  <app-page-header [title]="'Abonnement' | t" [subtitle]="'Votre formule, le volume de résultats publiés et vos factures.' | t">
+    <button actions type="button" class="btn btn-ghost" (click)="load()" [disabled]="loading()">
+      @if (loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <svg [pIcon]="'refresh'" [size]="16" aria-hidden="true"></svg>
+      }
+      <span>{{ 'Actualiser' | t }}</span>
+    </button>
+  </app-page-header>
+
+  @if (error()) {
+    <div class="banner banner-error" role="alert">
+      <svg [pIcon]="'exclamation-circle'" [size]="16" aria-hidden="true"></svg>
+      <span>{{ error() | t }}</span>
+      <button type="button" class="btn btn-ghost" (click)="load()">{{ 'Réessayer' | t }}</button>
+    </div>
+  }
+
+  @if (loading() && !data()) {
+    <div class="state" role="status">
+      <span class="spinner spinner-lg" aria-hidden="true"></span>
+      <span>{{ 'Chargement…' | t }}</span>
+    </div>
+  }
+
+  @if (data(); as d) {
+    @if (sub(); as s) {
+      @if (s.status === 'essai') {
+        <div class="banner banner-info" role="status">
+          <svg [pIcon]="'clock'" [size]="16" aria-hidden="true"></svg>
+          @if ((s.trial_days_left ?? 0) > 0) {
+            <span>{{ (s.trial_days_left === 1 ? 'Essai gratuit : 1 jour restant, jusqu’au {1}.' : 'Essai gratuit : {0} jours restants, jusqu’au {1}.') | t: [s.trial_days_left, (s.trial_ends_at | ldate)] }}</span>
+          } @else {
+            <span>{{ 'Votre essai gratuit est terminé. L’équipe ROHAFYA vous contacte pour faire le bilan et choisir votre formule.' | t }}</span>
+          }
+        </div>
+      }
+      @if (s.status === 'suspendu') {
+        <div class="banner banner-error" role="status">
+          <svg [pIcon]="'exclamation-triangle'" [size]="16" aria-hidden="true"></svg>
+          <span>{{ 'Abonnement suspendu. Contactez l’équipe ROHAFYA pour le rétablir.' | t }}</span>
+        </div>
+      }
+      @if (d.recommendation; as reco) {
+        <div class="banner banner-info" role="status">
+          <svg [pIcon]="reco.direction === 'up' ? 'arrow-up' : 'arrow-down'" [size]="16" aria-hidden="true"></svg>
+          <span>
+            {{ (reco.direction === 'up'
+              ? 'Votre volume dépasse la formule depuis trois mois : la formule {0} vous correspond, à partir du {1}.'
+              : 'Votre volume est resté sous la formule {0} pendant trois mois : elle vous suffirait à partir du {1}.') | t: [(reco.plan_label | t), (reco.applies_from | ldate)] }}
+            {{ 'Le changement se fait avec l’équipe ROHAFYA.' | t }}
+          </span>
+        </div>
+      }
+
+      <div class="two-cols">
+        <section class="card" aria-labelledby="plan-title">
+          <h2 class="card-title" id="plan-title">
+            <svg [pIcon]="'star'" [size]="18" aria-hidden="true"></svg>
+            {{ 'Formule {0}' | t: [(planLabels[s.plan] | t)] }}
+            <span [class]="'pill card-title-aside pill-sub-' + s.status">{{ statusLabels[s.status] | t }}</span>
+          </h2>
+          @if (!s.billed) {
+            <p class="muted">{{ 'Établissement non facturé.' | t }}</p>
+          }
+          <dl class="facts">
+            <div>
+              <dt>{{ 'Volume compris' | t }}</dt>
+              <dd>{{ s.quota ? ('{0} résultats par mois' | t: [count(s.quota)]) : ('Sur devis' | t) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'Prix mensuel' | t }}</dt>
+              <dd>{{ money(s.monthly_price) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'Rythme de paiement' | t }}</dt>
+              <dd>{{ cycleLabels[s.billing_cycle] | t }} · {{ money(s.cycle_price) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'Mise en service' | t }}</dt>
+              <dd>
+                @if (s.setup_fee_waived) {
+                  {{ 'Offerte' | t }}
+                } @else {
+                  {{ money(s.setup_fee) }} · {{ (s.setup_invoiced ? 'facturée' : 'à la première facture') | t }}
+                }
+              </dd>
+            </div>
+            @if (s.next_invoice_on && s.status === 'actif') {
+              <div>
+                <dt>{{ 'Prochaine facture' | t }}</dt>
+                <dd>{{ s.next_invoice_on | ldate }}</dd>
+              </div>
+            }
+            @if (s.free_months) {
+              <div>
+                <dt>{{ 'Mois offerts à venir' | t }}</dt>
+                <dd>{{ s.free_months }}</dd>
+              </div>
+            }
+          </dl>
+          <p class="muted small">{{ 'Abonnement payé d’avance. Paiement annuel : dix mois payés pour douze. Un mois offert pour chaque établissement recommandé qui s’abonne.' | t }}</p>
+        </section>
+
+        <section class="card" aria-labelledby="usage-title">
+          <h2 class="card-title" id="usage-title">
+            <svg [pIcon]="'chart-bar'" [size]="18" aria-hidden="true"></svg>
+            {{ 'Volume de {0}' | t: [(d.current.period + '-01' | ldate: 'month')] }}
+          </h2>
+          <app-usage-meter [count]="d.current.count" [quota]="d.current.quota" [percent]="d.current.percent" />
+          <p class="muted small">{{ 'Un résultat publié (laboratoire, imagerie, exploration) compte une fois dans le mois, même s’il est renvoyé ou corrigé. La publication n’est jamais bloquée au-delà du volume.' | t }}</p>
+          <app-usage-history [history]="d.history" [quota]="d.current.quota" />
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="invoices-title">
+        <h2 class="card-title" id="invoices-title">
+          <svg [pIcon]="'file'" [size]="18" aria-hidden="true"></svg>
+          {{ 'Factures' | t }}
+        </h2>
+        @if (d.invoices.length === 0) {
+          <div class="state"><span>{{ 'Aucune facture pour le moment.' | t }}</span></div>
+        } @else {
+          <div class="table-wrap">
+            <table class="rtable">
+              <caption class="sr-only">{{ 'Factures de l’établissement' | t }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'Numéro' | t }}</th>
+                  <th scope="col">{{ 'Période' | t }}</th>
+                  <th scope="col">{{ 'Montant' | t }}</th>
+                  <th scope="col">{{ 'Échéance' | t }}</th>
+                  <th scope="col">{{ 'Statut' | t }}</th>
+                  <th scope="col"><span class="sr-only">{{ 'Actions' | t }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (invoice of d.invoices; track invoice.id) {
+                  <tr>
+                    <td [attr.data-label]="'Numéro' | t" class="mono">{{ invoice.number }}</td>
+                    <td [attr.data-label]="'Période' | t">{{ invoice.period_start | ldate }} – {{ invoice.period_end | ldate }}</td>
+                    <td [attr.data-label]="'Montant' | t" class="strong">{{ money(invoice.total) }}</td>
+                    <td [attr.data-label]="'Échéance' | t">{{ invoice.due_on | ldate }}</td>
+                    <td [attr.data-label]="'Statut' | t">
+                      <span [class]="'pill pill-invoice-' + (invoice.overdue ? 'retard' : invoice.status)">
+                        {{ (invoice.overdue ? 'En retard' : invoiceLabels[invoice.status]) | t }}
+                      </span>
+                    </td>
+                    <td class="actions-cell">
+                      <app-pdf-button [source]="pdf(invoice)" [srLabel]="invoice.number" />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>

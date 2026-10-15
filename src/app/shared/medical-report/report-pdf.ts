@@ -2,6 +2,7 @@ import type { Content, TableCell, TDocumentDefinitions } from 'pdfmake/interface
 import { FLAG_LABELS, MedicalReport, ReportFact, formatDate, isOutOfRange } from './medical-report';
 import { PATIENT_NOTICE, ReportAudience } from './print-report';
 import { tr } from '../i18n/i18n';
+import { downloadPdf, logoDataUrl, pdfBlob } from '../pdf/pdf-engine';
 
 const NAVY = '#0c4562';
 const GREEN_DARK = '#065f46';
@@ -210,44 +211,17 @@ export function reportPdfDefinition(report: MedicalReport, audience: ReportAudie
   };
 }
 
-function loadEngine() {
-  return Promise.all([import('pdfmake/build/pdfmake'), import('pdfmake/build/vfs_fonts')]);
-}
-
-async function logoDataUrl(): Promise<string | null> {
-  try {
-    const blob = await (await fetch('/rohafya-emblem.png')).blob();
-    return await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
-}
-
-async function createReportPdf(report: MedicalReport, audience: ReportAudience) {
-  const [[pdfModule, vfsModule], logo] = await Promise.all([loadEngine(), logoDataUrl()]);
-  // Construction UMD : selon l'empaquetage, l'API est exposée directement ou sous `default`.
-  const pdfMake = (pdfModule as unknown as { default?: typeof pdfModule }).default ?? pdfModule;
-  const fonts = (vfsModule as unknown as { default?: Record<string, string> }).default ?? (vfsModule as unknown as Record<string, string>);
-  pdfMake.addVirtualFileSystem(fonts);
-  return pdfMake.createPdf(reportPdfDefinition(report, audience, logo));
-}
-
 /**
  * Prépare le PDF sans le télécharger (téléphone). Le téléchargement se fait ensuite par un vrai lien
  * touché par l'utilisateur : un téléchargement déclenché après la génération, une fois le geste
  * expiré, est ignoré sans message par Safari, Chrome sur iPhone et plusieurs navigateurs Android.
  */
 export async function prepareReportPdf(report: MedicalReport, audience: ReportAudience): Promise<{ blob: Blob; name: string }> {
-  const blob = await (await createReportPdf(report, audience)).getBlob();
+  const blob = await pdfBlob(reportPdfDefinition(report, audience, await logoDataUrl()));
   return { blob, name: reportFileName(report) };
 }
 
 /** Télécharge le compte rendu en PDF (ordinateur). pdfmake n'est chargé qu'à ce moment. */
 export async function downloadReportPdf(report: MedicalReport, audience: ReportAudience): Promise<void> {
-  await (await createReportPdf(report, audience)).download(reportFileName(report));
+  await downloadPdf(reportPdfDefinition(report, audience, await logoDataUrl()), reportFileName(report));
 }

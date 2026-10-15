@@ -17,7 +17,9 @@ const MENU: ConsoleMenuLink[] = [
   { label: 'Données reçues', icon: 'database', link: '/admin/donnees' },
   { label: 'Imports PDF', icon: 'file-pdf', link: '/admin/imports-pdf', disabled: !PDF_IMPORT_ENABLED, hint: PDF_IMPORT_ENABLED ? undefined : 'Bientôt' },
   { label: 'Intégration', icon: 'server', link: '/admin/integration' },
+  { label: 'Abonnement', icon: 'credit-card', link: '/admin/abonnement' },
   { label: 'Paramètres', icon: 'cog', link: '/admin/parametres' },
+  { label: 'Sécurité', icon: 'shield', link: '/admin/securite' },
   { label: 'Journal', icon: 'history', link: '/admin/journal' },
 ];
 

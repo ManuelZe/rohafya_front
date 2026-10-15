@@ -4,6 +4,7 @@ import { Router, RouterLink } from "@angular/router";
 import { AuthService } from './auth-service';
 import { extractErrorMessage } from '../shared/api-error';
 import { EmailCodeLogin } from './email-code-login/email-code-login';
+import { MfaStep } from './mfa-step/mfa-step';
 
 import { TranslatePipe } from '../shared/i18n/t.pipe';
 import { LangSwitch } from '../shared/i18n/lang-switch';
@@ -14,7 +15,7 @@ interface LoginFormModel {
 
 @Component({
   selector: 'app-connexion',
-  imports: [LangSwitch, TranslatePipe, RouterLink, FormField, FormRoot, EmailCodeLogin],
+  imports: [LangSwitch, TranslatePipe, RouterLink, FormField, FormRoot, EmailCodeLogin, MfaStep],
   templateUrl: './connexion.html',
   styleUrl: './connexion.css',
 })
@@ -31,6 +32,9 @@ export class Connexion {
 
   /** Page à rouvrir après la connexion (ex. rattachement par QR code : /l/<jeton>). */
   readonly returnUrl = input<string>();
+
+  /** Deuxième étape de la connexion (double authentification) : jeton valable 5 minutes. */
+  readonly mfaToken = signal<string | null>(null);
 
   readonly model = signal<LoginFormModel>({ username: '', password: '' });
   readonly form = form(this.model, (f) => {
@@ -55,7 +59,7 @@ export class Connexion {
     this.errorMessage.set(null);
 
     this.authService.login(username, password, remember_me).subscribe({
-      next: () => this.onLoggedIn(),
+      next: (result) => (result.kind === 'mfa' ? this.mfaToken.set(result.token) : this.onLoggedIn()),
       error: (err: unknown) => {
         console.error('Erreur de connexion', err);
         this.errorMessage.set(extractErrorMessage(err, 'Une erreur est survenue. Réessayez.'));

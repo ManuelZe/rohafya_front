@@ -10,6 +10,7 @@ import { SaasAccountService } from '../../saas-account.service';
 import { SOURCE_LABELS, SourceType, TenantAdminView, TenantWithStats, quotaLabel } from '../../saas.models';
 import { SuperAdminService } from '../../super-admin.service';
 
+import { SubscriptionEditor } from '../billing/subscription-editor';
 import { TranslatePipe } from '../../../shared/i18n/t.pipe';
 import { tr } from '../../../shared/i18n/i18n';
 interface TenantModel {
@@ -25,7 +26,7 @@ interface TenantModel {
 
 @Component({
   selector: 'app-super-tenant-detail',
-  imports: [TranslatePipe, DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader],
+  imports: [TranslatePipe, DatePipe, RouterLink, FormField, FormRoot, PIcon, PageHeader, SubscriptionEditor],
   templateUrl: './super-tenant-detail.html',
   styleUrls: ['../../../doctors/shared/doctor-ui.css', '../../shared/console-ui.css'],
 })

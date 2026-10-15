@@ -15,6 +15,7 @@ import {
   TenantStats,
 } from '../saas/saas.models';
 import { SUBMISSION_STATUS_LABELS, SubmissionKind, SubmissionStatus } from '../shared/submission/submission.models';
+import { demoInvoice, demoUsageSummary } from './demo-billing';
 import { documentImage } from './demo-images';
 import {
   Handler,
@@ -276,6 +277,20 @@ export const SAAS_ROUTES: [string, Handler][] = [
     };
   }],
   ['GET saas/me/links', ({ user }) => patientLinks(user.patient_id)],
+  // --- Sécurité et données personnelles (démo : double authentification et suppression non disponibles)
+  ['GET saas/me/security', () => ({ enabled: false, required: false, enabled_at: null, recovery_codes_left: 0 })],
+  ['GET saas/me/access-log', ({ user }) => ({ items: accessLog(user) })],
+  ['GET saas/me/export', ({ user }) => {
+    audit('account.exported', { user_id: user.id, target: patientEmail(user) });
+    return {
+      export: { generated_at: now(), law: 'Loi n° 2024/017 du 23 décembre 2024 (Cameroun)', demo: true },
+      account: { id: user.id, email: patientEmail(user), first_name: user.prenom, last_name: user.nom, roles: user.roles },
+      establishments: patientLinks(user.patient_id),
+      results: db().records.filter((r) => patientLinks(user.patient_id).some((l) => l.tenant_id === r.tenant_id && l.local_ref === r.local_ref)),
+      access_log: accessLog(user),
+    };
+  }],
+  ['GET saas/me/deletion-request', () => null],
   ['POST saas/me/links/redeem', ({ req, user }) => redeem(req, user)],
   ['DELETE saas/me/links/:id', ({ params, user }) => {
     const link = db().links.find((l) => l.id === Number(params[0]) && l.patient_id === user.patient_id) ?? fail(404, 'Rattachement introuvable.');
@@ -319,8 +334,16 @@ export const SAAS_ROUTES: [string, Handler][] = [
   [`POST ${T}/api-key`, ({ user, params }) => rotateKey(adminTenant(user, params[0]), user)],
   [`GET ${T}/dashboard`, ({ user, params }) => {
     const t = adminTenant(user, params[0]);
-    return { ...tenantStats(t), recent_activity: recentAudit(t.id).slice(0, 8), tenant: tenantView(t, false) };
+    const usage = demoUsageSummary(t);
+    return {
+      ...tenantStats(t),
+      recent_activity: recentAudit(t.id).slice(0, 8),
+      tenant: tenantView(t, false),
+      usage: { ...usage.current, subscription: usage.subscription },
+    };
   }],
+  [`GET ${T}/subscription`, ({ user, params }) => demoUsageSummary(adminTenant(user, params[0]))],
+  [`GET ${T}/invoices/:invoiceId`, ({ user, params }) => demoInvoice(adminTenant(user, params[0]), Number(params[1]))],
   [`GET ${T}/patients`, ({ req, user, params }) => {
     const t = adminTenant(user, params[0]);
     const q = req.params.get('q') ?? '';
@@ -352,6 +375,8 @@ export const SAAS_ROUTES: [string, Handler][] = [
     const t = adminTenant(user, params[0]);
     const ref = params[1];
     const dossier = db().dossiers.find((d) => d.tenant_id === t.id && d.local_ref === ref) ?? fail(404, 'Dossier introuvable dans cet établissement.');
+    // Visible par le patient dans l'historique des accès à son dossier (page Confidentialité).
+    audit('patient.viewed', { tenant_id: t.id, user_id: user.id, target: ref });
     return {
       patient: { ...patientRow(t, ref), phone: dossier.phone, source: dossier.source },
       records: db().records.filter((r) => r.tenant_id === t.id && r.local_ref === ref).sort((a, b) => String(b.validated_at).localeCompare(String(a.validated_at))),
@@ -636,3 +661,34 @@ function recipientsOf(t: TenantRow, audience: NotificationAudience): Notificatio
     .map(({ a, ref }) => ({ user_id: a.id, name: fullName(a) || a.email, email: a.email || null, ref: ref ?? a.username }))
     .sort((x, y) => x.name.localeCompare(y.name, 'fr'));
 }
+
+/** Historique des accès au dossier du patient de démonstration (journal de la démo). */
+const ACCESS_ACTIONS = new Set(['patient.viewed', 'patient.saved', 'result.viewed', 'link_token.issued', 'link_token.revoked', 'link.active', 'link.pending', 'link.revoked', 'link.revoked_by_patient', 'link.conflict']);
+
+function accessLog(user: CurrentUser) {
+  const links = user.patient_id === null ? [] : db().links.filter((l) => l.patient_id === user.patient_id);
+  return db()
+    .audit.filter((entry) => {
+      if (entry.user_id === user.id && entry.action.startsWith('account.')) return true;
+      if (!ACCESS_ACTIONS.has(entry.action)) return false;
+      const ref = entry.action === 'result.viewed' ? (entry.details?.['local_ref'] as string | undefined) : entry.target;
+      return links.some((l) => l.tenant_id === entry.tenant_id && l.local_ref === ref);
+    })
+    .sort((a, b) => b.id - a.id)
+    .slice(0, 200)
+    .map((entry) => {
+      const view = auditView(entry);
+      const own = entry.user_id === user.id;
+      const role = own ? 'patient' : entry.action === 'result.viewed' ? 'doctor' : entry.action === 'link.conflict' ? 'other' : 'establishment';
+      return {
+        id: entry.id,
+        action: entry.action,
+        created_at: entry.created_at,
+        establishment: view.establishment,
+        actor_role: role,
+        actor_name: role === 'doctor' || role === 'patient' ? view.user_name : null,
+        target: entry.action === 'result.viewed' ? entry.target : null,
+      };
+    });
+}
+
