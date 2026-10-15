@@ -27,6 +27,10 @@
     <div class="header__actions">
       <app-lang-switch class="header__lang" [navigate]="true" (changed)="switchLang($event)" />
       <app-demo-launcher />
+      <a class="btn btn--ghost header__signin" [routerLink]="auth.loginLink()">
+        <svg pIcon="user" [size]="16" aria-hidden="true"></svg>
+        <span>{{ auth.loginLabel() | t }}</span>
+      </a>
       <a class="btn btn--primary header__login" [href]="home() + '#' + trialAnchor" (click)="goTo($event, trialAnchor)">{{ 'Demander un essai' | t }}</a>
       <button
         type="button"
@@ -456,6 +460,12 @@
   </div>
   <div class="footer__bottom container">
     <span>{{ '© ROHAFYA · Votre santé, connectée' | t }}</span>
-    <app-lang-switch tone="dark" [navigate]="true" (changed)="switchLang($event)" />
+    <div class="footer__bottom-actions">
+      <a class="btn btn--ghost footer__signin" [routerLink]="auth.loginLink()">
+        <svg pIcon="user" [size]="16" aria-hidden="true"></svg>
+        <span>{{ auth.loginLabel() | t }}</span>
+      </a>
+      <app-lang-switch tone="light" [navigate]="true" (changed)="switchLang($event)" />
+    </div>
   </div>
 </footer>

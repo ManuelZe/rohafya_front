@@ -175,6 +175,34 @@ main:focus,
 .header__login {
   min-height: 2.6rem;
   padding: 0.6rem 1.3rem;
+  white-space: nowrap;
+}
+
+/* Entre 1201 et 1320 px, la barre de menu se resserre pour garder chaque bouton sur une ligne. */
+@media (min-width: 1201px) and (max-width: 1320px) {
+  .nav__link {
+    padding-inline: 0.5rem;
+  }
+
+  .header__actions {
+    gap: 0.45rem;
+  }
+
+  .header__login,
+  .header__signin {
+    padding-inline: 0.85rem;
+  }
+}
+
+/* Connexion des patients, médecins et administrateurs : barre de menu et pied de page. */
+.header__signin,
+.footer__signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.6rem;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
 }
 
 .burger {
@@ -907,9 +935,34 @@ main:focus,
   text-decoration: underline;
 }
 
+/* Bouton « Connexion » du pied de page : style de bouton, pas de lien de colonne. */
+.footer a.footer__signin {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--rohafya-navy-200);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--rohafya-navy);
+  font-weight: 700;
+}
+
+.footer a.footer__signin:hover {
+  border-color: var(--rohafya-navy);
+  background: #fff;
+  color: var(--rohafya-navy);
+  text-decoration: none;
+}
+
+.footer__bottom-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .footer__bottom {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   padding-top: 1.25rem;
@@ -1065,6 +1118,12 @@ main:focus,
 
   .header__login {
     display: none;
+  }
+
+  .header__signin {
+    min-height: 2.5rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.88rem;
   }
 
   .hero {
