@@ -1,5 +1,17 @@
 # Historique des versions ROHAFYA
 
+## v0.10.0 — 2026-10-15
+
+### Nouvelles fonctionnalités
+
+- **fonctionnalites** Facturations et changements de langue, sécurité et application installable (a467773)
+- **big_work** trop travail (41293d9)
+
+### Documentation
+
+- **documentation** La documentation générale de vente (e261bdf)
+- **documentation** La documentation générale (4a138b8)
+
 ## v0.9.0 — 2026-10-12
 
 ### Nouvelles fonctionnalités
