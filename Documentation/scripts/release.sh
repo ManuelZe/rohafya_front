@@ -77,7 +77,7 @@ else
   esac
 fi
 tag="v${nouvelle}"
-
+ 
 git rev-parse -q --verify "refs/tags/${tag}" >/dev/null && erreur "Le tag ${tag} existe déjà."
 info "Dernier tag      : ${dernier_tag:-aucun}"
 info "Nouvelle version : ${C_GRAS}${nouvelle}${C_RESET} (tag ${tag})"
