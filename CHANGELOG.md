@@ -1,5 +1,11 @@
 # Historique des versions ROHAFYA
 
+## v0.10.2 — 2026-10-16
+
+### Nouvelles fonctionnalités
+
+- **all_necessary** tout le nécessaire (62f555f)
+
 ## v0.10.1 — 2026-10-16
 
 ### Documentation
